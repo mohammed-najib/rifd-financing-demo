@@ -1,0 +1,12 @@
+{
+  "hosting": {
+    "public": "dist/client",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "rewrites": [{ "source": "**", "destination": "/_shell.html" }]
+  },
+  "emulators": {
+    "hosting": { "host": "127.0.0.1", "port": 4173 },
+    "ui": { "enabled": false },
+    "singleProjectMode": true
+  }
+}

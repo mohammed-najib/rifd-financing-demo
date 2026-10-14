@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.output/
+.tanstack/
+test-results/
+playwright-report/
+firebase-debug.log
+ui-debug.log
+*.tsbuildinfo
+firepit-log.txt
