@@ -12,9 +12,12 @@
 
 **Decision detail:** [Demo access and reviewer assignment](../../financing-application-and-review/issues/03-demo-access-and-reviewer-assignment.md#answer); [Applicant and staff screen flows](../../financing-application-and-review/issues/06-applicant-and-staff-screen-flows.md#answer).
 
+**Styling:** Follow the [Tailwind v4 conventions](../../../README.md#styling) for new or changed UI, preserving Guided A, both directions and the shared design tokens.
+
 - [ ] Read canonical correction/decision notifications, persist owner-only read flags independently and resolve old links to the current permitted destination.
 - [ ] For permitted records, print saved Draft progress, last submitted correction information and final public records using the same applicant-visible projection. Staff still cannot access applicant drafts.
 - [ ] Exclude staff identities, assignment, assessments, notes, controls and private unfinished corrections; include public reasons/history and document presence.
 - [ ] Handle forbidden direct entry, preview/session closure and responsive keyboard navigation without leaking content.
 - [ ] Verify notification revision/idempotency/access behavior and print projections through public operations; inspect actual Arabic/English print output for draft, correction and final samples.
 - [ ] Later request/decision tickets must produce notifications and public history consumed here without introducing separate read or print paths.
+- [ ] Add print styling to the production stylesheet using print variants or layered CSS; preserve Arabic/English fonts and public-only content in actual print output.

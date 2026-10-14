@@ -12,9 +12,12 @@
 
 **Decision detail:** [Acceptance and implementation handoff](../../financing-application-and-review/issues/07-acceptance-and-implementation-handoff.md#answer).
 
+**Styling:** Follow the [Tailwind v4 conventions](../../../README.md#styling) for new or changed UI, preserving Guided A, both directions and the shared design tokens.
+
 - [ ] Complete setup/run/check/build instructions, architecture note, seed/identity/sample/control/reset guide and state/role/user-flow sketch from docs maintained with earlier slices.
 - [ ] Connect the existing repository to the actual public GitHub remote if absent, resolve required account access, and record repository/release URLs without rewriting unrelated history.
 - [ ] Link every accepted requirement to final evidence; include limitations and immutable decision/prototype/research pointers with actual checked device/browser claims.
 - [ ] Write the case study with paired applicant/staff screens, changed-target evidence, conflict recovery, print, measured results and hosted/repository links.
 - [ ] Record/export/time the Arabic-first bilingual-captioned 4:30 demonstration: seven 35-second chapters, 10-second introduction and 15-second closing, including actual new rejection and labelled record/identity switches.
 - [ ] Provide the longer chapter guide and confirm final URLs, evidence completeness and reproducibility; no required failing check is labelled complete.
+- [ ] Document the Tailwind v4 styling setup and preserved Guided A evidence in the published repository and case study, using the measured release build.

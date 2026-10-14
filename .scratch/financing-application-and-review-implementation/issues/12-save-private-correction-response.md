@@ -12,6 +12,8 @@
 
 **Decision detail:** [Application states and correction rules](../../financing-application-and-review/issues/01-application-states-and-corrections.md#answer); [Browser persistence and simulated failures](../../financing-application-and-review/issues/04-browser-state-and-simulated-failures.md#answer).
 
+**Styling:** Follow the [Tailwind v4 conventions](../../../README.md#styling) for new or changed UI, preserving Guided A, both directions and the shared design tokens.
+
 - [ ] Open the current target-only workspace with reasons, fixed baseline/date, progress and review summary; make other information read-only.
 - [ ] Save incomplete/invalid requested input and prepared target files using private workspace revision and active round ownership/state checks.
 - [ ] Keep shared revision, baseline, published files and review outcomes unchanged; assignment or internal-note changes must not block an otherwise current private save.

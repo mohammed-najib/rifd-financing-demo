@@ -145,18 +145,18 @@ export function DraftEditor({ demo, view, context, language, retained, remember,
     else update({ ...state.current, error: result.error.kind })
   }
 
-  return <section className="panel draft-editor" aria-labelledby="draft-heading">
+  return <section className="panel draft-editor my-6 max-w-[920px]" aria-labelledby="draft-heading">
     <h2 id="draft-heading">{t('edit')}</h2>
     <label htmlFor="purchase-explanation">{fieldLabels.explanation[language]}</label>
-    <p id="explanation-hint" className="input-hint">{t('rawHint')}</p>
+    <p id="explanation-hint" className="text-[13px] text-muted">{t('rawHint')}</p>
     <textarea id="purchase-explanation" aria-describedby="explanation-hint" value={buffer.explanation} onChange={event => update({ ...state.current, explanation: event.target.value, status: state.current.status === 'saving' || state.current.status === 'unknown' ? state.current.status : 'unsaved', pending: state.current.status === 'unknown' || state.current.status === 'saving' ? state.current.pending : null })} />
     <h3>{documentLabel('purchase', view.product)[language]}</h3><p>{t('requirement')}</p>
-    <p id="file-hint" className="input-hint">{t('fileHint')}</p>
+    <p id="file-hint" className="text-[13px] text-muted">{t('fileHint')}</p>
     <label htmlFor="purchase-file">{t('chooseFile')}</label>
     <input id="purchase-file" type="file" accept=".pdf,.jpg,.jpeg,.png" disabled={buffer.status === 'saving' || buffer.status === 'unknown'} aria-describedby={`file-hint${buffer.selection?.error ? ' preparation-error' : ''}`} aria-invalid={!!buffer.selection?.error} onChange={event => { const file = event.target.files?.[0]; if (file) prepare({ kind: 'local', file }, file.name); event.target.value = '' }} />
-    <div className="sample-picker"><label htmlFor="purchase-sample">{t('sample')}</label><select id="purchase-sample" value={sampleId} onChange={event => setSampleId(event.target.value)}>{samples.map(sample => <option key={sample.id} value={sample.id}>{sample.variant === 'identical' ? language === 'ar' ? 'محتوى مطابق باسم آخر' : 'Identical content, another name' : language === 'ar' ? 'نموذج افتراضي لخطة المخزون' : 'Fictional stock plan'}</option>)}</select><button disabled={!sampleId || buffer.status === 'saving' || buffer.status === 'unknown'} onClick={() => prepare({ kind: 'sample', sampleId }, documentLabel('purchase', view.product)[language])}>{t('useSample')}</button></div>
-    {buffer.selection && <div className="selection-state">
-      <p><bdi dir="ltr" className="filename">{buffer.selection.name}</bdi></p>
+    <div className="sample-picker my-4 flex flex-wrap items-center gap-3"><label htmlFor="purchase-sample">{t('sample')}</label><select id="purchase-sample" value={sampleId} onChange={event => setSampleId(event.target.value)}>{samples.map(sample => <option key={sample.id} value={sample.id}>{sample.variant === 'identical' ? language === 'ar' ? 'محتوى مطابق باسم آخر' : 'Identical content, another name' : language === 'ar' ? 'نموذج افتراضي لخطة المخزون' : 'Fictional stock plan'}</option>)}</select><button disabled={!sampleId || buffer.status === 'saving' || buffer.status === 'unknown'} onClick={() => prepare({ kind: 'sample', sampleId }, documentLabel('purchase', view.product)[language])}>{t('useSample')}</button></div>
+    {buffer.selection && <div className="draft-feedback">
+      <p><bdi dir="ltr" className="wrap-anywhere">{buffer.selection.name}</bdi></p>
       <p role="status">{t(buffer.selection.status === 'ready' ? 'ready' : buffer.selection.status === 'failed' ? 'preparationFailed' : 'preparing')}</p>
       {buffer.selection.status === 'preparing' && <progress max={100} value={buffer.selection.progress} aria-label={t('preparing')}>{buffer.selection.progress}%</progress>}
       {buffer.selection.error && <p id="preparation-error" role="alert">{errors[buffer.selection.error][language]}</p>}
@@ -164,14 +164,14 @@ export function DraftEditor({ demo, view, context, language, retained, remember,
         {buffer.selection.status === 'ready' && <button onClick={() => setPreview('ready')}>{t('previewReady')}</button>}
         <button disabled={buffer.status === 'saving' || buffer.status === 'unknown'} onClick={discardSelection}>{t('discardSelection')}</button></div>
     </div>}
-    {savedFile && <div className="saved-file"><p>{text.savedInDraft[language]}: <bdi dir="ltr" className="filename">{savedFile.name}</bdi></p><button onClick={() => setPreview('saved')}>{t('previewSaved')}</button></div>}
-    <div className="save-feedback"><p role="status">{t(buffer.status)}</p><p>{t('lastSave')}: <bdi>{new Intl.DateTimeFormat(language === 'ar' ? 'ar-u-nu-latn' : 'en-GB', { dateStyle: 'medium', timeStyle: 'medium' }).format(new Date(savedTime(buffer.baseline)!))}</bdi></p></div>
+    {savedFile && <div className="draft-feedback"><p>{text.savedInDraft[language]}: <bdi dir="ltr" className="wrap-anywhere">{savedFile.name}</bdi></p><button onClick={() => setPreview('saved')}>{t('previewSaved')}</button></div>}
+    <div className="draft-feedback [&_p]:m-0"><p role="status">{t(buffer.status)}</p><p>{t('lastSave')}: <bdi>{new Intl.DateTimeFormat(language === 'ar' ? 'ar-u-nu-latn' : 'en-GB', { dateStyle: 'medium', timeStyle: 'medium' }).format(new Date(savedTime(buffer.baseline)!))}</bdi></p></div>
     {buffer.error && <p role="alert">{errors[buffer.error][language]}</p>}
     {buffer.status === 'unknown' ? <button disabled={inspecting} onClick={() => void inspectOutcome()}>{t('inspectOutcome')}</button> : <button disabled={buffer.status === 'saving' || inspecting || newer || buffer.error === 'staleWorkspace'} onClick={() => void save()}>{t('save')}</button>}
     {(newer || buffer.error === 'staleWorkspace') && <div className="summary"><p role="status">{t('newer')}</p><button disabled={inspecting || buffer.status === 'saving'} onClick={() => void inspectLatest()}>{t('loadLatest')}</button>
       {latest && <><p>{t('latestExplanation')}: {latest.snapshot.fields.explanation || text.emptyExplanation[language]}</p><p>{latest.documents.find(document => document.slot === 'purchase')?.file?.name}</p><button onClick={() => { update({ ...state.current, baseline: latest, status: 'unsaved', error: null, pending: null }); setLatest(null) }}>{t('reapply')}</button></>}
     </div>}
-    <details className="demo-controls"><summary>{t('controls')}</summary><p>{t('controlScope')}</p><label><input type="checkbox" checked={controls.slow} onChange={event => { demo.setControls({ ...controls, slow: event.target.checked }); redrawControls(value => value + 1) }} />{t('slow')}</label><p>{t(controls.slow ? 'slowTiming' : 'normalTiming')}</p><label htmlFor="next-failure">{t('nextFailure')}</label><select id="next-failure" value={controls.failure ?? ''} onChange={event => { demo.setControls({ ...controls, failure: event.target.value ? event.target.value as 'upload' | 'save' | 'storage' : null }); redrawControls(value => value + 1) }}><option value="">{t('none')}</option><option value="upload">{t('uploadFailure')}</option><option value="save">{t('saveFailure')}</option><option value="storage">{t('storageFailure')}</option></select></details>
+    <details className="draft-feedback demo-controls"><summary>{t('controls')}</summary><p>{t('controlScope')}</p><label><input type="checkbox" checked={controls.slow} onChange={event => { demo.setControls({ ...controls, slow: event.target.checked }); redrawControls(value => value + 1) }} />{t('slow')}</label><p>{t(controls.slow ? 'slowTiming' : 'normalTiming')}</p><label htmlFor="next-failure">{t('nextFailure')}</label><select id="next-failure" value={controls.failure ?? ''} onChange={event => { demo.setControls({ ...controls, failure: event.target.value ? event.target.value as 'upload' | 'save' | 'storage' : null }); redrawControls(value => value + 1) }}><option value="">{t('none')}</option><option value="upload">{t('uploadFailure')}</option><option value="save">{t('saveFailure')}</option><option value="storage">{t('storageFailure')}</option></select></details>
     {preview && <DocumentPreview demo={demo} applicationId={view.id} fileId={preview === 'saved' ? savedFile?.id : undefined} attachment={preview === 'ready' ? buffer.selection?.attachment : undefined} language={language} close={() => setPreview(null)} />}
   </section>
 }

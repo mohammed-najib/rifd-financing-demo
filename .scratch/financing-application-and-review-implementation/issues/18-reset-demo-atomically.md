@@ -12,6 +12,8 @@
 
 **Decision detail:** [Browser persistence and simulated failures](../../financing-application-and-review/issues/04-browser-state-and-simulated-failures.md#answer).
 
+**Styling:** Follow the [Tailwind v4 conventions](../../../README.md#styling) for new or changed UI, preserving Guided A, both directions and the shared design tokens.
+
 - [ ] Provide public/unsigned/startup-recovery reset with a warning naming browser-wide data, files, preferences, sessions and unfinished work.
 - [ ] Bind confirmation to observed dataset/recovery context; prepare resources then replace all durable data and defaults atomically with new dataset and reset receipt.
 - [ ] Implement exact immediate reset-replay recognition before ordinary session/dataset checks; changed context requires fresh inspection/confirmation and old intents cannot erase later work.

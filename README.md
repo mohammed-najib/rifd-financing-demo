@@ -6,7 +6,7 @@ Mariam, Huda and Omar can read their own applications. Salma can read all submit
 
 ## Run
 
-Use Node 22.12 or newer and pnpm 11.24.0. This slice was checked with Node 26.7.0 on Linux. The manifest pins React 19.3.1, TypeScript 5.9.3, TanStack Start 1.169.2 and Router 1.170.44. The lockfile pins transitive packages.
+Use Node 22.12 or newer and pnpm 11.24.0. This slice was checked with Node 26.7.0 on Linux. The manifest pins React 19.3.1, TypeScript 5.9.3, TanStack Start 1.169.2, Router 1.170.44 and Tailwind CSS 4.3.3. The lockfile pins transitive packages.
 
 ```sh
 npm install --global pnpm@11.24.0
@@ -24,6 +24,20 @@ pnpm preview
 Open <http://127.0.0.1:4173>. The preview serves `dist/client` and rewrites missing paths to its generated `/_shell.html`. It runs a static Node file server. The generated `dist/server` is used by Start during prerendering and is not part of the Hosting directory. The build itself needs permission to open a temporary local prerender server.
 
 The chooser starts in Arabic. Choose English explicitly to persist it independently of the tab's identity. Sign-in is passwordless and fictional. Sessions last fifteen minutes of inactivity and survive refresh while valid. Other tabs share committed data and language, with independent identities.
+
+## Styling
+
+Tailwind CSS 4.3.3 compiles through `@tailwindcss/vite` in both the application and the separate browser API harness. The root route links the compiled `src/ui/styles.css` through its existing `?url` import. No Tailwind browser runtime or CDN is used. Tailwind's [browser requirements](https://tailwindcss.com/docs/upgrade-guide#browser-requirements) are Chrome 111+, Firefox 128+ and Safari 16.4+; the documented current Chrome/Firefox targets remain the acceptance scope.
+
+`src/ui/styles.css` defines the Guided A colors and local Noto font stacks with `@theme`. Its spacing unit is 4px, preserving pixel dimensions with the existing 15px root font size. Use named colors and logical spacing such as `ms-*`, `me-*` and `ps-*` for both directions. Preserve exact nonstandard sizes with arbitrary values instead of substituting the default type or spacing scale.
+
+The `compact:` variant applies through 1199px and `narrow:` through 767px, inclusive. Declare compact before narrow so narrow overrides apply where both match. Default breakpoint variants are disabled. JSX utilities own individual layouts; shared skins and descendant rules use `@apply` in the components layer, which utilities can override.
+
+Preflight is omitted to preserve existing headings, lists and native controls. Base styles, keyboard focus and dialog backdrops remain explicit. Include `border-solid` with border utilities; for a border on one edge, also include `border-0` before that edge utility to clear browser-default widths on other edges.
+
+Source detection is limited to `src` by the utilities import's `source('../')`. Keep complete utility names in source, including finite status-class maps. Add an explicit source only when production UI lives outside this directory. Follow Tailwind's [class detection guidance](https://tailwindcss.com/docs/detecting-classes-in-source-files) for variants. Keep any necessary complex CSS in the existing layers and avoid an additional reset.
+
+See [migration verification](docs/implementation/tailwind-v4.md) for the baseline, visual comparison and checks. Later feature and acceptance tickets extend those checks; their statuses remain unchanged.
 
 ## Check
 

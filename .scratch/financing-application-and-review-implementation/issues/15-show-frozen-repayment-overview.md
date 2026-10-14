@@ -12,6 +12,8 @@
 
 **Decision detail:** [Products and application requirements](../../financing-application-and-review/issues/02-products-and-application-requirements.md#answer).
 
+**Styling:** Follow the [Tailwind v4 conventions](../../../README.md#styling) for new or changed UI, preserving Guided A, both directions and the shared design tokens.
+
 - [ ] Read frozen accepted terms/rows and derive completed, remaining and upcoming totals without recalculating from changed product definitions or current date.
 - [ ] Show financing amount, markup and total separately, with translated whole-YER and Gregorian date display and visible fictional-illustration copy.
 - [ ] Preserve the historical eighteen 72,000-YER rows, two completed entries and exact totals; new approval rows remain Upcoming.

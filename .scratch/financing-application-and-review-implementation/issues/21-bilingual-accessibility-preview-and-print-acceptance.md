@@ -12,8 +12,11 @@
 
 **Decision detail:** [Acceptance and implementation handoff](../../financing-application-and-review/issues/07-acceptance-and-implementation-handoff.md#answer); [Applicant and staff screen flows](../../financing-application-and-review/issues/06-applicant-and-staff-screen-flows.md#answer).
 
+**Styling:** Follow the [Tailwind v4 conventions](../../../README.md#styling) for new or changed UI, preserving Guided A, both directions and the shared design tokens.
+
 - [ ] Walk seven journeys in both languages at 360/390/768/1440 CSS pixels and 200% zoom; inspect long/mixed-direction content and action/error visibility.
 - [ ] Verify actual ordinary Chrome/Firefox keyboard navigation, focus/error links, modal behavior, departure/recovery feedback and screen-reader smoke with recorded pairing.
 - [ ] Preview real stored multipage PDF/JPEG/PNG after refresh, inspect mobile/fallback behavior and closure on expiry/switch/reset.
 - [ ] Inspect saved Arabic/English print output for Draft, correction and final records, long history, pagination and public-only policy for both roles.
 - [ ] Verify the public gallery and record screenshots/results against release commit, versions, viewport and language; resolve findings without claiming unperformed physical-device or full conformance checks.
+- [ ] Extend the [Tailwind migration visual evidence](../../../docs/implementation/tailwind-v4.md) for later UI changes; check 767/768 and 1199/1200 boundaries, shared statuses, lists, controls and focus indicators.

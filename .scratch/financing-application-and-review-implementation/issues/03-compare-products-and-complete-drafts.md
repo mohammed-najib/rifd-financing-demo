@@ -12,9 +12,12 @@
 
 **Decision detail:** [Products and application requirements](../../financing-application-and-review/issues/02-products-and-application-requirements.md#answer); [Applicant and staff screen flows](../../financing-application-and-review/issues/06-applicant-and-staff-screen-flows.md#answer).
 
+**Styling:** Follow the [Tailwind v4 conventions](../../../README.md#styling) for new or changed UI, preserving Guided A, both directions and the shared design tokens.
+
 - [ ] Show both fictional products with exact limits, terms, markup, purposes and requirements; preserve the selection through sign-in and explicit new-or-resume choice.
 - [ ] Complete personal/business/financing/documents/review steps with all accepted fields and four document slots, raw invalid saves and URL step fallback.
 - [ ] Implement canonical input normalization and field boundaries while keeping substantive review criteria separate from format validation.
 - [ ] Keep incomplete steps reachable and preserve input, caret where possible and file preparation across step/language changes without implicitly saving.
 - [ ] Confirm incompatible fourth-document removal on draft product switch, preserve shared data, stage removal until save and retain invalid amount/term values.
 - [ ] Verify creation/save/restoration, field boundaries, linked errors, product-switch cancellation/confirmation, Arabic-Indic input and responsive keyboard use.
+- [ ] Reuse the Tailwind form/control and feedback styles for every step; preserve the local fonts, logical spacing, focus indicators and responsive cutoffs.

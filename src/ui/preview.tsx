@@ -3,6 +3,8 @@ import type { Demo, ErrorKind, PreparedAttachment } from '../demo'
 import type { Language } from '../domain/model'
 import { draftText, errors, text } from './i18n'
 
+const filePreviewClassName = 'block h-[55vh] w-full border border-solid border-border bg-white object-contain'
+
 export function DocumentPreview({ demo, applicationId, fileId, attachment, language, close }: {
   demo: Demo; applicationId: string; fileId?: string; attachment?: PreparedAttachment; language: Language; close: () => void;
 }) {
@@ -27,13 +29,13 @@ export function DocumentPreview({ demo, applicationId, fileId, attachment, langu
     })
     return () => { active = false; if (url) URL.revokeObjectURL(url) }
   }, [demo, applicationId, fileId, attachment, retry])
-  return <dialog ref={dialog} className="preview-dialog" aria-labelledby="preview-heading" onCancel={close} onClose={close}>
-    <div className="card-heading"><h2 id="preview-heading">{t('preview')}</h2><button onClick={close}>{t('closePreview')}</button></div>
+  return <dialog ref={dialog} className="w-[900px]" aria-labelledby="preview-heading" onCancel={close} onClose={close}>
+    <div className="mb-[18px] flex flex-wrap items-center justify-between gap-3"><h2 id="preview-heading">{t('preview')}</h2><button onClick={close}>{t('closePreview')}</button></div>
     {file ? <>
-      <p><bdi dir="ltr" className="filename">{file.name}</bdi></p><p>{attachment ? t('readyDocument') : t('savedDocument')}</p>
+      <p><bdi dir="ltr" className="wrap-anywhere">{file.name}</bdi></p><p>{attachment ? t('readyDocument') : t('savedDocument')}</p>
       {error !== 'render' && (file.mime === 'application/pdf'
-        ? <object className="file-preview" data={file.url} type="application/pdf" aria-label={t('savedDocument')} onError={() => setError('render')}><p>{t('previewFailed')}</p></object>
-        : <img className="file-preview" src={file.url} alt={attachment ? t('readyDocument') : t('savedDocument')} onError={() => setError('render')} />)}
+        ? <object className={filePreviewClassName} data={file.url} type="application/pdf" aria-label={t('savedDocument')} onError={() => setError('render')}><p>{t('previewFailed')}</p></object>
+        : <img className={filePreviewClassName} src={file.url} alt={attachment ? t('readyDocument') : t('savedDocument')} onError={() => setError('render')} />)}
       <div className="actions"><a className="button secondary" href={file.url} target="_blank" rel="noopener noreferrer">{t('openFile')}</a><a className="button secondary" href={file.url} download={file.name}>{t('download')}</a></div>
     </> : !error && <p role="status">{text.readLoading[language]}</p>}
     {error && <p role="alert">{error === 'render' ? t('previewFailed') : errors[error][language]}</p>}

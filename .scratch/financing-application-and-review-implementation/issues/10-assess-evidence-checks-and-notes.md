@@ -12,6 +12,8 @@
 
 **Decision detail:** [Products and application requirements](../../financing-application-and-review/issues/02-products-and-application-requirements.md#answer); [Demo access and reviewer assignment](../../financing-application-and-review/issues/03-demo-access-and-reviewer-assignment.md#answer).
 
+**Styling:** Follow the [Tailwind v4 conventions](../../../README.md#styling) for new or changed UI, preserving Guided A, both directions and the shared design tokens.
+
 - [ ] Present submitted information/documents beside five fixed checks, correction verification context, notes and activity, with responsive section navigation.
 - [ ] Accept or mark current documents Needs replacement with a reason, keeping assessment separate from upload and application status.
 - [ ] Implement exact evidence consistency and four substantive rules, dependency identities and whole-rial capacity arithmetic; prohibit numeric Passed overrides.

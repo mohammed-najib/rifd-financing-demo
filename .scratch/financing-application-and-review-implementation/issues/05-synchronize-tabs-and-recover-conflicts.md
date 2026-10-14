@@ -12,6 +12,8 @@
 
 **Decision detail:** [Browser persistence and simulated failures](../../financing-application-and-review/issues/04-browser-state-and-simulated-failures.md#answer).
 
+**Styling:** Follow the [Tailwind v4 conventions](../../../README.md#styling) for new or changed UI, preserving Guided A, both directions and the shared design tokens.
+
 - [ ] Send dataset/identifier/revision hints only after commit; reread authorized storage on hints and activation, including missed-notice recovery.
 - [ ] Keep independent tab sessions, explain inherited initial identity where applicable, and never transmit protected record contents in change hints.
 - [ ] Refresh clean views and permissions; retain dirty input with a newer-data notice. Refuse conflicting workspace/preference revisions without automatic merging or replacing expected versions.

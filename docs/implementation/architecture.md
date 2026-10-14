@@ -16,6 +16,12 @@ The [specification](../../.scratch/financing-application-and-review/spec.md) and
 
 The public `Demo` interface returns `Result<T>` with finite error kinds and translation keys. `setLanguage` carries the dataset, operation identifier, preference revision and desired language. `saveDraft` carries the dataset, application, operation identifier, workspace revision, raw form/product and saved or prepared document choices. It has no database replacement, arbitrary patch, caller-supplied actor or submission bypass. Session operations capture identity in the current tab. Future applicant and reviewer mutations must add their own typed commands and complete effects here.
 
+## Styling
+
+Tailwind CSS 4.3.3 runs through the dedicated Vite plugin in the application and browser API harness. The shared stylesheet defines Guided A theme tokens, retained base defaults and reusable component skins. Screen layouts use utilities with explicit status-class maps. Source detection covers `src`; archived prototypes and documentation do not contribute utilities.
+
+Preflight is omitted. The local fonts, 15px root typography, logical RTL/LTR spacing and inclusive 767px/1199px responsive cutoffs remain the design contract. The root route retains its compiled stylesheet URL in the static shell. See [styling conventions](../../README.md#styling) and [migration evidence](tailwind-v4.md) before extending the UI.
+
 ## Storage and authority
 
 IndexedDB database `rifd-demo`, physical version 1, contains a private `state` store with one dataset record. The logical metadata fixes schema, seed and product/calculation rules to version 1, and carries the dataset UUID and durable event sequence. The record contains applications, immutable correction baselines, private saved workspaces, internal/public events, notifications, file bytes and catalog, identities, independent preferences and language receipts.

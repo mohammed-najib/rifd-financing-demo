@@ -8,6 +8,8 @@ Start with [01: Open the bilingual demo and inspect seeded applications](issues/
 
 Every feature ticket includes the relevant domain rules, typed operations, persistence, accessible Arabic/English UI and focused verification. Tests use the public demo interface and real browser storage, with pure-domain tests for rule boundaries. Extend receipts, failure controls, permission checks, dataset/session guards and retained-work recovery as each operation is added. Maintain setup and architecture documentation alongside the slices. Final acceptance tickets close coverage and record the completed product's evidence.
 
+The user approved Tailwind CSS v4 adoption after slices 01 and 02. Unresolved tickets use the [production styling conventions](../../README.md#styling), preserving Guided A and the existing bilingual behavior. The [migration evidence](../../docs/implementation/tailwind-v4.md) covers the current UI; later features and final acceptance still require their own checks. Ticket statuses and dependencies are unchanged by the styling migration.
+
 | Ticket | Blocked by | Specification user stories |
 | --- | --- | --- |
 | [01: Open the bilingual demo and inspect seeded applications](issues/01-open-bilingual-seeded-demo.md) | None | 24, 38, 69, 70, 72, 79 |

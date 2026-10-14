@@ -12,6 +12,8 @@
 
 **Decision detail:** [Application states and correction rules](../../financing-application-and-review/issues/01-application-states-and-corrections.md#answer); [Demo access and reviewer assignment](../../financing-application-and-review/issues/03-demo-access-and-reviewer-assignment.md#answer).
 
+**Styling:** Follow the [Tailwind v4 conventions](../../../README.md#styling) for new or changed UI, preserving Guided A, both directions and the shared design tokens.
+
 - [ ] Claim unassigned Submitted records; confirm reviewer transfers in allowed states; unassign only Submitted and lock final assignments.
 - [ ] Keep assignment and Start review separate; only assigned reviewer can start Submitted to Under review.
 - [ ] Commit assignment or review-start effects with current shared revision/session/dataset, receipts and exactly the appropriate internal/public events.

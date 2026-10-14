@@ -68,9 +68,11 @@ test('both languages fit applicant and staff views at agreed widths and keep foc
   for (const language of ['en', 'ar'] as const) {
     if (language === 'ar') await page.getByRole('button', { name: 'العربية', exact: true }).click()
     await expect(page.locator('html')).toHaveAttribute('lang', language)
-    for (const width of [360, 390, 768, 1440]) {
+    for (const width of [360, 390, 767, 768, 1199, 1200, 1440]) {
       await page.setViewportSize({ width, height: 900 })
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+      await expect(page.getByRole('table')).toHaveCount(width >= 1200 ? 1 : 0)
+      await expect(page.getByRole('article')).toHaveCount(width < 1200 ? 12 : 0)
     }
   }
   await page.screenshot({ path: info.outputPath('staff-queue-ar-1440.png'), fullPage: true })

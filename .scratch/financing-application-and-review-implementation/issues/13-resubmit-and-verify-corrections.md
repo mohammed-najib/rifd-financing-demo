@@ -12,6 +12,8 @@
 
 **Decision detail:** [Application states and correction rules](../../financing-application-and-review/issues/01-application-states-and-corrections.md#answer); [Products and application requirements](../../financing-application-and-review/issues/02-products-and-application-requirements.md#answer); [Browser persistence and simulated failures](../../financing-application-and-review/issues/04-browser-state-and-simulated-failures.md#answer).
 
+**Styling:** Follow the [Tailwind v4 conventions](../../../README.md#styling) for new or changed UI, preserving Guided A, both directions and the shared design tokens.
+
 - [ ] Require valid canonically changed requested fields, new missing evidence or different-content replacements, and whole-application validation; reject unrequested edits and renamed identical bytes.
 - [ ] Atomically publish response/files with both revisions, retire workspace, preserve current assignment/financial window and append one resubmission event/receipt without notification.
 - [ ] Mark changed files Awaiting review; retain other assessments; reset exactly dependent checks and outstanding verification.

@@ -12,8 +12,11 @@
 
 **Decision detail:** [Acceptance and implementation handoff](../../financing-application-and-review/issues/07-acceptance-and-implementation-handoff.md#answer); [Acceptance tooling facts](../../financing-application-and-review/issues/09-acceptance-tooling-facts.md#answer).
 
+**Styling:** Follow the [Tailwind v4 conventions](../../../README.md#styling) for new or changed UI, preserving Guided A, both directions and the shared design tokens.
+
 - [ ] Resolve actual Firebase account access, available project identifier, classic site and preview permissions at this stage; obtain user action only for human-only prerequisites.
 - [ ] Deploy the verified static build to rifd-review, record preview URL/expiry and run hosted public/protected route, asset, identity, language and refresh checks.
 - [ ] Fix preview findings and rerun affected acceptance gates before live release to the default web.app site.
 - [ ] Record project/site IDs, build directory, release commit, live URL and hosted evidence; do not invent resources or treat a local build as hosted verification.
 - [ ] Recheck live startup, direct links, static assets and core journeys in supported browsers.
+- [ ] Build with the pinned Tailwind/Vite packages and verify generated CSS and local fonts are served as real assets after direct-link refresh on Hosting.

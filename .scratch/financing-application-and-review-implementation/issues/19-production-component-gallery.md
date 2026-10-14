@@ -12,7 +12,10 @@
 
 **Decision detail:** [Bilingual visual direction](../../financing-application-and-review/issues/05-bilingual-visual-direction.md#answer); [Applicant and staff screen flows](../../financing-application-and-review/issues/06-applicant-and-staff-screen-flows.md#answer).
 
+**Styling:** Follow the [Tailwind v4 conventions](../../../README.md#styling) for new or changed UI, preserving Guided A, both directions and the shared design tokens.
+
 - [ ] Render production components rather than a separate imitation set, covering default/focus/error/busy/empty and file preparation/save states.
 - [ ] Show both directions, long mixed-direction content, written status distinctions and accessible labels.
 - [ ] Allow unsigned entry and refresh, with narrow/wide and keyboard interaction including dialogs.
 - [ ] Verify shared component use, bilingual route access and visible state copy; link the gallery from the demo navigation.
+- [ ] Use the same Tailwind utilities, shared component-layer skins and theme tokens as the journeys; do not add a separate reset or duplicate gallery-only styles.

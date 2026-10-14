@@ -12,6 +12,8 @@
 
 **Decision detail:** [Application states and correction rules](../../financing-application-and-review/issues/01-application-states-and-corrections.md#answer); [Products and application requirements](../../financing-application-and-review/issues/02-products-and-application-requirements.md#answer); [Browser persistence and simulated failures](../../financing-application-and-review/issues/04-browser-state-and-simulated-failures.md#answer).
 
+**Styling:** Follow the [Tailwind v4 conventions](../../../README.md#styling) for new or changed UI, preserving Guided A, both directions and the shared design tokens.
+
 - [ ] Validate all fields and four required files at the operation boundary, reject missing/pending/failed selections and retain the seed-only incomplete submission exception.
 - [ ] Publish form/files atomically with both private/shared revision checks, initial financial window, status, one lifecycle event and receipt; retire the draft workspace.
 - [ ] Show reference and immediate confirmation, own list/detail/history and read-only submitted data; do not add a submission notification.
