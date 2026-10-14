@@ -1,6 +1,6 @@
 # Applicant and staff screen-flow walkthrough
 
-Throwaway decision asset for [Validate applicant and staff screen flows](/home/mdnb/Dev/Projects/project_impress_bank/.scratch/financing-application-and-review/issues/06-applicant-and-staff-screen-flows.md). Prepared on 2026-10-14. User review is pending. The proposal preserves Guided A from the accepted bilingual comparison.
+Throwaway decision asset for [Validate applicant and staff screen flows](/home/mdnb/Dev/Projects/project_impress_bank/.scratch/financing-application-and-review/issues/06-applicant-and-staff-screen-flows.md). Prepared and accepted on 2026-10-14. The user replied, "I accept the proposed flows". The [screen-flow ticket](/home/mdnb/Dev/Projects/project_impress_bank/.scratch/financing-application-and-review/issues/06-applicant-and-staff-screen-flows.md#answer) holds the canonical resolution. This archive preserves the reviewed Guided A walkthrough.
 
 The question is whether the proposed routes, screen grouping, next actions, and recovery messages let applicants and reviewers keep their place and distinguish unsaved input, saved progress, and submitted information.
 
@@ -30,7 +30,7 @@ The seven-stop tour gives every journey one stop. Allow roughly three to five mi
 
 Try typing a name or Arabic-Indic amount and switching language. Queue search, filters, sorting and pagination operate on the full seed list. Document previews are HTML illustrations of fictional evidence. Dialogs use the native modal element, support Escape, and return focus to their opener. The print scene invokes the browser's print dialog and has a separate print stylesheet.
 
-The [proposed screen contract](screen-contract.md) specifies route entry, saving, focus, loading, empty states, and the full recovery matrix. It is a proposal awaiting the user's reaction, not another resolution that competes with the tracker ticket.
+The [reviewed proposal](screen-contract.md) preserves the route entry, saving, focus, loading, empty states, and recovery matrix presented to the user. It is historical decision evidence. Consult the [resolved screen-flow ticket](/home/mdnb/Dev/Projects/project_impress_bank/.scratch/financing-application-and-review/issues/06-applicant-and-staff-screen-flows.md#answer) for the canonical agreement.
 
 ## Fidelity and evidence
 
@@ -38,7 +38,7 @@ The prototype includes all thirteen agreed application records, the three applic
 
 This is a guided screen review. It does not implement IndexedDB, file-byte storage, hashing, durable preferences, session timers, actual multiple-tab synchronization, async operations, authorization, or operation receipts. Startup, reset, errors, and saved versus submitted states are depicted rather than executed. Refresh discards edits. Use the browser-persistence resolution as the eventual implementation contract.
 
-JavaScript syntax checks passed. No automated tests were added or run. Browser inventory returned no available browser and opening the in-app browser failed, so rendered desktop/mobile layout, print pagination, and actual keyboard behavior have not been visually verified in this session. The CSS includes responsive layouts and print rules, but those are proposals for user review and later implementation verification.
+JavaScript syntax checks passed. No automated tests were added or run. Browser inventory returned no available browser and opening the in-app browser failed, so rendered desktop/mobile layout, print pagination, and actual keyboard behavior have not been visually verified in this session. The user accepted the proposed behavior. The CSS includes responsive layouts and print rules, whose implementation still needs verification.
 
 ## Primary sources
 

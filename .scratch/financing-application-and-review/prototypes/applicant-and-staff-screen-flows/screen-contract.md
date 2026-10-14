@@ -1,6 +1,6 @@
-# Proposed routes and screen behavior
+# Reviewed routes and screen behavior proposal
 
-Prepared for user review on 2026-10-14. These are proposed interface decisions for the existing domain and persistence contracts. They do not replace the resolved tickets. The final accepted answer belongs in [Validate applicant and staff screen flows](/home/mdnb/Dev/Projects/project_impress_bank/.scratch/financing-application-and-review/issues/06-applicant-and-staff-screen-flows.md).
+Prepared and accepted on 2026-10-14. This file preserves the proposal the user accepted with "I accept the proposed flows". The canonical agreement is recorded in [Validate applicant and staff screen flows](/home/mdnb/Dev/Projects/project_impress_bank/.scratch/financing-application-and-review/issues/06-applicant-and-staff-screen-flows.md#answer). The wording below is retained as reviewed evidence.
 
 ## Route map
 
@@ -145,4 +145,4 @@ Print uses a dedicated route and print stylesheet. Hide navigation, demo control
 
 ## Review status
 
-Pending the user's live reaction. No new domain rule is intentionally introduced. If the walkthrough exposes a domain ambiguity, create a precise follow-up decision ticket rather than implementing a new rule in the prototype. Do not close the screen-flow ticket until the user accepts or revises this proposal.
+Accepted on 2026-10-14 with no requested changes. The screen-flow ticket is resolved. No new domain ambiguity arose. The existing acceptance and implementation-handoff ticket owns the remaining verification plan and delivery decisions. Browser, layout, keyboard and print verification limits remain as recorded in the guide.
