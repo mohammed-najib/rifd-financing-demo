@@ -1,5 +1,6 @@
 import { datasetSchema, slots, type Dataset, type DocumentSlot, type Snapshot } from '../domain/model'
 import type { ErrorKind } from './types'
+import { manifest } from './seed-manifest'
 
 export class DemoError extends Error {
   constructor(readonly kind: ErrorKind, readonly slot?: DocumentSlot) { super(kind) }
@@ -85,7 +86,12 @@ export function validateDataset(raw: unknown): Dataset {
     if (application.status === 'correctionsRequested' && (!application.workspace || application.rounds.at(-1)?.id !== application.workspace.roundId)) throw new DemoError('damaged')
   }
   for (const file of data.files) if (file.size !== file.bytes.byteLength || !applicationMap.has(file.applicationId)) throw new DemoError('damaged')
-  for (const sample of data.catalog) if (fileMap.get(sample.fileId)?.applicationId !== sample.applicationId || fileMap.get(sample.fileId)?.slot !== sample.slot) throw new DemoError('damaged')
+  for (const sample of data.catalog) {
+    if (fileMap.get(sample.fileId)?.applicationId !== sample.applicationId || fileMap.get(sample.fileId)?.slot !== sample.slot) throw new DemoError('damaged')
+    // Additive migration: legacy catalog bytes retain their original seed product after draft switches.
+    sample.product ??= manifest.find(seed => sample.applicationId === `RIFD-2026-${String(seed.number).padStart(3, '0')}`)?.product
+    if (!sample.product) throw new DemoError('damaged')
+  }
   for (const notice of data.notifications) if (applicationMap.get(notice.applicationId)?.owner !== notice.owner) throw new DemoError('damaged')
   if (!unique(data.mutationReceipts.map(receipt => `${receipt.actor}/${receipt.operationId}`))) throw new DemoError('damaged')
   for (const receipt of data.mutationReceipts) {

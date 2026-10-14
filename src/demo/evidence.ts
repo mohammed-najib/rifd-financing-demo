@@ -39,7 +39,7 @@ function evidenceLines(fields: Fields, slot: DocumentSlot, product: ProductId, m
     ]
     case 'purchase': return [...lines,
       product === 'inventory' ? 'Stock purchase plan / خطة شراء المخزون' : 'Supplier quotation / عرض سعر المعدات',
-      fields.explanation || 'شراء مخزون من المستلزمات المنزلية لتجديد البضائع في المتجر.',
+      fields.explanation || (product === 'inventory' ? 'شراء مخزون من المستلزمات المنزلية لتجديد البضائع في المتجر.' : 'شراء معدات إنتاجية للنشاط التجاري.'),
       `Purchase budget / تكلفة الشراء: ${fields.budget} YER`,
       `Requested financing / مبلغ التمويل: ${fields.amount} YER`,
     ]

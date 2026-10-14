@@ -1,5 +1,6 @@
 import type { ApplicationStatus, Bilingual, DocumentSlot, Fields, Language, ProductId } from '../domain/model'
 import type { ErrorKind } from '../demo'
+import { foldDigits, parseWholeYER } from '../domain'
 
 export const text = {
   title: { ar: 'تمويل بخطوات واضحة', en: 'Financing, one clear step at a time' },
@@ -15,7 +16,7 @@ export const text = {
   home: { ar: 'الصفحة الرئيسية', en: 'Home' },
   notice: { ar: 'عرض تجريبي. الأشخاص والمنتجات وشروط التمويل افتراضية. لا يُرسل أي طلب إلى بنك، ولا تُتحقق هوية، ولا تُعالج مدفوعات.', en: 'Demo. People, products, and financing terms are fictional. No request reaches a bank, no identity is verified, and no payment is processed.' },
   storageNotice: { ar: 'تظل البيانات والملفات في ملف هذا المتصفح ويمكن فحصها محليًا. لا تتزامن بين الأجهزة أو المتصفحات، وقد تختفي بمسح البيانات أو التصفح الخاص أو إخلاء التخزين. استخدم بيانات ومستندات افتراضية فقط.', en: 'Data and files stay in this browser profile and can be inspected locally. They do not sync across devices or browsers and may disappear through clearing, private browsing, or eviction. Use fictional data and documents only.' },
-  sliceNotice: { ar: 'يمكنك استكشاف الطلبات وحفظ شرح الشراء ومستند المخزون في مسودة مريم. سيُضاف التقديم وإجراءات المراجعة لاحقًا.', en: 'Explore applications and save the purchase explanation and stock plan in Mariam\'s draft. Submission and review actions will follow.' },
+  sliceNotice: { ar: 'قارن المنتجات وأكمل مسودة بخمس خطوات واحفظ المستندات. سيُضاف التقديم وإجراءات المراجعة لاحقًا.', en: 'Compare products, complete five-step drafts and save documents. Submission and review actions will follow.' },
   ownIntro: { ar: 'طلباتك المحفوظة ومراحلها الحالية. افتح طلبًا للاطلاع على المعلومات والخطوة التالية.', en: 'Your saved applications and their current stages. Open an application to inspect its information and next step.' },
   staffIntro: { ar: 'اقرأ الطلبات المقدمة بجميع حالات الإسناد. المسودات والردود الخاصة غير ظاهرة للمراجعة.', en: 'Read submitted applications regardless of assignment. Drafts and private responses are hidden from reviewers.' },
   reference: { ar: 'مرجع الطلب', en: 'Reference' }, status: { ar: 'حالة الطلب', en: 'Application status' },
@@ -25,7 +26,7 @@ export const text = {
   notSubmitted: { ar: 'لم يُقدّم بعد', en: 'Not submitted yet' }, nextAction: { ar: 'الخطوة التالية', en: 'Next step' },
   viewApplication: { ar: 'الاطلاع على الطلب', en: 'View application' }, inspectDraft: { ar: 'الاطلاع على المسودة المحفوظة', en: 'Inspect saved draft' },
   inspectCorrections: { ar: 'الاطلاع على طلب التصحيح', en: 'Inspect correction request' },
-  draftNext: { ar: 'يمكنك حفظ شرح شراء غير مكتمل أو غير صالح مع المستند في هذا المتصفح. المسودة لم تُقدّم للمراجعة.', en: 'Save an incomplete or invalid purchase explanation with its document in this browser. The draft has not been submitted for review.' },
+  draftNext: { ar: 'أكمل الخطوات الخمس واحفظ بياناتك ومستنداتك في هذا المتصفح. يمكن حفظ الإدخال غير المكتمل أو غير الصالح. المسودة لم تُقدّم للمراجعة.', en: 'Complete five steps and save your information and documents in this browser. Incomplete or invalid input can be saved. The draft has not been submitted for review.' },
   correctionNext: { ar: 'طلبت المراجعة تغييرات محددة أدناه. تظل المعلومات المقدمة ظاهرة للمراجعة حتى إعادة التقديم.', en: 'The reviewer requested the changes below. Submitted information remains visible to staff until resubmission.' },
   waitingNext: { ar: 'الطلب مقدم للمراجعة. يمكنك الاطلاع على معلوماته وسجله.', en: 'The application is with the reviewer. You can inspect its information and history.' },
   finalNext: { ar: 'سُجل قرار نهائي. معلومات الطلب ثابتة للقراءة.', en: 'A final decision has been recorded. Application information is read-only.' },
@@ -135,7 +136,14 @@ export function documentLabel(slot: DocumentSlot, product: ProductId): Bilingual
   }
 }
 export function money(raw: string | number, language: Language): string {
-  return `${new Intl.NumberFormat('en-US').format(Number(raw))} ${language === 'ar' ? 'ر.ي.' : 'YER'}`
+  const value = typeof raw === 'number' ? raw : parseWholeYER(raw)
+  if (typeof raw === 'string' && !raw.trim()) return '—'
+  return `${value === null ? raw : new Intl.NumberFormat('en-US').format(value)} ${language === 'ar' ? 'ر.ي.' : 'YER'}`
+}
+export function displayFieldValue(field: keyof Fields, value: string, language: Language): string {
+  if (['amount', 'revenue', 'expenses', 'budget'].includes(field)) return money(value, language)
+  if (['mobile', 'term', 'operatingSince'].includes(field)) return foldDigits(value) || '—'
+  return value || '—'
 }
 export function date(raw: string, language: Language): string {
   return new Intl.DateTimeFormat(language === 'ar' ? 'ar-u-nu-latn' : 'en-GB', { year: 'numeric', month: 'long', ...(raw.length > 7 ? { day: 'numeric' as const } : {}), timeZone: 'UTC' }).format(new Date(`${raw.length === 7 ? `${raw}-01` : raw}T12:00:00Z`))

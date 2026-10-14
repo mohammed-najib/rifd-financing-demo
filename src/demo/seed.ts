@@ -10,7 +10,7 @@ export async function prepareSeed(): Promise<Dataset> {
   const notifications: Dataset['notifications'] = []
   const addFile = (file: StoredFile, variant: Dataset['catalog'][number]['variant']) => {
     files.push(file)
-    catalog.push({ id: file.id, applicationId: file.applicationId, slot: file.slot, fileId: file.id, variant })
+    catalog.push({ id: file.id, applicationId: file.applicationId, slot: file.slot, fileId: file.id, product: manifest.find(seed => file.applicationId === `RIFD-2026-${String(seed.number).padStart(3, '0')}`)!.product, variant })
   }
   for (const seed of manifest) {
     const id = `RIFD-2026-${String(seed.number).padStart(3, '0')}`

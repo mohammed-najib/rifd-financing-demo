@@ -35,3 +35,6 @@ export function freezeRepayment(amount: number, term: number, rules: ProductRule
 export function canReadApplication(actor: ActorId, application: Pick<Application, 'owner' | 'status'>): boolean {
   return actor === 'salma' ? application.status !== 'draft' : application.owner === actor
 }
+
+export { applicationSteps, emptyDocuments, foldDigits, normalizeField, parseWholeYER, resolveStep, stepFields, validateFields } from './application'
+export type { ApplicationStep, FieldIssue } from './application'

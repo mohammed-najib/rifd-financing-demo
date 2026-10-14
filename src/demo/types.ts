@@ -43,7 +43,8 @@ export type MutationResult = { receipt: MutationReceipt; application: Applicatio
 export type OperationInspection = { status: 'committed'; result: MutationResult } | { status: 'notCommitted'; application: ApplicationView }
 export type Preparation = {
   datasetId: string; applicationId: string; slot: DocumentSlot; selectionId: string;
-  source: { kind: 'local'; file: File } | { kind: 'sample'; sampleId: string };
+  product?: ProductId;
+  source: { kind: 'local'; file: File } | { kind: 'sample'; sampleId: string } | { kind: 'generated'; fields: Fields };
 }
 export type Controls = { slow: boolean; failure: 'upload' | 'save' | 'storage' | null }
 export type Demo = {
@@ -51,6 +52,7 @@ export type Demo = {
   context(): Promise<Result<Context>>;
   signIn(identity: ActorId): Promise<Result<Context>>;
   signOut(): Promise<Result<Context>>;
+  newDraft(product: ProductId): Promise<Result<ApplicantView>>;
   execute(operation: LanguageOperation): Promise<Result<Context>>;
   execute(operation: SaveDraftOperation): Promise<Result<MutationResult>>;
   inspectOperation(operation: SaveDraftOperation): Promise<Result<OperationInspection>>;

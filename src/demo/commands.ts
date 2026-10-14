@@ -12,15 +12,17 @@ const documentSchema = z.discriminatedUnion('kind', [
 ])
 export const saveDraftSchema = z.object({
   kind: z.literal('saveDraft'), datasetId: z.string().uuid(), operationId: z.string().min(1),
-  applicationId: z.string().min(1), expectedWorkspaceRevision: z.number().int().positive(),
+  applicationId: z.string().min(1), expectedWorkspaceRevision: z.number().int().nonnegative(),
   product: productIdSchema, fields: fieldsSchema.strict(),
   documents: z.object({ identity: documentSchema, business: documentSchema, financial: documentSchema, purchase: documentSchema }).strict(),
 }).strict()
 export const preparationSchema = z.object({
   datasetId: z.string().uuid(), applicationId: z.string().min(1), slot: slotSchema, selectionId: z.string().min(1),
+  product: productIdSchema.optional(),
   source: z.discriminatedUnion('kind', [
     z.object({ kind: z.literal('local'), file: z.instanceof(File) }).strict(),
     z.object({ kind: z.literal('sample'), sampleId: z.string().min(1) }).strict(),
+    z.object({ kind: z.literal('generated'), fields: fieldsSchema.strict() }).strict(),
   ]),
 }).strict()
 

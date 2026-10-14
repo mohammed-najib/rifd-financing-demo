@@ -1,12 +1,12 @@
 import { z } from 'zod'
-import { canReadApplication, validateFileEnvelope } from '../domain'
-import { actorIdSchema, languageSchema, slots, type ActorId, type Application, type Dataset, type StoredFile } from '../domain/model'
-import { fileFromBytes, prepareFonts } from './evidence'
+import { canReadApplication, emptyDocuments, validateFileEnvelope } from '../domain'
+import { actorIdSchema, languageSchema, productIdSchema, slots, type ActorId, type Application, type Dataset, type StoredFile } from '../domain/model'
+import { fileFromBytes, makeFile, prepareFonts } from './evidence'
 import { draftFingerprint, preparationSchema, saveDraftSchema } from './commands'
 import { identities } from './seed-manifest'
 import { prepareSeed } from './seed'
 import { DemoError, openStorage, readStored, transact, validateDataset } from './storage'
-import type { ApplicationView, Context, Controls, Demo, ErrorKind, LanguageOperation, MutationResult, PreparedAttachment, Result, SaveDraftOperation, Session } from './types'
+import type { ApplicantView, ApplicationView, Context, Controls, Demo, ErrorKind, LanguageOperation, MutationResult, PreparedAttachment, Result, SaveDraftOperation, Session } from './types'
 export type { ApplicationSummary, ApplicationView, Context, Demo, DemoOperation, DraftDocuments, ErrorKind, MutationResult, OperationInspection, PreparedAttachment, Preparation, Result, SaveDraftOperation } from './types'
 
 const sessionSchema = z.object({ identity: actorIdSchema, datasetId: z.string().uuid(), sessionId: z.string().uuid(), lastActivity: z.number(), expiresAt: z.number() })
@@ -27,6 +27,7 @@ export function createDemo(): Demo {
   let startupPromise: Promise<Result<Context>> | null = null
   let listening = false
   const subscribers = new Set<() => void>()
+  const newDrafts = new Map<string, Application>()
   let controls: Controls = { slow: false, failure: null }
   const delay = () => sleep(controls.slow ? 1500 : 400)
   const consume = (kind: Controls['failure']) => {
@@ -34,7 +35,7 @@ export function createDemo(): Demo {
     controls = { ...controls, failure: null }
     return true
   }
-  const preparations = new Map<string, { actor: ActorId; datasetId: string; file: StoredFile; reference: PreparedAttachment }>()
+  const preparations = new Map<string, { actor: ActorId; datasetId: string; file: StoredFile; product: Application['product']; reference: PreparedAttachment }>()
   const selections = new Map<string, string>()
   const emit = () => { for (const listener of subscribers) { try { listener() } catch { /* Observers cannot change committed outcomes. */ } } }
   const storedSession = () => {
@@ -89,6 +90,7 @@ export function createDemo(): Demo {
     // A disposed screen's late read must never clear a newer screen's tab session.
     if (captured !== generation || db !== connection) throw new DemoError('sessionExpired')
     if (data.meta.datasetId !== observedDataset) {
+      newDrafts.clear(); preparations.clear(); selections.clear()
       try { writeSession(null) } catch { session = null; generation++ }
       throw new DemoError('supersededDataset')
     }
@@ -112,8 +114,13 @@ export function createDemo(): Demo {
     return project(data, who)
   })
   const permitted = (data: Dataset, who: ActorId, id: string): Application => {
-    const application = data.applications.find(application => application.id === id)
+    const application = data.applications.find(application => application.id === id) ?? newDrafts.get(id)
     if (!application || !canReadApplication(who, application)) throw new DemoError('unavailable')
+    return application
+  }
+  const editable = (data: Dataset, who: ActorId, id: string): Application => {
+    const application = data.applications.find(application => application.id === id) ?? newDrafts.get(id)
+    if (!application || application.owner !== who) throw new DemoError('unavailable')
     return application
   }
   const fileResult = (file: StoredFile | undefined) => {
@@ -192,7 +199,8 @@ export function createDemo(): Demo {
         if (captured !== generation || actor() !== who) throw new DemoError('sessionExpired')
         const current = validateDataset(raw)
         authority(captured, who, command.datasetId, current)
-        const application = permitted(current, who, command.applicationId)
+        const original = current.applications.find(application => application.id === command.applicationId)
+        const application = original ? permitted(current, who, command.applicationId) : structuredClone(editable(current, who, command.applicationId))
         const receipt = draftReceipt(current, who, command)
         if (receipt) {
           replay = true
@@ -201,8 +209,8 @@ export function createDemo(): Demo {
         if (application.workspace?.revision !== command.expectedWorkspaceRevision) throw new DemoError('staleWorkspace')
         if (application.owner !== who) throw new DemoError('permissionDenied')
         if (application.status !== 'draft' || !application.workspace) throw new DemoError('invalidState')
-        // Product switching is introduced by the following slice.
-        if (application.product !== command.product) throw new DemoError('validation')
+        if (application.product !== command.product && command.documents.purchase.kind === 'saved' && command.documents.purchase.fileId !== null) throw new DemoError('validation', 'purchase')
+        if (!original) current.applications.push(application)
         const documents = { ...application.workspace.snapshot.documents }
         for (const slot of slots) {
           const document = command.documents[slot]
@@ -211,6 +219,7 @@ export function createDemo(): Demo {
             documents[slot] = document.fileId
           } else {
             const file = preparedFile(who, application.id, slot, document.attachment)
+            if (slot === 'purchase' && preparations.get(file.id)?.product !== command.product) throw new DemoError('validation', slot)
             if (!current.files.some(saved => saved.id === file.id)) current.files.push(file)
             documents[slot] = file.id
           }
@@ -219,6 +228,7 @@ export function createDemo(): Demo {
         if (consume('save')) throw new DemoError('requestFailed')
         abortStorage = consume('storage')
         const savedAt = new Date().toISOString()
+        application.product = command.product
         application.workspace = { ...application.workspace, revision: application.workspace.revision + 1, savedAt, snapshot: { fields: command.fields, documents } }
         current.mutationReceipts.push({
           kind: command.kind, actor: who, datasetId: command.datasetId, operationId: command.operationId, fingerprint: draftFingerprint(command),
@@ -262,6 +272,21 @@ export function createDemo(): Demo {
   }
   return {
     execute,
+    newDraft: product => protectedRead((data, who) => {
+      if (who === 'salma' || !productIdSchema.safeParse(product).success) throw new DemoError('unavailable')
+      const identity = data.identities.find(identity => identity.id === who)!
+      const application: Application = {
+        id: `RIFD-2026-${crypto.randomUUID()}`, owner: who, product, status: 'draft', assignee: null, sharedRevision: 1,
+        submittedAt: null, evidenceMonths: ['2026-07', '2026-08', '2026-09'], submitted: null,
+        workspace: { revision: 0, roundId: null, savedAt: '', snapshot: { fields: {
+          fullName: identity.name[data.preferences.language], mobile: identity.mobile, city: identity.city, email: identity.email,
+          businessName: '', activity: 'retail', address: '', operatingSince: '', revenue: '', expenses: '', amount: '', term: '', budget: '', explanation: '',
+        }, documents: emptyDocuments() } },
+        history: [], rounds: [], assessments: null, checks: null, notes: [], activity: [], repayment: null,
+      }
+      newDrafts.set(application.id, application)
+      return project(data, who, application) as ApplicantView
+    }),
     controls: () => ({ ...controls }),
     setControls: next => {
       if (typeof next.slow !== 'boolean' || ![null, 'upload', 'save', 'storage'].includes(next.failure)) return
@@ -278,13 +303,16 @@ export function createDemo(): Demo {
       selections.set(key, token)
       const data = await read()
       authority(captured, who, command.datasetId, data)
-      const application = permitted(data, who, command.applicationId)
+      const application = editable(data, who, command.applicationId)
       if (application.owner !== who) throw new DemoError('permissionDenied')
       if (application.status !== 'draft') throw new DemoError('invalidState')
       const source = command.source
       const sample = source.kind === 'sample' ? data.catalog.find(sample => sample.applicationId === application.id && sample.slot === command.slot && sample.id === source.sampleId) : null
+      if (sample && command.slot === 'purchase' && sample.product !== (command.product ?? application.product)) throw new DemoError('validation', command.slot)
       const sampleFile = sample ? data.files.find(file => file.id === sample.fileId) : null
-      const selected = source.kind === 'local' ? source.file : sampleFile ? new File([sampleFile.bytes], sampleFile.name, { type: sampleFile.mime }) : null
+      const generated = source.kind === 'generated' ? await makeFile(application.id, command.slot, source.fields, command.product ?? application.product, application.evidenceMonths, 'original', false, false) : null
+      const sampleBytes = generated ?? sampleFile
+      const selected = source.kind === 'local' ? source.file : sampleBytes ? new File([sampleBytes.bytes], sampleBytes.name, { type: sampleBytes.mime }) : null
       if (!selected) throw new DemoError('unavailable')
       const mime = validateFileEnvelope(selected)
       if (!mime) throw new DemoError('validation', command.slot)
@@ -306,16 +334,16 @@ export function createDemo(): Demo {
       await sleep(duration / 4)
       const latest = await read()
       current(); authority(captured, who, command.datasetId, latest)
-      const allowed = permitted(latest, who, application.id)
+      const allowed = editable(latest, who, application.id)
       if (allowed.status !== 'draft') throw new DemoError('invalidState')
-      const reference: PreparedAttachment = { id: file.id, name: file.name, mime: file.mime, size: file.size, hash: file.hash, source: source.kind }
-      preparations.set(reference.id, { actor: who, datasetId: command.datasetId, file, reference })
+      const reference: PreparedAttachment = { id: file.id, name: file.name, mime: file.mime, size: file.size, hash: file.hash, source: source.kind === 'local' ? 'local' : 'sample' }
+      preparations.set(reference.id, { actor: who, datasetId: command.datasetId, file, product: command.product ?? application.product, reference })
       progress(100)
       return { ...reference }
     }),
     cancelPreparation: (id, slot) => { selections.delete(`${id}/${slot}`) },
     readPrepared: (id, reference) => protectedRead((data, who) => {
-      const application = permitted(data, who, id)
+      const application = editable(data, who, id)
       const prepared = preparations.get(reference.id)
       if (!prepared || application.owner !== who) throw new DemoError('unavailable')
       return fileResult(preparedFile(who, id, prepared.file.slot, reference))
@@ -324,7 +352,7 @@ export function createDemo(): Demo {
       const operation = structuredClone(input)
       return protectedRead((data, who) => {
         if (data.meta.datasetId !== operation.datasetId) throw new DemoError('supersededDataset')
-        const application = permitted(data, who, operation.applicationId)
+        const application = editable(data, who, operation.applicationId)
         const parsed = saveDraftSchema.safeParse(operation)
         if (!parsed.success) throw new DemoError('validation')
         const receipt = draftReceipt(data, who, parsed.data)
@@ -403,7 +431,7 @@ export function createDemo(): Demo {
       return data.notifications.filter(notice => notice.owner === who)
     }),
     listSamples: id => protectedRead((data, who) => {
-      const application = permitted(data, who, id)
+      const application = editable(data, who, id)
       if (who !== application.owner) throw new DemoError('unavailable')
       return data.catalog.filter(sample => sample.applicationId === id)
     }),
@@ -425,7 +453,7 @@ export function createDemo(): Demo {
       window.removeEventListener('pageshow', activate)
       window.removeEventListener('storage', hint)
       listening = false
-      preparations.clear(); selections.clear(); controls = { slow: false, failure: null }
+      newDrafts.clear(); preparations.clear(); selections.clear(); controls = { slow: false, failure: null }
       subscribers.clear()
     },
   }

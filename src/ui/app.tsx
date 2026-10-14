@@ -1,21 +1,23 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useBlocker, useNavigate, useRouter, useRouterState } from '@tanstack/react-router'
 import { createDemo, demoIdentities, type ApplicationSummary, type ApplicationView, type Context, type ErrorKind } from '../demo'
-import { products } from '../domain'
-import type { ActorId, ApplicationStatus, Language } from '../domain/model'
-import { date, documentLabel, errors, events, fieldLabels, money, outcomes, reviewChecks, statuses, text } from './i18n'
+import { products, resolveStep } from '../domain'
+import type { ActorId, ApplicationStatus, Language, ProductId } from '../domain/model'
+import { date, displayFieldValue, documentLabel, errors, events, fieldLabels, money, outcomes, reviewChecks, statuses, text } from './i18n'
 import { draftText } from './i18n'
 import { DraftEditor, draftDirty, type Departure, type DraftBuffer } from './draft'
 import { DocumentPreview } from './preview'
+import { applicationText } from './application-copy'
 
-type Screen = { kind: 'home' | 'chooser' | 'products' | 'applicantList' | 'staffList' | 'unavailable' } | { kind: 'applicantDetail' | 'staffDetail'; id: string }
+type Screen = { kind: 'home' | 'chooser' | 'products' | 'applicantList' | 'staffList' | 'newDraft' | 'unavailable' } | { kind: 'applicantDetail' | 'staffDetail'; id: string }
 function resolveScreen(path: string): Screen {
   if (path === '/') return { kind: 'home' }
   if (path === '/sign-in') return { kind: 'chooser' }
   if (path === '/products') return { kind: 'products' }
   if (path === '/applications') return { kind: 'applicantList' }
   if (path === '/staff/applications') return { kind: 'staffList' }
-  const applicant = /^\/applications\/(RIFD-2026-\d{3})$/.exec(path)
+  if (path === '/applications/new') return { kind: 'newDraft' }
+  const applicant = /^\/applications\/(RIFD-2026-[a-zA-Z0-9-]+)(?:\/edit)?$/.exec(path)
   if (applicant) return { kind: 'applicantDetail', id: applicant[1] }
   const staff = /^\/staff\/applications\/(RIFD-2026-\d{3})$/.exec(path)
   if (staff) return { kind: 'staffDetail', id: staff[1] }
@@ -40,6 +42,9 @@ function Status({ status, language }: { status: ApplicationStatus; language: Lan
 
 export function App() {
   const demo = useMemo(() => createDemo(), [])
+  const search = useRouterState({ select: state => state.location.search }) as { product?: string; step?: string }
+  const step = resolveStep(search.step)
+  const chosenProduct: ProductId = search.product === 'equipment' ? 'equipment' : 'inventory'
   const path = useRouterState({ select: state => state.location.pathname })
   const navigate = useNavigate()
   const router = useRouter()
@@ -54,6 +59,7 @@ export function App() {
   const [loadedPath, setLoadedPath] = useState<string | null>(null)
   const alive = useRef(true)
   const identitySelection = useRef(false)
+  const newDraftId = useRef<string | null>(null)
   const draftBuffers = useRef(new Map<string, DraftBuffer>())
   const departure = useRef<Departure | null>(null)
   const [, refreshDeparture] = useState(0)
@@ -65,7 +71,8 @@ export function App() {
   const t = (key: keyof typeof text) => text[key][language]
   const navigateTo = (to: string) => {
     setError(null)
-    return to === '/' ? navigate({ to: '/' }) : navigate({ to: '/$', params: { _splat: to.slice(1) } })
+    const target = new URL(to, window.location.origin)
+    return to === '/' ? navigate({ to: '/' }) : navigate({ to: '/$', params: { _splat: target.pathname.slice(1) }, search: { product: target.searchParams.get('product') ?? undefined, step: target.searchParams.get('step') ?? undefined } })
   }
   const guard = (action: () => void) => {
     if (departure.current?.dirty || departure.current?.pending) setLeaving({ action, canSave: true })
@@ -121,9 +128,19 @@ export function App() {
     if (!context || !identityId) return
     if (current.kind === 'home') { void navigate({ to: '/$', params: { _splat: identity?.role === 'reviewer' ? 'staff/applications' : 'applications' }, replace: true }); return }
     const staff = current.kind === 'staffList' || current.kind === 'staffDetail'
-    const applicant = current.kind === 'applicantList' || current.kind === 'applicantDetail'
+    const applicant = current.kind === 'applicantList' || current.kind === 'applicantDetail' || current.kind === 'newDraft'
     if ((staff && identityId !== 'salma') || (applicant && identityId === 'salma')) { setError('unavailable'); setLoadedPath(path); return }
-    if (current.kind === 'staffList' || current.kind === 'applicantList') {
+    const retainedNew = current.kind === 'newDraft' && newDraftId.current ? draftBuffers.current.get(`${context.datasetId}/${identityId}/${newDraftId.current}`) : undefined
+    if (retainedNew) {
+      void demo.readApplication(retainedNew.baseline.id).then(result => {
+        if (!active) return
+        if (result.ok && result.value.status === 'draft') { setList(null); setView(result.value) }
+        else setError(result.ok ? 'unavailable' : result.error.kind)
+        setLoadedPath(path)
+      })
+      return () => { active = false }
+    }
+    if (current.kind === 'staffList' || current.kind === 'applicantList' || current.kind === 'newDraft') {
       void demo.listApplications().then(result => {
         if (!active) return
         if (result.ok) setList(result.value)
@@ -133,7 +150,8 @@ export function App() {
     } else if (current.kind === 'staffDetail' || current.kind === 'applicantDetail') {
       void demo.readApplication(current.id).then(result => {
         if (!active) return
-        if (result.ok) setView(result.value)
+        if (result.ok && (!path.endsWith('/edit') || result.value.status === 'draft')) setView(result.value)
+        else if (result.ok) setError('unavailable')
         else setError(result.error.kind)
         setLoadedPath(path)
       })
@@ -158,7 +176,7 @@ export function App() {
     try {
       if (!alive.current) return
       if (!result.ok) { setError(result.error.kind); return }
-      let permitted = screen.kind === 'applicantList' && id !== 'salma' || screen.kind === 'staffList' && id === 'salma'
+      let permitted = screen.kind === 'newDraft' && id !== 'salma' || screen.kind === 'applicantList' && id !== 'salma' || screen.kind === 'staffList' && id === 'salma'
       if (screen.kind === 'applicantDetail' && id !== 'salma' || screen.kind === 'staffDetail' && id === 'salma') {
         const access = await demo.readApplication(screen.id)
         permitted = access.ok
@@ -223,7 +241,7 @@ export function App() {
     <div className={`mx-auto max-w-[1440px] px-[4%] pt-[42px] pb-[60px] narrow:px-[5%] narrow:pt-7 narrow:pb-10 ${isStaff ? 'grid grid-cols-[190px_minmax(0,1fr)] gap-8 compact:grid-cols-1' : ''}`}>
       {isStaff && <aside className="sidebar py-5 compact:flex compact:flex-wrap compact:items-center compact:gap-5 compact:p-0 narrow:gap-3"><p className="eyebrow">{t('reviewer')}</p><nav aria-label={t('staffApplications')}><a className="active" href="/staff/applications" onClick={event => { event.preventDefault(); go('/staff/applications') }}>{t('staffApplications')}</a></nav><p>{t('staffIntro')}</p></aside>}
       <main aria-busy={busy || !routeReady}>
-        {screen.kind === 'products' ? <Products language={language} />
+        {screen.kind === 'products' ? <Products language={language} choose={product => void go(`/applications/new?product=${product}`)} />
           : startupError ? <section className="panel"><Heading>{t('startupError')}</Heading><p role="alert">{errors[startupError][language]}</p><button onClick={() => void retryStartup()}>{t('retry')}</button><a className="button secondary" href="/products" onClick={event => { event.preventDefault(); go('/products') }}>{t('products')}</a></section>
           : unavailable ? <section className="panel"><Heading>{t('unavailable')}</Heading><p>{t('unavailableDescription')}</p><a className="button" href={home} onClick={event => { event.preventDefault(); go(home) }}>{t('home')}</a><button onClick={() => go('/sign-in')}>{t('switchIdentity')}</button></section>
           : isChooser ? <section className="mx-auto mt-[15px] mb-10 max-w-[970px] narrow:mt-[5px] narrow:mb-5">
@@ -232,8 +250,14 @@ export function App() {
             <p className="my-[22px] text-[13px] text-muted">{t('sliceNotice')}</p>
           </section>
           : !routeReady ? <section className="panel min-h-[250px] pt-[75px] text-center text-muted narrow:pt-5" role="status">{t('readLoading')}</section>
+          : screen.kind === 'newDraft' && !view ? <section className="panel"><Heading>{applicationText.chooseDraft[language]}</Heading><h2>{products[chosenProduct].name[language]}</h2><p>{applicationText.choiceHint[language]}</p><button disabled={busy} onClick={async () => {
+            setBusy(true)
+            const result = await demo.newDraft(chosenProduct)
+            if (result.ok) { newDraftId.current = result.value.id; setList(null); setView(result.value) } else setError(result.error.kind)
+            setBusy(false)
+          }}>{applicationText.new[language]}</button><div className="actions">{list?.filter(application => application.status === 'draft').map(application => <a className="button secondary" key={application.id} href={`/applications/${application.id}/edit?step=personal`} onClick={event => { event.preventDefault(); void go(`/applications/${application.id}/edit?step=personal`) }}>{applicationText.resume[language]} <bdi>{application.id}</bdi> · {products[application.product].name[language]}</a>)}</div></section>
           : list ? <ApplicationList list={list} language={language} staff={screen.kind === 'staffList'} go={go} />
-          : view ? <ApplicationDetail key={`${context?.datasetId}/${identityId}/${sessionId}/${view.id}`} demo={demo} view={view} language={language}>{view.role === 'applicant' && view.status === 'draft' && context && <DraftEditor demo={demo} view={view} context={context} language={language} retained={draftBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => draftBuffers.current.set(`${context.datasetId}/${identityId}/${view.id}`, buffer)} savedView={setView} departure={value => { departure.current = value; refreshDeparture(value => value + 1) }} />}</ApplicationDetail> : null}
+          : view ? <ApplicationDetail key={`${context?.datasetId}/${identityId}/${sessionId}/${view.id}`} demo={demo} view={view} language={language}>{view.role === 'applicant' && view.status === 'draft' && context && <DraftEditor demo={demo} view={view} context={context} language={language} step={step} changeStep={step => { void go(`${path}?${screen.kind === 'newDraft' ? `product=${chosenProduct}&` : ''}step=${step}`) }} retained={draftBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => draftBuffers.current.set(`${context.datasetId}/${identityId}/${view.id}`, buffer)} savedView={application => { setView(application); if (screen.kind === 'newDraft') { departure.current = null; void go(`/applications/${application.id}/edit?step=${step}`) } }} departure={value => { departure.current = value; refreshDeparture(value => value + 1) }} />}</ApplicationDetail> : null}
         {error && error !== 'unavailable' && <div className="my-5 rounded-[10px] border border-solid border-danger-border bg-danger-surface px-5 py-4 text-danger-text [&_button]:mt-[15px] [&_button]:block" role="alert">{errors[error][language]}<button disabled={busy} onClick={() => setReload(value => value + 1)}>{t('retry')}</button></div>}
       </main>
     </div>
@@ -248,22 +272,23 @@ export function App() {
   </div>
 }
 
-function Products({ language }: { language: Language }) {
+function Products({ language, choose }: { language: Language; choose: (product: ProductId) => void }) {
   const t = (key: keyof typeof text) => text[key][language]
-  return <><Heading>{t('products')}</Heading><p className="intro">{t('productIntro')}</p><div className="grid grid-cols-2 gap-[25px] narrow:grid-cols-1">{Object.values(products).map(product => <section className="panel" key={product.id}><h2>{product.name[language]}</h2><p>{product.purpose[language]}</p><dl className="facts"><div><dt>{t('minimum')}</dt><dd><bdi dir="ltr">{money(product.minimum, language)}</bdi></dd></div><div><dt>{t('maximum')}</dt><dd><bdi dir="ltr">{money(product.maximum, language)}</bdi></dd></div><div><dt>{t('term')}</dt><dd><bdi>{product.terms.join(' / ')}</bdi> {t('months')}</dd></div><div><dt>{t('markup')}</dt><dd><bdi>{product.markupPercent}%</bdi></dd></div></dl><h3>{t('documents')}</h3><ul>{(['identity', 'business', 'financial', 'purchase'] as const).map(slot => <li key={slot}>{documentLabel(slot, product.id)[language]}</li>)}</ul></section>)}</div></>
+  return <><Heading>{t('products')}</Heading><p className="intro">{t('productIntro')}</p><div className="grid grid-cols-2 gap-[25px] narrow:grid-cols-1">{Object.values(products).map(product => <section className="panel" key={product.id}><h2>{product.name[language]}</h2><p>{product.purpose[language]}</p><dl className="facts"><div><dt>{t('minimum')}</dt><dd><bdi dir="ltr">{money(product.minimum, language)}</bdi></dd></div><div><dt>{t('maximum')}</dt><dd><bdi dir="ltr">{money(product.maximum, language)}</bdi></dd></div><div><dt>{t('term')}</dt><dd><bdi>{product.terms.join(' / ')}</bdi> {t('months')}</dd></div><div><dt>{t('markup')}</dt><dd><bdi>{product.markupPercent}%</bdi><small>{applicationText.once[language]}</small></dd></div></dl><h3>{t('documents')}</h3><ul>{(['identity', 'business', 'financial', 'purchase'] as const).map(slot => <li key={slot}>{documentLabel(slot, product.id)[language]}</li>)}</ul><p>{applicationText.eligibility[language]}</p><button onClick={() => choose(product.id)}>{applicationText.choose[language]}</button></section>)}</div></>
 }
 
 function ApplicationList({ list, language, staff, go }: { list: ApplicationSummary[]; language: Language; staff: boolean; go: (path: string) => void }) {
   const t = (key: keyof typeof text) => text[key][language]
-  const destination = (application: ApplicationSummary) => `${staff ? '/staff' : ''}/applications/${application.id}`
+  const destination = (application: ApplicationSummary) => `${staff ? '/staff' : ''}/applications/${application.id}${application.status === 'draft' ? '/edit?step=personal' : ''}`
   return <>
     <p className="eyebrow">{language === 'ar' ? 'مساحة العمل' : 'Workspace'}</p><Heading>{staff ? t('staffApplications') : t('applications')}</Heading><p className="intro">{staff ? t('staffIntro') : t('ownIntro')}</p>
+    {!staff && <a className="button secondary mb-5" href="/products" onClick={event => { event.preventDefault(); go('/products') }}>{applicationText.new[language]}</a>}
     {staff && <div className="queue-counts grid grid-cols-4 gap-[15px] narrow:grid-cols-2 narrow:gap-2.5" aria-label={t('all')}><div><strong>{list.length}</strong><span>{t('all')}</span></div>{(['submitted', 'underReview', 'correctionsRequested'] as const).map(status => <div key={status}><strong>{list.filter(application => application.status === status).length}</strong><span>{statuses[status][language]}</span></div>)}</div>}
     <p className="my-[22px] text-[13px] text-muted">{t('sliceNotice')}</p>
     {staff ? <div className="panel overflow-hidden p-0 compact:hidden"><table><thead><tr><th>{t('reference')}</th><th>{fieldLabels.fullName[language]} / {fieldLabels.businessName[language]}</th><th>{t('products')}</th><th>{t('amount')}</th><th>{t('status')}</th><th>{t('assignment')}</th><th>{t('submittedAt')}</th><th><span className="sr-only">{t('open')}</span></th></tr></thead><tbody>{list.map(application => <tr key={application.id}><td><bdi>{application.id}</bdi></td><td>{application.fullName}<small>{application.businessName}</small></td><td>{products[application.product].name[language]}</td><td><bdi dir="ltr">{money(application.amount, language)}</bdi></td><td><Status status={application.status} language={language} /></td><td>{application.assignedToYou ? t('assignedToYou') : application.assignment?.[language] ?? t('unassigned')}</td><td><bdi>{application.submittedAt ? date(application.submittedAt, language) : t('notSubmitted')}</bdi></td><td><a href={destination(application)} onClick={event => { event.preventDefault(); go(destination(application)) }} aria-label={`${t('open')} ${application.id}`}>{t('open')}</a></td></tr>)}</tbody></table></div> : null}
     <div className={`grid-cols-2 gap-[22px] narrow:grid-cols-1 ${staff ? 'hidden compact:grid' : 'grid'}`}>{list.map(application => <article className="panel application-card" key={application.id} data-application={application.id}>
       <div className="mb-[18px] flex flex-wrap items-center justify-between gap-3"><bdi className="font-latin text-[13px] text-muted">{application.id}</bdi><Status status={application.status} language={language} /></div><h2>{application.businessName}</h2><p>{application.fullName} · {products[application.product].name[language]}</p>
-      <dl className="facts"><div><dt>{t('amount')}</dt><dd><bdi dir="ltr">{money(application.amount, language)}</bdi></dd></div><div><dt>{t('term')}</dt><dd><bdi>{application.term}</bdi> {t('months')}</dd></div>{staff && <div><dt>{t('assignment')}</dt><dd>{application.assignedToYou ? t('assignedToYou') : application.assignment?.[language] ?? t('unassigned')}</dd></div>}<div><dt>{t('submittedAt')}</dt><dd><bdi>{application.submittedAt ? date(application.submittedAt, language) : t('notSubmitted')}</bdi></dd></div></dl>
+      <dl className="facts"><div><dt>{t('amount')}</dt><dd><bdi dir="ltr">{money(application.amount, language)}</bdi></dd></div><div><dt>{t('term')}</dt><dd><bdi>{displayFieldValue('term', application.term, language)}</bdi> {t('months')}</dd></div>{staff && <div><dt>{t('assignment')}</dt><dd>{application.assignedToYou ? t('assignedToYou') : application.assignment?.[language] ?? t('unassigned')}</dd></div>}<div><dt>{t('submittedAt')}</dt><dd><bdi>{application.submittedAt ? date(application.submittedAt, language) : t('notSubmitted')}</bdi></dd></div></dl>
       <a className="button secondary" href={destination(application)} onClick={event => { event.preventDefault(); go(destination(application)) }}>{staff ? t('open') : t(application.nextAction)}</a>
     </article>)}</div>
   </>
@@ -276,22 +301,22 @@ function ApplicationDetail({ demo, view, language, children }: { demo: ReturnTyp
   const fields = view.snapshot.fields
   const numeric = ['revenue', 'expenses', 'amount', 'budget']
   return <>
-    <p className="eyebrow">{products[view.product].name[language]}</p><div className="detail-heading mb-2.5 flex flex-wrap items-center gap-5 narrow:gap-3"><Heading><bdi>{view.id}</bdi></Heading><Status status={view.status} language={language} /></div>
+    <p className="eyebrow">{products[view.product].name[language]}</p><div className="detail-heading mb-2.5 flex flex-wrap items-center gap-5 narrow:gap-3"><Heading>{view.status === 'draft' && view.role === 'applicant' && !view.workspace?.savedAt ? applicationText.new[language] : <bdi>{view.id}</bdi>}</Heading><Status status={view.status} language={language} /></div>
     <p className="intro">{fields.fullName} · {fields.businessName}</p>
     {view.role === 'reviewer' && <p className="mb-[25px] text-[14px] text-accent">{t('assignment')}: {view.assignedToYou ? t('assignedToYou') : view.assignment?.[language] ?? t('unassigned')}</p>}
     <section className="summary"><h2>{t('nextAction')}</h2><p>{t(view.status === 'draft' ? 'draftNext' : view.status === 'correctionsRequested' ? 'correctionNext' : ['approved', 'rejected'].includes(view.status) ? 'finalNext' : 'waitingNext')}</p></section>
     {children}
-    <div className="detail-grid grid grid-cols-[minmax(0,1.7fr)_minmax(260px,1fr)] gap-[25px] compact:grid-cols-[minmax(0,1.4fr)_minmax(240px,1fr)] narrow:grid-cols-1"><div>
-      <section className="panel"><h2>{view.status === 'draft' ? t('savedInformation') : t('submittedInformation')}</h2><dl className="facts information">{Object.entries(fields).map(([key, value]) => <div key={key} className={key === 'explanation' || key === 'address' ? 'col-span-full narrow:col-auto' : ''}><dt>{fieldLabels[key as keyof typeof fields][language]}</dt><dd>{numeric.includes(key) ? <bdi dir="ltr">{money(value, language)}</bdi> : key === 'mobile' || key === 'email' || key === 'operatingSince' ? <bdi dir="ltr">{value}</bdi> : key === 'term' ? <><bdi>{value}</bdi> {t('months')}</> : key === 'activity' ? ({ retail: { ar: 'تجارة تجزئة', en: 'Retail' }, services: { ar: 'خدمات', en: 'Services' }, production: { ar: 'إنتاج صغير', en: 'Small production' } }[fields.activity][language]) : value || t('emptyExplanation')}</dd></div>)}</dl><p>{t('financialWindow')}: {view.evidenceMonths.map(month => <bdi key={month}>{date(month, language)} </bdi>)}</p></section>
+    {(view.status !== 'draft' || view.role === 'applicant' && !!view.workspace?.savedAt) && <div className="detail-grid grid grid-cols-[minmax(0,1.7fr)_minmax(260px,1fr)] gap-[25px] compact:grid-cols-[minmax(0,1.4fr)_minmax(240px,1fr)] narrow:grid-cols-1"><div>
+      <section className="panel"><h2>{view.status === 'draft' ? t('savedInformation') : t('submittedInformation')}</h2><dl className="facts information">{Object.entries(fields).map(([key, value]) => <div key={key} className={key === 'explanation' || key === 'address' ? 'col-span-full narrow:col-auto' : ''}><dt>{fieldLabels[key as keyof typeof fields][language]}</dt><dd>{numeric.includes(key) ? <bdi dir="ltr">{money(value, language)}</bdi> : key === 'mobile' || key === 'email' || key === 'operatingSince' ? <bdi dir="ltr">{displayFieldValue(key as keyof typeof fields, value, language)}</bdi> : key === 'term' ? <><bdi>{displayFieldValue('term', value, language)}</bdi> {t('months')}</> : key === 'activity' ? ({ retail: { ar: 'تجارة تجزئة', en: 'Retail' }, services: { ar: 'خدمات', en: 'Services' }, production: { ar: 'إنتاج صغير', en: 'Small production' } }[fields.activity][language]) : value || t('emptyExplanation')}</dd></div>)}</dl><p>{t('financialWindow')}: {view.evidenceMonths.map(month => <bdi key={month}>{date(month, language)} </bdi>)}</p></section>
       <section className="panel"><h2>{t('documents')}</h2><ul className="document-list">{view.documents.map(document => <li key={document.slot}><strong>{documentLabel(document.slot, view.product)[language]}</strong><p>{document.file ? <><bdi dir="ltr" className="wrap-anywhere">{document.file.name}</bdi><span className="text-[11px]"><bdi>{document.file.mime} · {new Intl.NumberFormat('en-US').format(document.file.size)} B</bdi></span><span>{view.status === 'draft' ? t('savedInDraft') : t('included')}</span></> : t('missing')}</p>{document.file && <button className="secondary" onClick={() => setPreviewFileId(document.file!.id)}>{language === 'ar' ? 'معاينة' : 'Preview'} {documentLabel(document.slot, view.product)[language]}</button>}{view.role === 'reviewer' && view.assessments && <p className="rounded-[6px] bg-canvas px-3 py-2">{outcomes[view.assessments[document.slot].status][language]}{view.assessments[document.slot].reason && <span> · {view.assessments[document.slot].reason?.[language]}</span>}</p>}</li>)}</ul></section>
       {view.rounds.map(round => <section className="panel" key={round.id}><h2>{t('corrections')}</h2><p>{t('baseline')}: <bdi>{date(round.requestedAt, language)}</bdi></p><ul>{round.targets.map((target, index) => <li key={index}><strong>{target.kind === 'field' ? fieldLabels[target.field][language] : documentLabel(target.slot, view.product)[language]}</strong><p>{target.reason[language]}</p></li>)}</ul></section>)}
       {view.role === 'applicant' && view.status === 'correctionsRequested' && view.workspace && <section className="summary"><h2>{t('privateWorkspace')}</h2><p>{t('privateUnchanged')}</p><p>{t('amount')}: <bdi dir="ltr">{money(view.workspace.snapshot.fields.amount, language)}</bdi></p></section>}
       <section className="panel"><h2>{t('history')}</h2>{view.history.length ? <ol className="timeline">{view.history.map(event => <li key={event.id}><strong>{events[event.kind][language]}</strong><bdi className={eventDateClassName}>{date(event.date, language)}</bdi>{event.reason && <p>{event.reason[language]}</p>}</li>)}</ol> : <p>{t('noHistory')}</p>}</section>
     </div><div>
-      <section className="summary"><h2>{products[view.product].name[language]}</h2><dl className="facts"><div><dt>{t('amount')}</dt><dd><bdi dir="ltr">{money(fields.amount, language)}</bdi></dd></div><div><dt>{t('term')}</dt><dd><bdi>{fields.term}</bdi> {t('months')}</dd></div><div><dt>{t('submittedAt')}</dt><dd><bdi>{view.submittedAt ? date(view.submittedAt, language) : t('notSubmitted')}</bdi></dd></div></dl></section>
+      <section className="summary"><h2>{products[view.product].name[language]}</h2><dl className="facts"><div><dt>{t('amount')}</dt><dd><bdi dir="ltr">{money(fields.amount, language)}</bdi></dd></div><div><dt>{t('term')}</dt><dd><bdi>{displayFieldValue('term', fields.term, language)}</bdi> {t('months')}</dd></div><div><dt>{t('submittedAt')}</dt><dd><bdi>{view.submittedAt ? date(view.submittedAt, language) : t('notSubmitted')}</bdi></dd></div></dl></section>
       {view.role === 'reviewer' && <><section className="panel"><h2>{t('checks')}</h2><ul className="review-list">{Object.entries(view.checks ?? {}).map(([key, outcome]) => <li key={key}><span>{reviewChecks[key][language]}</span><strong>{outcomes[outcome][language]}</strong></li>)}</ul></section><section className="panel"><h2>{t('notes')}</h2>{view.notes.length ? view.notes.map(note => <p key={note.id}>{note.text[language]}<bdi className={eventDateClassName}>{date(note.date, language)}</bdi></p>) : <p>{t('noNotes')}</p>}</section><section className="panel"><h2>{t('activity')}</h2><ol className="timeline">{view.activity.map(event => <li key={event.id}><strong>{events[event.kind][language]}</strong><bdi className={eventDateClassName}>{date(event.date, language)}</bdi><span>{demoIdentities.find(identity => identity.id === event.actor)?.name[language] ?? (language === 'ar' ? 'خالد علي' : 'Khaled Ali')}</span></li>)}</ol></section></>}
       {view.repayment && <section className="panel"><h2>{t('repayment')}</h2><p>{t('notice')}</p><dl className="facts">{(['amount', 'markup', 'total', 'completed', 'remaining'] as const).map(key => <div key={key}><dt>{t(key)}</dt><dd><bdi dir="ltr">{money(view.repayment![key], language)}</bdi></dd></div>)}</dl><ol className="repayment-list">{view.repayment.rows.map(row => <li key={row.due}><bdi>{date(row.due, language)}</bdi><bdi dir="ltr">{money(row.amount, language)}</bdi><span>{t(row.status === 'completed' ? 'completedRow' : 'upcoming')}</span></li>)}</ol></section>}
-    </div></div>
+    </div></div>}
     {previewFileId && <DocumentPreview demo={demo} applicationId={view.id} fileId={previewFileId} language={language} close={() => setPreviewFileId(null)} />}
   </>
 }

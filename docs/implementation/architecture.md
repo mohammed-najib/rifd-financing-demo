@@ -1,6 +1,6 @@
 # Browser demo architecture
 
-The [specification](../../.scratch/financing-application-and-review/spec.md) and [accepted browser contract](../../.scratch/financing-application-and-review/issues/04-browser-state-and-simulated-failures.md#answer) govern the implementation. The first two slices establish startup, authorized reads, attachment preparation and atomic draft saves. Later tickets extend those same boundaries.
+The [specification](../../.scratch/financing-application-and-review/spec.md) and [accepted browser contract](../../.scratch/financing-application-and-review/issues/04-browser-state-and-simulated-failures.md#answer) govern the implementation. The first three slices establish startup, authorized reads, canonical field validation, product comparison, five-step editing, attachment preparation and atomic draft creation/saves. Later tickets extend those same boundaries.
 
 ## Modules
 
@@ -14,7 +14,7 @@ The [specification](../../.scratch/financing-application-and-review/spec.md) and
 | `src/ui` | Screen loading, navigation, feedback, bilingual read presentation, responsive table/card views and identity controls. |
 | `src/routes`, `router.tsx` | Start SPA shell and normal browser paths. The current slice validates supported paths within the shared read screen. |
 
-The public `Demo` interface returns `Result<T>` with finite error kinds and translation keys. `setLanguage` carries the dataset, operation identifier, preference revision and desired language. `saveDraft` carries the dataset, application, operation identifier, workspace revision, raw form/product and saved or prepared document choices. It has no database replacement, arbitrary patch, caller-supplied actor or submission bypass. Session operations capture identity in the current tab. Future applicant and reviewer mutations must add their own typed commands and complete effects here.
+The public `Demo` interface returns `Result<T>` with finite error kinds and translation keys. `setLanguage` carries the dataset, operation identifier, preference revision and desired language. `newDraft` creates a tab-local, owner-scoped in-memory draft and performs no durable write. Its UUID-based application reference stays stable after saving, while the seed references retain their short numeric suffixes. Workspace revision zero identifies unsaved creation. `saveDraft` carries the dataset, application, operation identifier, workspace revision, raw form/product and saved or prepared document choices. It has no database replacement, arbitrary patch, caller-supplied actor or submission bypass. Session operations capture identity in the current tab. Future applicant and reviewer mutations must add their own typed commands and complete effects here.
 
 ## Styling
 
@@ -79,3 +79,15 @@ Startup loads local fonts, prepares all seeded and catalog bytes, validates stor
 Unsupported or damaged storage is preserved. Resource/storage failure returns a stable error and retry. Recovery/reset operations and the remaining failure controls belong to later tickets. No memory-only saved success or silent reseeding occurs. Extend runtime validation as new record shapes arrive, with an explicit migration for a new format. Keep file bytes referenced by baselines and history.
 
 The current storage layout favors a simple atomic initial dataset and preference operation. Later commands can change the private layout while public interface and real-browser tests remain the same. Public interface integration tests use actual IndexedDB. Only an isolated corruption fixture accesses the private layout to prepare damage; its assertions use startup results and the preserved dataset identifier.
+
+## Five-step drafts
+
+The pure domain interface validates Unicode code-point text limits, contacts, Gregorian months, whole-YER grouping and product boundaries. Normalized comparison folds Arabic-Indic digits, NFC and whitespace without overwriting raw input. Format validation deliberately permits short operating history, insufficient surplus and financing above budget. The domain caller supplies product rules and the initial submission month explicitly.
+
+`saveDraft` revision zero atomically creates a registered memory-only draft with its first workspace and prepared bytes. Receipt replay works after reload. Later saves compare workspace revisions as before. Product switching changes the product and workspace together; it cannot retain a saved incompatible purchase reference or a prepared purchase reference for the wrong product. Shared documents remain authorized. Removed bytes can remain in the private store for references in the sample catalog, but unreferenced files cannot be previewed through application reads.
+
+The editor retains every raw field, product, per-slot selection and staged purchase removal in one tab-local buffer. Step query changes preserve the component and pending preparation; language changes retain mounted controls and caret positions. Saves capture all current fields and selection identifiers before awaiting preparations. Later typing stays unsaved, and failed selections keep the old slot while other progress saves. Review validates the current buffer and links errors to a step and focused control. New-vs-resume is an explicit choice and never rewrites an existing draft.
+
+Saved catalog samples retain their original fictional facts and product provenance. A supported additive migration recovers the product of older catalog entries from the immutable seed manifest. Product-specific sample reads/preparations cannot relabel stock plans as quotations after a switch. New applications and newly exposed product-specific requirements can generate sample bytes from the current draft fields through the same preparation interface. This generation happens outside storage transactions and commits no catalog or application data. Local fictional files remain available for every slot.
+
+Same-identity recovery reauthorizes memory-only new drafts through the public read interface before restoring their retained buffer. A stale draft reapplication that keeps a different product from the latest saved workspace confirms removal of its incompatible fourth document before staging the reapplication.

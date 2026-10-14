@@ -90,7 +90,7 @@ export const notificationSchema = z.object({
 })
 export type Notification = z.infer<typeof notificationSchema>
 export const sampleSchema = z.object({
-  id: z.string(), applicationId: z.string(), slot: slotSchema, fileId: z.string(),
+  id: z.string(), applicationId: z.string(), slot: slotSchema, fileId: z.string(), product: productIdSchema.optional(),
   variant: z.enum(['original', 'replacement', 'invalidType', 'empty', 'oversized', 'identical']),
 })
 export type Sample = z.infer<typeof sampleSchema>

@@ -1,8 +1,8 @@
 # RIFD / رِفد
 
-A fictional, Arabic-first financing demo that saves records and evidence in the browser. The first two slices provide the complete seeded dataset and [draft saving with real attachments](.scratch/financing-application-and-review-implementation/issues/02-save-and-restore-draft-with-attachment.md) in Arabic and English.
+A fictional, Arabic-first financing demo that saves records and evidence in the browser. The first three slices provide the complete seeded dataset, product comparison and [five-step saveable drafts](.scratch/financing-application-and-review-implementation/issues/03-compare-products-and-complete-drafts.md) in Arabic and English.
 
-Mariam, Huda and Omar can read their own applications. Salma can read all submitted applications, including colleague assignments. Khaled is a simulated colleague and cannot sign in. Mariam can edit her draft's purchase explanation and stock-plan document. Authorized viewers can preview saved evidence. The remaining form, submission, notifications UI, queue controls and review actions belong to later tickets.
+Mariam, Huda and Omar can read their own applications. Salma can read all submitted applications, including colleague assignments. Khaled is a simulated colleague and cannot sign in. Applicants can create drafts, edit all personal, business and financing fields, switch products, prepare four supporting documents and review completeness. Authorized viewers can preview saved evidence. Submission, notifications UI, queue controls and review actions belong to later tickets.
 
 ## Run
 
@@ -77,7 +77,8 @@ The emulator uses the local `demo-rifd` project identifier and the committed `fi
 | `/`, `/sign-in` | Neutral startup followed by identity home or chooser |
 | `/products` | Public fictional product comparison |
 | `/applications` | Current applicant's saved applications |
-| `/applications/RIFD-2026-001` | Mariam's saved incomplete draft |
+| `/applications/new?product=equipment` | Explicit new-or-resume choice, then a new unsaved Equipment draft |
+| `/applications/RIFD-2026-001/edit?step=personal` | Mariam's five-step saved incomplete draft |
 | `/applications/RIFD-2026-004` | Huda's submitted correction baseline and separate private saved response |
 | `/staff/applications` | Salma's twelve-record read queue |
 | `/staff/applications/RIFD-2026-005` | Historical approval, internal review and frozen repayment data |
@@ -85,7 +86,11 @@ The emulator uses the local `demo-rifd` project identifier and the committed `fi
 
 An unsigned supported protected link resumes after sign-in only if the chosen identity can read it. Other choices open the selected identity's home. A forbidden destination exposes no application details. Intentional identity switching opens the new identity's home. Applicant documents display saved presence; staff document assessments and notes remain separate.
 
-Open Mariam's draft, enter even an incomplete purchase explanation, then select a prepared stock-plan sample or a local fictional PDF, JPEG or PNG. Preparation reports progress and Ready to save. Save progress commits the captured raw input and ready bytes together. Refresh restores saved input and actual evidence; it discards unfinished edits and unsaved selections. Saved file previews include open/download alternatives. A failed replacement preserves the old saved file.
+Choose a product, sign in as an applicant and explicitly start a new application or resume a saved draft. The steps are Personal, Business, Financing, Documents and Review; incomplete steps remain reachable and invalid step queries fall back to Personal. Enter even incomplete or invalid values, then select prepared samples or local fictional PDF, JPEG or PNG files for the four requirements. New applications and a switched product's fourth slot generate fictional samples from the current input. Other sample choices retain the canonical seed evidence.
+
+Review checks format and document completeness separately from substantive review criteria. Switching products confirms removal of a supplied fourth document, stages removal until saving, and preserves shared information and invalid amount/term values.
+
+Preparation reports progress and Ready to save. Save progress commits the captured raw input and ready bytes together. Refresh restores saved input and actual evidence; it discards unfinished edits and unsaved selections. Saved file previews include open/download alternatives. A failed replacement preserves the old saved file.
 
 The draft's Demo controls panel sets normal or slow timing and one next-upload, next-save or next-application-storage-write failure. Controls belong to the current tab and reset on refresh. Retry a failed preparation without reselecting, or retry a failed save without preparing again. An uncertain result requires Inspect save outcome. Another tab's conflicting save requires inspection and explicit reapplication. In-app departure offers Stay, Discard changes or Save and leave; pending work must finish and failed selections must be completed or discarded before saving and leaving.
 
