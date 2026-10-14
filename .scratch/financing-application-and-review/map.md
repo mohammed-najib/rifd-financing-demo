@@ -1,7 +1,7 @@
 # Plan the financing application and review platform
 
 Labels: wayfinder:map
-Status: open
+Status: resolved
 
 ## Destination
 
@@ -28,10 +28,14 @@ Settle the product, workflow, interface, browser-state, and acceptance decisions
 - [Define demo access and reviewer assignment](issues/03-demo-access-and-reviewer-assignment.md#answer): Three applicant identities and one interactive reviewer, a twelve-record queue, assignment and visibility rules, recoverable session interruptions, and explicit recovery from simulated reassignment conflicts.
 - [Verify browser storage and client initialization facts](issues/08-browser-storage-and-client-boundary-facts.md#answer): Primary-source facts for durable file bytes, atomic IndexedDB writes, per-tab sessions, cross-tab notices, storage failures, and SPA client initialization.
 - [Define browser persistence and simulated failures](issues/04-browser-state-and-simulated-failures.md#answer): IndexedDB file persistence, explicit saves, atomic versioned operations and receipts, cross-tab recovery, tab-local sessions, and confirmed browser-wide reset.
+- [Choose the bilingual visual direction](issues/05-bilingual-visual-direction.md#answer): A, Guided, with the رِفد / RIFD identity, spacious bilingual applicant forms, a staff sidebar and readable queue, and preserved comparison evidence.
+- [Validate applicant and staff screen flows](issues/06-applicant-and-staff-screen-flows.md#answer): Accepted routes, five-step applicant forms, private correction workspace, staff queue and review layouts, explicit recovery, accessible bilingual behavior, and applicant-visible print summaries.
+- [Verify browser-test and static-delivery tooling](issues/09-acceptance-tooling-facts.md#answer): Primary-source test/browser distinctions, same-context storage tests, signed-in Lighthouse conditions and classic Hosting emulator/preview checks.
+- [Define acceptance evidence and the implementation handoff](issues/07-acceptance-and-implementation-handoff.md#answer): Accepted requirement-to-evidence matrix, focused tests and manual checks, four-week order, performance/static-hosting gates, delivery package and equal seven-chapter 4:30 demo.
 
 ## Not yet specified
 
-- Further decisions may emerge from trying the bilingual prototypes with the agreed workflow. In particular, discover where Arabic content, narrow screens, or keyboard use make an agreed interaction impractical; the concrete problems are not known yet.
+None. All in-scope decisions are resolved, and the implementation handoff is accepted.
 
 ## Out of scope
 
