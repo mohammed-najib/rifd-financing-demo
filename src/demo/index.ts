@@ -2,12 +2,12 @@ import { z } from 'zod'
 import { canReadApplication, emptyDocuments, validateFileEnvelope } from '../domain'
 import { actorIdSchema, languageSchema, productIdSchema, slots, type ActorId, type Application, type Dataset, type StoredFile } from '../domain/model'
 import { fileFromBytes, makeFile, prepareFonts } from './evidence'
-import { draftFingerprint, preparationSchema, saveDraftSchema } from './commands'
+import { commitHintSchema, draftFingerprint, preparationSchema, saveDraftSchema } from './commands'
 import { identities } from './seed-manifest'
 import { prepareSeed } from './seed'
 import { DemoError, openStorage, readStored, transact, validateDataset } from './storage'
-import type { ApplicantView, ApplicationView, Context, Controls, Demo, ErrorKind, LanguageOperation, MutationResult, PreparedAttachment, Result, SaveDraftOperation, Session } from './types'
-export type { ApplicationSummary, ApplicationView, Context, Demo, DemoOperation, DraftDocuments, ErrorKind, MutationResult, OperationInspection, PreparedAttachment, Preparation, Result, SaveDraftOperation } from './types'
+import type { ApplicantView, ApplicationView, CommitHint, Context, Controls, Demo, ErrorKind, LanguageOperation, MutationResult, PreparedAttachment, Result, SaveDraftOperation, Session } from './types'
+export type { ApplicationSummary, ApplicationView, CommitHint, Context, Demo, DemoOperation, DraftDocuments, ErrorKind, LanguageOperation, MutationResult, OperationInspection, PreparedAttachment, Preparation, Result, SaveDraftOperation } from './types'
 
 const sessionSchema = z.object({ identity: actorIdSchema, datasetId: z.string().uuid(), sessionId: z.string().uuid(), lastActivity: z.number(), expiresAt: z.number() })
 const sessionKey = 'rifd.session.v1'
@@ -128,7 +128,11 @@ export function createDemo(): Demo {
     return { bytes: file.bytes.slice(0), name: file.name, mime: file.mime, hash: file.hash }
   }
   const activate = () => { if (document.visibilityState === 'visible') { expire(); emit() } }
-  const hint = () => emit()
+  const hint = (event: MessageEvent<unknown>) => { if (commitHintSchema.safeParse(event.data).success) emit() }
+  const storageHint = (event: StorageEvent) => {
+    if (event.key !== 'rifd.commit.v1' || !event.newValue) return
+    try { if (commitHintSchema.safeParse(JSON.parse(event.newValue)).success) emit() } catch { /* Ignore malformed hints. */ }
+  }
   const connect = () => {
     if (listening) return
     listening = true
@@ -137,11 +141,13 @@ export function createDemo(): Demo {
     document.addEventListener('visibilitychange', activate)
     window.addEventListener('pageshow', activate)
     window.addEventListener('focus', activate)
-    try { channel = new BroadcastChannel('rifd.commit.v1'); channel.onmessage = hint } catch { window.addEventListener('storage', hint) }
+    window.addEventListener('storage', storageHint)
+    try { channel = new BroadcastChannel('rifd.commit.v1'); channel.onmessage = hint } catch { /* Use storage-event hints. */ }
   }
-  const announce = (kind: 'preferences' | 'application' = 'preferences', applicationId?: string, revision?: number) => {
+  const announce = (change: CommitHint) => {
     emit()
-    try { if (channel) channel.postMessage({ datasetId, kind, applicationId, revision }); else localStorage.setItem('rifd.commit.v1', crypto.randomUUID()) }
+    try { if (channel) { channel.postMessage(change); return } } catch { /* Try the same safe hint through storage. */ }
+    try { localStorage.setItem('rifd.commit.v1', JSON.stringify(change)) }
     catch { /* The transaction already committed. Activation rereads storage. */ }
   }
   const project = (data: Dataset, who: ActorId, application: Application): ApplicationView => {
@@ -241,7 +247,7 @@ export function createDemo(): Demo {
         return abortStorage
       })
       const receipt = data.mutationReceipts.find(receipt => receipt.actor === who && receipt.operationId === command.operationId)!
-      if (!replay) announce('application', command.applicationId, receipt.workspaceRevision)
+      if (!replay) announce({ datasetId: receipt.datasetId, kind: 'workspace', applicationId: command.applicationId, revision: receipt.workspaceRevision })
       return { receipt, application: project(data, who, permitted(data, who, command.applicationId)) }
     })
     return attempt(async () => {
@@ -252,6 +258,7 @@ export function createDemo(): Demo {
       if (captured !== generation) throw new DemoError('sessionExpired')
       if (!db) throw new DemoError('startup')
       const fingerprint = JSON.stringify({ kind: operation.kind, language: operation.language })
+      let replay = false
       const data = await transact(db, raw => {
         const current = validateDataset(raw)
         if (current.meta.datasetId !== operation.datasetId || current.meta.datasetId !== datasetId) throw new DemoError('supersededDataset')
@@ -259,6 +266,7 @@ export function createDemo(): Demo {
         const receipt = current.receipts.find(receipt => receipt.actor === by && receipt.operationId === operation.operationId)
         if (receipt) {
           if (receipt.fingerprint !== fingerprint) throw new DemoError('identifierMisuse')
+          replay = true
           return current
         }
         if (captured !== generation) throw new DemoError('sessionExpired')
@@ -267,7 +275,7 @@ export function createDemo(): Demo {
         current.receipts.push({ actor: by, operationId: operation.operationId, fingerprint, revision: current.preferences.revision })
         return current
       })
-      announce()
+      if (!replay) announce({ datasetId: data.meta.datasetId, kind: 'preferences', revision: data.preferences.revision })
       return contextFrom(data)
     })
   }
@@ -454,7 +462,7 @@ export function createDemo(): Demo {
       document.removeEventListener('visibilitychange', activate)
       window.removeEventListener('pageshow', activate)
       window.removeEventListener('focus', activate)
-      window.removeEventListener('storage', hint)
+      window.removeEventListener('storage', storageHint)
       listening = false
       newDrafts.clear(); preparations.clear(); selections.clear(); controls = { slow: false, failure: null }
       subscribers.clear()

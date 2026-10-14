@@ -4,6 +4,8 @@ export type ErrorKind = 'unavailable' | 'sessionExpired' | 'storage' | 'startup'
 export type Result<T> = { ok: true; value: T } | { ok: false; error: { kind: ErrorKind; key: `error.${ErrorKind}`; slot?: DocumentSlot } }
 export type Session = { identity: ActorId; datasetId: string; sessionId: string; lastActivity: number; expiresAt: number }
 export type Context = { datasetId: string; preferences: Preferences; session: Session | null; identity: Identity | null }
+export type CommitHint = { datasetId: string; kind: 'preferences'; revision: number }
+  | { datasetId: string; kind: 'workspace' | 'application'; applicationId: string; revision: number }
 export type DocumentView = { slot: DocumentSlot; file: { id: string; name: string; mime: string; size: number; hash: string } | null }
 export type ApplicationSummary = {
   id: string; product: ProductId; status: ApplicationStatus; fullName: string; businessName: string;

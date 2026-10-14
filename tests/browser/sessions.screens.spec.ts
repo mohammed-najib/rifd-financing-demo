@@ -135,7 +135,8 @@ for (const language of ['ar', 'en'] as const) test(`${language}: expiry invalida
   await page.getByRole('button', { name: c.expire, exact: true }).click()
   await page.getByRole('button', { name: c.identity, exact: true }).click()
   const retry = purchase.getByRole('button', { name: language === 'ar' ? 'إعادة تجهيز الاختيار' : 'Retry preparation', exact: true })
-  await expect(retry).toBeVisible()
+  // Slow sign-in, access inspection and editor reload take at least 4.5 seconds.
+  await expect(retry).toBeVisible({ timeout: 10_000 })
   await page.clock.runFor(5_000)
   await expect(purchase.getByRole('progressbar')).toHaveCount(0)
   await expect(purchase.getByText(language === 'ar' ? 'جاهز للحفظ' : 'Ready to save', { exact: true })).toHaveCount(0)

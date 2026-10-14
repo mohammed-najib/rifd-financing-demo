@@ -2,6 +2,13 @@ import { z } from 'zod'
 import { fieldsSchema, productIdSchema, slots, slotSchema } from '../domain/model'
 import type { SaveDraftOperation } from './types'
 
+const hintRevision = z.number().int().positive()
+export const commitHintSchema = z.discriminatedUnion('kind', [
+  z.object({ datasetId: z.string().uuid(), kind: z.literal('preferences'), revision: hintRevision }).strict(),
+  z.object({ datasetId: z.string().uuid(), kind: z.literal('workspace'), applicationId: z.string().min(1), revision: hintRevision }).strict(),
+  z.object({ datasetId: z.string().uuid(), kind: z.literal('application'), applicationId: z.string().min(1), revision: hintRevision }).strict(),
+])
+
 export const preparedSchema = z.object({
   id: z.string().min(1), name: z.string().min(1), mime: z.string(), size: z.number().int().positive(),
   hash: z.string().regex(/^[0-9a-f]{64}$/), source: z.enum(['local', 'sample']),

@@ -52,7 +52,19 @@ The root layout owns one mounted `App` and `Demo` across both `/` and splat rout
 
 Applicants receive their own saved draft or submitted snapshot, public history/reasons and correction rounds. Only their own projection includes a private workspace. Applicant correction rounds omit internal verification flags. Staff receive submitted snapshots plus assignment, assessments, checks, notes and internal activity. They receive neither drafts nor private correction workspaces, catalog samples or applicant notifications. File reads require both a readable application and a reference from a permitted snapshot or baseline. Missing and forbidden records use the same unavailable error.
 
-Committed-change broadcasts contain only dataset and identifier/revision hints. Receivers reread storage. Language and session feedback do not reroute or steal focus. Activation rereads durable context. Future mutations use the same hint and clean/dirty refresh behavior.
+Committed-change broadcasts and the storage-event fallback use the same public `CommitHint` contract. A hint contains only its dataset, scope, affected application identifier where applicable, and committed revision. Runtime validation ignores malformed hints and unrelated storage events. Broadcast failure attempts the safe storage fallback; failure of both leaves the committed outcome successful. Receipt replays send no repeated notice. Subscribers reread context and authorized projections, never treating a hint as record data or authority. Focus, pageshow and visible-tab activation also trigger these reads to recover missed notices. Language and session feedback do not reroute or steal focus.
+
+| Hint kind | Revision scope | Operations using that scope |
+| --- | --- | --- |
+| `workspace` | Private workspace revision | Draft saves now; correction progress saves extend the same scope with active-round validation |
+| `application` | Shared application revision | Subsequent publication, assignment, queue and review operations |
+| `preferences` | Independent preference revision | Language now; subsequent saved queue preferences |
+
+Private saves leave shared revisions, lifecycle history, staff activity and applicant notifications unchanged. Language changes leave application and workspace revisions unchanged. Hints cannot replace transaction checks, including after activation or reapplication. Later correction/publication and review operations must retain the separate expected revision inputs described in the accepted browser contract.
+
+Clean editors adopt refreshed committed workspaces. Dirty editors retain their old expected workspace revision, raw input, product and prepared bytes while the surrounding permitted projection refreshes. Inspect latest draft reveals current saved fields and documents without applying retained values. Explicit reapplication establishes the inspected baseline and clears the refused intent; the next save creates a new operation identifier. A later competing save still refuses the captured revision. Language conflict recovery similarly retains the intended language independently of the refreshed display language, requires explicit saved-preference inspection, and submits a new identifier against the inspected preference revision. No callback silently replaces an outstanding command's expected revision.
+
+An opener-created or duplicated tab may receive a browser copy of session storage at creation. Its runtime, activity clock, sign-out, switching and expiry then remain local to that tab. The header shows the current identity and the bilingual disclosure explains initial inheritance. Sessions and protected values are never sent through either hint transport.
 
 ## Seed inventory
 

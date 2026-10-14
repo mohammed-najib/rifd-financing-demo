@@ -132,11 +132,15 @@ test('failed commit announcements cannot turn a completed save into a failed one
   await openDraft(page)
   const result = await page.evaluate(async () => {
     BroadcastChannel.prototype.postMessage = () => { throw new Error('Fixture notification failure') }
+    const setItem = Storage.prototype.setItem
+    Storage.prototype.setItem = function (key: string, value: string) { if (key === 'rifd.commit.v1') throw new Error('Fixture fallback failure'); setItem.call(this, key, value) }
     window.demo.subscribe(() => { throw new Error('Fixture render failure') })
-    return { save: await window.demo.execute(window.draftCommand), inspection: await window.demo.inspectOperation(window.draftCommand) }
+    return { save: await window.demo.execute(window.draftCommand), inspection: await window.demo.inspectOperation(window.draftCommand), replay: await window.demo.execute(window.draftCommand), view: await window.demo.readApplication(window.draftCommand.applicationId) }
   })
   expect(result.save).toMatchObject({ ok: true, value: { receipt: { workspaceRevision: 2 } } })
   expect(result.inspection).toMatchObject({ ok: true, value: { status: 'committed' } })
+  expect(result.replay).toMatchObject({ ok: true, value: { receipt: { workspaceRevision: 2 } } })
+  expect(result.view).toMatchObject({ ok: true, value: { sharedRevision: 1, workspace: { revision: 2 }, history: [] } })
 })
 
 test('concurrent private saves refuse a stale workspace and require explicit new intent', async ({ page, context }) => {
