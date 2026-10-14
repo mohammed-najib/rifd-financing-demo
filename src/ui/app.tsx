@@ -4,7 +4,7 @@ import { createDemo, demoIdentities, type ApplicationSummary, type ApplicationVi
 import { products, resolveStep } from '../domain'
 import type { ActorId, ApplicationStatus, Language, ProductId } from '../domain/model'
 import { date, displayFieldValue, documentLabel, errors, events, fieldLabels, money, outcomes, reviewChecks, statuses, text } from './i18n'
-import { DraftEditor, draftDirty, type DraftBuffer } from './draft'
+import { DraftEditor, RetainedDraft, draftDirty, type DraftBuffer } from './draft'
 import { DepartureDialog, type Departure, type DepartureRequest } from './departure'
 import { DocumentPreview } from './preview'
 import { applicationText } from './application-copy'
@@ -19,7 +19,7 @@ function resolveScreen(path: string): Screen {
   if (path === '/applications/new') return { kind: 'newDraft' }
   const applicant = /^\/applications\/(RIFD-2026-[a-zA-Z0-9-]+)(?:\/edit)?$/.exec(path)
   if (applicant) return { kind: 'applicantDetail', id: applicant[1] }
-  const staff = /^\/staff\/applications\/(RIFD-2026-\d{3})$/.exec(path)
+  const staff = /^\/staff\/applications\/(RIFD-2026-[a-zA-Z0-9-]+)$/.exec(path)
   if (staff) return { kind: 'staffDetail', id: staff[1] }
   return { kind: 'unavailable' }
 }
@@ -59,6 +59,7 @@ export function App() {
   const [list, setList] = useState<ApplicationSummary[] | null>(null)
   const [view, setView] = useState<ApplicationView | null>(null)
   const [loadedPath, setLoadedPath] = useState<string | null>(null)
+  const [submittedId, setSubmittedId] = useState<string | null>(null)
   const alive = useRef(true)
   const identitySelection = useRef(false)
   const contextRequest = useRef(0)
@@ -158,8 +159,13 @@ export function App() {
     if (retainedNew) {
       void demo.readApplication(retainedNew.baseline.id).then(result => {
         if (!active) return
-        if (result.ok && result.value.status === 'draft') { setList(null); setView(result.value) }
-        else setError(result.ok ? 'unavailable' : result.error.kind)
+        if (result.ok) {
+          setList(null); setView(result.value)
+          if (result.value.status !== 'draft') {
+            departure.current = null; newDraftId.current = null
+            void navigate({ to: '/$', params: { _splat: `applications/${result.value.id}` }, search: {}, ignoreBlocker: true })
+          }
+        } else setError(result.error.kind)
         setLoadedPath(path)
       })
       return () => { active = false }
@@ -176,7 +182,10 @@ export function App() {
         if (!active) return
         if (result.ok) {
           setView(result.value)
-          if (path.endsWith('/edit') && result.value.status !== 'draft') { departure.current = null; void navigateTo(path.slice(0, -5)) }
+          if (path.endsWith('/edit') && result.value.status !== 'draft') {
+            departure.current = null
+            void navigate({ to: '/$', params: { _splat: path.slice(1, -5) }, search: {}, ignoreBlocker: true })
+          }
         }
         else setError(result.error.kind)
         setLoadedPath(path)
@@ -259,7 +268,7 @@ export function App() {
   }
 
   useEffect(() => { setLeaving(current => { current?.cancel?.(); return null }) }, [sessionId])
-  useEffect(() => { setLanguageConflict(null) }, [sessionId, context?.datasetId])
+  useEffect(() => { setLanguageConflict(null); setSubmittedId(null) }, [sessionId, context?.datasetId])
   const retryStartup = async () => {
     setStartupError(null)
     try {
@@ -313,11 +322,22 @@ export function App() {
             setBusy(false)
           }}>{applicationText.new[language]}</button><div className="actions">{list?.filter(application => application.status === 'draft').map(application => <a className="button secondary" key={application.id} href={`/applications/${application.id}/edit?step=personal`} onClick={event => { event.preventDefault(); void go(`/applications/${application.id}/edit?step=personal`) }}>{applicationText.resume[language]} <bdi>{application.id}</bdi> · {products[application.product].name[language]}</a>)}</div></section>
           : list ? <ApplicationList list={list} language={language} staff={screen.kind === 'staffList'} go={go} />
-          : view ? <ApplicationDetail key={`${context?.datasetId}/${identityId}/${sessionId}/${view.id}`} demo={demo} view={view} language={language}>{view.role === 'applicant' && view.status === 'draft' && context && <DraftEditor demo={demo} view={view} context={context} language={language} step={step} changeStep={step => { void go(`${path}?${screen.kind === 'newDraft' ? `product=${chosenProduct}&` : ''}step=${step}`) }} retained={draftBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => draftBuffers.current.set(`${context.datasetId}/${identityId}/${view.id}`, buffer)} savedView={application => {
+          : view ? <ApplicationDetail key={`${context?.datasetId}/${identityId}/${sessionId}/${view.id}`} demo={demo} view={view} language={language} confirmed={submittedId === view.id}>{view.role === 'applicant' && view.status === 'draft' && context && <DraftEditor demo={demo} view={view} context={context} language={language} step={step} changeStep={step => { void go(`${path}?${screen.kind === 'newDraft' ? `product=${chosenProduct}&` : ''}step=${step}`) }} retained={draftBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => draftBuffers.current.set(`${context.datasetId}/${identityId}/${view.id}`, buffer)} savedView={application => {
             setView(application)
+            if (application.status !== 'draft') {
+              draftBuffers.current.delete(`${context.datasetId}/${identityId}/${application.id}`)
+              departure.current = null; newDraftId.current = null
+              setSubmittedId(application.id)
+              void navigate({ to: '/$', params: { _splat: `applications/${application.id}` }, search: {}, ignoreBlocker: true })
+              return
+            }
             // Saving names the same editor's durable route; it does not leave its buffer.
             if (screen.kind === 'newDraft') void navigate({ to: '/$', params: { _splat: `applications/${application.id}/edit` }, search: { step }, ignoreBlocker: true })
-          }} departure={value => { departure.current = value; refreshDeparture(value => value + 1) }} />}</ApplicationDetail> : null}
+          }} departure={value => { departure.current = value; refreshDeparture(value => value + 1) }} />}{view.role === 'applicant' && view.status !== 'draft' && context && (() => {
+            const key = `${context.datasetId}/${identityId}/${view.id}`
+            const buffer = draftBuffers.current.get(key)
+            return buffer && draftDirty(buffer) ? <RetainedDraft demo={demo} buffer={buffer} language={language} discard={() => { draftBuffers.current.delete(key); refreshDeparture(value => value + 1) }} confirmed={() => { draftBuffers.current.delete(key); setSubmittedId(view.id); refreshDeparture(value => value + 1) }} /> : null
+          })()}</ApplicationDetail> : null}
         {error && error !== 'unavailable' && <div className="my-5 rounded-[10px] border border-solid border-danger-border bg-danger-surface px-5 py-4 text-danger-text [&_button]:mt-[15px] [&_button]:block" role="alert">{errors[error][language]}<button disabled={busy} onClick={() => setReload(value => value + 1)}>{t('retry')}</button></div>}
       </main>
     </div>
@@ -351,7 +371,7 @@ function ApplicationList({ list, language, staff, go }: { list: ApplicationSumma
   </>
 }
 
-function ApplicationDetail({ demo, view, language, children }: { demo: ReturnType<typeof createDemo>; view: ApplicationView; language: Language; children?: React.ReactNode }) {
+function ApplicationDetail({ demo, view, language, children, confirmed }: { demo: ReturnType<typeof createDemo>; view: ApplicationView; language: Language; children?: React.ReactNode; confirmed?: boolean }) {
   const [previewFileId, setPreviewFileId] = useState<string | null>(null)
   useEffect(() => { if (previewFileId && !view.documents.some(document => document.file?.id === previewFileId)) setPreviewFileId(null) }, [view, previewFileId])
   const t = (key: keyof typeof text) => text[key][language]
@@ -360,6 +380,7 @@ function ApplicationDetail({ demo, view, language, children }: { demo: ReturnTyp
   return <>
     <p className="eyebrow">{products[view.product].name[language]}</p><div className="detail-heading mb-2.5 flex flex-wrap items-center gap-5 narrow:gap-3"><Heading>{view.status === 'draft' && view.role === 'applicant' && !view.workspace?.savedAt ? applicationText.new[language] : <bdi>{view.id}</bdi>}</Heading><Status status={view.status} language={language} /></div>
     <p className="intro">{fields.fullName} · {fields.businessName}</p>
+    {confirmed && <p className="summary" role="status">{applicationText.submitted[language]} <bdi>{view.id}</bdi></p>}
     {view.role === 'reviewer' && <p className="mb-[25px] text-[14px] text-accent">{t('assignment')}: {view.assignedToYou ? t('assignedToYou') : view.assignment?.[language] ?? t('unassigned')}</p>}
     <section className="summary"><h2>{t('nextAction')}</h2><p>{t(view.status === 'draft' ? 'draftNext' : view.status === 'correctionsRequested' ? 'correctionNext' : ['approved', 'rejected'].includes(view.status) ? 'finalNext' : 'waitingNext')}</p></section>
     {children}

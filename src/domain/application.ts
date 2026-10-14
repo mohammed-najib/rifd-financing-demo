@@ -1,7 +1,7 @@
 import type { DocumentSlot, Fields } from './model'
 import type { ProductRules } from './index'
 
-export type FieldIssue = { field: keyof Fields; rule: 'text' | 'mobile' | 'email' | 'activity' | 'month' | 'money' | 'amount' | 'term'; minimum?: number; maximum?: number }
+export type FieldIssue = { field: keyof Fields; rule: 'type' | 'text' | 'mobile' | 'email' | 'activity' | 'month' | 'money' | 'amount' | 'term'; minimum?: number; maximum?: number }
 export const foldDigits = (value: string) => value.replace(/[٠-٩]/g, digit => String(digit.charCodeAt(0) - 0x660))
 
 export function parseWholeYER(raw: string): number | null {

@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { fieldsSchema, productIdSchema, slots, slotSchema } from '../domain/model'
-import type { SaveDraftOperation } from './types'
+import type { ApplicationOperation } from './types'
 
 const hintRevision = z.number().int().positive()
 export const commitHintSchema = z.discriminatedUnion('kind', [
@@ -23,6 +23,8 @@ export const saveDraftSchema = z.object({
   product: productIdSchema, fields: fieldsSchema.strict(),
   documents: z.object({ identity: documentSchema, business: documentSchema, financial: documentSchema, purchase: documentSchema }).strict(),
 }).strict()
+export const submitSchema = saveDraftSchema.extend({ kind: z.literal('submit'), expectedSharedRevision: z.number().int().positive() }).strict()
+export const applicationOperationSchema = z.discriminatedUnion('kind', [saveDraftSchema, submitSchema])
 export const preparationSchema = z.object({
   datasetId: z.string().uuid(), applicationId: z.string().min(1), slot: slotSchema, selectionId: z.string().min(1),
   product: productIdSchema.optional(),
@@ -33,7 +35,7 @@ export const preparationSchema = z.object({
   ]),
 }).strict()
 
-export function draftFingerprint(operation: SaveDraftOperation): string {
+export function draftFingerprint(operation: ApplicationOperation): string {
   return JSON.stringify({
     kind: operation.kind, applicationId: operation.applicationId, product: operation.product,
     fields: operation.fields,

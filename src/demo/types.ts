@@ -1,7 +1,8 @@
 import type { ActorId, Application, ApplicationStatus, Bilingual, DocumentSlot, Fields, Identity, Language, MutationReceipt, Notification, Preferences, ProductId, Repayment, Sample, Snapshot } from '../domain/model'
+import type { FieldIssue } from '../domain'
 
-export type ErrorKind = 'unavailable' | 'sessionExpired' | 'storage' | 'startup' | 'resources' | 'blocked' | 'unsupported' | 'damaged' | 'stalePreference' | 'supersededDataset' | 'identifierMisuse' | 'validation' | 'staleWorkspace' | 'invalidState' | 'permissionDenied' | 'uploadFailed' | 'requestFailed' | 'outcomeUnknown' | 'supersededSelection'
-export type Result<T> = { ok: true; value: T } | { ok: false; error: { kind: ErrorKind; key: `error.${ErrorKind}`; slot?: DocumentSlot } }
+export type ErrorKind = 'unavailable' | 'sessionExpired' | 'storage' | 'startup' | 'resources' | 'blocked' | 'unsupported' | 'damaged' | 'stalePreference' | 'supersededDataset' | 'identifierMisuse' | 'validation' | 'staleWorkspace' | 'staleRecord' | 'invalidState' | 'permissionDenied' | 'uploadFailed' | 'requestFailed' | 'outcomeUnknown' | 'supersededSelection'
+export type Result<T> = { ok: true; value: T } | { ok: false; error: { kind: ErrorKind; key: `error.${ErrorKind}`; slot?: DocumentSlot; fieldIssues?: FieldIssue[] } }
 export type Session = { identity: ActorId; datasetId: string; sessionId: string; lastActivity: number; expiresAt: number }
 export type Context = { datasetId: string; preferences: Preferences; session: Session | null; identity: Identity | null }
 export type CommitHint = { datasetId: string; kind: 'preferences'; revision: number }
@@ -40,7 +41,9 @@ export type SaveDraftOperation = {
   kind: 'saveDraft'; datasetId: string; operationId: string; applicationId: string;
   expectedWorkspaceRevision: number; product: ProductId; fields: Fields; documents: DraftDocuments;
 }
-export type DemoOperation = LanguageOperation | SaveDraftOperation
+export type SubmitOperation = Omit<SaveDraftOperation, 'kind'> & { kind: 'submit'; expectedSharedRevision: number }
+export type ApplicationOperation = SaveDraftOperation | SubmitOperation
+export type DemoOperation = LanguageOperation | ApplicationOperation
 export type MutationResult = { receipt: MutationReceipt; application: ApplicationView }
 export type OperationInspection = { status: 'committed'; result: MutationResult } | { status: 'notCommitted'; application: ApplicationView }
 export type Preparation = {
@@ -48,7 +51,7 @@ export type Preparation = {
   product?: ProductId;
   source: { kind: 'local'; file: File } | { kind: 'sample'; sampleId: string } | { kind: 'generated'; fields: Fields };
 }
-export type Controls = { slow: boolean; failure: 'upload' | 'save' | 'storage' | null }
+export type Controls = { slow: boolean; failure: 'upload' | 'save' | 'submission' | 'storage' | null }
 export type Demo = {
   startup(): Promise<Result<Context>>;
   context(): Promise<Result<Context>>;
@@ -58,7 +61,9 @@ export type Demo = {
   newDraft(product: ProductId): Promise<Result<ApplicantView>>;
   execute(operation: LanguageOperation): Promise<Result<Context>>;
   execute(operation: SaveDraftOperation): Promise<Result<MutationResult>>;
-  inspectOperation(operation: SaveDraftOperation): Promise<Result<OperationInspection>>;
+  execute(operation: SubmitOperation): Promise<Result<MutationResult>>;
+  execute(operation: ApplicationOperation): Promise<Result<MutationResult>>;
+  inspectOperation(operation: ApplicationOperation): Promise<Result<OperationInspection>>;
   prepareAttachment(input: Preparation, onProgress?: (percent: number) => void): Promise<Result<PreparedAttachment>>;
   cancelPreparation(applicationId: string, slot: DocumentSlot): void;
   readPrepared(applicationId: string, attachment: PreparedAttachment): Promise<Result<{ bytes: ArrayBuffer; name: string; mime: string; hash: string }>>;

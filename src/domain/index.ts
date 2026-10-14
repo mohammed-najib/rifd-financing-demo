@@ -1,5 +1,9 @@
 import type { ActorId, Application, Bilingual, ProductId, Repayment } from './model'
 
+export const domainDate = '2026-10-14'
+export const submissionMonth = domainDate.slice(0, 7)
+export const initialEvidenceMonths = ['2026-07', '2026-08', '2026-09']
+
 export function validateFileEnvelope(file: { name: string; type: string; size: number }): string | null {
   if (!Number.isInteger(file.size) || file.size <= 0 || file.size > 5_000_000) return null
   const extension = /\.([^.]+)$/.exec(file.name)?.[1].toLowerCase()

@@ -100,7 +100,7 @@ export const preferencesSchema = z.object({
 })
 export type Preferences = z.infer<typeof preferencesSchema>
 export const mutationReceiptSchema = z.object({
-  kind: z.literal('saveDraft'), actor: actorIdSchema, datasetId: z.string().uuid(),
+  kind: z.enum(['saveDraft', 'submit']), actor: actorIdSchema, datasetId: z.string().uuid(),
   operationId: z.string(), fingerprint: z.string(), applicationId: z.string(),
   workspaceRevision: z.number().int().positive(), sharedRevision: z.number().int().positive(), savedAt: z.string(),
 })

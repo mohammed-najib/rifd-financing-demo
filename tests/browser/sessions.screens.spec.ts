@@ -186,37 +186,28 @@ for (const language of ['ar', 'en'] as const) for (const phase of ['beforeCommit
   await expect(savedValue).toBeVisible()
 })
 
-for (const language of ['ar', 'en'] as const) test(`${language}: same-identity recovery uses the permitted read-only record when editing has ended`, async ({ page }) => {
+for (const language of ['ar', 'en'] as const) test(`${language}: same-identity recovery uses the permitted read-only record when editing has ended`, async ({ page, context }) => {
   const c = copy[language]
   await openDraft(page, language)
   await page.getByLabel(c.explanation, { exact: true }).fill('unapplied private input')
   await page.getByRole('button', { name: c.expire, exact: true }).click()
   await expect(page.getByRole('button', { name: c.identity, exact: true })).toBeVisible()
-  // Isolated fixture for a future submission from another tab. No product patch API.
-  await page.evaluate(() => new Promise<void>((resolve, reject) => {
-    const open = indexedDB.open('rifd-demo', 1)
-    open.onsuccess = () => {
-      const db = open.result
-      const tx = db.transaction('state', 'readwrite')
-      const store = tx.objectStore('state')
-      const request = store.get('dataset')
-      request.onsuccess = () => {
-        const data = request.result as import('../../src/domain/model').Dataset
-        const application = data.applications.find(application => application.id === 'RIFD-2026-001')!
-        application.status = 'submitted'; application.submitted = application.workspace!.snapshot
-        application.workspace = null; application.submittedAt = '2026-10-14'; application.sharedRevision++
-        store.put(data, 'dataset')
-      }
-      tx.oncomplete = () => { db.close(); resolve() }
-      tx.onabort = () => { db.close(); reject(tx.error) }
-    }
-    open.onerror = () => reject(open.error)
-  }))
+  const publisher = await context.newPage()
+  await publisher.goto('/applications/RIFD-2026-001/edit?step=financing')
+  await publisher.getByRole('button', { name: c.identity, exact: true }).click()
+  await publisher.getByLabel(c.explanation, { exact: true }).fill('Published stock purchase from the other applicant tab.')
+  await publisher.getByRole('link', { name: language === 'ar' ? '5. المراجعة' : '5. Review', exact: true }).click()
+  await publisher.getByRole('button', { name: language === 'ar' ? 'تقديم الطلب' : 'Submit application', exact: true }).click()
+  await expect(publisher.getByRole('heading', { name: language === 'ar' ? 'المعلومات المقدمة' : 'Submitted information', exact: true })).toBeVisible()
   await page.getByRole('button', { name: c.identity, exact: true }).click()
   await expect(page).toHaveURL('/applications/RIFD-2026-001')
   await expect(page.getByRole('heading', { name: 'RIFD-2026-001', exact: true })).toBeVisible()
   await expect(page.getByLabel(c.explanation, { exact: true })).toHaveCount(0)
-  await expect(page.getByText('unapplied private input', { exact: true })).toHaveCount(0)
+  await expect(page.getByText('unapplied private input', { exact: true })).toHaveCount(1)
+  await expect(page.getByText('unapplied private input', { exact: true })).toBeHidden()
+  const submitted = page.getByRole('heading', { name: language === 'ar' ? 'المعلومات المقدمة' : 'Submitted information', exact: true }).locator('..')
+  await expect(submitted).not.toContainText('unapplied private input')
+  await expect(page.getByRole('heading', { name: language === 'ar' ? 'تغييراتك غير المطبقة' : 'Your unapplied changes', exact: true })).toBeVisible()
   await page.getByRole('button', { name: c.signOut, exact: true }).click()
   await expect(page.getByRole('dialog', { name: c.leave })).toBeVisible()
   await expect(page.getByRole('button', { name: c.saveLeave, exact: true })).toHaveCount(0)

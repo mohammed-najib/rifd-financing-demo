@@ -1,9 +1,10 @@
 import { datasetSchema, slots, type Dataset, type DocumentSlot, type Snapshot } from '../domain/model'
 import type { ErrorKind } from './types'
 import { manifest } from './seed-manifest'
+import type { FieldIssue } from '../domain'
 
 export class DemoError extends Error {
-  constructor(readonly kind: ErrorKind, readonly slot?: DocumentSlot) { super(kind) }
+  constructor(readonly kind: ErrorKind, readonly slot?: DocumentSlot, readonly fieldIssues?: FieldIssue[]) { super(kind) }
 }
 
 export function openStorage(onClose: () => void): Promise<IDBDatabase> {

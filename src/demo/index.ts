@@ -1,13 +1,13 @@
 import { z } from 'zod'
-import { canReadApplication, emptyDocuments, validateFileEnvelope } from '../domain'
-import { actorIdSchema, languageSchema, productIdSchema, slots, type ActorId, type Application, type Dataset, type StoredFile } from '../domain/model'
+import { canReadApplication, domainDate, emptyDocuments, initialEvidenceMonths, products, submissionMonth, validateFields, validateFileEnvelope } from '../domain'
+import { actorIdSchema, fieldsSchema, languageSchema, productIdSchema, slots, type ActorId, type Application, type Dataset, type Fields, type StoredFile } from '../domain/model'
 import { fileFromBytes, makeFile, prepareFonts } from './evidence'
-import { commitHintSchema, draftFingerprint, preparationSchema, saveDraftSchema } from './commands'
+import { applicationOperationSchema, commitHintSchema, draftFingerprint, preparationSchema } from './commands'
 import { identities } from './seed-manifest'
 import { prepareSeed } from './seed'
 import { DemoError, openStorage, readStored, transact, validateDataset } from './storage'
-import type { ApplicantView, ApplicationView, CommitHint, Context, Controls, Demo, ErrorKind, LanguageOperation, MutationResult, PreparedAttachment, Result, SaveDraftOperation, Session } from './types'
-export type { ApplicationSummary, ApplicationView, CommitHint, Context, Demo, DemoOperation, DraftDocuments, ErrorKind, LanguageOperation, MutationResult, OperationInspection, PreparedAttachment, Preparation, Result, SaveDraftOperation } from './types'
+import type { ApplicantView, ApplicationOperation, ApplicationView, CommitHint, Context, Controls, Demo, ErrorKind, LanguageOperation, MutationResult, PreparedAttachment, Result, SaveDraftOperation, Session, SubmitOperation } from './types'
+export type { ApplicationOperation, ApplicationSummary, ApplicationView, CommitHint, Context, Controls, Demo, DemoOperation, DraftDocuments, ErrorKind, LanguageOperation, MutationResult, OperationInspection, PreparedAttachment, Preparation, Result, SaveDraftOperation, SubmitOperation } from './types'
 
 const sessionSchema = z.object({ identity: actorIdSchema, datasetId: z.string().uuid(), sessionId: z.string().uuid(), lastActivity: z.number(), expiresAt: z.number() })
 const sessionKey = 'rifd.session.v1'
@@ -36,7 +36,7 @@ export function createDemo(): Demo {
     return true
   }
   const preparations = new Map<string, { actor: ActorId; datasetId: string; file: StoredFile; product: Application['product']; reference: PreparedAttachment }>()
-  const selections = new Map<string, string>()
+  const selections = new Map<string, { token: string; status: 'preparing' | 'ready' | 'failed'; attachmentId?: string }>()
   const emit = () => { for (const listener of subscribers) { try { listener(session ? { ...session } : null) } catch { /* Observers cannot change committed outcomes. */ } } }
   const storedSession = () => {
     try {
@@ -78,6 +78,7 @@ export function createDemo(): Demo {
     catch (error) {
       const result = failure<T>(error instanceof DemoError ? error.kind : 'storage')
       if (!result.ok && error instanceof DemoError && error.slot) result.error.slot = error.slot
+      if (!result.ok && error instanceof DemoError && error.fieldIssues) result.error.fieldIssues = error.fieldIssues
       return result
     }
   }
@@ -91,6 +92,7 @@ export function createDemo(): Demo {
     if (captured !== generation || db !== connection) throw new DemoError('sessionExpired')
     if (data.meta.datasetId !== observedDataset) {
       newDrafts.clear(); preparations.clear(); selections.clear()
+      controls = { slow: false, failure: null }
       try { writeSession(null) } catch { session = null; generation++ }
       throw new DemoError('supersededDataset')
     }
@@ -182,21 +184,27 @@ export function createDemo(): Demo {
     if (!prepared || prepared.actor !== who || prepared.datasetId !== datasetId || prepared.file.applicationId !== id || prepared.file.slot !== slot || JSON.stringify(reference) !== JSON.stringify(prepared.reference)) throw new DemoError('validation', slot as StoredFile['slot'])
     return prepared.file
   }
-  const draftReceipt = (data: Dataset, who: ActorId, operation: SaveDraftOperation) => {
+  const draftReceipt = (data: Dataset, who: ActorId, operation: ApplicationOperation) => {
     const receipt = data.mutationReceipts.find(receipt => receipt.actor === who && receipt.operationId === operation.operationId)
     if (data.receipts.some(receipt => receipt.actor === who && receipt.operationId === operation.operationId) || receipt && receipt.fingerprint !== draftFingerprint(operation)) throw new DemoError('identifierMisuse')
     return receipt
   }
   async function execute(operation: LanguageOperation): Promise<Result<Context>>
   async function execute(operation: SaveDraftOperation): Promise<Result<MutationResult>>
-  async function execute(input: LanguageOperation | SaveDraftOperation): Promise<Result<Context | MutationResult>> {
+  async function execute(operation: SubmitOperation): Promise<Result<MutationResult>>
+  async function execute(operation: ApplicationOperation): Promise<Result<MutationResult>>
+  async function execute(input: LanguageOperation | ApplicationOperation): Promise<Result<Context | MutationResult>> {
     // Capture raw payload and attachment descriptors before any delay.
     const operation = structuredClone(input)
-    if (operation.kind === 'saveDraft') return attempt(async () => {
+    if (operation.kind === 'saveDraft' || operation.kind === 'submit') return attempt(async () => {
       const who = actor()
       const captured = generation
-      const parsed = saveDraftSchema.safeParse(operation)
-      if (!parsed.success) throw new DemoError('validation')
+      const parsed = applicationOperationSchema.safeParse(operation)
+      if (!parsed.success) {
+        const issues = parsed.error.issues.flatMap(issue => issue.path[0] === 'fields' && typeof issue.path[1] === 'string' && issue.path[1] in fieldsSchema.shape
+          ? [{ field: issue.path[1] as keyof Fields, rule: 'type' as const }] : [])
+        throw new DemoError('validation', undefined, issues.length ? issues : undefined)
+      }
       const command = parsed.data
       await delay()
       if (!db) throw new DemoError('startup')
@@ -214,6 +222,7 @@ export function createDemo(): Demo {
           return current
         }
         if (application.workspace?.revision !== command.expectedWorkspaceRevision) throw new DemoError('staleWorkspace')
+        if (command.kind === 'submit' && application.sharedRevision !== command.expectedSharedRevision) throw new DemoError('staleRecord')
         if (application.owner !== who) throw new DemoError('permissionDenied')
         if (application.status !== 'draft' || !application.workspace) throw new DemoError('invalidState')
         if (application.product !== command.product && command.documents.purchase.kind === 'saved' && command.documents.purchase.fileId !== null) throw new DemoError('validation', 'purchase')
@@ -221,6 +230,11 @@ export function createDemo(): Demo {
         const documents = { ...application.workspace.snapshot.documents }
         for (const slot of slots) {
           const document = command.documents[slot]
+          if (command.kind === 'submit') {
+            const selection = selections.get(`${who}/${application.id}/${slot}`)
+            const selectedId = document.kind === 'saved' ? document.fileId : document.attachment.id
+            if (selection && (selection.status !== 'ready' || selectedId !== selection.attachmentId)) throw new DemoError('validation', slot)
+          }
           if (document.kind === 'saved') {
             if (document.fileId !== null && document.fileId !== application.workspace.snapshot.documents[slot]) throw new DemoError('validation', slot)
             documents[slot] = document.fileId
@@ -231,15 +245,37 @@ export function createDemo(): Demo {
             documents[slot] = file.id
           }
         }
+        if (command.kind === 'submit') {
+          const issues = validateFields(command.fields, products[command.product], submissionMonth)
+          if (issues.length) throw new DemoError('validation', undefined, issues)
+          for (const slot of slots) {
+            const file = current.files.find(file => file.id === documents[slot] && file.applicationId === application.id && file.slot === slot)
+            if (!file || !validateFileEnvelope({ name: file.name, type: file.mime, size: file.size })) throw new DemoError('validation', slot)
+          }
+        }
         authority(captured, who, command.datasetId, current)
-        if (consume('save')) throw new DemoError('requestFailed')
+        if (consume(command.kind === 'submit' ? 'submission' : 'save')) throw new DemoError('requestFailed')
         abortStorage = consume('storage')
         const savedAt = new Date().toISOString()
+        const workspaceRevision = application.workspace.revision + 1
         application.product = command.product
-        application.workspace = { ...application.workspace, revision: application.workspace.revision + 1, savedAt, snapshot: { fields: command.fields, documents } }
+        const snapshot = { fields: command.fields, documents }
+        if (command.kind === 'submit') {
+          application.submitted = snapshot
+          application.workspace = null
+          application.status = 'submitted'
+          application.submittedAt = domainDate
+          application.evidenceMonths = [...initialEvidenceMonths]
+          application.sharedRevision++
+          application.assessments = Object.fromEntries(slots.map(slot => [slot, { status: 'awaitingReview', reason: null }])) as Application['assessments']
+          application.checks = { evidence: 'unchecked', operatingHistory: 'unchecked', purpose: 'unchecked', budget: 'unchecked', capacity: 'unchecked' }
+          const entry = { id: crypto.randomUUID(), sequence: ++current.meta.eventSequence, kind: 'submitted' as const, date: domainDate, reason: null }
+          application.history.push(entry)
+          application.activity.push({ ...entry, actor: who, description: { ar: 'قُدم الطلب.', en: 'Application submitted.' } })
+        } else application.workspace = { ...application.workspace, revision: workspaceRevision, savedAt, snapshot }
         current.mutationReceipts.push({
           kind: command.kind, actor: who, datasetId: command.datasetId, operationId: command.operationId, fingerprint: draftFingerprint(command),
-          applicationId: application.id, workspaceRevision: application.workspace.revision, sharedRevision: application.sharedRevision, savedAt,
+          applicationId: application.id, workspaceRevision, sharedRevision: application.sharedRevision, savedAt,
         })
         return current
       }, () => {
@@ -247,7 +283,10 @@ export function createDemo(): Demo {
         return abortStorage
       })
       const receipt = data.mutationReceipts.find(receipt => receipt.actor === who && receipt.operationId === command.operationId)!
-      if (!replay) announce({ datasetId: receipt.datasetId, kind: 'workspace', applicationId: command.applicationId, revision: receipt.workspaceRevision })
+      if (!replay) {
+        newDrafts.delete(command.applicationId)
+        announce({ datasetId: receipt.datasetId, kind: command.kind === 'submit' ? 'application' : 'workspace', applicationId: command.applicationId, revision: command.kind === 'submit' ? receipt.sharedRevision : receipt.workspaceRevision })
+      }
       return { receipt, application: project(data, who, permitted(data, who, command.applicationId)) }
     })
     return attempt(async () => {
@@ -287,7 +326,7 @@ export function createDemo(): Demo {
       const identity = data.identities.find(identity => identity.id === who)!
       const application: Application = {
         id: `RIFD-2026-${crypto.randomUUID()}`, owner: who, product, status: 'draft', assignee: null, sharedRevision: 1,
-        submittedAt: null, evidenceMonths: ['2026-07', '2026-08', '2026-09'], submitted: null,
+        submittedAt: null, evidenceMonths: [...initialEvidenceMonths], submitted: null,
         workspace: { revision: 0, roundId: null, savedAt: '', snapshot: { fields: {
           fullName: identity.name[data.preferences.language], mobile: identity.mobile, city: identity.city, email: identity.email,
           businessName: '', activity: 'retail', address: '', operatingSince: '', revenue: '', expenses: '', amount: '', term: '', budget: '', explanation: '',
@@ -299,7 +338,7 @@ export function createDemo(): Demo {
     }),
     controls: () => ({ ...controls }),
     setControls: next => {
-      if (typeof next.slow !== 'boolean' || ![null, 'upload', 'save', 'storage'].includes(next.failure)) return
+      if (typeof next.slow !== 'boolean' || ![null, 'upload', 'save', 'submission', 'storage'].includes(next.failure)) return
       controls = { ...next }
     },
     prepareAttachment: (input, onProgress) => attempt(async () => {
@@ -308,50 +347,58 @@ export function createDemo(): Demo {
       const parsed = preparationSchema.safeParse(input)
       if (!parsed.success) throw new DemoError('validation')
       const command = parsed.data
-      const key = `${command.applicationId}/${command.slot}`
+      const key = `${who}/${command.applicationId}/${command.slot}`
       const token = crypto.randomUUID()
-      selections.set(key, token)
-      const data = await read()
-      authority(captured, who, command.datasetId, data)
-      const application = editable(data, who, command.applicationId)
-      if (application.owner !== who) throw new DemoError('permissionDenied')
-      if (application.status !== 'draft') throw new DemoError('invalidState')
-      const source = command.source
-      const sample = source.kind === 'sample' ? data.catalog.find(sample => sample.applicationId === application.id && sample.slot === command.slot && sample.id === source.sampleId) : null
-      if (sample && command.slot === 'purchase' && sample.product !== (command.product ?? application.product)) throw new DemoError('validation', command.slot)
-      const sampleFile = sample ? data.files.find(file => file.id === sample.fileId) : null
-      const generated = source.kind === 'generated' ? await makeFile(application.id, command.slot, source.fields, command.product ?? application.product, application.evidenceMonths, 'original', false, false) : null
-      const sampleBytes = generated ?? sampleFile
-      const selected = source.kind === 'local' ? source.file : sampleBytes ? new File([sampleBytes.bytes], sampleBytes.name, { type: sampleBytes.mime }) : null
-      if (!selected) throw new DemoError('unavailable')
-      const mime = validateFileEnvelope(selected)
-      if (!mime) throw new DemoError('validation', command.slot)
-      const failUpload = consume('upload')
-      const duration = controls.slow ? 4000 : 1200
-      const current = () => {
-        if (captured !== generation || actor() !== who) throw new DemoError('sessionExpired')
-        if (selections.get(key) !== token) throw new DemoError('supersededSelection')
+      selections.set(key, { token, status: 'preparing' })
+      try {
+        const data = await read()
+        authority(captured, who, command.datasetId, data)
+        const application = editable(data, who, command.applicationId)
+        if (application.owner !== who) throw new DemoError('permissionDenied')
+        if (application.status !== 'draft') throw new DemoError('invalidState')
+        const source = command.source
+        const sample = source.kind === 'sample' ? data.catalog.find(sample => sample.applicationId === application.id && sample.slot === command.slot && sample.id === source.sampleId) : null
+        if (sample && command.slot === 'purchase' && sample.product !== (command.product ?? application.product)) throw new DemoError('validation', command.slot)
+        const sampleFile = sample ? data.files.find(file => file.id === sample.fileId) : null
+        const generated = source.kind === 'generated' ? await makeFile(application.id, command.slot, source.fields, command.product ?? application.product, application.evidenceMonths, 'original', false, false) : null
+        const sampleBytes = generated ?? sampleFile
+        const selected = source.kind === 'local' ? source.file : sampleBytes ? new File([sampleBytes.bytes], sampleBytes.name, { type: sampleBytes.mime }) : null
+        if (!selected) throw new DemoError('unavailable')
+        const mime = validateFileEnvelope(selected)
+        if (!mime) throw new DemoError('validation', command.slot)
+        const failUpload = consume('upload')
+        const duration = controls.slow ? 4000 : 1200
+        const current = () => {
+          if (captured !== generation || actor() !== who) throw new DemoError('sessionExpired')
+          if (selections.get(key)?.token !== token) throw new DemoError('supersededSelection')
+        }
+        const progress = (percent: number) => { current(); try { onProgress?.(percent) } catch { /* Presentation cannot change preparation. */ } }
+        progress(0)
+        await sleep(duration / 4); progress(25)
+        await sleep(duration / 4); progress(50)
+        if (failUpload) throw new DemoError('uploadFailed', command.slot)
+        await sleep(duration / 4); progress(75)
+        let file: StoredFile
+        try { file = await fileFromBytes(crypto.randomUUID(), application.id, command.slot, selected.name, mime, await selected.arrayBuffer()) }
+        catch { throw new DemoError('uploadFailed', command.slot) }
+        await sleep(duration / 4)
+        const latest = await read()
+        current(); authority(captured, who, command.datasetId, latest)
+        const allowed = editable(latest, who, application.id)
+        if (allowed.status !== 'draft') throw new DemoError('invalidState')
+        const reference: PreparedAttachment = { id: file.id, name: file.name, mime: file.mime, size: file.size, hash: file.hash, source: source.kind === 'local' ? 'local' : 'sample' }
+        preparations.set(reference.id, { actor: who, datasetId: command.datasetId, file, product: command.product ?? application.product, reference })
+        progress(100)
+        selections.set(key, { token, status: 'ready', attachmentId: reference.id })
+        return { ...reference }
+      } catch (error) {
+        if (selections.get(key)?.token === token) selections.set(key, { token, status: 'failed' })
+        throw error
       }
-      const progress = (percent: number) => { current(); try { onProgress?.(percent) } catch { /* Presentation cannot change preparation. */ } }
-      progress(0)
-      await sleep(duration / 4); progress(25)
-      await sleep(duration / 4); progress(50)
-      if (failUpload) throw new DemoError('uploadFailed', command.slot)
-      await sleep(duration / 4); progress(75)
-      let file: StoredFile
-      try { file = await fileFromBytes(crypto.randomUUID(), application.id, command.slot, selected.name, mime, await selected.arrayBuffer()) }
-      catch { throw new DemoError('uploadFailed', command.slot) }
-      await sleep(duration / 4)
-      const latest = await read()
-      current(); authority(captured, who, command.datasetId, latest)
-      const allowed = editable(latest, who, application.id)
-      if (allowed.status !== 'draft') throw new DemoError('invalidState')
-      const reference: PreparedAttachment = { id: file.id, name: file.name, mime: file.mime, size: file.size, hash: file.hash, source: source.kind === 'local' ? 'local' : 'sample' }
-      preparations.set(reference.id, { actor: who, datasetId: command.datasetId, file, product: command.product ?? application.product, reference })
-      progress(100)
-      return { ...reference }
     }),
-    cancelPreparation: (id, slot) => { selections.delete(`${id}/${slot}`) },
+    cancelPreparation: (id, slot) => {
+      for (const key of selections.keys()) if (key.endsWith(`/${id}/${slot}`)) selections.delete(key)
+    },
     readPrepared: (id, reference) => protectedRead((data, who) => {
       const application = editable(data, who, id)
       const prepared = preparations.get(reference.id)
@@ -363,7 +410,7 @@ export function createDemo(): Demo {
       return protectedRead((data, who) => {
         if (data.meta.datasetId !== operation.datasetId) throw new DemoError('supersededDataset')
         const application = editable(data, who, operation.applicationId)
-        const parsed = saveDraftSchema.safeParse(operation)
+        const parsed = applicationOperationSchema.safeParse(operation)
         if (!parsed.success) throw new DemoError('validation')
         const receipt = draftReceipt(data, who, parsed.data)
         return receipt ? { status: 'committed', result: { receipt, application: project(data, who, application) } } : { status: 'notCommitted', application: project(data, who, application) }
@@ -399,6 +446,10 @@ export function createDemo(): Demo {
           if (hash !== file.hash) throw new DemoError('damaged')
         }
         if (captured !== generation) throw new DemoError('sessionExpired')
+        if (datasetId && datasetId !== data.meta.datasetId) {
+          newDrafts.clear(); preparations.clear(); selections.clear()
+          controls = { slow: false, failure: null }
+        }
         datasetId = data.meta.datasetId
         if (session && (session.datasetId !== datasetId || session.expiresAt <= Date.now())) writeSession(null)
         armExpiry()

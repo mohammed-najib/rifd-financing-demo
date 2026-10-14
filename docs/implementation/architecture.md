@@ -1,13 +1,13 @@
 # Browser demo architecture
 
-The [specification](../../.scratch/financing-application-and-review/spec.md) and [accepted browser contract](../../.scratch/financing-application-and-review/issues/04-browser-state-and-simulated-failures.md#answer) govern the implementation. The first three slices establish startup, authorized reads, canonical field validation, product comparison, five-step editing, attachment preparation and atomic draft creation/saves. Later tickets extend those same boundaries.
+The [specification](../../.scratch/financing-application-and-review/spec.md) and [accepted browser contract](../../.scratch/financing-application-and-review/issues/04-browser-state-and-simulated-failures.md#answer) govern the implementation. The first six slices provide startup, authorized reads, canonical field validation, five-step drafts, session and tab recovery, and atomic first submission. Later tickets extend the same boundaries for corrections and review.
 
 ## Modules
 
 | Module | Responsibility |
 | --- | --- |
 | `src/domain` | Typed stored shapes, fictional product rules, read permission rule and explicit-date whole-rial repayment calculation. No browser storage, timers or navigation. |
-| `src/demo/index.ts` | Public asynchronous startup, context, sign-in/out, language and draft operations, preparation, receipt inspection, role-filtered reads, deterministic controls and subscriptions. |
+| `src/demo/index.ts` | Public asynchronous startup, context, sign-in/out, language, draft and submission operations, preparation, receipt inspection, role-filtered reads, deterministic controls and subscriptions. |
 | `src/demo/commands.ts` | Private runtime command shapes and stable intent fingerprints. |
 | `src/demo/storage.ts` | Private IndexedDB opening, validation, reads and transaction completion. Product screens never import this module. |
 | `src/demo/seed-manifest.ts`, `seed.ts`, `evidence.ts` | Canonical scenario facts and preparation of locally rendered, hashed PNG, JPEG and multipage PDF bytes and catalog variants. |
@@ -57,10 +57,10 @@ Committed-change broadcasts and the storage-event fallback use the same public `
 | Hint kind | Revision scope | Operations using that scope |
 | --- | --- | --- |
 | `workspace` | Private workspace revision | Draft saves now; correction progress saves extend the same scope with active-round validation |
-| `application` | Shared application revision | Subsequent publication, assignment, queue and review operations |
+| `application` | Shared application revision | Submission now; subsequent assignment, queue and review operations |
 | `preferences` | Independent preference revision | Language now; subsequent saved queue preferences |
 
-Private saves leave shared revisions, lifecycle history, staff activity and applicant notifications unchanged. Language changes leave application and workspace revisions unchanged. Hints cannot replace transaction checks, including after activation or reapplication. Later correction/publication and review operations must retain the separate expected revision inputs described in the accepted browser contract.
+Private saves leave shared revisions, lifecycle history, staff activity and applicant notifications unchanged. Language changes leave application and workspace revisions unchanged. Hints cannot replace transaction checks, including after activation or reapplication. Later correction publication and review operations must retain the separate expected revision inputs described in the accepted browser contract.
 
 Clean editors adopt refreshed committed workspaces. Dirty editors retain their old expected workspace revision, raw input, product and prepared bytes while the surrounding permitted projection refreshes. Inspect latest draft reveals current saved fields and documents without applying retained values. Explicit reapplication establishes the inspected baseline and clears the refused intent; the next save creates a new operation identifier. A later competing save still refuses the captured revision. Language conflict recovery similarly retains the intended language independently of the refreshed display language, requires explicit saved-preference inspection, and submits a new identifier against the inspected preference revision. No callback silently replaces an outstanding command's expected revision.
 
@@ -96,7 +96,7 @@ Startup loads local fonts, prepares all seeded and catalog bytes, validates stor
 
 Unsupported or damaged storage is preserved. Resource/storage failure returns a stable error and retry. Recovery/reset operations and the remaining failure controls belong to later tickets. No memory-only saved success or silent reseeding occurs. Extend runtime validation as new record shapes arrive, with an explicit migration for a new format. Keep file bytes referenced by baselines and history.
 
-The current storage layout favors a simple atomic initial dataset and preference operation. Later commands can change the private layout while public interface and real-browser tests remain the same. Public interface integration tests use actual IndexedDB. Only an isolated corruption fixture accesses the private layout to prepare damage; its assertions use startup results and the preserved dataset identifier.
+The current storage layout favors a simple atomic initial dataset and preference operation. Later commands can change the private layout while public interface and real-browser tests remain the same. Public interface integration tests use actual IndexedDB. Isolated corruption and replacement-dataset fixtures access the private layout to prepare interruptions; its assertions use startup results and the preserved dataset identifier.
 
 ## Five-step drafts
 
@@ -105,6 +105,16 @@ The pure domain interface validates Unicode code-point text limits, contacts, Gr
 `saveDraft` revision zero atomically creates a registered memory-only draft with its first workspace and prepared bytes. Receipt replay works after reload. Later saves compare workspace revisions as before. Product switching changes the product and workspace together; it cannot retain a saved incompatible purchase reference or a prepared purchase reference for the wrong product. Shared documents remain authorized. Removed bytes can remain in the private store for references in the sample catalog, but unreferenced files cannot be previewed through application reads.
 
 The editor retains every raw field, product, per-slot selection and staged purchase removal in one tab-local buffer. Step query changes preserve the component and pending preparation; language changes retain mounted controls and caret positions. Saves capture all current fields and selection identifiers before awaiting preparations. Later typing stays unsaved, and failed selections keep the old slot while other progress saves. Review validates the current buffer and links errors to a step and focused control. New-vs-resume is an explicit choice and never rewrites an existing draft.
+
+## First submission
+
+`submit` accepts the complete current form/product and saved or prepared document references, with both expected workspace and shared revisions. It uses the same transaction, receipt inspection, authority checks and prepared-byte validation as progress saving. Validation errors identify field issues or a document slot. Active selections are tracked by actor, application and slot, so a pending or failed replacement cannot fall back to the old saved file until explicitly cancelled. Publication also validates every field against the chosen product and all four file envelopes. Pending/failed document descriptors, missing files and extra bypass flags are refused. The incomplete Submitted seed remains a stored fixture, never an operation option.
+
+The transaction publishes the snapshot and bytes, freezes the fixed domain date of 2026-10-14 and July to September evidence, initializes document assessments and checks, advances the shared revision, retires the workspace and commits a receipt. One durable sequence identifies the submission in public history and internal activity. The current assignee comes from storage. Publication creates no applicant notification. Actual receipt save timestamps use the browser clock independently of the domain date.
+
+The Review step submits directly, including an unsaved new application. Missing/invalid requirements focus the linked summary. Pending and uncertain submissions disable duplicate actions. Failure retains the complete form and ready files; only an eligible submission consumes its one-shot submission failure. Storage abort rolls back files, state, history and receipt together. Receipt inspection resolves an unknown completion before retry. Successful publication routes to the read-only detail and clears the retired editor buffer.
+
+If publication in another tab or a committed operation during expiry removes editing permission, the permitted detail shows retained input in a separate unapplied-work panel. It supports explicit receipt inspection and discard without republishing. New UUID references resolve through both applicant and staff routes. Observing a replacement dataset also clears module-local drafts, preparations and failure controls.
 
 Saved catalog samples retain their original fictional facts and product provenance. A supported additive migration recovers the product of older catalog entries from the immutable seed manifest. Product-specific sample reads/preparations cannot relabel stock plans as quotations after a switch. New applications and newly exposed product-specific requirements can generate sample bytes from the current draft fields through the same preparation interface. This generation happens outside storage transactions and commits no catalog or application data. Local fictional files remain available for every slot.
 
