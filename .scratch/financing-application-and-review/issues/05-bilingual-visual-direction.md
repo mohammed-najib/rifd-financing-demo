@@ -2,7 +2,7 @@
 
 Type: prototype
 Labels: wayfinder:prototype
-Status: claimed
+Status: open
 Parent: [Plan the financing application and review platform](../map.md)
 Blocked by: none
 
