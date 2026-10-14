@@ -1,6 +1,6 @@
 # RIFD / رِفد
 
-A fictional, Arabic-first financing demo that saves records and evidence in the browser. The first three slices provide the complete seeded dataset, product comparison and [five-step saveable drafts](.scratch/financing-application-and-review-implementation/issues/03-compare-products-and-complete-drafts.md) in Arabic and English.
+A fictional, Arabic-first financing demo that saves records and evidence in the browser. The first four slices provide the complete seeded dataset, product comparison, [five-step saveable drafts](.scratch/financing-application-and-review-implementation/issues/03-compare-products-and-complete-drafts.md) and [session recovery](.scratch/financing-application-and-review-implementation/issues/04-recover-sessions-and-unfinished-work.md) in Arabic and English.
 
 Mariam, Huda and Omar can read their own applications. Salma can read all submitted applications, including colleague assignments. Khaled is a simulated colleague and cannot sign in. Applicants can create drafts, edit all personal, business and financing fields, switch products, prepare four supporting documents and review completeness. Authorized viewers can preview saved evidence. Submission, notifications UI, queue controls and review actions belong to later tickets.
 
@@ -93,6 +93,8 @@ Review checks format and document completeness separately from substantive revie
 Preparation reports progress and Ready to save. Save progress commits the captured raw input and ready bytes together. Refresh restores saved input and actual evidence; it discards unfinished edits and unsaved selections. Saved file previews include open/download alternatives. A failed replacement preserves the old saved file.
 
 The draft's Demo controls panel sets normal or slow timing and one next-upload, next-save or next-application-storage-write failure. Controls belong to the current tab and reset on refresh. Retry a failed preparation without reselecting, or retry a failed save without preparing again. An uncertain result requires Inspect save outcome. Another tab's conflicting save requires inspection and explicit reapplication. In-app departure offers Stay, Discard changes or Save and leave; pending work must finish and failed selections must be completed or discarded before saving and leaving.
+
+The header's Expire session control interrupts the current session immediately. Fifteen minutes without pointer or keyboard interaction does the same; mouse movement, completed requests and other tabs' activity do not renew it. Protected screens and previews close, and the tab retains unfinished input privately. Choose the same identity to inspect current access and return to the previous permitted screen, including after visiting public products. If editing has ended, recovery opens the current read-only record without applying the retained input. Choose another identity only after explicitly discarding unfinished work. Recovery never saves or retries an action automatically. A save interrupted before its outcome was observed requires Inspect save outcome; a save that committed before expiry remains saved. Refresh still removes unsaved tab-memory work.
 
 ## Data and architecture
 

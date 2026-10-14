@@ -4,8 +4,8 @@ import { createDemo, demoIdentities, type ApplicationSummary, type ApplicationVi
 import { products, resolveStep } from '../domain'
 import type { ActorId, ApplicationStatus, Language, ProductId } from '../domain/model'
 import { date, displayFieldValue, documentLabel, errors, events, fieldLabels, money, outcomes, reviewChecks, statuses, text } from './i18n'
-import { draftText } from './i18n'
-import { DraftEditor, draftDirty, type Departure, type DraftBuffer } from './draft'
+import { DraftEditor, draftDirty, type DraftBuffer } from './draft'
+import { DepartureDialog, type Departure, type DepartureRequest } from './departure'
 import { DocumentPreview } from './preview'
 import { applicationText } from './application-copy'
 
@@ -46,6 +46,7 @@ export function App() {
   const step = resolveStep(search.step)
   const chosenProduct: ProductId = search.product === 'equipment' ? 'equipment' : 'inventory'
   const path = useRouterState({ select: state => state.location.pathname })
+  const href = useRouterState({ select: state => state.location.href })
   const navigate = useNavigate()
   const router = useRouter()
   const screen = resolveScreen(path)
@@ -59,13 +60,27 @@ export function App() {
   const [loadedPath, setLoadedPath] = useState<string | null>(null)
   const alive = useRef(true)
   const identitySelection = useRef(false)
+  const contextRequest = useRef(0)
   const newDraftId = useRef<string | null>(null)
   const draftBuffers = useRef(new Map<string, DraftBuffer>())
   const departure = useRef<Departure | null>(null)
   const [, refreshDeparture] = useState(0)
-  const [leaving, setLeaving] = useState<{ action: () => void; cancel?: () => void; canSave: boolean } | null>(null)
-  const [leavingBusy, setLeavingBusy] = useState(false)
-  const leaveDialog = useRef<HTMLDialogElement>(null)
+  const [leaving, setLeaving] = useState<DepartureRequest | null>(null)
+  const currentContext = useRef(context)
+  const lastProtected = useRef<string | null>(null)
+  const recovery = useRef<{ identity: ActorId; datasetId: string; href: string } | null>(null)
+  currentContext.current = context
+  if (context?.session && !['home', 'chooser', 'products', 'unavailable'].includes(screen.kind)) lastProtected.current = href
+  const acceptContext = (next: Context) => {
+    const previous = currentContext.current
+    if (previous?.datasetId && previous.datasetId !== next.datasetId) {
+      draftBuffers.current.clear(); recovery.current = null; newDraftId.current = null
+    } else if (previous?.session && !next.session) {
+      recovery.current = { identity: previous.session.identity, datasetId: previous.datasetId, href: lastProtected.current ?? (previous.identity?.role === 'reviewer' ? '/staff/applications' : '/applications') }
+    }
+    currentContext.current = next
+    setContext(next)
+  }
   const loadedContext = useRef('')
   const language = context?.preferences.language ?? 'ar'
   const t = (key: keyof typeof text) => text[key][language]
@@ -74,17 +89,18 @@ export function App() {
     const target = new URL(to, window.location.origin)
     return to === '/' ? navigate({ to: '/' }) : navigate({ to: '/$', params: { _splat: target.pathname.slice(1) }, search: { product: target.searchParams.get('product') ?? undefined, step: target.searchParams.get('step') ?? undefined } })
   }
+  const needsDeparture = () => !!departure.current?.dirty || !!departure.current?.pending || !!currentContext.current?.session && [...draftBuffers.current.values()].some(draftDirty)
   const guard = (action: () => void) => {
-    if (departure.current?.dirty || departure.current?.pending) setLeaving({ action, canSave: true })
+    if (needsDeparture()) setLeaving({ action, discardOnly: !departure.current?.save })
     else action()
   }
   const go = navigateTo
   useBlocker({
     shouldBlockFn: ({ current, next }) => {
-      if (current.pathname === next.pathname || !departure.current?.dirty && !departure.current?.pending) return false
-      return new Promise<boolean>(resolve => setLeaving({ action: () => resolve(false), cancel: () => resolve(true), canSave: true }))
+      if (current.pathname === next.pathname || !needsDeparture()) return false
+      return new Promise<boolean>(resolve => setLeaving({ action: () => resolve(false), cancel: () => resolve(true), discardOnly: !departure.current?.save }))
     },
-    enableBeforeUnload: () => !!departure.current?.dirty || !!departure.current?.pending,
+    enableBeforeUnload: () => !!departure.current?.dirty || !!departure.current?.pending || [...draftBuffers.current.values()].some(draftDirty),
   })
   const home = context?.identity?.role === 'reviewer' ? '/staff/applications' : '/applications'
 
@@ -94,14 +110,21 @@ export function App() {
     // Load the protected route component before Ready, including when starting at the chooser.
     void router.preloadRoute({ to: '/$', params: { _splat: 'applications' } }).then(() => demo.startup()).then(result => {
       if (!active) return
-      if (result.ok) setContext(result.value)
+      if (result.ok) acceptContext(result.value)
       else setStartupError(result.error.kind)
     }).catch(() => { if (active) setStartupError('resources') })
-    const unsubscribe = demo.subscribe(() => {
+    const unsubscribe = demo.subscribe(currentSession => {
+      if (!active) return
+      const request = ++contextRequest.current
+      // Authority loss covers protected content without waiting for busy storage.
+      if (!currentSession && currentContext.current?.session) {
+        acceptContext({ ...currentContext.current, session: null, identity: null })
+        setView(null); setList(null)
+      }
       if (identitySelection.current) return
       void demo.context().then(result => {
-        if (!active || identitySelection.current) return
-        if (result.ok) { setContext(result.value); setReload(value => value + 1) }
+        if (!active || identitySelection.current || request !== contextRequest.current) return
+        if (result.ok) { acceptContext(result.value); setReload(value => value + 1) }
         else { setContext(null); setStartupError(result.error.kind) }
       })
     })
@@ -150,8 +173,10 @@ export function App() {
     } else if (current.kind === 'staffDetail' || current.kind === 'applicantDetail') {
       void demo.readApplication(current.id).then(result => {
         if (!active) return
-        if (result.ok && (!path.endsWith('/edit') || result.value.status === 'draft')) setView(result.value)
-        else if (result.ok) setError('unavailable')
+        if (result.ok) {
+          setView(result.value)
+          if (path.endsWith('/edit') && result.value.status !== 'draft') { departure.current = null; void navigateTo(path.slice(0, -5)) }
+        }
         else setError(result.error.kind)
         setLoadedPath(path)
       })
@@ -163,30 +188,37 @@ export function App() {
   const routeReady = !!context && (screen.kind === 'chooser' || screen.kind === 'products' || !identity || loadedPath === path)
   useEffect(() => {
     if (routeReady) document.querySelector<HTMLElement>('main h1')?.focus()
-  }, [path, routeReady])
+  }, [path, routeReady, sessionId])
 
-  const selectIdentity = async (id: ActorId) => {
+  const selectIdentity = async (id: ActorId, intentional = false) => {
     if ([...draftBuffers.current.entries()].some(([key, buffer]) => !key.startsWith(`${context?.datasetId}/${id}/`) && draftDirty(buffer))) {
-      setLeaving({ action: () => { draftBuffers.current.clear(); void selectIdentity(id) }, canSave: false })
+      setLeaving({ action: () => { draftBuffers.current.clear(); newDraftId.current = null; void selectIdentity(id, true) }, discardOnly: true })
       return
     }
     setBusy(true); setError(null); setView(null); setList(null)
+    contextRequest.current++
     identitySelection.current = true
     const result = await demo.signIn(id)
     try {
       if (!alive.current) return
       if (!result.ok) { setError(result.error.kind); return }
-      let permitted = screen.kind === 'newDraft' && id !== 'salma' || screen.kind === 'applicantList' && id !== 'salma' || screen.kind === 'staffList' && id === 'salma'
-      if (screen.kind === 'applicantDetail' && id !== 'salma' || screen.kind === 'staffDetail' && id === 'salma') {
-        const access = await demo.readApplication(screen.id)
+      const interrupted = recovery.current
+      const ownRecovery = interrupted?.identity === id && interrupted.datasetId === result.value.datasetId
+      let target = intentional || interrupted && !ownRecovery ? (id === 'salma' ? '/staff/applications' : '/applications') : ownRecovery ? interrupted.href : href
+      const destination = resolveScreen(new URL(target, window.location.origin).pathname)
+      let permitted = destination.kind === 'newDraft' && id !== 'salma' || destination.kind === 'applicantList' && id !== 'salma' || destination.kind === 'staffList' && id === 'salma'
+      if (destination.kind === 'applicantDetail' && id !== 'salma' || destination.kind === 'staffDetail' && id === 'salma') {
+        const access = await demo.readApplication(destination.id)
         permitted = access.ok
+        if (access.ok && access.value.status !== 'draft' && new URL(target, window.location.origin).pathname.endsWith('/edit')) target = `/applications/${destination.id}`
       }
       if (!alive.current) return
       const latest = await demo.context()
       if (!latest.ok) { setError(latest.error.kind); return }
-      if (!latest.value.session) { setContext(latest.value); setError('sessionExpired'); return }
-      if (!permitted) await go(id === 'salma' ? '/staff/applications' : '/applications')
-      if (alive.current) setContext(latest.value)
+      if (latest.value.session?.sessionId !== result.value.session?.sessionId) { acceptContext(latest.value); setError('sessionExpired'); return }
+      if (!permitted) target = id === 'salma' ? '/staff/applications' : '/applications'
+      if (target !== href) await go(target)
+      if (alive.current) { recovery.current = null; acceptContext(latest.value) }
     } catch { if (alive.current) setError('resources') }
     finally { identitySelection.current = false; if (alive.current) setBusy(false) }
   }
@@ -196,10 +228,10 @@ export function App() {
     const result = await demo.execute({ kind: 'setLanguage', datasetId: context.datasetId, operationId: crypto.randomUUID(), expectedRevision: context.preferences.revision, language: language === 'ar' ? 'en' : 'ar' })
     if (!alive.current) return
     setBusy(false)
-    if (result.ok) setContext(result.value)
+    if (result.ok) acceptContext(result.value)
     else {
       setError(result.error.kind)
-      if (result.error.kind === 'stalePreference') { const latest = await demo.context(); if (latest.ok) setContext(latest.value) }
+      if (result.error.kind === 'stalePreference') { const latest = await demo.context(); if (latest.ok) acceptContext(latest.value) }
     }
   }
   const signOut = async () => {
@@ -207,17 +239,16 @@ export function App() {
     const result = await demo.signOut()
     if (!alive.current) return
     setBusy(false)
-    if (result.ok) { draftBuffers.current.clear(); setContext(result.value); void navigateTo('/sign-in') } else setError(result.error.kind)
+    if (result.ok) { draftBuffers.current.clear(); newDraftId.current = null; acceptContext(result.value); recovery.current = null; void navigateTo('/sign-in') } else setError(result.error.kind)
   }
 
-  useEffect(() => { if (leaving) leaveDialog.current?.showModal() }, [leaving])
   useEffect(() => { setLeaving(current => { current?.cancel?.(); return null }) }, [sessionId])
   const retryStartup = async () => {
     setStartupError(null)
     try {
       await router.preloadRoute({ to: '/$', params: { _splat: 'applications' } })
       const result = await demo.startup()
-      if (result.ok) setContext(result.value); else setStartupError(result.error.kind)
+      if (result.ok) acceptContext(result.value); else setStartupError(result.error.kind)
     } catch { setStartupError('resources') }
   }
 
@@ -235,7 +266,7 @@ export function App() {
       <div className="session-controls ms-auto flex flex-wrap items-center gap-3 compact:ms-0 narrow:w-full narrow:gap-2.5">
         {identity && <span className="identity-name font-semibold leading-[1.6] narrow:me-auto narrow:text-[13px]">{identity.name[language]}<small>{identity.role === 'reviewer' ? t('reviewer') : t('applicant')}</small></span>}
         <button aria-disabled={busy || !context} onClick={() => { if (!busy && context) void changeLanguage() }} lang={language === 'ar' ? 'en' : 'ar'}>{language === 'ar' ? 'English' : 'العربية'}</button>
-        {identity && <><button disabled={busy} onClick={() => go('/sign-in')}>{t('switchIdentity')}</button><button disabled={busy} onClick={() => guard(() => { void signOut() })}>{t('signOut')}</button></>}
+        {identity && <><button disabled={busy} onClick={() => go('/sign-in')}>{t('switchIdentity')}</button><button disabled={busy} onClick={() => guard(() => { void signOut() })}>{t('signOut')}</button><button onClick={() => demo.expireSession()}>{t('expireSession')}</button></>}
       </div>
     </header>
     <div className={`mx-auto max-w-[1440px] px-[4%] pt-[42px] pb-[60px] narrow:px-[5%] narrow:pt-7 narrow:pb-10 ${isStaff ? 'grid grid-cols-[190px_minmax(0,1fr)] gap-8 compact:grid-cols-1' : ''}`}>
@@ -246,6 +277,7 @@ export function App() {
           : unavailable ? <section className="panel"><Heading>{t('unavailable')}</Heading><p>{t('unavailableDescription')}</p><a className="button" href={home} onClick={event => { event.preventDefault(); go(home) }}>{t('home')}</a><button onClick={() => go('/sign-in')}>{t('switchIdentity')}</button></section>
           : isChooser ? <section className="mx-auto mt-[15px] mb-10 max-w-[970px] narrow:mt-[5px] narrow:mb-5">
             <p className="eyebrow">{language === 'ar' ? 'ابدأ الاستكشاف' : 'Explore the demo'}</p><Heading>{t('chooseIdentity')}</Heading><p className="intro">{t('chooserIntro')}</p>
+            {recovery.current && <p className="summary" role="status">{t('recoverSession')}</p>}
             <div className="grid grid-cols-2 gap-5 narrow:grid-cols-1 narrow:gap-3.5">{demoIdentities.map(person => <button className="identity-card grid min-h-[140px] grid-cols-[52px_1fr_20px] items-center gap-x-[18px] gap-y-[2px] rounded-[15px] border-border bg-white p-[26px] text-start text-ink narrow:min-h-[110px] narrow:p-5" key={person.id} disabled={busy} onClick={() => void selectIdentity(person.id as ActorId)} aria-label={person.name[language]}><span className="row-[1/3] flex size-[52px] items-center justify-center rounded-[50%] bg-summary text-[22px] text-accent" aria-hidden="true">{person.name[language].slice(0, 1)}</span><strong>{person.name[language]}</strong><span>{person.role === 'reviewer' ? t('reviewer') : t('applicant')}</span><span className="col-start-3 row-[1/3] text-[24px] text-accent" aria-hidden="true">{language === 'ar' ? '←' : '→'}</span></button>)}</div>
             <p className="my-[22px] text-[13px] text-muted">{t('sliceNotice')}</p>
           </section>
@@ -257,18 +289,19 @@ export function App() {
             setBusy(false)
           }}>{applicationText.new[language]}</button><div className="actions">{list?.filter(application => application.status === 'draft').map(application => <a className="button secondary" key={application.id} href={`/applications/${application.id}/edit?step=personal`} onClick={event => { event.preventDefault(); void go(`/applications/${application.id}/edit?step=personal`) }}>{applicationText.resume[language]} <bdi>{application.id}</bdi> · {products[application.product].name[language]}</a>)}</div></section>
           : list ? <ApplicationList list={list} language={language} staff={screen.kind === 'staffList'} go={go} />
-          : view ? <ApplicationDetail key={`${context?.datasetId}/${identityId}/${sessionId}/${view.id}`} demo={demo} view={view} language={language}>{view.role === 'applicant' && view.status === 'draft' && context && <DraftEditor demo={demo} view={view} context={context} language={language} step={step} changeStep={step => { void go(`${path}?${screen.kind === 'newDraft' ? `product=${chosenProduct}&` : ''}step=${step}`) }} retained={draftBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => draftBuffers.current.set(`${context.datasetId}/${identityId}/${view.id}`, buffer)} savedView={application => { setView(application); if (screen.kind === 'newDraft') { departure.current = null; void go(`/applications/${application.id}/edit?step=${step}`) } }} departure={value => { departure.current = value; refreshDeparture(value => value + 1) }} />}</ApplicationDetail> : null}
+          : view ? <ApplicationDetail key={`${context?.datasetId}/${identityId}/${sessionId}/${view.id}`} demo={demo} view={view} language={language}>{view.role === 'applicant' && view.status === 'draft' && context && <DraftEditor demo={demo} view={view} context={context} language={language} step={step} changeStep={step => { void go(`${path}?${screen.kind === 'newDraft' ? `product=${chosenProduct}&` : ''}step=${step}`) }} retained={draftBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => draftBuffers.current.set(`${context.datasetId}/${identityId}/${view.id}`, buffer)} savedView={application => {
+            setView(application)
+            // Saving names the same editor's durable route; it does not leave its buffer.
+            if (screen.kind === 'newDraft') void navigate({ to: '/$', params: { _splat: `applications/${application.id}/edit` }, search: { step }, ignoreBlocker: true })
+          }} departure={value => { departure.current = value; refreshDeparture(value => value + 1) }} />}</ApplicationDetail> : null}
         {error && error !== 'unavailable' && <div className="my-5 rounded-[10px] border border-solid border-danger-border bg-danger-surface px-5 py-4 text-danger-text [&_button]:mt-[15px] [&_button]:block" role="alert">{errors[error][language]}<button disabled={busy} onClick={() => setReload(value => value + 1)}>{t('retry')}</button></div>}
       </main>
     </div>
     <footer className="disclosure border-0 border-t border-solid border-border bg-footer px-[4%] py-6 text-[12px] text-muted narrow:px-[5%] narrow:py-5"><p>{t('notice')}</p><p>{t('storageNotice')}</p></footer>
-    {leaving && <dialog ref={leaveDialog} className="w-[650px]" aria-labelledby="leave-heading" onCancel={() => { leaving.cancel?.(); setLeaving(null) }}><h2 id="leave-heading">{draftText.leave[language]}</h2><p>{draftText.waitLeave[language]}</p><div className="actions"><button disabled={leavingBusy} onClick={() => { leaving.cancel?.(); setLeaving(null) }}>{draftText.stay[language]}</button><button disabled={leavingBusy || !!departure.current?.pending} onClick={() => { departure.current?.discard(); departure.current = null; draftBuffers.current.clear(); const action = leaving.action; setLeaving(null); action() }}>{draftText.discard[language]}</button>{leaving.canSave && <button disabled={leavingBusy || !departure.current?.canSave || departure.current?.pending} onClick={async () => {
-      setLeavingBusy(true)
-      const saved = await departure.current?.save()
-      setLeavingBusy(false)
-      if (saved) { departure.current = null; const action = leaving.action; setLeaving(null); action() }
-      else { leaving.cancel?.(); setLeaving(null) }
-    }}>{draftText.saveLeave[language]}</button>}</div></dialog>}
+    {leaving && <DepartureDialog request={leaving} work={departure.current} language={language}
+      cancel={() => { leaving.cancel?.(); setLeaving(null) }}
+      discard={() => { departure.current?.discard(); departure.current = null; draftBuffers.current.clear(); newDraftId.current = null; setLeaving(null); leaving.action() }}
+      finish={() => { departure.current = null; setLeaving(null); leaving.action() }} />}
   </div>
 }
 

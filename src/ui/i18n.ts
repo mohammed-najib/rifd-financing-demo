@@ -10,6 +10,8 @@ export const text = {
   applications: { ar: 'طلباتي', en: 'My applications' }, staffApplications: { ar: 'قائمة الطلبات', en: 'Application queue' },
   products: { ar: 'منتجات التمويل', en: 'Financing products' }, switchIdentity: { ar: 'تغيير الهوية', en: 'Switch identity' },
   signOut: { ar: 'تسجيل الخروج', en: 'Sign out' }, loading: { ar: 'جارٍ تجهيز العرض التجريبي', en: 'Preparing the demo' },
+  expireSession: { ar: 'إنهاء الجلسة', en: 'Expire session' },
+  recoverSession: { ar: 'انتهت الجلسة. اختر الهوية نفسها لاستعادة العمل بعد فحص الصلاحيات الحالية. لن يُحفظ أي شيء تلقائيًا.', en: 'Your session expired. Choose the same identity to recover work after checking current access. Nothing saves automatically.' },
   loadingDetail: { ar: 'نجهز البيانات والمستندات الافتراضية في هذا المتصفح.', en: 'Preparing fictional records and evidence in this browser.' },
   readLoading: { ar: 'جارٍ تحميل المعلومات', en: 'Loading information' }, retry: { ar: 'إعادة المحاولة', en: 'Retry' },
   unavailable: { ar: 'الطلب غير متاح', en: 'Application unavailable' }, unavailableDescription: { ar: 'هذا الرابط غير متاح للهوية الحالية. يمكنك العودة إلى الصفحة الرئيسية أو تغيير الهوية.', en: 'This link is unavailable to the current identity. Return home or switch identity.' },

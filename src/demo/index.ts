@@ -26,7 +26,7 @@ export function createDemo(): Demo {
   let timer: ReturnType<typeof setTimeout> | null = null
   let startupPromise: Promise<Result<Context>> | null = null
   let listening = false
-  const subscribers = new Set<() => void>()
+  const subscribers = new Set<(session: Session | null) => void>()
   const newDrafts = new Map<string, Application>()
   let controls: Controls = { slow: false, failure: null }
   const delay = () => sleep(controls.slow ? 1500 : 400)
@@ -37,7 +37,7 @@ export function createDemo(): Demo {
   }
   const preparations = new Map<string, { actor: ActorId; datasetId: string; file: StoredFile; product: Application['product']; reference: PreparedAttachment }>()
   const selections = new Map<string, string>()
-  const emit = () => { for (const listener of subscribers) { try { listener() } catch { /* Observers cannot change committed outcomes. */ } } }
+  const emit = () => { for (const listener of subscribers) { try { listener(session ? { ...session } : null) } catch { /* Observers cannot change committed outcomes. */ } } }
   const storedSession = () => {
     try {
       const raw = sessionStorage.getItem(sessionKey)
@@ -60,12 +60,12 @@ export function createDemo(): Demo {
     if (timer) clearTimeout(timer)
     timer = session ? setTimeout(expire, Math.max(0, session.expiresAt - Date.now())) : null
   }
-  const expire = () => {
-    if (session && Date.now() >= session.expiresAt) {
-      try { writeSession(null) } catch { session = null; generation++; }
-      emit()
-    }
+  const expireSession = () => {
+    if (!session) return
+    try { writeSession(null) } catch { session = null; generation++; armExpiry() }
+    emit()
   }
+  const expire = () => { if (session && Date.now() >= session.expiresAt) expireSession() }
   const activity = () => {
     if (!session) return
     if (Date.now() >= session.expiresAt) { expire(); return }
@@ -136,6 +136,7 @@ export function createDemo(): Demo {
     document.addEventListener('keydown', activity)
     document.addEventListener('visibilitychange', activate)
     window.addEventListener('pageshow', activate)
+    window.addEventListener('focus', activate)
     try { channel = new BroadcastChannel('rifd.commit.v1'); channel.onmessage = hint } catch { window.addEventListener('storage', hint) }
   }
   const announce = (kind: 'preferences' | 'application' = 'preferences', applicationId?: string, revision?: number) => {
@@ -272,6 +273,7 @@ export function createDemo(): Demo {
   }
   return {
     execute,
+    expireSession,
     newDraft: product => protectedRead((data, who) => {
       if (who === 'salma' || !productIdSchema.safeParse(product).success) throw new DemoError('unavailable')
       const identity = data.identities.find(identity => identity.id === who)!
@@ -451,6 +453,7 @@ export function createDemo(): Demo {
       document.removeEventListener('keydown', activity)
       document.removeEventListener('visibilitychange', activate)
       window.removeEventListener('pageshow', activate)
+      window.removeEventListener('focus', activate)
       window.removeEventListener('storage', hint)
       listening = false
       newDrafts.clear(); preparations.clear(); selections.clear(); controls = { slow: false, failure: null }

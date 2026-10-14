@@ -52,6 +52,7 @@ export type Demo = {
   context(): Promise<Result<Context>>;
   signIn(identity: ActorId): Promise<Result<Context>>;
   signOut(): Promise<Result<Context>>;
+  expireSession(): void;
   newDraft(product: ProductId): Promise<Result<ApplicantView>>;
   execute(operation: LanguageOperation): Promise<Result<Context>>;
   execute(operation: SaveDraftOperation): Promise<Result<MutationResult>>;
@@ -67,6 +68,6 @@ export type Demo = {
   readNotifications(): Promise<Result<Notification[]>>;
   listSamples(applicationId: string): Promise<Result<Sample[]>>;
   readSample(applicationId: string, sampleId: string): Promise<Result<{ bytes: ArrayBuffer; name: string; mime: string; hash: string }>>;
-  subscribe(listener: () => void): () => void;
+  subscribe(listener: (session: Session | null) => void): () => void;
   dispose(): void;
 }

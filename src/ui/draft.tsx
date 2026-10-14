@@ -5,6 +5,7 @@ import { slots, type DocumentSlot, type Fields, type Language, type ProductId, t
 import { DocumentPreview } from './preview'
 import { displayFieldValue, documentLabel, draftText, errors, fieldLabels, money, text } from './i18n'
 import { activities, applicationText, documentRequirement, issueMessage } from './application-copy'
+import type { Departure } from './departure'
 
 type Selection = { id: string; source: Preparation['source']; name: string; status: 'preparing' | 'ready' | 'failed'; progress: number; attachment?: PreparedAttachment; error?: ErrorKind }
 type Selections = Partial<Record<DocumentSlot, Selection>>
@@ -13,7 +14,6 @@ export type DraftBuffer = {
   status: 'unsaved' | 'saving' | 'saved' | 'failed' | 'unknown'; error: ErrorKind | null;
   pending: SaveDraftOperation | null; capturedSelections: Partial<Record<DocumentSlot, string>>;
 }
-export type Departure = { dirty: boolean; pending: boolean; canSave: boolean; save: () => Promise<boolean>; discard: () => void }
 const savedTime = (view: ApplicationView) => view.role === 'applicant' ? view.workspace?.savedAt : null
 const initialBuffer = (view: ApplicationView): DraftBuffer => ({ fields: { ...view.snapshot.fields }, product: view.product, baseline: view, selections: {}, purchaseRemoved: false, status: savedTime(view) ? 'saved' : 'unsaved', error: null, pending: null, capturedSelections: {} })
 export const draftDirty = (buffer: DraftBuffer) => !savedTime(buffer.baseline) || JSON.stringify(buffer.fields) !== JSON.stringify(buffer.baseline.snapshot.fields) || buffer.product !== buffer.baseline.product || buffer.purchaseRemoved || Object.keys(buffer.selections).length > 0 || buffer.status === 'unknown'
@@ -24,10 +24,11 @@ export function DraftEditor({ demo, view, context, language, retained, remember,
   retained?: DraftBuffer; remember: (value: DraftBuffer) => void; departure: (value: Departure | null) => void;
   savedView: (value: ApplicationView) => void;
 }) {
-  const initial = retained ?? initialBuffer(view)
+  const initial = retained && draftDirty(retained) ? retained : initialBuffer(view)
   const [buffer, render] = useState(initial)
   const state = useRef(initial)
   const mounted = useRef(true)
+  const retainOnUnmount = useRef(true)
   const preparations = useRef<Partial<Record<DocumentSlot, Promise<Result<PreparedAttachment>>>>>({})
   const [samples, setSamples] = useState<Sample[]>([])
   const [sampleIds, setSampleIds] = useState<Partial<Record<DocumentSlot, string>>>({})
@@ -47,7 +48,7 @@ export function DraftEditor({ demo, view, context, language, retained, remember,
   const controls = demo.controls()
   const t = (key: keyof typeof draftText) => draftText[key][language]
   const a = (key: keyof typeof applicationText) => applicationText[key][language]
-  const update = (next: DraftBuffer) => { state.current = next; remember(next); if (mounted.current) render(next) }
+  const update = (next: DraftBuffer) => { retainOnUnmount.current = true; state.current = next; remember(next); if (mounted.current) render(next) }
   const dirty = draftDirty(buffer)
   const locked = buffer.status === 'saving' || buffer.status === 'unknown'
   const newer = view.role === 'applicant' && buffer.baseline.role === 'applicant' && !!view.workspace && !!buffer.baseline.workspace && view.workspace.revision > buffer.baseline.workspace.revision
@@ -67,7 +68,7 @@ export function DraftEditor({ demo, view, context, language, retained, remember,
       for (const slot of slots) demo.cancelPreparation(view.id, slot)
       const current = state.current
       const selections = Object.fromEntries(Object.entries(current.selections).map(([slot, selection]) => [slot, selection.status === 'preparing' ? { ...selection, status: 'failed', error: 'sessionExpired' } : selection])) as Selections
-      remember({ ...current, selections, status: current.status === 'saving' ? current.pending ? 'unknown' : 'failed' : current.status })
+      if (retainOnUnmount.current) remember({ ...current, selections, status: current.status === 'saving' ? current.pending ? 'unknown' : 'failed' : current.status })
       departure(null)
     }
   }, [])
@@ -158,10 +159,10 @@ export function DraftEditor({ demo, view, context, language, retained, remember,
   }
   const discard = () => {
     for (const slot of slots) demo.cancelPreparation(view.id, slot)
-    setPreview(null); update(initialBuffer(view))
+    setPreview(null); update(initialBuffer(view)); retainOnUnmount.current = false
   }
   useEffect(() => {
-    departure({ dirty, pending: buffer.status === 'saving' || Object.values(buffer.selections).some(selection => selection.status === 'preparing'), canSave: Object.values(buffer.selections).every(selection => selection.status === 'ready'), save, discard })
+    departure({ dirty, pending: buffer.status === 'saving' || Object.values(buffer.selections).some(selection => selection.status === 'preparing'), canSave: !locked && !newer && Object.values(buffer.selections).every(selection => selection.status === 'ready'), save, discard })
   }, [buffer, view, latest])
   const inspectOutcome = async () => {
     if (!state.current.pending) return
