@@ -4,7 +4,7 @@
 
 **Blocked by:** [03: Compare products and complete five-step drafts](03-compare-products-and-complete-drafts.md); [04: Recover sessions and resolve unfinished work before leaving](04-recover-sessions-and-unfinished-work.md); [05: Synchronize tabs and recover conflicting saved progress](05-synchronize-tabs-and-recover-conflicts.md).
 
-**Status:** ready-for-agent
+**Status:** complete
 
 **Source:** [RIFD specification](../../financing-application-and-review/spec.md). Its accepted behavior, permissions, transaction guarantees, bilingual presentation and testing decisions apply to this slice.
 
@@ -14,9 +14,15 @@
 
 **Styling:** Follow the [Tailwind v4 conventions](../../../README.md#styling) for new or changed UI, preserving Guided A, both directions and the shared design tokens.
 
-- [ ] Validate all fields and four required files at the operation boundary, reject missing/pending/failed selections and retain the seed-only incomplete submission exception.
-- [ ] Publish form/files atomically with both private/shared revision checks, initial financial window, status, one lifecycle event and receipt; retire the draft workspace.
-- [ ] Show reference and immediate confirmation, own list/detail/history and read-only submitted data; do not add a submission notification.
-- [ ] Use the fixed domain date/event order, current assignee rules and role-filtered projections for seeded and newly submitted applications.
-- [ ] Add next-submission failure and extend expiry, conflict, reset-dataset, unknown-outcome and atomic-abort protections to publication.
-- [ ] Verify full first submission, invalid refusal, failure/retry, no duplicate history, refresh, financial-window freezing and permitted next actions in both languages.
+- [x] Validate all fields and four required files at the operation boundary, reject missing/pending/failed selections and retain the seed-only incomplete submission exception.
+- [x] Publish form/files atomically with both private/shared revision checks, initial financial window, status, one lifecycle event and receipt; retire the draft workspace.
+- [x] Show reference and immediate confirmation, own list/detail/history and read-only submitted data; do not add a submission notification.
+- [x] Use the fixed domain date/event order, current assignee rules and role-filtered projections for seeded and newly submitted applications.
+- [x] Add next-submission failure and extend expiry, conflict, reset-dataset, unknown-outcome and atomic-abort protections to publication.
+- [x] Verify full first submission, invalid refusal, failure/retry, no duplicate history, refresh, financial-window freezing and permitted next actions in both languages.
+
+## Implementation
+
+Completed in commit `40d5144` on 2026-10-15. See the [implementation and verification evidence](../../../docs/implementation/06-evidence.md) for behavior, screenshots, test results and review findings.
+
+All 277 current test cases are verified, including the six updated session-test reruns. Typecheck, lint and the static build passed. Standards and specification reviews have no outstanding findings.
