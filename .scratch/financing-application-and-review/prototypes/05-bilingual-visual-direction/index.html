@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PROTOTYPE — bilingual visual direction (ticket 05)</title>
+    <link
+      rel="stylesheet"
+      media="print"
+      onload="this.media='all'"
+      href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;600;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;800&display=swap"
+    />
+    <link rel="stylesheet" href="base.css" />
+    <link rel="stylesheet" href="variant-a.css" />
+    <link rel="stylesheet" href="variant-b.css" />
+    <link rel="stylesheet" href="variant-c.css" />
+  </head>
+  <body data-width="mobile">
+    <!-- PROTOTYPE, throwaway: three visual directions for the financing demo, switchable via ?variant=A|B|C -->
+    <div class="stage-wrap">
+      <div class="stage" id="stage"></div>
+    </div>
+
+    <div class="bar">
+      <div class="bar-row">
+        <button id="prev" type="button" aria-label="Previous variant">&#8592;</button>
+        <span class="variant-name" id="variant-name"></span>
+        <button id="next" type="button" aria-label="Next variant">&#8594;</button>
+        <span class="sep">|</span>
+        <select id="screen" aria-label="Screen"></select>
+        <button id="lang" type="button"></button>
+      </div>
+      <div class="bar-row">
+        <button type="button" data-width="mobile">390</button>
+        <button type="button" data-width="tablet">760</button>
+        <button type="button" data-width="desktop">1280</button>
+        <button type="button" data-width="full">full</button>
+        <span class="sep">|</span>
+        <span class="hint">&#8592; &#8594; variant &middot; shift + &#8592; &#8594; screen</span>
+      </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="variant-a.js"></script>
+    <script src="variant-b.js"></script>
+    <script src="variant-c.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

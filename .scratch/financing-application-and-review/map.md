@@ -17,11 +17,17 @@ Settle the product, workflow, interface, browser-state, and acceptance decisions
 - [Bank portfolio context](../../docs/research/bank-portfolio-context.md) supplies existing research on the public-service context and static hosting constraints. Staff procedures and product terms remain fictional. The repository has no application code or dependency manifest yet.
 - Follow [wayfinder](../../.agents/skills/wayfinder/SKILL.md), [domain-modeling](../../.agents/skills/domain-modeling/SKILL.md), and [unslop](../../.agents/skills/unslop/SKILL.md) each session. Use [grilling](../../.agents/skills/grilling/SKILL.md) for grilling tickets and [prototype](../../.agents/skills/prototype/SKILL.md) for prototype tickets. Record newly agreed domain terms in the root glossary when they arise.
 - Use the [local Markdown tracker](../../.agents/skills/setup-matt-pocock-skills/issue-tracker-local.md). Child issues live in `issues/`. `Status: open` means unclaimed; claim a ticket by saving `Status: claimed` before working. A `Blocked by: none` ticket has no prerequisites; otherwise every listed issue must be `resolved`. Select the first open, unblocked child by filename number. Append a resolution under `## Answer`, set `Status: resolved`, and add its named link below.
-- No external research prerequisite is currently identified beyond the existing research note. Add research tickets when a decision needs new external facts. Git has no commits or remote yet, so a future research session must establish how to preserve and share its throwaway branch before attempting a push.
+- Add research tickets when a decision needs new external facts. The repository now has commits but no configured remote. Preserve research on a local throwaway branch and link a readable research note in this workspace; a push requires a separately configured remote and is unavailable in the current local tracker setup.
 
 ## Decisions so far
 
 <!-- Add one named link and a short gist per resolved decision ticket. -->
+
+- [Define application states and correction rules](issues/01-application-states-and-corrections.md#answer): Six application states, targeted repeatable corrections with a separate applicant workspace, reviewer verification, and final decisions with defined visibility and prerequisites.
+- [Define fictional products and application requirements](issues/02-products-and-application-requirements.md#answer): Inventory and Equipment products with bilingual field and document contracts, five dependent review checks, whole-rial repayment illustrations, and six core demo examples.
+- [Define demo access and reviewer assignment](issues/03-demo-access-and-reviewer-assignment.md#answer): Three applicant identities and one interactive reviewer, a twelve-record queue, assignment and visibility rules, recoverable session interruptions, and explicit recovery from simulated reassignment conflicts.
+- [Verify browser storage and client initialization facts](issues/08-browser-storage-and-client-boundary-facts.md#answer): Primary-source facts for durable file bytes, atomic IndexedDB writes, per-tab sessions, cross-tab notices, storage failures, and SPA client initialization.
+- [Define browser persistence and simulated failures](issues/04-browser-state-and-simulated-failures.md#answer): IndexedDB file persistence, explicit saves, atomic versioned operations and receipts, cross-tab recovery, tab-local sessions, and confirmed browser-wide reset.
 
 ## Not yet specified
 
@@ -32,3 +38,6 @@ Settle the product, workflow, interface, browser-state, and acceptance decisions
 - Building, deploying, or publishing the application during this map. The decisions cover the eventual hosted demo, repository, user-flow sketch, focused tests, and case study.
 - Real financing decisions, identity verification, bank integrations, production authentication, server-backed persistence, and real payment processing.
 - The source document's optional extras: side-by-side application version comparison, a second interactive reviewer with a configurable checklist, and applicant-facing simulated conversations. The required stale-record conflict still needs a demonstration within the main scope.
+- Applicant withdrawal and reopening final decisions are outside the supported workflow, as settled in [Define application states and correction rules](issues/01-application-states-and-corrections.md#answer).
+- Interactive payment and installment-completion actions are outside the read-only repayment illustration settled in [Define fictional products and application requirements](issues/02-products-and-application-requirements.md#answer).
+- Fresh offline launches, service-worker provisioning, and background server synchronization exceed the loaded browser-local demo scope settled in [Define browser persistence and simulated failures](issues/04-browser-state-and-simulated-failures.md#answer).
