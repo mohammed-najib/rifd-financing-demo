@@ -1,9 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate, useRouter, useRouterState } from '@tanstack/react-router'
+import { useBlocker, useNavigate, useRouter, useRouterState } from '@tanstack/react-router'
 import { createDemo, demoIdentities, type ApplicationSummary, type ApplicationView, type Context, type ErrorKind } from '../demo'
 import { products } from '../domain'
 import type { ActorId, ApplicationStatus, Language } from '../domain/model'
 import { date, documentLabel, errors, events, fieldLabels, money, outcomes, reviewChecks, statuses, text } from './i18n'
+import { draftText } from './i18n'
+import { DraftEditor, draftDirty, type Departure, type DraftBuffer } from './draft'
+import { DocumentPreview } from './preview'
 
 type Screen = { kind: 'home' | 'chooser' | 'products' | 'applicantList' | 'staffList' | 'unavailable' } | { kind: 'applicantDetail' | 'staffDetail'; id: string }
 function resolveScreen(path: string): Screen {
@@ -42,12 +45,31 @@ export function App() {
   const [loadedPath, setLoadedPath] = useState<string | null>(null)
   const alive = useRef(true)
   const identitySelection = useRef(false)
+  const draftBuffers = useRef(new Map<string, DraftBuffer>())
+  const departure = useRef<Departure | null>(null)
+  const [, refreshDeparture] = useState(0)
+  const [leaving, setLeaving] = useState<{ action: () => void; cancel?: () => void; canSave: boolean } | null>(null)
+  const [leavingBusy, setLeavingBusy] = useState(false)
+  const leaveDialog = useRef<HTMLDialogElement>(null)
+  const loadedContext = useRef('')
   const language = context?.preferences.language ?? 'ar'
   const t = (key: keyof typeof text) => text[key][language]
-  const go = (to: string) => {
+  const navigateTo = (to: string) => {
     setError(null)
     return to === '/' ? navigate({ to: '/' }) : navigate({ to: '/$', params: { _splat: to.slice(1) } })
   }
+  const guard = (action: () => void) => {
+    if (departure.current?.dirty || departure.current?.pending) setLeaving({ action, canSave: true })
+    else action()
+  }
+  const go = navigateTo
+  useBlocker({
+    shouldBlockFn: ({ current, next }) => {
+      if (current.pathname === next.pathname || !departure.current?.dirty && !departure.current?.pending) return false
+      return new Promise<boolean>(resolve => setLeaving({ action: () => resolve(false), cancel: () => resolve(true), canSave: true }))
+    },
+    enableBeforeUnload: () => !!departure.current?.dirty || !!departure.current?.pending,
+  })
   const home = context?.identity?.role === 'reviewer' ? '/staff/applications' : '/applications'
 
   useEffect(() => {
@@ -63,7 +85,7 @@ export function App() {
       if (identitySelection.current) return
       void demo.context().then(result => {
         if (!active || identitySelection.current) return
-        if (result.ok) setContext(result.value)
+        if (result.ok) { setContext(result.value); setReload(value => value + 1) }
         else { setContext(null); setStartupError(result.error.kind) }
       })
     })
@@ -82,9 +104,11 @@ export function App() {
     let active = true
     const current = resolveScreen(path)
     setError(null)
-    setLoadedPath(null)
-    setView(null)
-    setList(null)
+    const readContext = `${path}/${identityId}/${sessionId}`
+    if (loadedContext.current !== readContext) {
+      loadedContext.current = readContext
+      setLoadedPath(null); setView(null); setList(null)
+    }
     if (!context || !identityId) return
     if (current.kind === 'home') { void navigate({ to: '/$', params: { _splat: identity?.role === 'reviewer' ? 'staff/applications' : 'applications' }, replace: true }); return }
     const staff = current.kind === 'staffList' || current.kind === 'staffDetail'
@@ -115,6 +139,10 @@ export function App() {
   }, [path, routeReady])
 
   const selectIdentity = async (id: ActorId) => {
+    if ([...draftBuffers.current.entries()].some(([key, buffer]) => !key.startsWith(`${context?.datasetId}/${id}/`) && draftDirty(buffer))) {
+      setLeaving({ action: () => { draftBuffers.current.clear(); void selectIdentity(id) }, canSave: false })
+      return
+    }
     setBusy(true); setError(null); setView(null); setList(null)
     identitySelection.current = true
     const result = await demo.signIn(id)
@@ -152,8 +180,11 @@ export function App() {
     const result = await demo.signOut()
     if (!alive.current) return
     setBusy(false)
-    if (result.ok) { setContext(result.value); go('/sign-in') } else setError(result.error.kind)
+    if (result.ok) { draftBuffers.current.clear(); setContext(result.value); void navigateTo('/sign-in') } else setError(result.error.kind)
   }
+
+  useEffect(() => { if (leaving) leaveDialog.current?.showModal() }, [leaving])
+  useEffect(() => { setLeaving(current => { current?.cancel?.(); return null }) }, [sessionId])
   const retryStartup = async () => {
     setStartupError(null)
     try {
@@ -177,7 +208,7 @@ export function App() {
       <div className="session-controls">
         {identity && <span className="identity-name">{identity.name[language]}<small>{identity.role === 'reviewer' ? t('reviewer') : t('applicant')}</small></span>}
         <button aria-disabled={busy || !context} onClick={() => { if (!busy && context) void changeLanguage() }} lang={language === 'ar' ? 'en' : 'ar'}>{language === 'ar' ? 'English' : 'العربية'}</button>
-        {identity && <><button disabled={busy} onClick={() => go('/sign-in')}>{t('switchIdentity')}</button><button disabled={busy} onClick={() => void signOut()}>{t('signOut')}</button></>}
+        {identity && <><button disabled={busy} onClick={() => go('/sign-in')}>{t('switchIdentity')}</button><button disabled={busy} onClick={() => guard(() => { void signOut() })}>{t('signOut')}</button></>}
       </div>
     </header>
     <div className={isStaff ? 'workspace staff-workspace' : 'workspace'}>
@@ -193,11 +224,18 @@ export function App() {
           </section>
           : !routeReady ? <section className="panel loading" role="status">{t('readLoading')}</section>
           : list ? <ApplicationList list={list} language={language} staff={screen.kind === 'staffList'} go={go} />
-          : view ? <ApplicationDetail view={view} language={language} /> : null}
+          : view ? <ApplicationDetail key={`${context?.datasetId}/${identityId}/${sessionId}/${view.id}`} demo={demo} view={view} language={language}>{view.role === 'applicant' && view.status === 'draft' && context && <DraftEditor demo={demo} view={view} context={context} language={language} retained={draftBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => draftBuffers.current.set(`${context.datasetId}/${identityId}/${view.id}`, buffer)} savedView={setView} departure={value => { departure.current = value; refreshDeparture(value => value + 1) }} />}</ApplicationDetail> : null}
         {error && error !== 'unavailable' && <div className="error" role="alert">{errors[error][language]}<button disabled={busy} onClick={() => setReload(value => value + 1)}>{t('retry')}</button></div>}
       </main>
     </div>
     <footer className="disclosure"><p>{t('notice')}</p><p>{t('storageNotice')}</p></footer>
+    {leaving && <dialog ref={leaveDialog} className="leave-dialog" aria-labelledby="leave-heading" onCancel={() => { leaving.cancel?.(); setLeaving(null) }}><h2 id="leave-heading">{draftText.leave[language]}</h2><p>{draftText.waitLeave[language]}</p><div className="actions"><button disabled={leavingBusy} onClick={() => { leaving.cancel?.(); setLeaving(null) }}>{draftText.stay[language]}</button><button disabled={leavingBusy || !!departure.current?.pending} onClick={() => { departure.current?.discard(); departure.current = null; draftBuffers.current.clear(); const action = leaving.action; setLeaving(null); action() }}>{draftText.discard[language]}</button>{leaving.canSave && <button disabled={leavingBusy || !departure.current?.canSave || departure.current?.pending} onClick={async () => {
+      setLeavingBusy(true)
+      const saved = await departure.current?.save()
+      setLeavingBusy(false)
+      if (saved) { departure.current = null; const action = leaving.action; setLeaving(null); action() }
+      else { leaving.cancel?.(); setLeaving(null) }
+    }}>{draftText.saveLeave[language]}</button>}</div></dialog>}
   </div>
 }
 
@@ -222,7 +260,9 @@ function ApplicationList({ list, language, staff, go }: { list: ApplicationSumma
   </>
 }
 
-function ApplicationDetail({ view, language }: { view: ApplicationView; language: Language }) {
+function ApplicationDetail({ demo, view, language, children }: { demo: ReturnType<typeof createDemo>; view: ApplicationView; language: Language; children?: React.ReactNode }) {
+  const [previewFileId, setPreviewFileId] = useState<string | null>(null)
+  useEffect(() => { if (previewFileId && !view.documents.some(document => document.file?.id === previewFileId)) setPreviewFileId(null) }, [view, previewFileId])
   const t = (key: keyof typeof text) => text[key][language]
   const fields = view.snapshot.fields
   const numeric = ['revenue', 'expenses', 'amount', 'budget']
@@ -231,9 +271,10 @@ function ApplicationDetail({ view, language }: { view: ApplicationView; language
     <p className="intro">{fields.fullName} · {fields.businessName}</p>
     {view.role === 'reviewer' && <p className="assignment">{t('assignment')}: {view.assignedToYou ? t('assignedToYou') : view.assignment?.[language] ?? t('unassigned')}</p>}
     <section className="summary"><h2>{t('nextAction')}</h2><p>{t(view.status === 'draft' ? 'draftNext' : view.status === 'correctionsRequested' ? 'correctionNext' : ['approved', 'rejected'].includes(view.status) ? 'finalNext' : 'waitingNext')}</p></section>
+    {children}
     <div className="detail-grid"><div>
       <section className="panel"><h2>{view.status === 'draft' ? t('savedInformation') : t('submittedInformation')}</h2><dl className="facts information">{Object.entries(fields).map(([key, value]) => <div key={key} className={key === 'explanation' || key === 'address' ? 'full-width' : ''}><dt>{fieldLabels[key as keyof typeof fields][language]}</dt><dd>{numeric.includes(key) ? <bdi dir="ltr">{money(value, language)}</bdi> : key === 'mobile' || key === 'email' || key === 'operatingSince' ? <bdi dir="ltr">{value}</bdi> : key === 'term' ? <><bdi>{value}</bdi> {t('months')}</> : key === 'activity' ? ({ retail: { ar: 'تجارة تجزئة', en: 'Retail' }, services: { ar: 'خدمات', en: 'Services' }, production: { ar: 'إنتاج صغير', en: 'Small production' } }[fields.activity][language]) : value || t('emptyExplanation')}</dd></div>)}</dl><p>{t('financialWindow')}: {view.evidenceMonths.map(month => <bdi key={month}>{date(month, language)} </bdi>)}</p></section>
-      <section className="panel"><h2>{t('documents')}</h2><ul className="document-list">{view.documents.map(document => <li key={document.slot}><strong>{documentLabel(document.slot, view.product)[language]}</strong><p>{document.file ? <><bdi dir="ltr" className="filename">{document.file.name}</bdi><span className="file-meta"><bdi>{document.file.mime} · {new Intl.NumberFormat('en-US').format(document.file.size)} B</bdi></span><span>{view.status === 'draft' ? t('savedInDraft') : t('included')}</span></> : t('missing')}</p>{view.role === 'reviewer' && view.assessments && <p className="assessment">{outcomes[view.assessments[document.slot].status][language]}{view.assessments[document.slot].reason && <span> · {view.assessments[document.slot].reason?.[language]}</span>}</p>}</li>)}</ul></section>
+      <section className="panel"><h2>{t('documents')}</h2><ul className="document-list">{view.documents.map(document => <li key={document.slot}><strong>{documentLabel(document.slot, view.product)[language]}</strong><p>{document.file ? <><bdi dir="ltr" className="filename">{document.file.name}</bdi><span className="file-meta"><bdi>{document.file.mime} · {new Intl.NumberFormat('en-US').format(document.file.size)} B</bdi></span><span>{view.status === 'draft' ? t('savedInDraft') : t('included')}</span></> : t('missing')}</p>{document.file && <button className="secondary" onClick={() => setPreviewFileId(document.file!.id)}>{language === 'ar' ? 'معاينة' : 'Preview'} {documentLabel(document.slot, view.product)[language]}</button>}{view.role === 'reviewer' && view.assessments && <p className="assessment">{outcomes[view.assessments[document.slot].status][language]}{view.assessments[document.slot].reason && <span> · {view.assessments[document.slot].reason?.[language]}</span>}</p>}</li>)}</ul></section>
       {view.rounds.map(round => <section className="panel" key={round.id}><h2>{t('corrections')}</h2><p>{t('baseline')}: <bdi>{date(round.requestedAt, language)}</bdi></p><ul>{round.targets.map((target, index) => <li key={index}><strong>{target.kind === 'field' ? fieldLabels[target.field][language] : documentLabel(target.slot, view.product)[language]}</strong><p>{target.reason[language]}</p></li>)}</ul></section>)}
       {view.role === 'applicant' && view.status === 'correctionsRequested' && view.workspace && <section className="summary"><h2>{t('privateWorkspace')}</h2><p>{t('privateUnchanged')}</p><p>{t('amount')}: <bdi dir="ltr">{money(view.workspace.snapshot.fields.amount, language)}</bdi></p></section>}
       <section className="panel"><h2>{t('history')}</h2>{view.history.length ? <ol className="timeline">{view.history.map(event => <li key={event.id}><strong>{events[event.kind][language]}</strong><bdi className="event-date">{date(event.date, language)}</bdi>{event.reason && <p>{event.reason[language]}</p>}</li>)}</ol> : <p>{t('noHistory')}</p>}</section>
@@ -242,5 +283,6 @@ function ApplicationDetail({ view, language }: { view: ApplicationView; language
       {view.role === 'reviewer' && <><section className="panel"><h2>{t('checks')}</h2><ul className="review-list">{Object.entries(view.checks ?? {}).map(([key, outcome]) => <li key={key}><span>{reviewChecks[key][language]}</span><strong>{outcomes[outcome][language]}</strong></li>)}</ul></section><section className="panel"><h2>{t('notes')}</h2>{view.notes.length ? view.notes.map(note => <p key={note.id}>{note.text[language]}<bdi className="event-date">{date(note.date, language)}</bdi></p>) : <p>{t('noNotes')}</p>}</section><section className="panel"><h2>{t('activity')}</h2><ol className="timeline">{view.activity.map(event => <li key={event.id}><strong>{events[event.kind][language]}</strong><bdi className="event-date">{date(event.date, language)}</bdi><span>{demoIdentities.find(identity => identity.id === event.actor)?.name[language] ?? (language === 'ar' ? 'خالد علي' : 'Khaled Ali')}</span></li>)}</ol></section></>}
       {view.repayment && <section className="panel"><h2>{t('repayment')}</h2><p>{t('notice')}</p><dl className="facts">{(['amount', 'markup', 'total', 'completed', 'remaining'] as const).map(key => <div key={key}><dt>{t(key)}</dt><dd><bdi dir="ltr">{money(view.repayment![key], language)}</bdi></dd></div>)}</dl><ol className="repayment-list">{view.repayment.rows.map(row => <li key={row.due}><bdi>{date(row.due, language)}</bdi><bdi dir="ltr">{money(row.amount, language)}</bdi><span>{t(row.status === 'completed' ? 'completedRow' : 'upcoming')}</span></li>)}</ol></section>}
     </div></div>
+    {previewFileId && <DocumentPreview demo={demo} applicationId={view.id} fileId={previewFileId} language={language} close={() => setPreviewFileId(null)} />}
   </>
 }

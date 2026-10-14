@@ -1,5 +1,12 @@
 import type { ActorId, Application, Bilingual, ProductId, Repayment } from './model'
 
+export function validateFileEnvelope(file: { name: string; type: string; size: number }): string | null {
+  if (!Number.isInteger(file.size) || file.size <= 0 || file.size > 5_000_000) return null
+  const extension = /\.([^.]+)$/.exec(file.name)?.[1].toLowerCase()
+  const mime = extension === 'pdf' ? 'application/pdf' : extension === 'png' ? 'image/png' : extension === 'jpg' || extension === 'jpeg' ? 'image/jpeg' : null
+  return mime && (!file.type || file.type === mime) ? mime : null
+}
+
 export type ProductRules = { id: ProductId; version: 1; name: Bilingual; minimum: number; maximum: number; terms: readonly number[]; markupPercent: number; purpose: Bilingual }
 export const products: Record<ProductId, ProductRules> = {
   inventory: { id: 'inventory', version: 1, name: { ar: 'تمويل المخزون', en: 'Inventory financing' }, minimum: 100000, maximum: 1000000, terms: [6, 12], markupPercent: 5, purpose: { ar: 'تجديد مخزون نشاط تجاري صغير قائم.', en: 'Replenish stock for an established small business.' } },

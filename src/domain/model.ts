@@ -99,10 +99,18 @@ export const preferencesSchema = z.object({
   queue: z.object({ status: z.literal('all'), product: z.literal('all'), assignment: z.literal('all'), sort: z.literal('dateDesc') }),
 })
 export type Preferences = z.infer<typeof preferencesSchema>
+export const mutationReceiptSchema = z.object({
+  kind: z.literal('saveDraft'), actor: actorIdSchema, datasetId: z.string().uuid(),
+  operationId: z.string(), fingerprint: z.string(), applicationId: z.string(),
+  workspaceRevision: z.number().int().positive(), sharedRevision: z.number().int().positive(), savedAt: z.string(),
+})
+export type MutationReceipt = z.infer<typeof mutationReceiptSchema>
 export const datasetSchema = z.object({
   meta: z.object({ schemaVersion: z.literal(1), seedVersion: z.literal(1), ruleVersion: z.literal(1), datasetId: z.string().uuid(), eventSequence: z.number().int().nonnegative() }),
   identities: z.array(identitySchema), applications: z.array(applicationSchema), files: z.array(fileSchema),
   notifications: z.array(notificationSchema), catalog: z.array(sampleSchema), preferences: preferencesSchema,
   receipts: z.array(z.object({ actor: z.string(), operationId: z.string(), fingerprint: z.string(), revision: z.number().int() })),
+  // Supported additive migration for datasets created by slice 01.
+  mutationReceipts: z.array(mutationReceiptSchema).default([]),
 })
 export type Dataset = z.infer<typeof datasetSchema>

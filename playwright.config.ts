@@ -2,7 +2,7 @@ import { defineConfig } from '@playwright/test'
 
 export default defineConfig({
   outputDir: 'test-results/screens',
-  testDir: 'tests/browser', testMatch: 'screens.spec.ts', fullyParallel: false,
+  testDir: 'tests/browser', testMatch: ['screens.spec.ts', '*.screens.spec.ts'], fullyParallel: false,
   timeout: 60_000,
   use: { baseURL: 'http://127.0.0.1:4173', trace: 'retain-on-failure', screenshot: 'only-on-failure' },
   reporter: [['list'], ['html', { open: 'never' }]],

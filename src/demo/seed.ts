@@ -102,6 +102,6 @@ export async function prepareSeed(): Promise<Dataset> {
   return {
     meta: { schemaVersion: 1, seedVersion: 1, ruleVersion: 1, datasetId: crypto.randomUUID(), eventSequence: events.length },
     identities: structuredClone(identities), applications, files, notifications, catalog,
-    preferences: { revision: 1, language: 'ar', queue: { status: 'all', product: 'all', assignment: 'all', sort: 'dateDesc' } }, receipts: [],
+    preferences: { revision: 1, language: 'ar', queue: { status: 'all', product: 'all', assignment: 'all', sort: 'dateDesc' } }, receipts: [], mutationReceipts: [],
   }
 }

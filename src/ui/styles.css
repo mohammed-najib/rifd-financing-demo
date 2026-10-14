@@ -30,9 +30,30 @@ body {
   margin:0;
 }
 
-button,input,a {
+button,input,a,textarea,select {
   font:inherit;
 }
+
+.draft-editor { max-width:920px; margin-block:24px; }
+.draft-editor label { display:block; font-weight:600; margin-block:12px 6px; }
+.draft-editor textarea,.draft-editor select,.draft-editor input[type=file] { width:100%; max-width:100%; border:1px solid #97aaa2; border-radius:8px; padding:10px; background:white; color:inherit; }
+.draft-editor textarea { min-height:130px; resize:vertical; }
+.input-hint { font-size:13px; color:#60746f; }
+.sample-picker,.actions { display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-block:16px; }
+.sample-picker label { width:100%; margin:0; }
+.sample-picker select { flex:1 1 250px; width:auto; min-width:0; }
+.actions button+button { margin:0; }
+.selection-state,.saved-file,.save-feedback,.demo-controls { margin-block:18px; padding:16px; background:#f1f5f1; border-radius:9px; overflow-wrap:anywhere; }
+progress { width:100%; accent-color:var(--accent); }
+.save-feedback p { margin:0; }
+.demo-controls summary { cursor:pointer; font-weight:600; }
+.demo-controls label:has(input) { display:flex; align-items:center; gap:12px; }
+.demo-controls select { width:100%; }
+dialog { border:1px solid var(--border); border-radius:15px; padding:24px; color:inherit; max-width:calc(100vw - 30px); max-height:90vh; overflow:auto; }
+dialog::backdrop { background:rgb(15 35 30 / .65); }
+.preview-dialog { width:900px; }
+.leave-dialog { width:650px; }
+.file-preview { display:block; width:100%; height:55vh; object-fit:contain; border:1px solid var(--border); background:white; }
 
 button,a {
   touch-action:manipulation;

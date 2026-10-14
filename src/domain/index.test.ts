@@ -1,5 +1,20 @@
 import { describe, expect, it } from 'vitest'
-import { canReadApplication, freezeRepayment, products } from './index'
+import { canReadApplication, freezeRepayment, products, validateFileEnvelope } from './index'
+
+it('accepts the inclusive five-million-byte attachment limit', () => {
+  expect(validateFileEnvelope({ name: 'DEMO.PDF', type: '', size: 5_000_000 })).toBe('application/pdf')
+  expect(validateFileEnvelope({ name: 'DEMO.pdf', type: 'application/pdf', size: 5_000_001 })).toBeNull()
+  expect(validateFileEnvelope({ name: 'DEMO.pdf', type: 'application/pdf', size: 0 })).toBeNull()
+})
+
+it.each([
+  ['DEMO.PnG', '', 'image/png'], ['DEMO.jpeg', 'image/jpeg', 'image/jpeg'],
+  ['DEMO.jpg', '', 'image/jpeg'], ['DEMO.pdf', 'image/png', null],
+  ['DEMO.png', 'application/octet-stream', null], ['DEMO.txt', '', null],
+  ['DEMO', '', null], ['png', '', null],
+])('checks the extension and MIME envelope for %s with %s', (name, type, mime) => {
+  expect(validateFileEnvelope({ name, type, size: 12 })).toBe(mime)
+})
 
 describe('frozen fictional repayment', () => {
   it('preserves the historical equipment schedule and completed amounts', () => {

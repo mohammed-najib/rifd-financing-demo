@@ -1,8 +1,8 @@
 # RIFD / رِفد
 
-A fictional, Arabic-first financing demo that saves records and evidence in the browser. This repository currently implements [ticket 01](.scratch/financing-application-and-review-implementation/issues/01-open-bilingual-seeded-demo.md): choose an identity and inspect the complete seeded dataset in Arabic or English.
+A fictional, Arabic-first financing demo that saves records and evidence in the browser. The first two slices provide the complete seeded dataset and [draft saving with real attachments](.scratch/financing-application-and-review-implementation/issues/02-save-and-restore-draft-with-attachment.md) in Arabic and English.
 
-Mariam, Huda and Omar can read their own applications. Salma can read all submitted applications, including colleague assignments. Khaled is a simulated colleague and cannot sign in. Editing, submission, notifications UI, document previews, queue controls and review actions belong to later tickets and have no runnable controls here.
+Mariam, Huda and Omar can read their own applications. Salma can read all submitted applications, including colleague assignments. Khaled is a simulated colleague and cannot sign in. Mariam can edit her draft's purchase explanation and stock-plan document. Authorized viewers can preview saved evidence. The remaining form, submission, notifications UI, queue controls and review actions belong to later tickets.
 
 ## Run
 
@@ -69,7 +69,11 @@ The emulator uses the local `demo-rifd` project identifier and the committed `fi
 | `/staff/applications/RIFD-2026-005` | Historical approval, internal review and frozen repayment data |
 | Other paths or unauthorized records | Neutral unavailable result with safe navigation |
 
-An unsigned supported protected link resumes after sign-in only if the chosen identity can read it. Other choices open the selected identity's home. A forbidden destination exposes no application details. Intentional identity switching opens the new identity's home. Applicant documents display saved presence; staff document assessments and notes remain separate. Every record view is read-only in this slice.
+An unsigned supported protected link resumes after sign-in only if the chosen identity can read it. Other choices open the selected identity's home. A forbidden destination exposes no application details. Intentional identity switching opens the new identity's home. Applicant documents display saved presence; staff document assessments and notes remain separate.
+
+Open Mariam's draft, enter even an incomplete purchase explanation, then select a prepared stock-plan sample or a local fictional PDF, JPEG or PNG. Preparation reports progress and Ready to save. Save progress commits the captured raw input and ready bytes together. Refresh restores saved input and actual evidence; it discards unfinished edits and unsaved selections. Saved file previews include open/download alternatives. A failed replacement preserves the old saved file.
+
+The draft's Demo controls panel sets normal or slow timing and one next-upload, next-save or next-application-storage-write failure. Controls belong to the current tab and reset on refresh. Retry a failed preparation without reselecting, or retry a failed save without preparing again. An uncertain result requires Inspect save outcome. Another tab's conflicting save requires inspection and explicit reapplication. In-app departure offers Stay, Discard changes or Save and leave; pending work must finish and failed selections must be completed or discarded before saving and leaving.
 
 ## Data and architecture
 

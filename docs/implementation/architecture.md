@@ -1,19 +1,20 @@
 # Browser demo architecture
 
-The [specification](../../.scratch/financing-application-and-review/spec.md) and [accepted browser contract](../../.scratch/financing-application-and-review/issues/04-browser-state-and-simulated-failures.md#answer) govern the implementation. This slice establishes the read and startup boundaries. Later tickets add complete operations through those same boundaries.
+The [specification](../../.scratch/financing-application-and-review/spec.md) and [accepted browser contract](../../.scratch/financing-application-and-review/issues/04-browser-state-and-simulated-failures.md#answer) govern the implementation. The first two slices establish startup, authorized reads, attachment preparation and atomic draft saves. Later tickets extend those same boundaries.
 
 ## Modules
 
 | Module | Responsibility |
 | --- | --- |
 | `src/domain` | Typed stored shapes, fictional product rules, read permission rule and explicit-date whole-rial repayment calculation. No browser storage, timers or navigation. |
-| `src/demo/index.ts` | Public asynchronous startup, context, sign-in/out, language operation, role-filtered application/file/sample/notification reads and subscriptions. |
+| `src/demo/index.ts` | Public asynchronous startup, context, sign-in/out, language and draft operations, preparation, receipt inspection, role-filtered reads, deterministic controls and subscriptions. |
+| `src/demo/commands.ts` | Private runtime command shapes and stable intent fingerprints. |
 | `src/demo/storage.ts` | Private IndexedDB opening, validation, reads and transaction completion. Product screens never import this module. |
 | `src/demo/seed-manifest.ts`, `seed.ts`, `evidence.ts` | Canonical scenario facts and preparation of locally rendered, hashed PNG, JPEG and multipage PDF bytes and catalog variants. |
 | `src/ui` | Screen loading, navigation, feedback, bilingual read presentation, responsive table/card views and identity controls. |
 | `src/routes`, `router.tsx` | Start SPA shell and normal browser paths. The current slice validates supported paths within the shared read screen. |
 
-The public `Demo` interface returns `Result<T>` with finite error kinds and translation keys. Its current durable operation is `setLanguage`, with dataset identifier, operation identifier, expected preference revision and desired language. It has no database replacement, arbitrary patch, caller-supplied actor or submission bypass. Session operations capture identity in the current tab. Future applicant and reviewer mutations must add their own typed commands and complete effects here.
+The public `Demo` interface returns `Result<T>` with finite error kinds and translation keys. `setLanguage` carries the dataset, operation identifier, preference revision and desired language. `saveDraft` carries the dataset, application, operation identifier, workspace revision, raw form/product and saved or prepared document choices. It has no database replacement, arbitrary patch, caller-supplied actor or submission bypass. Session operations capture identity in the current tab. Future applicant and reviewer mutations must add their own typed commands and complete effects here.
 
 ## Storage and authority
 
@@ -21,11 +22,25 @@ IndexedDB database `rifd-demo`, physical version 1, contains a private `state` s
 
 A single short read/write transaction seeds the complete record only when it is absent. Resource generation and hashing finish first. Concurrent empty startups reread within the write transaction and retain the first committed dataset. Language writes compare dataset and preference revision within that transaction, record their receipt with the preference, and resolve on transaction completion. An exact receipt replay returns current context; changed intent under the same identifier is refused. No application revision changes when language changes.
 
+Draft writes capture the raw payload before delay. In the write transaction they check captured session, dataset, reading access, receipt, workspace revision and current ownership/state. Ready references must match the module's tab-local prepared bytes and intended applicant/application/slot. The workspace, new bytes and mutation receipt commit together. Private saves increment only the workspace revision. They add no history, staff activity or applicant notification. A second authority check can abort the staged write before completion.
+
+Mutation receipts retain kind, actor, dataset, operation identifier, stable raw intent, application, resulting shared/workspace revisions and save time. Exact replay returns the original receipt plus the current permitted projection, even after refresh when the original prepared token no longer exists. Changed kind/payload under the same actor's identifier is refused across language and application operations. Workspace revision and transient prepared/session identifiers do not enter the intent fingerprint. A supported additive schema-1 migration supplies an empty `mutationReceipts` array for slice-01 datasets; validation checks its dataset, ownership, identifiers and cross-family uniqueness.
+
+Confirmed transaction abort returns a failed save with no receipt or partial bytes. If no final transaction event is observable within ten seconds, the operation returns `outcomeUnknown`; `inspectOperation` reads the receipt and latest permitted projection before an explicit retry. No startup or sign-in resends commands. Commit observers and messaging run after completion and cannot turn it into failure. Hints contain only dataset, kind and affected identifier/revision.
+
+Preparation validates the file envelope, reads and hashes real bytes before any transaction, and returns an opaque tab-local reference. MIME falls back only from an allowed extension. Normal requests delay 400 ms and preparation 1,200 ms; slow requests delay 1,500 ms and preparation 4,000 ms, plus actual work. One eligible failure is armed at a time. Invalid, unauthorized, stale and duplicate operations do not consume it; preference writes cannot consume an application-write abort. Upload failure occurs at 50%. The storage failure aborts after the put request succeeds to prove transaction rollback.
+
+Screens retain raw edits, selections and ready references privately in tab memory. Saving captures input before waiting for active preparation; later typing stays unsaved. Failed preparation retains its selection, and a progress save can preserve the previous saved slot while saving other input. Failed saving retains ready bytes. Superseded preparation callbacks and results from unmounted editing contexts cannot replace newer work. Same-identity recovery reads current versions before restoring a retained buffer; another identity requires discard. Clean views reread committed hints; dirty views keep input and require latest-value inspection and explicit reapplication.
+
+The router's navigation blocker covers links and Back/Forward with the same departure dialog. Its asynchronous resolution waits for Stay, Discard changes or a successful Save and leave. Pending preparation/saving disables departure, while browser unload uses the native best-effort warning. The implementation follows the installed Router hook and its [navigation blocking documentation](https://tanstack.com/router/latest/docs/framework/react/guide/navigation-blocking).
+
+Authorized saved/prepared reads return copies of bytes. Preview dialogs create temporary Blob URLs and revoke them on closure, replacement or loss of their protected screen. Native PDF and image previews always provide open/download alternatives. Preview failure never removes a saved file.
+
 Session storage key `rifd.session.v1` holds only identity, dataset/session identifiers, last qualifying activity and expiry. Keyboard and pointer interactions renew activity only before expiry. Timers and activation checks cover protected content after fifteen minutes. Runtime generations prevent old reads and delayed sign-in results from clearing or exposing a newer screen's session. Imports and root-shell rendering perform no storage, session restoration, seeding or messaging.
 
 Applicants receive their own saved draft or submitted snapshot, public history/reasons and correction rounds. Only their own projection includes a private workspace. Applicant correction rounds omit internal verification flags. Staff receive submitted snapshots plus assignment, assessments, checks, notes and internal activity. They receive neither drafts nor private correction workspaces, catalog samples or applicant notifications. File reads require both a readable application and a reference from a permitted snapshot or baseline. Missing and forbidden records use the same unavailable error.
 
-Committed-change broadcasts contain only a dataset/kind hint. Receivers reread storage. Language and session feedback do not reroute or steal focus. Activation rereads durable context. Future mutation slices must extend hints and clean/dirty record refresh as their operations are added.
+Committed-change broadcasts contain only dataset and identifier/revision hints. Receivers reread storage. Language and session feedback do not reroute or steal focus. Activation rereads durable context. Future mutations use the same hint and clean/dirty refresh behavior.
 
 ## Seed inventory
 
@@ -55,6 +70,6 @@ Five notifications start unread: Mariam's approval, Huda's amount/plan and finan
 
 Startup loads local fonts, prepares all seeded and catalog bytes, validates stored shapes and referenced file hashes, restores only a valid session, and establishes messaging. The screen preloads its main protected route component before showing Ready. Fonts already prepared in the current document can be reused across route mounts. A ready read journey works offline. Fresh offline launch is outside the specification.
 
-Unsupported or damaged storage is preserved. Resource/storage failure returns a stable error and retry. Recovery/reset operations and deliberate failure controls are separate later tickets. No memory-only saved success or silent reseeding occurs. Extend runtime validation as new record shapes arrive, with an explicit migration for a new format. Keep file bytes referenced by baselines and history.
+Unsupported or damaged storage is preserved. Resource/storage failure returns a stable error and retry. Recovery/reset operations and the remaining failure controls belong to later tickets. No memory-only saved success or silent reseeding occurs. Extend runtime validation as new record shapes arrive, with an explicit migration for a new format. Keep file bytes referenced by baselines and history.
 
 The current storage layout favors a simple atomic initial dataset and preference operation. Later commands can change the private layout while public interface and real-browser tests remain the same. Public interface integration tests use actual IndexedDB. Only an isolated corruption fixture accesses the private layout to prepare damage; its assertions use startup results and the preserved dataset identifier.

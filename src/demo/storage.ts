@@ -1,8 +1,8 @@
-import { datasetSchema, slots, type Dataset, type Snapshot } from '../domain/model'
+import { datasetSchema, slots, type Dataset, type DocumentSlot, type Snapshot } from '../domain/model'
 import type { ErrorKind } from './types'
 
 export class DemoError extends Error {
-  constructor(readonly kind: ErrorKind) { super(kind) }
+  constructor(readonly kind: ErrorKind, readonly slot?: DocumentSlot) { super(kind) }
 }
 
 export function openStorage(onClose: () => void): Promise<IDBDatabase> {
@@ -33,19 +33,28 @@ export function readStored(db: IDBDatabase): Promise<unknown> {
 }
 
 // The callback is synchronous. No file/network work or awaited task runs inside the transaction.
-export function transact(db: IDBDatabase, change: (current: unknown) => Dataset): Promise<Dataset> {
+export function transact(db: IDBDatabase, change: (current: unknown) => Dataset, abortWrite?: () => boolean): Promise<Dataset> {
   return new Promise((resolve, reject) => {
     const tx = db.transaction('state', 'readwrite')
     const store = tx.objectStore('state')
     const request = store.get('dataset')
     let result: Dataset
     let refusal: unknown
+    const timeout = setTimeout(() => reject(new DemoError('outcomeUnknown')), 10_000)
     request.onsuccess = () => {
-      try { result = change(request.result); store.put(result, 'dataset') }
+      try {
+        result = change(request.result)
+        const write = store.put(result, 'dataset')
+        // Abort after a successful put to exercise rollback of all staged effects.
+        write.onsuccess = () => {
+          try { if (abortWrite?.()) { refusal = new DemoError('storage'); tx.abort() } }
+          catch (error) { refusal = error; tx.abort() }
+        }
+      }
       catch (error) { refusal = error; tx.abort() }
     }
-    tx.oncomplete = () => resolve(result)
-    tx.onabort = () => reject(refusal ?? new DemoError('storage'))
+    tx.oncomplete = () => { clearTimeout(timeout); resolve(result) }
+    tx.onabort = () => { clearTimeout(timeout); reject(refusal ?? new DemoError('storage')) }
     tx.onerror = () => { /* Abort is the final outcome. */ }
   })
 }
@@ -78,5 +87,9 @@ export function validateDataset(raw: unknown): Dataset {
   for (const file of data.files) if (file.size !== file.bytes.byteLength || !applicationMap.has(file.applicationId)) throw new DemoError('damaged')
   for (const sample of data.catalog) if (fileMap.get(sample.fileId)?.applicationId !== sample.applicationId || fileMap.get(sample.fileId)?.slot !== sample.slot) throw new DemoError('damaged')
   for (const notice of data.notifications) if (applicationMap.get(notice.applicationId)?.owner !== notice.owner) throw new DemoError('damaged')
+  if (!unique(data.mutationReceipts.map(receipt => `${receipt.actor}/${receipt.operationId}`))) throw new DemoError('damaged')
+  for (const receipt of data.mutationReceipts) {
+    if (receipt.datasetId !== data.meta.datasetId || applicationMap.get(receipt.applicationId)?.owner !== receipt.actor || data.receipts.some(existing => existing.actor === receipt.actor && existing.operationId === receipt.operationId)) throw new DemoError('damaged')
+  }
   return data
 }
