@@ -20,3 +20,4 @@
 - [ ] Inspect saved Arabic/English print output for Draft, correction and final records, long history, pagination and public-only policy for both roles.
 - [ ] Verify the public gallery and record screenshots/results against release commit, versions, viewport and language; resolve findings without claiming unperformed physical-device or full conformance checks.
 - [ ] Extend the [Tailwind migration visual evidence](../../../docs/implementation/tailwind-v4.md) for later UI changes; check 767/768 and 1199/1200 boundaries, shared statuses, lists, controls and focus indicators.
+- [ ] Inspect pointer activation of correction-workspace Demo controls and Retry preparation while prepared samples appear. [Slice 20](../../../docs/implementation/20-evidence.md) retained two traces of interaction during that layout change; its corrected keyboard tests do not establish pointer reliability.

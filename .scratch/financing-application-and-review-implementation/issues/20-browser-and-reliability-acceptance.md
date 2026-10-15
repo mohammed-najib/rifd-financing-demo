@@ -4,7 +4,7 @@
 
 **Blocked by:** [19: Expose the production component gallery](19-production-component-gallery.md).
 
-**Status:** ready-for-agent
+**Status:** complete
 
 **Source:** [RIFD specification](../../financing-application-and-review/spec.md). Its accepted behavior, permissions, transaction guarantees, bilingual presentation and testing decisions apply to this slice.
 
@@ -14,9 +14,11 @@
 
 **Styling:** Follow the [Tailwind v4 conventions](../../../README.md#styling) for new or changed UI, preserving Guided A, both directions and the shared design tokens.
 
-- [ ] Close the functional coverage matrix through the existing public interface and screens, extending tests from feature tickets rather than creating internal seams.
-- [ ] Verify all mutation families for transaction abort, receipt replay, changed intent, unknown outcome and failed post-commit notice; close cross-tab/session/reset race gaps.
-- [ ] Complete first submission/approval, missing evidence, field/file/repeated corrections, actual rejection, controls, notification/print projections and loaded-offline journeys in both languages.
-- [ ] Run installed Chrome and pinned Playwright Firefox plus required WebKit smoke; record actual versions and fix failures.
-- [ ] Retain reports/traces, run typecheck/lint/build, and link each functional acceptance requirement to evidence with accurate emulation/browser claims.
-- [ ] Verify the Tailwind-generated stylesheet on the production static build and the separate API harness; keep assertions at the existing public interface and screen seams.
+- [x] Close the functional coverage matrix through the existing public interface and screens, extending tests from feature tickets rather than creating internal seams.
+- [x] Verify all mutation families for transaction abort, receipt replay, changed intent, unknown outcome and failed post-commit notice; close cross-tab/session/reset race gaps.
+- [x] Complete first submission/approval, missing evidence, field/file/repeated corrections, actual rejection, controls, notification/print projections and loaded-offline journeys in both languages.
+- [x] Run installed Chrome and pinned Playwright Firefox plus required WebKit smoke; record actual versions and fix failures.
+- [x] Retain reports/traces, run typecheck/lint/build, and link each functional acceptance requirement to evidence with accurate emulation/browser claims.
+- [x] Verify the Tailwind-generated stylesheet on the production static build and the separate API harness; keep assertions at the existing public interface and screen seams.
+
+**Evidence:** [Acceptance report and functional matrix](../../../docs/implementation/20-evidence.md). All 602 unique browser cases have passing evidence after the explicit six-case recheck; the report retains the two original failures and the pointer/layout follow-ups for slices 21–22.

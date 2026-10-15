@@ -1,0 +1,147 @@
+{
+  "startedAt": "2026-10-15T20:21:38.190Z",
+  "directory": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/acceptance/20/2026-10-15T20-21-38.025Z",
+  "source": {
+    "head": "bba51b9f44b86b0f6ebbf4bb2cff5525aa0463e3",
+    "sha256": "897a47ff8e8f064d1055a2378f95087b6d1a3feed772fd683181e8178a859250"
+  },
+  "host": {
+    "platform": "linux",
+    "release": "7.2.5-3-omarchy",
+    "arch": "x64",
+    "node": "v26.7.0",
+    "pnpm": "11.24.0",
+    "playwright": "1.64.1"
+  },
+  "browsers": [
+    {
+      "name": "chrome",
+      "version": "155.0.8059.39",
+      "executable": "installed chrome channel"
+    },
+    {
+      "name": "firefox",
+      "version": "157.0",
+      "executable": "/home/mdnb/.cache/ms-playwright/firefox-1555/firefox/firefox",
+      "bundledExecutable": "/home/mdnb/.cache/ms-playwright/firefox-1555/firefox/firefox"
+    },
+    {
+      "name": "webkit",
+      "version": "27.2",
+      "executable": "/tmp/rifd-webkit-run.sh",
+      "bundledExecutable": "/home/mdnb/.cache/ms-playwright/webkit-2370/pw_run.sh"
+    }
+  ],
+  "steps": [
+    {
+      "name": "typecheck",
+      "command": [
+        "pnpm",
+        "typecheck"
+      ],
+      "exitCode": 0,
+      "durationMs": 24158
+    },
+    {
+      "name": "lint",
+      "command": [
+        "pnpm",
+        "lint"
+      ],
+      "exitCode": 0,
+      "durationMs": 10097
+    },
+    {
+      "name": "test",
+      "command": [
+        "pnpm",
+        "test"
+      ],
+      "exitCode": 0,
+      "durationMs": 2998
+    },
+    {
+      "name": "test-skills",
+      "command": [
+        "pnpm",
+        "test:skills"
+      ],
+      "exitCode": 0,
+      "durationMs": 2116
+    },
+    {
+      "name": "skills-check",
+      "command": [
+        "pnpm",
+        "skills:check"
+      ],
+      "exitCode": 0,
+      "durationMs": 4311
+    },
+    {
+      "name": "build",
+      "command": [
+        "pnpm",
+        "build"
+      ],
+      "exitCode": 0,
+      "durationMs": 5422
+    },
+    {
+      "name": "api",
+      "command": [
+        "pnpm",
+        "test:browser:api",
+        "--workers=3",
+        "--timeout=180000"
+      ],
+      "exitCode": 0,
+      "durationMs": 1330342
+    },
+    {
+      "name": "screens",
+      "command": [
+        "pnpm",
+        "test:browser",
+        "--workers=3",
+        "--timeout=180000"
+      ],
+      "exitCode": 1,
+      "durationMs": 4295703
+    }
+  ],
+  "outcome": "failed",
+  "staticBuild": [
+    {
+      "path": "dist/client/_shell.html",
+      "bytes": 2862,
+      "sha256": "7790b5cedb852a9b8caa414fe6e31cb438299f5028fd1a9c4670559ba389ddf4"
+    },
+    {
+      "path": "dist/client/assets/styles-B6j5HYEJ.css",
+      "bytes": 23291,
+      "sha256": "7cdf6b5894543437ca5c964660faa44fb8dff2359df2ac168ebcf40f66710345"
+    }
+  ],
+  "suites": [
+    {
+      "name": "api",
+      "startTime": "2026-10-15T20:22:38.140Z",
+      "duration": 1328023.783,
+      "expected": 158,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    {
+      "name": "screens",
+      "startTime": "2026-10-15T20:44:48.529Z",
+      "duration": 4291228.254,
+      "expected": 442,
+      "skipped": 0,
+      "unexpected": 2,
+      "flaky": 0
+    }
+  ],
+  "finishedAt": "2026-10-15T21:56:22.520Z"
+}

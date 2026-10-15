@@ -21,3 +21,4 @@
 - [ ] Inspect actual static output and run all agreed direct-link/refresh/asset/MIME/query/fallback checks in the Hosting emulator, with no Start runtime server.
 - [ ] Retain reports and gate results for the eventual release commit; later code changes require rerunning affected gates.
 - [ ] Measure the compiled Tailwind CSS alongside JavaScript and fonts; verify source scanning covers production UI without pulling classes from archived prototypes or documentation.
+- [ ] Inspect the correction-workspace sample picker's layout shift during initial loading and session recovery, including the interaction traces retained in [slice 20](../../../docs/implementation/20-evidence.md). Measure its effect on layout stability and resolve findings under the accepted CLS gate.

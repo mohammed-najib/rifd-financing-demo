@@ -8,8 +8,72 @@ the production static screens. No production testing interface was added.
 
 ## Final run
 
-Final acceptance execution is pending. This section will record the completed
-run, counts, versions, source digest and retained reports before issue completion.
+Functional acceptance passed after an explicit focused recheck. The full gate
+ran on clean commit `bba51b9f44b86b0f6ebbf4bb2cff5525aa0463e3` from
+2026-10-15 20:21:38 UTC to 21:56:22 UTC. Its original result remains **failed**:
+158 API cases and 442 screen cases passed, with two screen failures. The corrected
+tests were committed as `b7d739285a768ff2c89099a387dc12017ebf1c4d`, and both
+scenarios then passed in Chrome, Firefox and WebKit, six cases with no retries.
+
+The [reconciled results](evidence/20/results.json) map all **602 unique browser
+cases** to their passing evidence. They preserve the original failures and identify
+the six results supplied by the recheck. Diagnostic repetitions are not added to
+these counts. The [raw gate result](evidence/20/run.json) still records exit code 1
+for the screen step. This is not a claim that one uninterrupted gate passed.
+
+| Check | Result |
+| --- | --- |
+| Typecheck and lint | Passed in the full gate and again after the test corrections |
+| Domain tests | 105 passed |
+| Package-skill tests and source reviews | 11 passed; both packaged skills validated |
+| Production build | Passed; existing chunk-size warning retained in the build log |
+| Public-interface API suite, installed Chrome | 158 passed |
+| Production screens, installed Chrome | 148 passing cases |
+| Production screens, pinned Firefox | 148 passing cases after the focused recheck |
+| Production screens, pinned WebKit | 148 passing cases after the focused recheck |
+| Skipped cases and automatic retries | Zero |
+
+Actual launched versions were Chrome **155.0.8059.39**, Firefox **157.0** and
+WebKit **27.2**, using Playwright **1.64.1** on Linux x64, kernel
+`7.2.5-3-omarchy`, Node **26.7.0** and pnpm **11.24.0**. Firefox revision 1555
+and WebKit revision 2370 are the pinned automation builds.
+
+The [build-source manifest](evidence/20/source.json) records source SHA-256
+`897a47ff8e8f064d1055a2378f95087b6d1a3feed772fd683181e8178a859250`.
+The [recheck-source manifest](evidence/20/recheck-source.json) records source SHA-256
+`412613479e85a9c48a813a626eb36acccc2f3e2769b3016a0a51d591696a32df`.
+Every source/configuration hash remained unchanged except
+`tests/browser/correction-response.screens.spec.ts`. No production rebuild occurred
+between the full sweep and recheck. The generated shell and stylesheet still match
+the hashes in the raw gate result:
+
+| Generated file | SHA-256 |
+| --- | --- |
+| `dist/client/_shell.html` | `7790b5cedb852a9b8caa414fe6e31cb438299f5028fd1a9c4670559ba389ddf4` |
+| `dist/client/assets/styles-B6j5HYEJ.css` | `7cdf6b5894543437ca5c964660faa44fb8dff2359df2ac168ebcf40f66710345` |
+
+### Interaction failures and correction
+
+In Firefox, the prepared-sample picker appeared during the Retry preparation
+pointer action after session recovery. Preparation did not start. In WebKit,
+it appeared during the Demo controls pointer action; the details stayed closed,
+so the test waited for an absent checkbox. Both traces show interaction during a
+layout change. They do not establish that only automation was affected.
+
+The two tests now wait for the sample controls and activate by keyboard. The
+retry case also asserts that progress starts, and both setups assert slow mode
+is checked. The selected file, expiry, unknown-commit inspection, retained later
+input, save and reload assertions remain. Diagnostic variants of each scenario passed nine
+repetitions across the three engines; the final six cases used the committed test
+file, including the additional initial-setup stabilization from review. No outcome assertion or timeout was weakened.
+
+Pointer usability during sample loading/recovery remains an explicit check in
+[21](../../.scratch/financing-application-and-review-implementation/issues/21-bilingual-accessibility-preview-and-print-acceptance.md),
+and the layout shift is recorded for the CLS gate in
+[22](../../.scratch/financing-application-and-review-implementation/issues/22-performance-and-static-route-gates.md).
+These keyboard results do not claim those checks passed.
+
+### Commands and retained artifacts
 
 Run the complete gate with:
 
@@ -17,25 +81,48 @@ Run the complete gate with:
 RIFD_WEBKIT_EXECUTABLE=/tmp/rifd-webkit-run.sh pnpm test:acceptance
 ```
 
+The final focused recheck used:
+
+```sh
+RIFD_ACCEPTANCE_DIR=artifacts/acceptance/20/final-recovery-recheck \
+RIFD_WEBKIT_EXECUTABLE=/tmp/rifd-webkit-run.sh \
+pnpm test:browser tests/browser/correction-response.screens.spec.ts \
+  --workers=3 --timeout=180000 --trace=on \
+  --grep 'expiry interrupts preparation and keeps its selection for explicit same-identity retry|unknown private save outcome requires inspection and preserves later input'
+```
+
 On a supported Playwright host, omit the WebKit override. The compatible launcher
 on this Arch host preserves the pinned browser and uses the libraries documented
-in [slice 01](01-evidence.md). The runner launches each engine to obtain its actual
-version. Chrome uses the installed `chrome` channel. Firefox and WebKit use
-Playwright's patched browsers. Browser viewports are CSS emulation. These results
-do not establish ordinary Firefox manual acceptance, Safari or physical-device
-support.
+in [slice 01](01-evidence.md). Its copy is retained in the full-run directory;
+SHA-256 `b2513ce9cbe06721aa3a898187b12dbc59fe9b20dcb44af89bc9a43bc277a3ba`.
+Chrome uses the installed `chrome` channel. Firefox and WebKit use Playwright's
+patched browsers. Browser viewports are CSS emulation. These results do not
+establish ordinary Firefox manual acceptance, Safari or physical-device support.
 
-Every run has its own `artifacts/acceptance/20/<UTC timestamp>/` directory:
+The complete run is retained at
+[`artifacts/acceptance/20/2026-10-15T20-21-38.025Z/`](../../artifacts/acceptance/20/2026-10-15T20-21-38.025Z/):
 
 - `run.json` records commands, exit codes, durations, versions and generated shell/CSS hashes.
 - `source.json` records the starting HEAD, working changes and SHA-256 hashes of source, tests, scripts, configuration and lockfile.
 - `api/report.json`, `api/html/` and `api/results/` retain the separate Vite harness evidence.
-- `screens/report.json`, `screens/html/` and `screens/results/` retain the production static evidence.
-- Logs retain the typecheck, lint, domain, skill, build and browser output. Failures keep traces and screen screenshots; correction and decision screen files also retain successful traces.
+- `screens/report.json`, `screens/html/` and `screens/results/` retain the production static evidence, including both failed traces and 68 screen traces in total.
+- Logs retain typecheck, lint, domain, skill, build and browser output.
+- `generated-captures/` preserves 24 screenshots generated at earlier slices' capture paths, with a hash manifest. Their historical tracked captures were restored.
 
-The two suites run sequentially, with three browser workers each. A focused
-recheck uses a separate `RIFD_ACCEPTANCE_DIR` and cannot erase a complete run.
-No retries or browser exclusions are configured by the acceptance command.
+The [focused recheck directory](../../artifacts/acceptance/20/final-recovery-recheck/)
+contains its separate JSON/HTML reports, six successful traces, screen log,
+source manifest, and the repeated typecheck/lint results. The
+[Firefox retry failure](../../artifacts/acceptance/20/2026-10-15T20-21-38.025Z/screens/results/correction-response.screen-bfa1b-xplicit-same-identity-retry-firefox/trace.zip)
+and [WebKit controls failure](../../artifacts/acceptance/20/2026-10-15T20-21-38.025Z/screens/results/correction-response.screen-35990-n-and-preserves-later-input-webkit/trace.zip)
+remain available. Large HTML reports, traces and images are retained locally under
+the ignored artifacts directory; compact results and source manifests are committed
+under `docs/implementation/evidence/20/`.
+
+Every gate invocation creates a new timestamped directory. The API and screen
+suites run sequentially, with three workers each. The focused recheck cannot erase
+the complete run. No browser exclusions, automatic retries or skipped cases were
+used. An earlier interrupted sweep and all diagnostic runs are excluded from the
+602-case result.
 
 ## Functional requirement matrix
 
@@ -147,8 +234,36 @@ claimed here:
 
 ## Standards review
 
-Pending independent review of the implementation diff and final evidence.
+The independent review found two evidence/test-quality issues. The per-command
+changed-intent claim exceeded the original assertions. Claim, review start,
+unassignment and rejection now each exercise changed semantic intent under a
+committed identifier. Both the original and attempted application remain unchanged.
+The new permission tables initially accepted any refusal, which could let unrelated
+validation hide a missing access check. They now assert the specified error kinds,
+use current actor sessions and compare complete authorized views after refusals.
+The reviewer confirmed both fixes and found no remaining documented-standard
+violation or material baseline smell.
+
+The final reconciliation independently verified the 602-case mapping, both source
+digests, all 126 source entries and the unchanged generated shell/CSS. The
+reviewer also confirmed that the pointer and layout follow-ups remain explicit.
+
+Standards: two findings resolved, zero open.
 
 ## Spec review
 
-Pending independent review of the implementation diff and final evidence.
+The independent review found two coverage gaps: the command-specific changed-intent
+checks above, and complete decision/field-verification state and actor tables.
+Both are implemented. The tables cover all six states plus unassigned and colleague
+records, unsigned access, the owner and another applicant. Literal refusal reasons
+distinguish state/assignment gates from unmet review prerequisites. Existing successful
+approval, rejection and correction verification establish the allowed transitions.
+The reviewer confirmed both fixes and found no further missing functional requirement,
+scope creep or incorrect production behavior.
+
+The final reconciliation confirmed that all 602 unique cases map to passing
+results, the original failures remain visible, and the source/build and browser
+claims match the retained artifacts. The reviewer confirmed issue 20 is complete
+with the explicit pointer/layout checks retained in tickets 21–22.
+
+Spec: two findings resolved, zero open.
