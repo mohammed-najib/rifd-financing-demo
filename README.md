@@ -43,6 +43,8 @@ fields, application statuses, attachment feedback, save feedback, queue rows and
 departure dialog as the journeys. It works unsigned and during startup recovery.
 Switch languages, correct the example amount, inspect file and save states, or
 use the dialog by keyboard. Gallery edits affect only its fictional examples.
+See [gallery verification](docs/implementation/19-evidence.md) for shared component
+usage, browser checks and captures.
 
 ## Styling
 
