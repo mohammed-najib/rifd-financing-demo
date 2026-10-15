@@ -1,5 +1,10 @@
 import type { ActorId, Application, ApplicationStatus, Bilingual, CorrectionTarget, DocumentSlot, Fields, Identity, Language, MutationReceipt, Notification, Preferences, ProductId, QueuePreferences, Repayment, Sample, Snapshot } from '../domain/model'
 import type { FieldIssue, ReviewCheck, reviewPermissions } from '../domain'
+import type { ResetContext } from '../domain/model'
+export type { ResetContext } from '../domain/model'
+export type ResetOperation = { kind: 'resetDemo'; context: ResetContext; operationId: string; confirmed: true }
+export type ResetResult = { datasetId: string; replay: boolean }
+export type ResetInspection = { status: 'committed'; result: ResetResult } | { status: 'notCommitted' }
 
 export type ErrorKind = 'unavailable' | 'sessionExpired' | 'storage' | 'startup' | 'resources' | 'blocked' | 'unsupported' | 'damaged' | 'stalePreference' | 'staleNotification' | 'supersededDataset' | 'identifierMisuse' | 'validation' | 'staleWorkspace' | 'staleRecord' | 'invalidState' | 'permissionDenied' | 'uploadFailed' | 'requestFailed' | 'outcomeUnknown' | 'supersededSelection'
 export type Result<T> = { ok: true; value: T } | { ok: false; error: { kind: ErrorKind; key: `error.${ErrorKind}`; slot?: DocumentSlot; fieldIssues?: FieldIssue[] } }
@@ -8,6 +13,7 @@ export type Context = { datasetId: string; preferences: Preferences; session: Se
 export type CommitHint = { datasetId: string; kind: 'preferences'; revision: number }
   | { datasetId: string; kind: 'workspace' | 'application'; applicationId: string; revision: number }
   | { datasetId: string; kind: 'notification'; notificationId: string; revision: number }
+  | { datasetId: string; kind: 'reset' }
 export type DocumentView = { slot: DocumentSlot; file: { id: string; name: string; mime: string; size: number; hash: string } | null }
 export type ApplicationSummary = {
   id: string; product: ProductId; status: ApplicationStatus; fullName: string; businessName: string;
@@ -78,7 +84,7 @@ export type ReviewOperation = {
   | { kind: 'requestCorrections'; targets: CorrectionTarget[]; confirmed: true })
 export type ApplicationOperation = SaveDraftOperation | SubmitOperation | SaveCorrectionsOperation | ResubmitOperation
 export type ApplicationMutation = ApplicationOperation | ReviewOperation
-export type DemoOperation = PreferenceOperation | ApplicationMutation | NotificationReadOperation
+export type DemoOperation = PreferenceOperation | ApplicationMutation | NotificationReadOperation | ResetOperation
 export type MutationResult = { receipt: MutationReceipt; application: ApplicationView }
 export type OperationInspection = { status: 'committed'; result: MutationResult } | { status: 'notCommitted'; application: ApplicationView }
 export type Preparation = {
@@ -88,6 +94,9 @@ export type Preparation = {
 }
 export type Controls = { slow: boolean; failure: 'upload' | 'save' | 'submission' | 'storage' | null }
 export type Demo = {
+  inspectReset(): Promise<Result<ResetContext>>;
+  inspectResetOperation(operation: ResetOperation): Promise<Result<ResetInspection>>;
+  execute(operation: ResetOperation): Promise<Result<ResetResult>>;
   startup(): Promise<Result<Context>>;
   context(): Promise<Result<Context>>;
   signIn(identity: ActorId): Promise<Result<Context>>;

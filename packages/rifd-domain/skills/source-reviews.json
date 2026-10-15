@@ -8,9 +8,9 @@
         "skills/validate-application/references/guide.md": "288e369bd278e23a4c00eec0a0af2097b29ca21a79eb5f3bc747d3f971ea1cd3",
         "src/application.ts": "77516299c9def5c06ad60aeaaaf5af2e943564a4dc01b9c079dd5788b350d710",
         "src/index.ts": "1ebdd549f0cb078ae13dfde489520e57085674036066663627e65b1dc86107c8",
-        "src/model.ts": "4e83f95a3b37548019dc37b3cf33ba1666670d697ee08e20a06d179da552abef"
+        "src/model.ts": "2341b6b8066091bd66b15313228d5b5a8cc88bf7356cbeb2db607c738ae410a3"
       },
-      "reason": "Reviewed the added decision permissions and receipt kinds in model.ts and exports in index.ts; field parsing and submission rules remain unchanged."
+      "reason": "Reviewed the additive reset-context and optional last-reset metadata schemas. Fields and validation helper contracts remain unchanged, so the guide still applies."
     },
     "freeze-repayment": {
       "version": "0.1.0",
@@ -18,9 +18,9 @@
       "sources": {
         "skills/freeze-repayment/references/guide.md": "25db52f5d929c0814ff99bc54046240b8bfca0b2694a529cadac07f54799ce9f",
         "src/index.ts": "1ebdd549f0cb078ae13dfde489520e57085674036066663627e65b1dc86107c8",
-        "src/model.ts": "4e83f95a3b37548019dc37b3cf33ba1666670d697ee08e20a06d179da552abef"
+        "src/model.ts": "2341b6b8066091bd66b15313228d5b5a8cc88bf7356cbeb2db607c738ae410a3"
       },
-      "reason": "Reviewed decision receipts, permissions and readiness export against the repayment guide; freezeRepayment arithmetic, monthly rollover and stored snapshot contract remain unchanged."
+      "reason": "Reviewed the metadata-only schema addition. Repayment snapshots, rounding, dates and completion helpers remain unchanged, so the guide still applies."
     }
   }
 }

@@ -90,7 +90,7 @@ export const draftText = {
   nextFailure: { ar: 'الإخفاق التالي', en: 'Next failure' }, none: { ar: 'لا يوجد إخفاق مسلح', en: 'No failure armed' },
   uploadFailure: { ar: 'إخفاق التجهيز الصالح التالي عند 50%', en: 'Fail next valid preparation at 50%' },
   saveFailure: { ar: 'إخفاق حفظ التقدم التالي', en: 'Fail next progress save' },
-  storageFailure: { ar: 'إلغاء كتابة التخزين التالية لطلب مؤهل', en: 'Abort next eligible application storage write' },
+  storageFailure: { ar: 'إلغاء كتابة التخزين التالية لطلب مؤهل أو إعادة الضبط', en: 'Abort next eligible application or reset storage write' },
   inspectOutcome: { ar: 'فحص نتيجة الحفظ', en: 'Inspect save outcome' }, loadLatest: { ar: 'فحص المسودة الأحدث', en: 'Inspect latest draft' },
   newer: { ar: 'توجد مسودة أحدث. بقيت تغييراتك دون تطبيق. افحص القيم المحفوظة ثم اختر إعادة تطبيقها.', en: 'A newer draft is available. Your edits remain unapplied. Inspect the saved values, then choose to reapply your edits.' },
   reapply: { ar: 'إعادة تطبيق تعديلاتي', en: 'Reapply my edits' }, latestExplanation: { ar: 'شرح الشراء المحفوظ الأحدث', en: 'Latest saved purchase explanation' },

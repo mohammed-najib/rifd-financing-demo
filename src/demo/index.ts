@@ -2,7 +2,9 @@ import { z } from 'zod'
 import { canReadApplication, changedReviewChecks, domainDate, emptyDocuments, initialEvidenceMonths, foldDigits, freezeRepayment, parseWholeYER, products, reviewPermissions, submissionMonth, validateFields, validateFileEnvelope } from '../domain'
 import { actorIdSchema, fieldsSchema, productIdSchema, slots, type ActorId, type Application, type Dataset, type Fields, type StoredFile } from '../domain/model'
 import { fileFromBytes, makeFile, prepareFonts } from './evidence'
-import { applicationMutationSchema, applicationOperationSchema, commitHintSchema, applicationFingerprint, notificationReadSchema, preferenceOperationSchema, preparationSchema, reviewOperationSchema } from './commands'
+import { applicationMutationSchema, applicationOperationSchema, commitHintSchema, applicationFingerprint, notificationReadSchema, preferenceOperationSchema, preparationSchema, reviewOperationSchema, resetOperationSchema } from './commands'
+import type { ResetOperation, ResetResult } from './types'
+import { createResetStorage } from './reset'
 import { identities } from './seed-manifest'
 import { prepareSeed } from './seed'
 import { DemoError, openStorage, readStored, transact, validateDataset } from './storage'
@@ -10,7 +12,7 @@ import { projectQueue } from './queue'
 import { applyReviewCommand, validateReviewCommand } from './review'
 import { activeCorrection, correctionDocument, validateCorrectionSave, validateResubmission } from './corrections'
 import type { ApplicantView, ApplicationMutation, ApplicationOperation, ApplicationView, CommitHint, Context, Controls, Demo, ErrorKind, LanguageOperation, MutationResult, NotificationReadOperation, NotificationReadResult, PreferenceOperation, PreparedAttachment, QueuePreferenceOperation, Result, ReviewOperation, SaveCorrectionsOperation, SaveDraftOperation, Session, SubmitOperation, ResubmitOperation } from './types'
-export type { ApplicationOperation, ApplicationSummary, ApplicationView, CommitHint, Context, Controls, Demo, DemoOperation, DraftDocuments, ErrorKind, LanguageOperation, MutationResult, NotificationDestination, NotificationReadOperation, NotificationReadResult, OperationInspection, PreferenceInspection, PreferenceOperation, PreparedAttachment, Preparation, PrintSummary, QueuePreferenceOperation, QueueQuery, StaffQueue, Result, ReviewOperation, SaveCorrectionsOperation, SaveDraftOperation, SubmitOperation, ResubmitOperation } from './types'
+export type { ApplicationOperation, ApplicationSummary, ApplicationView, CommitHint, Context, Controls, Demo, DemoOperation, DraftDocuments, ErrorKind, LanguageOperation, MutationResult, NotificationDestination, NotificationReadOperation, NotificationReadResult, OperationInspection, PreferenceInspection, PreferenceOperation, PreparedAttachment, Preparation, PrintSummary, QueuePreferenceOperation, QueueQuery, StaffQueue, Result, ReviewOperation, SaveCorrectionsOperation, SaveDraftOperation, SubmitOperation, ResubmitOperation, ResetContext, ResetOperation, ResetResult, ResetInspection } from './types'
 
 const sessionSchema = z.object({ identity: actorIdSchema, datasetId: z.string().uuid(), sessionId: z.string().uuid(), lastActivity: z.number(), expiresAt: z.number() })
 const sessionKey = 'rifd.session.v1'
@@ -33,6 +35,13 @@ export function createDemo(): Demo {
   const subscribers = new Set<(session: Session | null) => void>()
   const newDrafts = new Map<string, Application>()
   let controls: Controls = { slow: false, failure: null }
+  const resetStorage = createResetStorage()
+  const acceptDataset = (id: string) => {
+    newDrafts.clear(); preparations.clear(); selections.clear(); resetStorage.clear()
+    controls = { slow: false, failure: null }
+    datasetId = id; session = null; generation++; armExpiry()
+    try { sessionStorage.removeItem(sessionKey) } catch { /* Old sessions cannot match the new dataset. */ }
+  }
   const delay = () => sleep(controls.slow ? 1500 : 400)
   const consume = (kind: Controls['failure']) => {
     if (controls.failure !== kind) return false
@@ -95,6 +104,20 @@ export function createDemo(): Demo {
     }
   }
   const read = async (): Promise<Dataset> => {
+    // An upgrade closes old connections before its outcome is known. Only a
+    // readable, committed reset may take that tab out of recovery implicitly.
+    if (!db && storageFailure && ['blocked', 'storage', 'unsupported', 'damaged'].includes(storageFailure)) {
+      const captured = generation
+      const connection = await openStorage(loseStorage)
+      try {
+        const data = validateDataset(await readStored(connection))
+        if (captured !== generation) throw new DemoError('sessionExpired')
+        if (data.meta.datasetId === datasetId || data.meta.lastReset?.datasetId !== data.meta.datasetId) throw new DemoError(storageFailure)
+        storedSession()
+        db = connection; storageFailure = null; acceptDataset(data.meta.datasetId); connect(); emit()
+        return data
+      } catch (error) { connection.close(); throw error }
+    }
     if (!db || !datasetId || storageFailure) throw new DemoError(storageFailure ?? 'startup')
     const connection = db
     const observedDataset = datasetId
@@ -103,10 +126,12 @@ export function createDemo(): Demo {
     // A disposed screen's late read must never clear a newer screen's tab session.
     if (captured !== generation || db !== connection) throw new DemoError('sessionExpired')
     if (data.meta.datasetId !== observedDataset) {
-      newDrafts.clear(); preparations.clear(); selections.clear()
-      controls = { slow: false, failure: null }
-      try { writeSession(null) } catch { session = null; generation++ }
-      throw new DemoError('supersededDataset')
+      if (data.meta.lastReset?.datasetId !== data.meta.datasetId) {
+        // An unmarked replacement still requires explicit startup recovery.
+        acceptDataset(observedDataset)
+        throw new DemoError('supersededDataset')
+      }
+      acceptDataset(data.meta.datasetId); emit()
     }
     return data
   }
@@ -224,6 +249,7 @@ export function createDemo(): Demo {
     if (data.mutationReceipts.some(receipt => receipt.actor === by && receipt.operationId === command.operationId) || receipt && receipt.fingerprint !== fingerprint) throw new DemoError('identifierMisuse')
     return { receipt, fingerprint }
   }
+  async function execute(operation: ResetOperation): Promise<Result<ResetResult>>
   async function execute(operation: LanguageOperation): Promise<Result<Context>>
   async function execute(operation: QueuePreferenceOperation): Promise<Result<Context>>
   async function execute(operation: PreferenceOperation): Promise<Result<Context>>
@@ -234,9 +260,26 @@ export function createDemo(): Demo {
   async function execute(operation: ReviewOperation): Promise<Result<MutationResult>>
   async function execute(operation: ApplicationOperation): Promise<Result<MutationResult>>
   async function execute(operation: NotificationReadOperation): Promise<Result<NotificationReadResult>>
-  async function execute(input: PreferenceOperation | ApplicationMutation | NotificationReadOperation): Promise<Result<Context | MutationResult | NotificationReadResult>> {
+  async function execute(input: PreferenceOperation | ApplicationMutation | NotificationReadOperation | ResetOperation): Promise<Result<Context | MutationResult | NotificationReadResult | ResetResult>> {
     // Capture raw payload and attachment descriptors before any delay.
     const operation = structuredClone(input)
+    if (operation.kind === 'resetDemo') return attempt(async () => {
+      const parsed = resetOperationSchema.safeParse(operation)
+      if (!parsed.success) throw new DemoError('validation')
+      const command = parsed.data
+      const completed = await resetStorage.replay(command)
+      if (completed) {
+        if (datasetId && datasetId !== completed) { acceptDataset(completed); emit() }
+        return { datasetId: completed, replay: true }
+      }
+      await delay()
+      let seed: Dataset
+      try { await prepareFonts(); seed = await prepareSeed() } catch { throw new DemoError('resources') }
+      const result = await resetStorage.replace(command, seed, () => consume('storage'))
+      if (!result.replay || datasetId !== result.datasetId) { acceptDataset(result.datasetId); if (result.replay) emit() }
+      if (!result.replay) announce({ datasetId: result.datasetId, kind: 'reset' })
+      return result
+    })
     if (operation.kind === 'claimApplication' || operation.kind === 'startReview' || operation.kind === 'transferApplication' || operation.kind === 'unassignApplication' || operation.kind === 'assessDocument' || operation.kind === 'recordCheck' || operation.kind === 'saveNote' || operation.kind === 'requestCorrections' || operation.kind === 'verifyCorrection' || operation.kind === 'approve' || operation.kind === 'reject') return attempt(async () => {
       const who = actor()
       const captured = generation
@@ -498,6 +541,17 @@ export function createDemo(): Demo {
   }).sort((a, b) => (b.submittedAt ?? '').localeCompare(a.submittedAt ?? '') || a.id.localeCompare(b.id))
   return {
     execute,
+    inspectReset: () => attempt(() => resetStorage.inspect()),
+    inspectResetOperation: input => {
+      const command = structuredClone(input)
+      return attempt(async () => {
+        const parsed = resetOperationSchema.safeParse(command)
+        if (!parsed.success) throw new DemoError('validation')
+        const inspected = await resetStorage.inspectOperation(parsed.data)
+        if (inspected.status === 'committed' && datasetId && datasetId !== inspected.result.datasetId) { acceptDataset(inspected.result.datasetId); emit() }
+        return inspected
+      })
+    },
     inspectPreferenceOperation: input => {
       const operation = structuredClone(input)
       return attempt(async () => {
@@ -665,7 +719,15 @@ export function createDemo(): Demo {
       }).finally(() => { startupPromise = null })
       return startupPromise
     },
-    context: () => attempt(async () => contextFrom(await read())),
+    context: () => attempt(async () => {
+      try { return contextFrom(await read()) }
+      catch (error) {
+        // Concurrent context reads can straddle the same new-dataset observation.
+        // Protected reads still refuse their captured, expired authority.
+        if (!(error instanceof DemoError) || error.kind !== 'sessionExpired') throw error
+        return contextFrom(await read())
+      }
+    }),
     signIn: identity => attempt(async () => {
       if (!actorIdSchema.safeParse(identity).success) throw new DemoError('unavailable')
       const captured = generation
@@ -746,6 +808,7 @@ export function createDemo(): Demo {
       window.removeEventListener('storage', storageHint)
       listening = false
       newDrafts.clear(); preparations.clear(); selections.clear(); controls = { slow: false, failure: null }
+      resetStorage.clear()
       subscribers.clear()
     },
   }

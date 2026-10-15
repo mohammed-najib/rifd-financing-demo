@@ -150,7 +150,9 @@ The header's Expire session control interrupts the current session immediately. 
 
 ## Data and architecture
 
-See [architecture and seed contract](docs/implementation/architecture.md) and [submission evidence](docs/implementation/06-evidence.md). Browser startup creates all thirteen canonical applications, identities, histories, correction baselines and unchanged private workspaces, notifications, files, sample variants, frozen repayment and Arabic preferences in one IndexedDB transaction. It validates existing schema, shapes, references and SHA-256 bytes before readiness. Missing or damaged data offers retry and stays preserved. Confirmed recovery/reset UI belongs to tickets 17 and 18.
+See [architecture and seed contract](docs/implementation/architecture.md) and [submission evidence](docs/implementation/06-evidence.md). Browser startup creates all thirteen canonical applications, identities, histories, correction baselines and unchanged private workspaces, notifications, files, sample variants, frozen repayment and Arabic preferences in one IndexedDB transaction. It validates existing schema, shapes, references and SHA-256 bytes before readiness. Missing or damaged data offers retry and stays preserved.
+
+Reset demo is available from the header, the unsigned `/demo/reset` route and startup recovery. Its bilingual confirmation names the browser-wide replacement. Cancel and failure retain unfinished work. A successful reset restores all thirteen canonical applications and unread notifications, Arabic and default queue preferences, then clears old tab sessions, files, previews and unfinished work. Exact retry recognizes the committed reset receipt; changed contexts require fresh inspection and confirmation. Schema rebuilding uses one rollback-capable upgrade transaction. See [reset evidence](docs/implementation/18-evidence.md).
 
 A new browser profile or isolated Playwright context starts a fresh demo. For development, clearing this origin's site data in browser settings removes its saved dataset and sessions; the next startup seeds it again. The domain date is fixed at 2026-10-14. Session timing uses elapsed real time.
 

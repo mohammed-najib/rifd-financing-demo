@@ -83,8 +83,9 @@ Preflight is omitted. The local fonts, 15px root typography, logical RTL/LTR spa
 
 ## Storage and authority
 
-Startup accepts physical IndexedDB version 1 and logical schema, seed and rule
-versions 1. It checks shapes, ownership, file references, byte lengths and hashes,
+Startup accepts physical IndexedDB version 1, or a higher version with the
+canonical store layout and a committed reset marker, and logical schema, seed and
+rule versions 1. It checks shapes, ownership, file references, byte lengths and hashes,
 event-sequence bounds and every canonical/replacement catalog entry. Raw invalid
 draft strings and the explicitly incomplete Submitted seed remain valid stored
 records. The supported additive transformations supply absent mutation receipts
@@ -121,10 +122,35 @@ work offline. There is no service worker, fresh offline launch or server queue.
 Recovery uses the last selected display language and permits a temporary language
 switch without storage. Only a successful preference operation claims a persisted
 language. Explicit retry restores the saved preference. Public products remain
-accessible while protected startup requires recovery. Confirmed browser-wide
-reset, including schema recovery, belongs to slice 18.
+accessible while protected startup requires recovery. Public confirmed reset is
+available in recovery, unsigned and during protected work. See
+[reset evidence](18-evidence.md) for the transaction, replay and tab behavior.
 
-IndexedDB database `rifd-demo`, physical version 1, contains a private `state` store with one dataset record. The logical metadata fixes schema, seed and product/calculation rules to version 1, and carries the dataset UUID and durable event sequence. The record contains applications, immutable correction baselines, private saved workspaces, internal/public events, notifications, file bytes and catalog, identities, independent preferences and operation receipts.
+IndexedDB database `rifd-demo`, initially physical version 1, contains a private `state` store with one dataset record. The logical metadata fixes schema, seed and product/calculation rules to version 1, and carries the dataset UUID and durable event sequence. The record contains applications, immutable correction baselines, private saved workspaces, internal/public events, notifications, file bytes and catalog, identities, independent preferences and operation receipts.
+
+`src/demo/reset.ts` owns reset inspection and replacement. A valid dataset context
+binds confirmation to its identifier. An opaque module-issued recovery context
+captures the physical version, stores, keys, record values and opaque browser-value
+metadata; transaction-time comparison rejects a repaired or replaced observation.
+Recognized RIFD file buffers compare exact bytes, while legacy Blob/File values
+compare their metadata. Resource preparation finishes first.
+The replacement commits all seeds, default preferences, a new dataset identifier
+and a minimal `meta.lastReset` receipt together. Noncanonical stores are rebuilt
+inside a rollback-capable version-change transaction. There is no delete/reseed
+sequence. Blocked requests abort any subsequently granted upgrade.
+
+Exact reset replay checks the current metadata's original context, operation
+identifier and confirmed intent before ordinary authority checks or resource
+preparation. Known receipt recognition checks only the minimal receipt and current
+dataset identifier; unsupported metadata still refuses normal startup and reads.
+It returns only the completed reset identifier, without repeating
+replacement. An older intent cannot erase a later dataset. `inspectResetOperation`
+resolves uncertain completion without sending another mutation. Reset aborts
+preserve still-valid sessions and buffers; commit or a validated new-dataset read
+clears tab state. A closed old connection may reopen to recognize a committed
+reset. Other closure recovery still requires explicit retry.
+An unmarked dataset replacement invalidates old authority and returns
+`supersededDataset` until explicit startup recovery.
 
 A single short read/write transaction seeds the complete record only when it is absent. Resource generation and hashing finish first. Concurrent empty startups reread within the write transaction and retain the first committed dataset. Preference writes compare dataset and preference revision within that transaction, record their receipt with the preference, and resolve on transaction completion. An exact receipt replay returns current context; changed intent or cross-family use of the same actor's identifier is refused. Queue writes require the captured Salma session through commit and preserve language. Language writes preserve queue preferences. Neither changes application revisions or consumes an application-storage failure. Commit hints carry only dataset, kind and revision; missed notices never require repeating a committed write.
 

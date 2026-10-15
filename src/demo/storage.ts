@@ -10,7 +10,7 @@ export class DemoError extends Error {
 export function openStorage(onClose: (kind: ErrorKind) => void): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     let refused = false
-    const request = indexedDB.open('rifd-demo', 1)
+    const request = indexedDB.open('rifd-demo')
     request.onupgradeneeded = () => {
       try {
         if (refused) request.transaction!.abort()
@@ -29,9 +29,19 @@ export function openStorage(onClose: (kind: ErrorKind) => void): Promise<IDBData
       if (db.objectStoreNames.length !== 1 || !db.objectStoreNames.contains('state')) {
         db.close(); reject(new DemoError('damaged')); return
       }
+      const store = db.transaction('state', 'readonly').objectStore('state')
+      if (store.keyPath !== null || store.autoIncrement || store.indexNames.length) {
+        db.close(); reject(new DemoError('damaged')); return
+      }
       db.onversionchange = () => { db.close(); onClose('blocked') }
       db.onclose = () => onClose('storage')
-      resolve(db)
+      if (db.version > 1) {
+        void readStored(db).then(raw => {
+          const data = validateDataset(raw)
+          if (data.meta.lastReset?.datasetId !== data.meta.datasetId) throw new DemoError('unsupported')
+          resolve(db)
+        }).catch(error => { db.close(); reject(error) })
+      } else resolve(db)
     }
   })
 }
@@ -87,6 +97,7 @@ export function validateDataset(raw: unknown): Dataset {
   const parsed = datasetSchema.safeParse(raw)
   if (!parsed.success) throw new DemoError('damaged')
   const data = parsed.data
+  if (data.meta.lastReset && data.meta.lastReset.datasetId !== data.meta.datasetId) throw new DemoError('damaged')
   const unique = (ids: string[]) => new Set(ids).size === ids.length
   if (![data.applications, data.files, data.identities, data.catalog, data.notifications].every(items => unique(items.map(item => item.id)))) throw new DemoError('damaged')
   const fileMap = new Map(data.files.map(file => [file.id, file]))

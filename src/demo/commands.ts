@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { bilingualSchema, correctionTargetsSchema, fieldsSchema, languageSchema, productIdSchema, queuePreferencesSchema, slots, slotSchema } from '../domain/model'
+import { bilingualSchema, correctionTargetsSchema, fieldsSchema, languageSchema, productIdSchema, queuePreferencesSchema, resetContextSchema, slots, slotSchema } from '../domain/model'
 import type { ApplicationMutation } from './types'
 
 const hintRevision = z.number().int().positive()
@@ -9,11 +9,13 @@ export const preferenceOperationSchema = z.discriminatedUnion('kind', [
   z.object({ ...preferenceVersion, kind: z.literal('setQueuePreferences'), queue: queuePreferencesSchema }).strict(),
 ])
 export const commitHintSchema = z.discriminatedUnion('kind', [
+  z.object({ datasetId: z.string().uuid(), kind: z.literal('reset') }).strict(),
   z.object({ datasetId: z.string().uuid(), kind: z.literal('preferences'), revision: hintRevision }).strict(),
   z.object({ datasetId: z.string().uuid(), kind: z.literal('workspace'), applicationId: z.string().min(1), revision: hintRevision }).strict(),
   z.object({ datasetId: z.string().uuid(), kind: z.literal('application'), applicationId: z.string().min(1), revision: hintRevision }).strict(),
   z.object({ datasetId: z.string().uuid(), kind: z.literal('notification'), notificationId: z.string().min(1), revision: hintRevision }).strict(),
 ])
+export const resetOperationSchema = z.object({ kind: z.literal('resetDemo'), context: resetContextSchema, operationId: z.string().min(1), confirmed: z.literal(true) }).strict()
 
 export const notificationReadSchema = z.object({
   kind: z.literal('markNotificationRead'), datasetId: z.string().uuid(), operationId: z.string().min(1),

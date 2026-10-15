@@ -24,9 +24,11 @@ import { correctionText } from './correction-copy'
 import { responseText } from './correction-response'
 import { RepaymentOverview, RepaymentSummary, repaymentText } from './repayment'
 import { StaleWriteControl } from './stale-write-control'
+import { ResetDialog, resetText } from './reset'
 
-type Screen = { kind: 'home' | 'chooser' | 'products' | 'applicantList' | 'staffList' | 'newDraft' | 'unavailable' | 'notifications' } | { kind: 'applicantDetail' | 'staffDetail' | 'staffRequest' | 'staffDecision' | 'applicantPrint' | 'staffPrint' | 'applicantRepayment' | 'staffRepayment'; id: string }
+type Screen = { kind: 'home' | 'chooser' | 'products' | 'applicantList' | 'staffList' | 'newDraft' | 'reset' | 'unavailable' | 'notifications' } | { kind: 'applicantDetail' | 'staffDetail' | 'staffRequest' | 'staffDecision' | 'applicantPrint' | 'staffPrint' | 'applicantRepayment' | 'staffRepayment'; id: string }
 function resolveScreen(path: string): Screen {
+  if (path === '/demo/reset') return { kind: 'reset' }
   if (path === '/') return { kind: 'home' }
   if (path === '/sign-in') return { kind: 'chooser' }
   if (path === '/products') return { kind: 'products' }
@@ -71,6 +73,9 @@ export function App() {
   const [startupError, setStartupError] = useState<ErrorKind | null>(null)
   const [error, setError] = useState<ErrorKind | null>(null)
   const [busy, setBusy] = useState(false)
+  const [resetOpen, setResetOpen] = useState(false)
+  const resetting = useRef(false)
+  const lastDataset = useRef<string | null>(null)
   const [languageConflict, setLanguageConflict] = useState<{ intent: LanguageOperation; latest: Context | null } | null>(null)
   const [reload, setReload] = useState(0)
   const [list, setList] = useState<ApplicationSummary[] | null>(null)
@@ -98,17 +103,31 @@ export function App() {
   const lastProtected = useRef<string | null>(null)
   const recovery = useRef<{ identity: ActorId; datasetId: string; href: string } | null>(null)
   currentContext.current = context
-  if (context?.session && !['home', 'chooser', 'products', 'unavailable'].includes(screen.kind)) lastProtected.current = href
+  if (context?.session && !['home', 'chooser', 'products', 'reset', 'unavailable'].includes(screen.kind)) lastProtected.current = href
   const clearBuffers = () => { draftBuffers.current.clear(); reviewBuffers.current.clear(); correctionBuffers.current.clear(); decisionBuffers.current.clear() }
+  const rememberBuffer = <T,>(buffers: Map<string, T>, captured: Context, applicationId: string, buffer: T) => {
+    if (lastDataset.current === captured.datasetId && captured.session) buffers.set(`${captured.datasetId}/${captured.session.identity}/${applicationId}`, buffer)
+  }
+  const clearDatasetView = () => {
+    contextRequest.current++
+    clearBuffers(); recovery.current = null; newDraftId.current = null; lastProtected.current = null
+    departure.current = null; staffWork.current = null; simulationWork.current = null; heldStaffView.current = null
+    setLeaving(current => { current?.cancel?.(); return null })
+    setError(null); setLanguageConflict(null); setView(null); setList(null); setPrintSummary(null); setSubmittedId(null); setResolvedCorrectionId(null); setResolvedRepaymentId(null)
+    loadedContext.current = ''; setLoadedPath(null); setResetOpen(false)
+  }
   const acceptContext = (next: Context) => {
     const previous = currentContext.current
-    if (previous?.datasetId && previous.datasetId !== next.datasetId) {
-      clearBuffers(); recovery.current = null; newDraftId.current = null
+    if (lastDataset.current && lastDataset.current !== next.datasetId) {
+      clearDatasetView(); setBusy(false)
+      void navigate({ to: '/$', params: { _splat: 'sign-in' }, search: {}, ignoreBlocker: true, replace: true })
     } else if (previous?.session && !next.session) {
       recovery.current = { identity: previous.session.identity, datasetId: previous.datasetId, href: lastProtected.current ?? (previous.identity?.role === 'reviewer' ? '/staff/applications' : '/applications') }
     }
+    lastDataset.current = next.datasetId
     currentContext.current = next
     setRecoveryLanguage(next.preferences.language)
+    setStartupError(null)
     setContext(next)
   }
   const loadedContext = useRef('')
@@ -151,7 +170,7 @@ export function App() {
       else setStartupError(result.error.kind)
     }).catch(() => { if (active) setStartupError('resources') })
     const unsubscribe = demo.subscribe(currentSession => {
-      if (!active) return
+      if (!active || resetting.current) return
       const request = ++contextRequest.current
       // Authority loss covers protected content without waiting for busy storage.
       if (!currentSession && currentContext.current?.session) {
@@ -263,7 +282,7 @@ export function App() {
     // Preferences do not change the record read or revoke the current identity.
   }, [path, search.round, sessionId, identityId, reload, demo, navigate])
 
-  const routeReady = !startupError && !!context && (screen.kind === 'chooser' || screen.kind === 'products' || !identity || loadedPath === path)
+  const routeReady = !startupError && !!context && (screen.kind === 'chooser' || screen.kind === 'products' || screen.kind === 'reset' || !identity || loadedPath === path)
   useEffect(() => {
     if (routeReady || startupError) document.querySelector<HTMLElement>('main h1')?.focus()
   }, [path, routeReady, sessionId, startupError])
@@ -282,6 +301,10 @@ export function App() {
       if (!result.ok) {
         if (['storage', 'startup', 'blocked', 'unsupported', 'damaged'].includes(result.error.kind)) {
           setContext(null); setStartupError(result.error.kind)
+        } else if (result.error.kind === 'sessionExpired' || result.error.kind === 'supersededDataset') {
+          const latest = await demo.context()
+          if (alive.current && latest.ok && latest.value.datasetId !== currentContext.current?.datasetId) acceptContext(latest.value)
+          else setError(result.error.kind)
         } else setError(result.error.kind)
         return
       }
@@ -352,13 +375,14 @@ export function App() {
   }
 
   if (!context && !startupError) return <NeutralStartup />
-  const isChooser = screen.kind === 'chooser' || screen.kind !== 'products' && screen.kind !== 'unavailable' && !identity
-  const isStaff = identity?.role === 'reviewer' && !isChooser && screen.kind !== 'products'
+  const isChooser = screen.kind === 'chooser' || screen.kind !== 'products' && screen.kind !== 'unavailable' && screen.kind !== 'reset' && !identity
+  const isStaff = identity?.role === 'reviewer' && !isChooser && screen.kind !== 'products' && screen.kind !== 'reset'
   const unavailable = screen.kind === 'unavailable' || error === 'unavailable'
   return <div data-workspace-ready={routeReady ? 'true' : undefined}>
     <header className="header flex flex-wrap items-center gap-[30px] border-0 border-b border-solid border-border bg-white px-[4%] py-5 compact:gap-5 narrow:gap-[15px] narrow:px-[5%] narrow:py-4">
       <a className="brand" href="/" onClick={event => { event.preventDefault(); go('/') }}><Mark /><span>{language === 'ar' ? 'رِفد' : 'RIFD'}<small>{language === 'ar' ? 'عرض تمويل تجريبي' : 'Financing demo'}</small></span></a>
       <nav aria-label={language === 'ar' ? 'التنقل الرئيسي' : 'Main navigation'}>
+        <button disabled={busy} onClick={() => setResetOpen(true)}>{resetText.title[language]}</button>
         <a href="/products" onClick={event => { event.preventDefault(); go('/products') }}>{t('products')}</a>
         {identity && <a href={home} onClick={event => { event.preventDefault(); go(home) }}>{identity.role === 'reviewer' ? t('staffApplications') : t('applications')}</a>}
         {identity?.role === 'applicant' && <a href="/notifications" onClick={event => { event.preventDefault(); go('/notifications') }}>{notificationText.title[language]}</a>}
@@ -383,8 +407,9 @@ export function App() {
           {languageConflict.latest && <><p>{t('latestLanguage')}: {text[languageConflict.latest.preferences.language === 'ar' ? 'arabic' : 'english'][language]}</p><button disabled={busy} onClick={() => void changeLanguage({ ...languageConflict.intent, operationId: crypto.randomUUID(), expectedRevision: languageConflict.latest!.preferences.revision })}>{t('reapplyPreference')}</button></>}
           <button disabled={busy} onClick={() => setLanguageConflict(null)}>{t('discardPreference')}</button>
         </section>}
-        {screen.kind === 'products' ? <Products language={language} choose={product => void go(`/applications/new?product=${product}`)} />
-          : startupError ? <section className="panel"><Heading>{t('startupError')}</Heading><p role="alert">{errors[startupError][language]}</p><button onClick={() => void retryStartup()}>{t('retry')}</button><a className="button secondary" href="/products" onClick={event => { event.preventDefault(); go('/products') }}>{t('products')}</a></section>
+        {screen.kind === 'reset' ? <section className="panel"><Heading>{resetText.title[language]}</Heading><p>{resetText.warning[language]}</p><button disabled={busy} onClick={() => setResetOpen(true)}>{resetText.title[language]}</button></section>
+          : screen.kind === 'products' ? <Products language={language} choose={product => void go(`/applications/new?product=${product}`)} />
+          : startupError ? <section className="panel"><Heading>{t('startupError')}</Heading><p role="alert">{errors[startupError][language]}</p><button onClick={() => void retryStartup()}>{t('retry')}</button><button onClick={() => setResetOpen(true)}>{resetText.title[language]}</button><a className="button secondary" href="/products" onClick={event => { event.preventDefault(); go('/products') }}>{t('products')}</a></section>
           : unavailable ? <section className="panel"><Heading>{t('unavailable')}</Heading><p>{t('unavailableDescription')}</p><a className="button" href={home} onClick={event => { event.preventDefault(); go(home) }}>{t('home')}</a><button onClick={() => go('/sign-in')}>{t('switchIdentity')}</button></section>
           : isChooser ? <section className="mx-auto mt-[15px] mb-10 max-w-[970px] narrow:mt-[5px] narrow:mb-5">
             <p className="eyebrow">{language === 'ar' ? 'ابدأ الاستكشاف' : 'Explore the demo'}</p><Heading>{t('chooseIdentity')}</Heading><p className="intro">{t('chooserIntro')}</p>
@@ -404,7 +429,7 @@ export function App() {
           : screen.kind === 'staffList' && context ? <StaffApplicationQueue key={`${context.datasetId}/${identityId}/${sessionId}`} demo={demo} context={context} language={language} input={search} href={href} reload={reload} go={go} acceptContext={acceptContext} />
           : list ? <ApplicationList list={list} language={language} go={go} />
           : view && (screen.kind === 'staffRepayment' || screen.kind === 'applicantRepayment') ? <RepaymentOverview view={view} language={language} queueSearch={screen.kind === 'staffRepayment' ? searchStr : ''} go={go} />
-          : view ? <ApplicationDetail key={`${context?.datasetId}/${identityId}/${sessionId}/${view.id}`} demo={demo} view={view} language={language} queueSearch={['staffDetail', 'staffRequest', 'staffDecision'].includes(screen.kind) ? searchStr : ''} requesting={screen.kind === 'staffRequest' || screen.kind === 'staffDecision'} confirmed={submittedId === view.id} redirectedCorrection={resolvedCorrectionId === view.id} redirectedRepayment={resolvedRepaymentId === view.id} go={go}>{view.role === 'reviewer' && context?.session && <StaleWriteControl demo={demo} datasetId={context.datasetId} view={view} language={language} hold={() => { heldStaffView.current = { path, sessionId } }} release={() => { heldStaffView.current = null }} changed={changeStaffView} departure={value => staffDeparture(value, true)} />}{view.role === 'reviewer' && context?.session && screen.kind === 'staffDecision' && <Decision demo={demo} datasetId={context.datasetId} sessionId={context.session.sessionId} view={view} language={language} queueSearch={searchStr} go={go} retained={decisionBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => decisionBuffers.current.set(`${context.datasetId}/${identityId}/${view.id}`, buffer)} changed={changeStaffView} departure={staffDeparture} />}{view.role === 'reviewer' && context && screen.kind === 'staffRequest' && <CorrectionRequest demo={demo} datasetId={context.datasetId} view={view} language={language} queueSearch={searchStr} go={go} retained={correctionBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => correctionBuffers.current.set(`${context.datasetId}/${identityId}/${view.id}`, buffer)} changed={changeStaffView} departure={staffDeparture} />}{view.role === 'reviewer' && context && screen.kind !== 'staffRequest' && screen.kind !== 'staffDecision' && <ReviewWorkspace demo={demo} datasetId={context.datasetId} view={view} language={language} retained={reviewBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => reviewBuffers.current.set(`${context.datasetId}/${identityId}/${view.id}`, buffer)} changed={changeStaffView} departure={staffDeparture} />}{view.role === 'applicant' && (view.status === 'draft' || view.status === 'correctionsRequested' && path.endsWith('/corrections/current')) && context && <DraftEditor demo={demo} view={view} context={context} language={language} step={step} changeStep={step => { void go(`${path}?${screen.kind === 'newDraft' ? `product=${chosenProduct}&` : ''}step=${step}`) }} retained={draftBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => draftBuffers.current.set(`${context.datasetId}/${identityId}/${view.id}`, buffer)} savedView={application => {
+          : view ? <ApplicationDetail key={`${context?.datasetId}/${identityId}/${sessionId}/${view.id}`} demo={demo} view={view} language={language} queueSearch={['staffDetail', 'staffRequest', 'staffDecision'].includes(screen.kind) ? searchStr : ''} requesting={screen.kind === 'staffRequest' || screen.kind === 'staffDecision'} confirmed={submittedId === view.id} redirectedCorrection={resolvedCorrectionId === view.id} redirectedRepayment={resolvedRepaymentId === view.id} go={go}>{view.role === 'reviewer' && context?.session && <StaleWriteControl demo={demo} datasetId={context.datasetId} view={view} language={language} hold={() => { heldStaffView.current = { path, sessionId } }} release={() => { heldStaffView.current = null }} changed={changeStaffView} departure={value => staffDeparture(value, true)} />}{view.role === 'reviewer' && context?.session && screen.kind === 'staffDecision' && <Decision demo={demo} datasetId={context.datasetId} sessionId={context.session.sessionId} view={view} language={language} queueSearch={searchStr} go={go} retained={decisionBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => rememberBuffer(decisionBuffers.current, context, view.id, buffer)} changed={changeStaffView} departure={staffDeparture} />}{view.role === 'reviewer' && context && screen.kind === 'staffRequest' && <CorrectionRequest demo={demo} datasetId={context.datasetId} view={view} language={language} queueSearch={searchStr} go={go} retained={correctionBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => rememberBuffer(correctionBuffers.current, context, view.id, buffer)} changed={changeStaffView} departure={staffDeparture} />}{view.role === 'reviewer' && context && screen.kind !== 'staffRequest' && screen.kind !== 'staffDecision' && <ReviewWorkspace demo={demo} datasetId={context.datasetId} view={view} language={language} retained={reviewBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => rememberBuffer(reviewBuffers.current, context, view.id, buffer)} changed={changeStaffView} departure={staffDeparture} />}{view.role === 'applicant' && (view.status === 'draft' || view.status === 'correctionsRequested' && path.endsWith('/corrections/current')) && context && <DraftEditor demo={demo} view={view} context={context} language={language} step={step} changeStep={step => { void go(`${path}?${screen.kind === 'newDraft' ? `product=${chosenProduct}&` : ''}step=${step}`) }} retained={draftBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => rememberBuffer(draftBuffers.current, context, view.id, buffer)} savedView={application => {
             setView(application)
             if (application.status !== 'draft' && application.status !== 'correctionsRequested') {
               draftBuffers.current.delete(`${context.datasetId}/${identityId}/${application.id}`)
@@ -424,6 +449,16 @@ export function App() {
       </main>
     </div>
     <footer className="disclosure border-0 border-t border-solid border-border bg-footer px-[4%] py-6 text-[12px] text-muted narrow:px-[5%] narrow:py-5"><p>{t('notice')}</p><p>{t('tabSessions')}</p><p>{t('storageNotice')}</p></footer>
+    {resetOpen && <ResetDialog demo={demo} language={language} prepare={prepareJourney} pending={value => { resetting.current = value; if (value) contextRequest.current++; setBusy(value) }} close={() => setResetOpen(false)} completed={async result => {
+      clearDatasetView(); lastDataset.current = result.datasetId
+      setContext(null); setStartupError(null); setRecoveryLanguage('ar')
+      await navigate({ to: '/$', params: { _splat: 'sign-in' }, search: {}, ignoreBlocker: true, replace: true })
+      const started = await demo.startup()
+      if (alive.current) {
+        if (started.ok) acceptContext(started.value); else setStartupError(started.error.kind)
+        resetting.current = false; setBusy(false)
+      }
+    }} />}
     {leaving && <DepartureDialog request={leaving} work={departure.current} language={language}
       cancel={() => { leaving.cancel?.(); setLeaving(null) }}
       discard={() => { departure.current?.discard(); departure.current = null; clearBuffers(); newDraftId.current = null; setLeaving(null); leaving.action() }}

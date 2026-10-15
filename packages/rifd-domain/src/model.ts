@@ -127,8 +127,15 @@ export const mutationReceiptSchema = z.discriminatedUnion('kind', [
   z.object({ ...receiptFields, kind: z.enum(['claimApplication', 'startReview', 'transferApplication', 'unassignApplication', 'assessDocument', 'recordCheck', 'saveNote', 'requestCorrections', 'verifyCorrection', 'approve', 'reject']), actor: z.literal('salma') }),
 ])
 export type MutationReceipt = z.infer<typeof mutationReceiptSchema>
+export const resetContextSchema = z.discriminatedUnion('kind', [
+  z.object({ kind: z.literal('dataset'), datasetId: z.string().uuid() }).strict(),
+  z.object({ kind: z.literal('recovery'), token: z.string().uuid() }).strict(),
+])
+export type ResetContext = z.infer<typeof resetContextSchema>
 export const datasetSchema = z.object({
-  meta: z.object({ schemaVersion: z.literal(1), seedVersion: z.literal(1), ruleVersion: z.literal(1), datasetId: z.string().uuid(), eventSequence: z.number().int().nonnegative() }),
+  meta: z.object({ schemaVersion: z.literal(1), seedVersion: z.literal(1), ruleVersion: z.literal(1), datasetId: z.string().uuid(), eventSequence: z.number().int().nonnegative(),
+    lastReset: z.object({ operationId: z.string().min(1), context: resetContextSchema, fingerprint: z.literal('resetDemo:confirmed'), datasetId: z.string().uuid() }).optional(),
+  }),
   identities: z.array(identitySchema), applications: z.array(applicationSchema), files: z.array(fileSchema),
   notifications: z.array(notificationSchema), catalog: z.array(sampleSchema), preferences: preferencesSchema,
   receipts: z.array(z.object({ actor: z.string(), operationId: z.string(), fingerprint: z.string(), revision: z.number().int() })),
