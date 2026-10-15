@@ -1,6 +1,6 @@
 # Browser demo architecture
 
-The [specification](../../.scratch/financing-application-and-review/spec.md) and [accepted browser contract](../../.scratch/financing-application-and-review/issues/04-browser-state-and-simulated-failures.md#answer) govern the implementation. The first six slices provide startup, authorized reads, canonical field validation, five-step drafts, session and tab recovery, and atomic first submission. Later tickets extend the same boundaries for corrections and review.
+The [specification](../../.scratch/financing-application-and-review/spec.md) and [accepted browser contract](../../.scratch/financing-application-and-review/issues/04-browser-state-and-simulated-failures.md#answer) govern the implementation. The first nine slices provide startup, authorized reads, canonical field validation, five-step drafts, session and tab recovery, atomic first submission, notifications, printing, the staff queue, assignment and review start. Later tickets extend the same boundaries for corrections and review outcomes.
 
 ## Modules
 
@@ -13,6 +13,30 @@ The [specification](../../.scratch/financing-application-and-review/spec.md) and
 | `src/demo/seed-manifest.ts`, `seed.ts`, `evidence.ts` | Canonical scenario facts and preparation of locally rendered, hashed PNG, JPEG and multipage PDF bytes and catalog variants. |
 | `src/ui` | Screen loading, navigation, feedback, bilingual read presentation, responsive table/card views and identity controls. |
 | `src/routes`, `router.tsx` | Start SPA shell and normal browser paths. The current slice validates supported paths within the shared read screen. |
+
+`claimApplication`, `transferApplication`, `unassignApplication` and `startReview`
+are explicit staff commands carrying the application, dataset, operation identifier
+and expected shared revision. Transfer also binds confirmation to the outgoing and
+incoming reviewer. The transaction checks captured session, dataset and reading
+access, then receipt, shared revision, reviewer assignment and permitted state.
+Readable stale records therefore report `staleRecord` before a lost-assignment
+denial. Session validity is checked again after the staged write.
+
+Assignment changes increment the shared revision and add one internal `assigned`
+event. They preserve status, snapshots, workspaces, all review work, public history
+and notifications. Start review requires Salma's assignment on Submitted, changes
+status to Under review and adds one `reviewStarted` event to both public history
+and internal activity with the same identifier and sequence. Neither creates a
+notification. Staff receipts share the existing actor-scoped mutation namespace
+and store the shared revision without an unrelated workspace revision. Existing
+draft/submission receipts retain their original schema and remain readable.
+
+Staff reads project current permissions through the pure `reviewPermissions`
+rule. Screens refresh them on committed notices and activation. Open transfer
+confirmations bind to the inspected revision and close when it changes. Refused
+or uncertain actions disable further writes until explicit receipt/current-record
+inspection. Confirmed aborts also allow an explicit retry of the retained intent.
+The protected screen's existing session key clears confirmations on expiry.
 
 The public `Demo` interface returns `Result<T>` with finite error kinds and translation keys. `setLanguage` and reviewer-only `setQueuePreferences` carry the dataset, operation identifier, preference revision and desired values. `inspectPreferenceOperation` checks the actor-scoped receipt and reads the current committed context. `newDraft` creates a tab-local, owner-scoped in-memory draft and performs no durable write. Its UUID-based application reference stays stable after saving, while the seed references retain their short numeric suffixes. Workspace revision zero identifies unsaved creation. `saveDraft` carries the dataset, application, operation identifier, workspace revision, raw form/product and saved or prepared document choices. It has no database replacement, arbitrary patch, caller-supplied actor or submission bypass. Session operations capture identity in the current tab. Future applicant and reviewer mutations must add their own typed commands and complete effects here.
 

@@ -1,14 +1,14 @@
 import { z } from 'zod'
-import { canReadApplication, domainDate, emptyDocuments, initialEvidenceMonths, products, submissionMonth, validateFields, validateFileEnvelope } from '../domain'
+import { canReadApplication, domainDate, emptyDocuments, initialEvidenceMonths, products, reviewPermissions, submissionMonth, validateFields, validateFileEnvelope } from '../domain'
 import { actorIdSchema, fieldsSchema, productIdSchema, slots, type ActorId, type Application, type Dataset, type Fields, type StoredFile } from '../domain/model'
 import { fileFromBytes, makeFile, prepareFonts } from './evidence'
-import { applicationOperationSchema, commitHintSchema, draftFingerprint, notificationReadSchema, preferenceOperationSchema, preparationSchema } from './commands'
+import { applicationMutationSchema, applicationOperationSchema, commitHintSchema, draftFingerprint, notificationReadSchema, preferenceOperationSchema, preparationSchema, reviewOperationSchema } from './commands'
 import { identities } from './seed-manifest'
 import { prepareSeed } from './seed'
 import { DemoError, openStorage, readStored, transact, validateDataset } from './storage'
 import { projectQueue } from './queue'
-import type { ApplicantView, ApplicationOperation, ApplicationView, CommitHint, Context, Controls, Demo, ErrorKind, LanguageOperation, MutationResult, NotificationReadOperation, NotificationReadResult, PreferenceOperation, PreparedAttachment, QueuePreferenceOperation, Result, SaveDraftOperation, Session, SubmitOperation } from './types'
-export type { ApplicationOperation, ApplicationSummary, ApplicationView, CommitHint, Context, Controls, Demo, DemoOperation, DraftDocuments, ErrorKind, LanguageOperation, MutationResult, NotificationDestination, NotificationReadOperation, NotificationReadResult, OperationInspection, PreferenceInspection, PreferenceOperation, PreparedAttachment, Preparation, PrintSummary, QueuePreferenceOperation, QueueQuery, StaffQueue, Result, SaveDraftOperation, SubmitOperation } from './types'
+import type { ApplicantView, ApplicationMutation, ApplicationOperation, ApplicationView, CommitHint, Context, Controls, Demo, ErrorKind, LanguageOperation, MutationResult, NotificationReadOperation, NotificationReadResult, PreferenceOperation, PreparedAttachment, QueuePreferenceOperation, Result, ReviewOperation, SaveDraftOperation, Session, SubmitOperation } from './types'
+export type { ApplicationOperation, ApplicationSummary, ApplicationView, CommitHint, Context, Controls, Demo, DemoOperation, DraftDocuments, ErrorKind, LanguageOperation, MutationResult, NotificationDestination, NotificationReadOperation, NotificationReadResult, OperationInspection, PreferenceInspection, PreferenceOperation, PreparedAttachment, Preparation, PrintSummary, QueuePreferenceOperation, QueueQuery, StaffQueue, Result, ReviewOperation, SaveDraftOperation, SubmitOperation } from './types'
 
 const sessionSchema = z.object({ identity: actorIdSchema, datasetId: z.string().uuid(), sessionId: z.string().uuid(), lastActivity: z.number(), expiresAt: z.number() })
 const sessionKey = 'rifd.session.v1'
@@ -165,7 +165,7 @@ export function createDemo(): Demo {
       }),
     }
     return who === 'salma'
-      ? { ...common, role: 'reviewer', rounds: application.rounds, assignment: data.identities.find(identity => identity.id === application.assignee)?.name ?? null, assignedToYou: application.assignee === who, assessments: application.assessments, checks: application.checks, notes: application.notes, activity: application.activity }
+      ? { ...common, role: 'reviewer', rounds: application.rounds, assignment: data.identities.find(identity => identity.id === application.assignee)?.name ?? null, assignedToYou: application.assignee === who, permissions: reviewPermissions(who, application), assessments: application.assessments, checks: application.checks, notes: application.notes, activity: application.activity }
       : {
         ...common, role: 'applicant', workspace: application.workspace,
         rounds: application.rounds.map(round => ({
@@ -185,7 +185,7 @@ export function createDemo(): Demo {
     if (!prepared || prepared.actor !== who || prepared.datasetId !== datasetId || prepared.file.applicationId !== id || prepared.file.slot !== slot || JSON.stringify(reference) !== JSON.stringify(prepared.reference)) throw new DemoError('validation', slot as StoredFile['slot'])
     return prepared.file
   }
-  const draftReceipt = (data: Dataset, who: ActorId, operation: ApplicationOperation) => {
+  const draftReceipt = (data: Dataset, who: ActorId, operation: ApplicationMutation) => {
     const receipt = data.mutationReceipts.find(receipt => receipt.actor === who && receipt.operationId === operation.operationId)
     if (data.receipts.some(receipt => receipt.actor === who && receipt.operationId === operation.operationId) || receipt && receipt.fingerprint !== draftFingerprint(operation)) throw new DemoError('identifierMisuse')
     return receipt
@@ -214,11 +214,65 @@ export function createDemo(): Demo {
   async function execute(operation: PreferenceOperation): Promise<Result<Context>>
   async function execute(operation: SaveDraftOperation): Promise<Result<MutationResult>>
   async function execute(operation: SubmitOperation): Promise<Result<MutationResult>>
+  async function execute(operation: ReviewOperation): Promise<Result<MutationResult>>
   async function execute(operation: ApplicationOperation): Promise<Result<MutationResult>>
   async function execute(operation: NotificationReadOperation): Promise<Result<NotificationReadResult>>
-  async function execute(input: PreferenceOperation | ApplicationOperation | NotificationReadOperation): Promise<Result<Context | MutationResult | NotificationReadResult>> {
+  async function execute(input: PreferenceOperation | ApplicationMutation | NotificationReadOperation): Promise<Result<Context | MutationResult | NotificationReadResult>> {
     // Capture raw payload and attachment descriptors before any delay.
     const operation = structuredClone(input)
+    if (operation.kind === 'claimApplication' || operation.kind === 'startReview' || operation.kind === 'transferApplication' || operation.kind === 'unassignApplication') return attempt(async () => {
+      const who = actor()
+      const captured = generation
+      const parsed = reviewOperationSchema.safeParse(operation)
+      if (!parsed.success) throw new DemoError('validation')
+      const command = parsed.data
+      await delay()
+      if (!db) throw new DemoError('startup')
+      let replay = false
+      let abortStorage = false
+      const data = await transact(db, raw => {
+        const current = validateDataset(raw)
+        authority(captured, who, command.datasetId, current)
+        const application = permitted(current, who, command.applicationId)
+        const receipt = draftReceipt(current, who, command)
+        if (receipt) { replay = true; return current }
+        if (application.sharedRevision !== command.expectedSharedRevision) throw new DemoError('staleRecord')
+        if (who !== 'salma' || command.kind === 'startReview' && application.assignee !== who) throw new DemoError('permissionDenied')
+        if (!reviewPermissions(who, application)[command.kind]) throw new DemoError('invalidState')
+        if (command.kind === 'transferApplication') {
+          if (application.assignee !== command.from || command.from === command.to) throw new DemoError('invalidState')
+        }
+        authority(captured, who, command.datasetId, current)
+        abortStorage = consume('storage')
+        const entry = { id: crypto.randomUUID(), sequence: ++current.meta.eventSequence, date: domainDate }
+        if (command.kind === 'claimApplication') {
+          application.assignee = who
+          application.activity.push({ ...entry, kind: 'assigned', actor: who, description: { ar: 'أُسند الطلب إلى سلمى ناصر.', en: 'Application assigned to Salma Nasser.' } })
+        } else if (command.kind === 'transferApplication') {
+          const from = current.identities.find(identity => identity.id === command.from)!.name
+          const to = current.identities.find(identity => identity.id === command.to)!.name
+          application.assignee = command.to
+          application.activity.push({ ...entry, kind: 'assigned', actor: who, description: { ar: `نُقل الطلب من ${from.ar} إلى ${to.ar}.`, en: `Application transferred from ${from.en} to ${to.en}.` } })
+        } else if (command.kind === 'unassignApplication') {
+          const from = current.identities.find(identity => identity.id === application.assignee)!.name
+          application.assignee = null
+          application.activity.push({ ...entry, kind: 'assigned', actor: who, description: { ar: `أُلغي إسناد الطلب إلى ${from.ar}.`, en: `Application unassigned from ${from.en}.` } })
+        } else {
+          application.status = 'underReview'
+          application.history.push({ ...entry, kind: 'reviewStarted', reason: null })
+          application.activity.push({ ...entry, kind: 'reviewStarted', actor: who, description: { ar: 'بدأت مراجعة الطلب.', en: 'Application review started.' } })
+        }
+        application.sharedRevision++
+        current.mutationReceipts.push({ kind: command.kind, actor: who, datasetId: command.datasetId, operationId: command.operationId, fingerprint: draftFingerprint(command), applicationId: application.id, sharedRevision: application.sharedRevision, savedAt: new Date().toISOString() })
+        return current
+      }, () => {
+        if (captured !== generation || actor() !== who) throw new DemoError('sessionExpired')
+        return abortStorage
+      })
+      const receipt = draftReceipt(data, who, command)!
+      if (!replay) announce({ datasetId: command.datasetId, kind: 'application', applicationId: command.applicationId, revision: receipt.sharedRevision })
+      return { receipt, application: project(data, who, permitted(data, who, command.applicationId)) }
+    })
     if (operation.kind === 'markNotificationRead') return attempt(async () => {
       const who = actor()
       const captured = generation
@@ -336,7 +390,7 @@ export function createDemo(): Demo {
       const receipt = data.mutationReceipts.find(receipt => receipt.actor === who && receipt.operationId === command.operationId)!
       if (!replay) {
         newDrafts.delete(command.applicationId)
-        announce({ datasetId: receipt.datasetId, kind: command.kind === 'submit' ? 'application' : 'workspace', applicationId: command.applicationId, revision: command.kind === 'submit' ? receipt.sharedRevision : receipt.workspaceRevision })
+        announce({ datasetId: receipt.datasetId, kind: command.kind === 'submit' ? 'application' : 'workspace', applicationId: command.applicationId, revision: 'workspaceRevision' in receipt && command.kind === 'saveDraft' ? receipt.workspaceRevision : receipt.sharedRevision })
       }
       return { receipt, application: project(data, who, permitted(data, who, command.applicationId)) }
     })
@@ -491,8 +545,8 @@ export function createDemo(): Demo {
       const operation = structuredClone(input)
       return protectedRead((data, who) => {
         if (data.meta.datasetId !== operation.datasetId) throw new DemoError('supersededDataset')
-        const application = editable(data, who, operation.applicationId)
-        const parsed = applicationOperationSchema.safeParse(operation)
+        const application = permitted(data, who, operation.applicationId)
+        const parsed = applicationMutationSchema.safeParse(operation)
         if (!parsed.success) throw new DemoError('validation')
         const receipt = draftReceipt(data, who, parsed.data)
         return receipt ? { status: 'committed', result: { receipt, application: project(data, who, application) } } : { status: 'notCommitted', application: project(data, who, application) }

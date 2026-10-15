@@ -40,5 +40,16 @@ export function canReadApplication(actor: ActorId, application: Pick<Application
   return actor === 'salma' ? application.status !== 'draft' : application.owner === actor
 }
 
+export function reviewPermissions(actor: ActorId, application: Pick<Application, 'status' | 'assignee'>) {
+  const staff = actor === 'salma'
+  const submitted = application.status === 'submitted'
+  return {
+    claimApplication: staff && submitted && application.assignee === null,
+    transferApplication: staff && application.assignee !== null && ['submitted', 'underReview', 'correctionsRequested'].includes(application.status),
+    unassignApplication: staff && submitted && application.assignee !== null,
+    startReview: staff && submitted && application.assignee === actor,
+  }
+}
+
 export { applicationSteps, emptyDocuments, foldDigits, normalizeField, parseWholeYER, resolveStep, stepFields, validateFields } from './application.js'
 export type { ApplicationStep, FieldIssue } from './application.js'

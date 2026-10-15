@@ -96,7 +96,9 @@ export function validateDataset(raw: unknown): Dataset {
   for (const notice of data.notifications) if (applicationMap.get(notice.applicationId)?.owner !== notice.owner) throw new DemoError('damaged')
   if (!unique(data.mutationReceipts.map(receipt => `${receipt.actor}/${receipt.operationId}`))) throw new DemoError('damaged')
   for (const receipt of data.mutationReceipts) {
-    if (receipt.datasetId !== data.meta.datasetId || applicationMap.get(receipt.applicationId)?.owner !== receipt.actor || data.receipts.some(existing => existing.actor === receipt.actor && existing.operationId === receipt.operationId)) throw new DemoError('damaged')
+    const application = applicationMap.get(receipt.applicationId)
+    const allowed = receipt.kind === 'saveDraft' || receipt.kind === 'submit' ? application?.owner === receipt.actor : !!application && application.status !== 'draft' && receipt.actor === 'salma'
+    if (receipt.datasetId !== data.meta.datasetId || !allowed || data.receipts.some(existing => existing.actor === receipt.actor && existing.operationId === receipt.operationId)) throw new DemoError('damaged')
   }
   return data
 }

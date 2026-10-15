@@ -1,7 +1,7 @@
 # RIFD domain
 
 `@rifd/domain` contains the existing demo's pure TypeScript field validation,
-product rules, read permissions and fictional repayment calculations. It is an
+product rules, read and review permissions and fictional repayment calculations. It is an
 ES module with TypeScript declarations. Browser persistence and UI stay in the
 private demo app. This package's code has no granted redistribution license.
 
@@ -21,6 +21,10 @@ if (amount !== null) {
 ```
 
 Runtime schemas and domain types are available through `@rifd/domain/model`.
+`reviewPermissions(actor, application)` returns permitted claim, transfer,
+unassignment and review-start actions for the current status and assignee.
+The demo operation boundary checks current session, dataset and revisions before
+using these rules. A displayed permission never grants write authority.
 The package performs no persistence, authentication, lending decisions or
 payment processing. Its dates, rules and data model belong to a fictional demo.
 

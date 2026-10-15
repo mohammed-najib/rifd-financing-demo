@@ -106,11 +106,15 @@ export const preferencesSchema = z.object({
   queue: queuePreferencesSchema,
 })
 export type Preferences = z.infer<typeof preferencesSchema>
-export const mutationReceiptSchema = z.object({
-  kind: z.enum(['saveDraft', 'submit']), actor: actorIdSchema, datasetId: z.string().uuid(),
+const receiptFields = {
+  actor: actorIdSchema, datasetId: z.string().uuid(),
   operationId: z.string(), fingerprint: z.string(), applicationId: z.string(),
-  workspaceRevision: z.number().int().positive(), sharedRevision: z.number().int().positive(), savedAt: z.string(),
-})
+  sharedRevision: z.number().int().positive(), savedAt: z.string(),
+}
+export const mutationReceiptSchema = z.discriminatedUnion('kind', [
+  z.object({ ...receiptFields, kind: z.enum(['saveDraft', 'submit']), workspaceRevision: z.number().int().positive() }),
+  z.object({ ...receiptFields, kind: z.enum(['claimApplication', 'startReview', 'transferApplication', 'unassignApplication']), actor: z.literal('salma') }),
+])
 export type MutationReceipt = z.infer<typeof mutationReceiptSchema>
 export const datasetSchema = z.object({
   meta: z.object({ schemaVersion: z.literal(1), seedVersion: z.literal(1), ruleVersion: z.literal(1), datasetId: z.string().uuid(), eventSequence: z.number().int().nonnegative() }),

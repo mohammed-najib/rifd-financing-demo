@@ -1,5 +1,5 @@
 import type { ActorId, Application, ApplicationStatus, Bilingual, DocumentSlot, Fields, Identity, Language, MutationReceipt, Notification, Preferences, ProductId, QueuePreferences, Repayment, Sample, Snapshot } from '../domain/model'
-import type { FieldIssue } from '../domain'
+import type { FieldIssue, reviewPermissions } from '../domain'
 
 export type ErrorKind = 'unavailable' | 'sessionExpired' | 'storage' | 'startup' | 'resources' | 'blocked' | 'unsupported' | 'damaged' | 'stalePreference' | 'staleNotification' | 'supersededDataset' | 'identifierMisuse' | 'validation' | 'staleWorkspace' | 'staleRecord' | 'invalidState' | 'permissionDenied' | 'uploadFailed' | 'requestFailed' | 'outcomeUnknown' | 'supersededSelection'
 export type Result<T> = { ok: true; value: T } | { ok: false; error: { kind: ErrorKind; key: `error.${ErrorKind}`; slot?: DocumentSlot; fieldIssues?: FieldIssue[] } }
@@ -34,6 +34,7 @@ export type PublicRound = Omit<Application['rounds'][number], 'targets'> & {
 export type ApplicantView = CommonView & { role: 'applicant'; workspace: Application['workspace']; rounds: PublicRound[] }
 export type StaffView = CommonView & {
   role: 'reviewer'; assignment: Bilingual | null; assignedToYou: boolean;
+  permissions: ReturnType<typeof reviewPermissions>;
   rounds: Application['rounds'];
   assessments: Application['assessments']; checks: Application['checks'];
   notes: Application['notes']; activity: Application['activity'];
@@ -64,8 +65,12 @@ export type SaveDraftOperation = {
   expectedWorkspaceRevision: number; product: ProductId; fields: Fields; documents: DraftDocuments;
 }
 export type SubmitOperation = Omit<SaveDraftOperation, 'kind'> & { kind: 'submit'; expectedSharedRevision: number }
+export type ReviewOperation = {
+  datasetId: string; operationId: string; applicationId: string; expectedSharedRevision: number;
+} & ({ kind: 'claimApplication' | 'startReview' | 'unassignApplication' } | { kind: 'transferApplication'; from: 'salma' | 'khaled'; to: 'salma' | 'khaled'; confirmed: true })
 export type ApplicationOperation = SaveDraftOperation | SubmitOperation
-export type DemoOperation = PreferenceOperation | ApplicationOperation | NotificationReadOperation
+export type ApplicationMutation = ApplicationOperation | ReviewOperation
+export type DemoOperation = PreferenceOperation | ApplicationMutation | NotificationReadOperation
 export type MutationResult = { receipt: MutationReceipt; application: ApplicationView }
 export type OperationInspection = { status: 'committed'; result: MutationResult } | { status: 'notCommitted'; application: ApplicationView }
 export type Preparation = {
@@ -86,9 +91,10 @@ export type Demo = {
   execute(operation: PreferenceOperation): Promise<Result<Context>>;
   execute(operation: SaveDraftOperation): Promise<Result<MutationResult>>;
   execute(operation: SubmitOperation): Promise<Result<MutationResult>>;
+  execute(operation: ReviewOperation): Promise<Result<MutationResult>>;
   execute(operation: ApplicationOperation): Promise<Result<MutationResult>>;
   execute(operation: NotificationReadOperation): Promise<Result<NotificationReadResult>>;
-  inspectOperation(operation: ApplicationOperation): Promise<Result<OperationInspection>>;
+  inspectOperation(operation: ApplicationMutation): Promise<Result<OperationInspection>>;
   inspectPreferenceOperation(operation: PreferenceOperation): Promise<Result<PreferenceInspection>>;
   inspectNotificationOperation(operation: NotificationReadOperation): Promise<Result<NotificationInspection>>;
   prepareAttachment(input: Preparation, onProgress?: (percent: number) => void): Promise<Result<PreparedAttachment>>;

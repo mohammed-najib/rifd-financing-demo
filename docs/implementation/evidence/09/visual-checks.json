@@ -1,0 +1,15 @@
+{
+  "checks": [
+    {
+      "language": "ar",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "language": "en",
+      "width": 1440,
+      "overflow": false
+    }
+  ],
+  "errors": []
+}

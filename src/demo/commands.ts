@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { fieldsSchema, languageSchema, productIdSchema, queuePreferencesSchema, slots, slotSchema } from '../domain/model'
-import type { ApplicationOperation } from './types'
+import type { ApplicationMutation } from './types'
 
 const hintRevision = z.number().int().positive()
 const preferenceVersion = { datasetId: z.string().uuid(), operationId: z.string().min(1), expectedRevision: hintRevision }
@@ -35,7 +35,15 @@ export const saveDraftSchema = z.object({
   documents: z.object({ identity: documentSchema, business: documentSchema, financial: documentSchema, purchase: documentSchema }).strict(),
 }).strict()
 export const submitSchema = saveDraftSchema.extend({ kind: z.literal('submit'), expectedSharedRevision: z.number().int().positive() }).strict()
+const reviewVersion = {
+  datasetId: z.string().uuid(), operationId: z.string().min(1), applicationId: z.string().min(1), expectedSharedRevision: z.number().int().positive(),
+}
+export const reviewOperationSchema = z.discriminatedUnion('kind', [z.object({
+  ...reviewVersion,
+  kind: z.enum(['claimApplication', 'startReview', 'unassignApplication']),
+}).strict(), z.object({ ...reviewVersion, kind: z.literal('transferApplication'), from: z.enum(['salma', 'khaled']), to: z.enum(['salma', 'khaled']), confirmed: z.literal(true) }).strict()])
 export const applicationOperationSchema = z.discriminatedUnion('kind', [saveDraftSchema, submitSchema])
+export const applicationMutationSchema = z.discriminatedUnion('kind', [saveDraftSchema, submitSchema, reviewOperationSchema])
 export const preparationSchema = z.object({
   datasetId: z.string().uuid(), applicationId: z.string().min(1), slot: slotSchema, selectionId: z.string().min(1),
   product: productIdSchema.optional(),
@@ -46,7 +54,10 @@ export const preparationSchema = z.object({
   ]),
 }).strict()
 
-export function draftFingerprint(operation: ApplicationOperation): string {
+export function draftFingerprint(operation: ApplicationMutation): string {
+  if (!('fields' in operation)) return JSON.stringify(operation.kind === 'transferApplication'
+    ? { kind: operation.kind, applicationId: operation.applicationId, from: operation.from, to: operation.to, confirmed: operation.confirmed }
+    : { kind: operation.kind, applicationId: operation.applicationId })
   return JSON.stringify({
     kind: operation.kind, applicationId: operation.applicationId, product: operation.product,
     fields: operation.fields,
