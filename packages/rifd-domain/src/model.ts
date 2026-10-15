@@ -37,9 +37,18 @@ export const historySchema = z.object({
   kind: z.enum(['submitted', 'reviewStarted', 'correctionsRequested', 'resubmitted', 'approved', 'rejected']),
   reason: bilingualSchema.nullable(),
 })
+export const correctionTargetSchema = z.discriminatedUnion('kind', [
+  z.object({ kind: z.literal('field'), field: fieldsSchema.keyof(), reason: bilingualSchema }).strict(),
+  z.object({ kind: z.literal('document'), slot: slotSchema, reason: bilingualSchema }).strict(),
+])
+export type CorrectionTarget = z.infer<typeof correctionTargetSchema>
+export const correctionTargetsSchema = z.array(correctionTargetSchema).nonempty().refine(targets => {
+  const keys = targets.map(target => target.kind === 'field' ? `field:${target.field}` : `document:${target.slot}`)
+  return new Set(keys).size === keys.length && targets.every(target => target.reason.ar.trim() && target.reason.en.trim())
+})
 export const targetSchema = z.discriminatedUnion('kind', [
-  z.object({ kind: z.literal('field'), field: z.enum(['amount']), reason: bilingualSchema, verified: z.boolean() }),
-  z.object({ kind: z.literal('document'), slot: slotSchema, reason: bilingualSchema, verified: z.boolean() }),
+  correctionTargetSchema.options[0].extend({ verified: z.boolean() }),
+  correctionTargetSchema.options[1].extend({ verified: z.boolean() }),
 ])
 export const roundSchema = z.object({
   id: z.string(), requestedAt: z.string(), baseline: snapshotSchema,
@@ -113,7 +122,7 @@ const receiptFields = {
 }
 export const mutationReceiptSchema = z.discriminatedUnion('kind', [
   z.object({ ...receiptFields, kind: z.enum(['saveDraft', 'submit']), workspaceRevision: z.number().int().positive() }),
-  z.object({ ...receiptFields, kind: z.enum(['claimApplication', 'startReview', 'transferApplication', 'unassignApplication', 'assessDocument', 'recordCheck', 'saveNote']), actor: z.literal('salma') }),
+  z.object({ ...receiptFields, kind: z.enum(['claimApplication', 'startReview', 'transferApplication', 'unassignApplication', 'assessDocument', 'recordCheck', 'saveNote', 'requestCorrections']), actor: z.literal('salma') }),
 ])
 export type MutationReceipt = z.infer<typeof mutationReceiptSchema>
 export const datasetSchema = z.object({

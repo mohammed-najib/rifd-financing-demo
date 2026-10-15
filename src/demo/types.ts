@@ -1,4 +1,4 @@
-import type { ActorId, Application, ApplicationStatus, Bilingual, DocumentSlot, Fields, Identity, Language, MutationReceipt, Notification, Preferences, ProductId, QueuePreferences, Repayment, Sample, Snapshot } from '../domain/model'
+import type { ActorId, Application, ApplicationStatus, Bilingual, CorrectionTarget, DocumentSlot, Fields, Identity, Language, MutationReceipt, Notification, Preferences, ProductId, QueuePreferences, Repayment, Sample, Snapshot } from '../domain/model'
 import type { FieldIssue, ReviewCheck, reviewPermissions } from '../domain'
 
 export type ErrorKind = 'unavailable' | 'sessionExpired' | 'storage' | 'startup' | 'resources' | 'blocked' | 'unsupported' | 'damaged' | 'stalePreference' | 'staleNotification' | 'supersededDataset' | 'identifierMisuse' | 'validation' | 'staleWorkspace' | 'staleRecord' | 'invalidState' | 'permissionDenied' | 'uploadFailed' | 'requestFailed' | 'outcomeUnknown' | 'supersededSelection'
@@ -29,7 +29,7 @@ export type CommonView = {
   repayment: Repayment | null;
 }
 export type PublicRound = Omit<Application['rounds'][number], 'targets'> & {
-  targets: Array<{ kind: 'field'; field: 'amount'; reason: Bilingual } | { kind: 'document'; slot: DocumentSlot; reason: Bilingual }>;
+  targets: CorrectionTarget[];
 }
 export type ApplicantView = CommonView & { role: 'applicant'; workspace: Application['workspace']; rounds: PublicRound[] }
 export type StaffView = CommonView & {
@@ -70,7 +70,8 @@ export type ReviewOperation = {
 } & ({ kind: 'claimApplication' | 'startReview' | 'unassignApplication' } | { kind: 'transferApplication'; from: 'salma' | 'khaled'; to: 'salma' | 'khaled'; confirmed: true }
   | { kind: 'assessDocument'; slot: DocumentSlot; fileId: string; status: 'accepted' | 'needsReplacement'; reason: Bilingual | null }
   | { kind: 'recordCheck'; check: ReviewCheck; outcome: 'unchecked' | 'passed' | 'failed' }
-  | { kind: 'saveNote'; text: Bilingual })
+  | { kind: 'saveNote'; text: Bilingual }
+  | { kind: 'requestCorrections'; targets: CorrectionTarget[]; confirmed: true })
 export type ApplicationOperation = SaveDraftOperation | SubmitOperation
 export type ApplicationMutation = ApplicationOperation | ReviewOperation
 export type DemoOperation = PreferenceOperation | ApplicationMutation | NotificationReadOperation

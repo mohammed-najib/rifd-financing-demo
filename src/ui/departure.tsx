@@ -9,6 +9,14 @@ export type Departure = {
 }
 export type DepartureRequest = { action: () => void; cancel?: () => void; discardOnly?: boolean }
 
+export function combineDeparture(primary: Departure | null, secondary: Departure | null): Departure {
+  return {
+    dirty: !!primary?.dirty || !!secondary?.dirty, pending: !!primary?.pending || !!secondary?.pending,
+    discard: () => { primary?.discard(); secondary?.discard() },
+    ...(!primary?.dirty && secondary?.save ? { canSave: secondary.canSave, save: secondary.save, saveLabel: secondary.saveLabel } : {}),
+  }
+}
+
 export function DepartureDialog({ request, work, language, discard, finish, cancel }: {
   request: DepartureRequest; work: Departure | null; language: Language;
   discard: () => void; finish: () => void; cancel: () => void;

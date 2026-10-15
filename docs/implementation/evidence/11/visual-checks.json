@@ -1,0 +1,67 @@
+{
+  "browser": "155.0.8059.39",
+  "checks": [
+    {
+      "language": "ar",
+      "width": 360,
+      "surface": "composer",
+      "overflow": false
+    },
+    {
+      "language": "ar",
+      "width": 390,
+      "surface": "composer",
+      "overflow": false
+    },
+    {
+      "language": "ar",
+      "width": 768,
+      "surface": "composer",
+      "overflow": false
+    },
+    {
+      "language": "ar",
+      "width": 1440,
+      "surface": "composer",
+      "overflow": false
+    },
+    {
+      "language": "ar",
+      "width": 390,
+      "surface": "confirmation",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "language": "en",
+      "width": 360,
+      "surface": "composer",
+      "overflow": false
+    },
+    {
+      "language": "en",
+      "width": 390,
+      "surface": "composer",
+      "overflow": false
+    },
+    {
+      "language": "en",
+      "width": 768,
+      "surface": "composer",
+      "overflow": false
+    },
+    {
+      "language": "en",
+      "width": 1440,
+      "surface": "composer",
+      "overflow": false
+    },
+    {
+      "language": "en",
+      "width": 390,
+      "surface": "confirmation",
+      "overflow": false,
+      "errors": []
+    }
+  ]
+}

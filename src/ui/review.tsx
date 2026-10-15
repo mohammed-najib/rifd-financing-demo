@@ -4,7 +4,7 @@ import type { StaffView } from '../demo/types'
 import { products, reviewDependencies, reviewRules, type ReviewCheck } from '../domain'
 import type { DocumentSlot, Language } from '../domain/model'
 import { AssignmentActions } from './assignment'
-import type { Departure } from './departure'
+import { combineDeparture, type Departure } from './departure'
 import { DocumentPreview } from './preview'
 import { ApplicationInformation, PublicCorrections, PublicHistory } from './public-record'
 import { date, documentLabel, errors, events, fieldLabels, money, outcomes, reviewChecks, text } from './i18n'
@@ -35,13 +35,7 @@ export function ReviewWorkspace({ demo, datasetId, view, language, retained, rem
   const update = () => { remember(buffer); render(value => value + 1) }
   const publishDeparture = () => {
     if (!alive.current) return
-    const assignment = assignmentWork.current
-    const review = reviewWork.current
-    departureRef.current({
-      dirty: !!assignment?.dirty || !!review?.dirty, pending: !!assignment?.pending || !!review?.pending,
-      discard: () => { assignment?.discard(); review?.discard() },
-      ...(!assignment?.dirty && review?.save ? { canSave: review.canSave, save: review.save, saveLabel: review.saveLabel } : {}),
-    })
+    departureRef.current(combineDeparture(assignmentWork.current, reviewWork.current))
   }
   useEffect(() => {
     alive.current = true

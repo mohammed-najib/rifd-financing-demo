@@ -7,20 +7,20 @@
       "sources": {
         "skills/validate-application/references/guide.md": "288e369bd278e23a4c00eec0a0af2097b29ca21a79eb5f3bc747d3f971ea1cd3",
         "src/application.ts": "77516299c9def5c06ad60aeaaaf5af2e943564a4dc01b9c079dd5788b350d710",
-        "src/index.ts": "4d2261a6c4b4b03af4f38f5d8219b6243906aee9b4db961fc681ddb1aa6e38a3",
-        "src/model.ts": "4ad400e3368ef0bbd9fc53f277d8adc38c8238efb3513a18b9e43a1b65ddfdd1"
+        "src/index.ts": "9ec20b92d2712f453992130e42e3d4a93e9e054a6047c77b8b3c26830654be32",
+        "src/model.ts": "bf3bdea8e285b352f9c02c5a2aaf2b9fa26a41e1aaeda412ad80395b984dd09a"
       },
-      "reason": "Reviewed the new review permissions, review exports and additive staff receipt variants against the field guide; field parsing and validation behavior is unchanged, and Arabic digit and exact dependency tests pass."
+      "reason": "Reviewed the correction-target schema, all editable field keys, and request permission and receipt additions against the field guide. Public-interface tests reject product and unknown targets, duplicates and empty reasons; field normalization and validation are unchanged."
     },
     "freeze-repayment": {
       "version": "0.1.0",
       "skillSha256": "754ee65bf4400a0b36e35c3c5b480f75b6ea86b4bb7fad21ebb129f86828cfeb",
       "sources": {
         "skills/freeze-repayment/references/guide.md": "25db52f5d929c0814ff99bc54046240b8bfca0b2694a529cadac07f54799ce9f",
-        "src/index.ts": "4d2261a6c4b4b03af4f38f5d8219b6243906aee9b4db961fc681ddb1aa6e38a3",
-        "src/model.ts": "4ad400e3368ef0bbd9fc53f277d8adc38c8238efb3513a18b9e43a1b65ddfdd1"
+        "src/index.ts": "9ec20b92d2712f453992130e42e3d4a93e9e054a6047c77b8b3c26830654be32",
+        "src/model.ts": "bf3bdea8e285b352f9c02c5a2aaf2b9fa26a41e1aaeda412ad80395b984dd09a"
       },
-      "reason": "Reviewed the additive review exports and receipt variants against the repayment guide; half-up markup, final remainder and exact capacity boundary tests pass without changing the frozen repayment helper."
+      "reason": "Reviewed the additive correction target, permission and receipt changes in model.ts and index.ts against the repayment guide. Repayment calculation is unchanged; focused tests pass for historical dates, half-up markup, remainder allocation and correction amounts."
     }
   }
 }

@@ -221,7 +221,7 @@ export function createDemo(): Demo {
   async function execute(input: PreferenceOperation | ApplicationMutation | NotificationReadOperation): Promise<Result<Context | MutationResult | NotificationReadResult>> {
     // Capture raw payload and attachment descriptors before any delay.
     const operation = structuredClone(input)
-    if (operation.kind === 'claimApplication' || operation.kind === 'startReview' || operation.kind === 'transferApplication' || operation.kind === 'unassignApplication' || operation.kind === 'assessDocument' || operation.kind === 'recordCheck' || operation.kind === 'saveNote') return attempt(async () => {
+    if (operation.kind === 'claimApplication' || operation.kind === 'startReview' || operation.kind === 'transferApplication' || operation.kind === 'unassignApplication' || operation.kind === 'assessDocument' || operation.kind === 'recordCheck' || operation.kind === 'saveNote' || operation.kind === 'requestCorrections') return attempt(async () => {
       const who = actor()
       const captured = generation
       const parsed = reviewOperationSchema.safeParse(operation)
@@ -238,7 +238,7 @@ export function createDemo(): Demo {
         const receipt = applicationReceipt(current, who, command)
         if (receipt) { replay = true; return current }
         if (application.sharedRevision !== command.expectedSharedRevision) throw new DemoError('staleRecord')
-        if (who !== 'salma' || ['startReview', 'assessDocument', 'recordCheck', 'saveNote'].includes(command.kind) && application.assignee !== who) throw new DemoError('permissionDenied')
+        if (who !== 'salma' || ['startReview', 'assessDocument', 'recordCheck', 'saveNote', 'requestCorrections'].includes(command.kind) && application.assignee !== who) throw new DemoError('permissionDenied')
         if (!reviewPermissions(who, application)[command.kind]) throw new DemoError('invalidState')
         if (command.kind === 'transferApplication') {
           if (application.assignee !== command.from || command.from === command.to) throw new DemoError('invalidState')
@@ -259,6 +259,15 @@ export function createDemo(): Demo {
           const from = current.identities.find(identity => identity.id === application.assignee)!.name
           application.assignee = null
           application.activity.push({ ...entry, kind: 'assigned', actor: who, description: { ar: `أُلغي إسناد الطلب إلى ${from.ar}.`, en: `Application unassigned from ${from.en}.` } })
+        } else if (command.kind === 'requestCorrections') {
+          const roundId = crypto.randomUUID()
+          application.rounds.push({ id: roundId, requestedAt: domainDate, baseline: structuredClone(application.submitted!), targets: command.targets.map(target => ({ ...target, verified: false })), response: null })
+          application.workspace = { revision: 1, roundId, savedAt: new Date().toISOString(), snapshot: structuredClone(application.submitted!) }
+          application.status = 'correctionsRequested'
+          const reason = { ar: command.targets.map(target => target.reason.ar).join('\n'), en: command.targets.map(target => target.reason.en).join('\n') }
+          application.history.push({ ...entry, kind: 'correctionsRequested', reason })
+          application.activity.push({ ...entry, kind: 'correctionsRequested', actor: who, description: { ar: 'أُرسلت تغييرات محددة إلى المتقدم.', en: 'Targeted corrections sent to the applicant.' } })
+          current.notifications.push({ id: crypto.randomUUID(), owner: application.owner, applicationId: application.id, kind: 'correctionsRequested', date: domainDate, read: false, revision: 1 })
         } else if (command.kind === 'assessDocument' || command.kind === 'recordCheck' || command.kind === 'saveNote') {
           applyReviewCommand(application, command, { ...entry, actor: who })
         } else {

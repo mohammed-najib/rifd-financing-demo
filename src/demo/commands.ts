@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { bilingualSchema, fieldsSchema, languageSchema, productIdSchema, queuePreferencesSchema, slots, slotSchema } from '../domain/model'
+import { bilingualSchema, correctionTargetsSchema, fieldsSchema, languageSchema, productIdSchema, queuePreferencesSchema, slots, slotSchema } from '../domain/model'
 import type { ApplicationMutation } from './types'
 
 const hintRevision = z.number().int().positive()
@@ -45,6 +45,7 @@ export const reviewOperationSchema = z.discriminatedUnion('kind', [z.object({
   z.object({ ...reviewVersion, kind: z.literal('assessDocument'), slot: slotSchema, fileId: z.string().min(1), status: z.enum(['accepted', 'needsReplacement']), reason: bilingualSchema.nullable() }).strict(),
   z.object({ ...reviewVersion, kind: z.literal('recordCheck'), check: z.enum(['evidence', 'operatingHistory', 'purpose', 'budget', 'capacity']), outcome: z.enum(['unchecked', 'passed', 'failed']) }).strict(),
   z.object({ ...reviewVersion, kind: z.literal('saveNote'), text: bilingualSchema }).strict(),
+  z.object({ ...reviewVersion, kind: z.literal('requestCorrections'), targets: correctionTargetsSchema, confirmed: z.literal(true) }).strict(),
 ])
 export const applicationOperationSchema = z.discriminatedUnion('kind', [saveDraftSchema, submitSchema])
 export const applicationMutationSchema = z.discriminatedUnion('kind', [saveDraftSchema, submitSchema, reviewOperationSchema])
@@ -59,6 +60,7 @@ export const preparationSchema = z.object({
 }).strict()
 
 export function applicationFingerprint(operation: ApplicationMutation): string {
+  if (operation.kind === 'requestCorrections') return JSON.stringify({ kind: operation.kind, applicationId: operation.applicationId, targets: operation.targets, confirmed: operation.confirmed })
   if (operation.kind === 'assessDocument') return JSON.stringify({ kind: operation.kind, applicationId: operation.applicationId, slot: operation.slot, fileId: operation.fileId, status: operation.status, reason: operation.reason })
   if (operation.kind === 'recordCheck') return JSON.stringify({ kind: operation.kind, applicationId: operation.applicationId, check: operation.check, outcome: operation.outcome })
   if (operation.kind === 'saveNote') return JSON.stringify({ kind: operation.kind, applicationId: operation.applicationId, text: operation.text })

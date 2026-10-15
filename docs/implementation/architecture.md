@@ -1,6 +1,6 @@
 # Browser demo architecture
 
-The [specification](../../.scratch/financing-application-and-review/spec.md) and [accepted browser contract](../../.scratch/financing-application-and-review/issues/04-browser-state-and-simulated-failures.md#answer) govern the implementation. The first ten slices provide startup, authorized reads, canonical field validation, five-step drafts, session and tab recovery, atomic first submission, notifications, printing, the staff queue, assignment, review start, document assessments, checks and internal notes. Later tickets extend the same boundaries for correction publication and decisions.
+The [specification](../../.scratch/financing-application-and-review/spec.md) and [accepted browser contract](../../.scratch/financing-application-and-review/issues/04-browser-state-and-simulated-failures.md#answer) govern the implementation. The first eleven slices provide startup, authorized reads, canonical field validation, five-step drafts, session and tab recovery, atomic first submission, notifications, printing, the staff queue, assignment, review start, document assessments, checks, internal notes and targeted correction requests. Later tickets extend the same boundaries for correction publication and decisions.
 
 ## Modules
 
@@ -40,6 +40,24 @@ inspection. Confirmed aborts also allow an explicit retry of the retained intent
 The protected screen's existing session key clears confirmations on expiry.
 
 The public `Demo` interface returns `Result<T>` with finite error kinds and translation keys. `setLanguage` and reviewer-only `setQueuePreferences` carry the dataset, operation identifier, preference revision and desired values. `inspectPreferenceOperation` checks the actor-scoped receipt and reads the current committed context. `newDraft` creates a tab-local, owner-scoped in-memory draft and performs no durable write. Its UUID-based application reference stays stable after saving, while the seed references retain their short numeric suffixes. Workspace revision zero identifies unsaved creation. `saveDraft` carries the dataset, application, operation identifier, workspace revision, raw form/product and saved or prepared document choices. It has no database replacement, arbitrary patch, caller-supplied actor or submission bypass. Session operations capture identity in the current tab. Future applicant and reviewer mutations must add their own typed commands and complete effects here.
+
+`requestCorrections` carries a nonempty set of distinct field/document targets,
+individual reasons and explicit confirmation with the expected shared revision.
+The pure target schema permits only `Fields` keys and the four document slots.
+Product and derived values are excluded. Requesting one target never expands
+its dependencies. The application transaction appends a round with a cloned
+submitted baseline and unverified targets, creates an unchanged private workspace,
+enters Corrections requested and commits one public history event, internal
+activity item, applicant notification and staff receipt. Review outcomes,
+assignment and the initial evidence window stay intact. Exact replay produces no
+additional effects. Assigned staff can read and save notes while review is paused.
+
+`src/ui/correction-request.tsx` owns inspection and confirmation separately from
+its retained target/reason buffer. The App scopes that buffer by dataset, identity
+and application. Expiry or a newer shared revision invalidates confirmation.
+Inspection resolves uncertain outcomes or establishes a fresh revision without
+sending. Departure never sends or saves a request. Applicant detail, history and
+print reuse the public target projection and exclude verification and notes.
 
 ## Styling
 
