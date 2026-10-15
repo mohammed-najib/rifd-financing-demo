@@ -7,6 +7,7 @@ import { identities } from './seed-manifest'
 import { prepareSeed } from './seed'
 import { DemoError, openStorage, readStored, transact, validateDataset } from './storage'
 import { projectQueue } from './queue'
+import { applyReviewCommand, validateReviewCommand } from './review'
 import type { ApplicantView, ApplicationMutation, ApplicationOperation, ApplicationView, CommitHint, Context, Controls, Demo, ErrorKind, LanguageOperation, MutationResult, NotificationReadOperation, NotificationReadResult, PreferenceOperation, PreparedAttachment, QueuePreferenceOperation, Result, ReviewOperation, SaveDraftOperation, Session, SubmitOperation } from './types'
 export type { ApplicationOperation, ApplicationSummary, ApplicationView, CommitHint, Context, Controls, Demo, DemoOperation, DraftDocuments, ErrorKind, LanguageOperation, MutationResult, NotificationDestination, NotificationReadOperation, NotificationReadResult, OperationInspection, PreferenceInspection, PreferenceOperation, PreparedAttachment, Preparation, PrintSummary, QueuePreferenceOperation, QueueQuery, StaffQueue, Result, ReviewOperation, SaveDraftOperation, SubmitOperation } from './types'
 
@@ -220,7 +221,7 @@ export function createDemo(): Demo {
   async function execute(input: PreferenceOperation | ApplicationMutation | NotificationReadOperation): Promise<Result<Context | MutationResult | NotificationReadResult>> {
     // Capture raw payload and attachment descriptors before any delay.
     const operation = structuredClone(input)
-    if (operation.kind === 'claimApplication' || operation.kind === 'startReview' || operation.kind === 'transferApplication' || operation.kind === 'unassignApplication') return attempt(async () => {
+    if (operation.kind === 'claimApplication' || operation.kind === 'startReview' || operation.kind === 'transferApplication' || operation.kind === 'unassignApplication' || operation.kind === 'assessDocument' || operation.kind === 'recordCheck' || operation.kind === 'saveNote') return attempt(async () => {
       const who = actor()
       const captured = generation
       const parsed = reviewOperationSchema.safeParse(operation)
@@ -237,11 +238,12 @@ export function createDemo(): Demo {
         const receipt = applicationReceipt(current, who, command)
         if (receipt) { replay = true; return current }
         if (application.sharedRevision !== command.expectedSharedRevision) throw new DemoError('staleRecord')
-        if (who !== 'salma' || command.kind === 'startReview' && application.assignee !== who) throw new DemoError('permissionDenied')
+        if (who !== 'salma' || ['startReview', 'assessDocument', 'recordCheck', 'saveNote'].includes(command.kind) && application.assignee !== who) throw new DemoError('permissionDenied')
         if (!reviewPermissions(who, application)[command.kind]) throw new DemoError('invalidState')
         if (command.kind === 'transferApplication') {
           if (application.assignee !== command.from || command.from === command.to) throw new DemoError('invalidState')
         }
+        validateReviewCommand(application, command)
         authority(captured, who, command.datasetId, current)
         abortStorage = consume('storage')
         const entry = { id: crypto.randomUUID(), sequence: ++current.meta.eventSequence, date: domainDate }
@@ -257,6 +259,8 @@ export function createDemo(): Demo {
           const from = current.identities.find(identity => identity.id === application.assignee)!.name
           application.assignee = null
           application.activity.push({ ...entry, kind: 'assigned', actor: who, description: { ar: `أُلغي إسناد الطلب إلى ${from.ar}.`, en: `Application unassigned from ${from.en}.` } })
+        } else if (command.kind === 'assessDocument' || command.kind === 'recordCheck' || command.kind === 'saveNote') {
+          applyReviewCommand(application, command, { ...entry, actor: who })
         } else {
           application.status = 'underReview'
           application.history.push({ ...entry, kind: 'reviewStarted', reason: null })

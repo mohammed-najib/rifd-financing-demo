@@ -1,19 +1,23 @@
 import { useEffect, useRef, useState } from 'react'
 import type { Demo, ErrorKind, PreparedAttachment } from '../demo'
-import type { Language } from '../domain/model'
+import type { Bilingual, Language } from '../domain/model'
 import { draftText, errors, text } from './i18n'
 
 const filePreviewClassName = 'block h-[55vh] w-full border border-solid border-border bg-white object-contain'
 
-export function DocumentPreview({ demo, applicationId, fileId, attachment, language, close }: {
-  demo: Demo; applicationId: string; fileId?: string; attachment?: PreparedAttachment; language: Language; close: () => void;
+export function DocumentPreview({ demo, applicationId, fileId, attachment, label, language, close }: {
+  demo: Demo; applicationId: string; fileId?: string; attachment?: PreparedAttachment; label?: Bilingual; language: Language; close: () => void;
 }) {
   const dialog = useRef<HTMLDialogElement>(null)
   const [file, setFile] = useState<{ url: string; mime: string; name: string } | null>(null)
   const [error, setError] = useState<ErrorKind | 'render' | null>(null)
   const [retry, setRetry] = useState(0)
   const t = (key: keyof typeof draftText) => draftText[key][language]
-  useEffect(() => { dialog.current?.showModal() }, [])
+  useEffect(() => {
+    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null
+    dialog.current?.showModal()
+    return () => { requestAnimationFrame(() => { if (opener?.isConnected) opener.focus() }) }
+  }, [])
   useEffect(() => {
     let active = true
     let url: string | null = null
@@ -29,8 +33,9 @@ export function DocumentPreview({ demo, applicationId, fileId, attachment, langu
     })
     return () => { active = false; if (url) URL.revokeObjectURL(url) }
   }, [demo, applicationId, fileId, attachment, retry])
-  return <dialog ref={dialog} className="w-[900px]" aria-labelledby="preview-heading" onCancel={close} onClose={close}>
+  return <dialog ref={dialog} className="w-[900px]" aria-labelledby="preview-heading" aria-describedby={label ? 'preview-document-label' : undefined} onCancel={close} onClose={close}>
     <div className="mb-[18px] flex flex-wrap items-center justify-between gap-3"><h2 id="preview-heading">{t('preview')}</h2><button onClick={close}>{t('closePreview')}</button></div>
+    {label && <p id="preview-document-label" className="font-semibold">{label[language]}</p>}
     {file ? <>
       <p><bdi dir="ltr" className="wrap-anywhere">{file.name}</bdi></p><p>{attachment ? t('readyDocument') : t('savedDocument')}</p>
       {error !== 'render' && (file.mime === 'application/pdf'

@@ -113,7 +113,7 @@ const receiptFields = {
 }
 export const mutationReceiptSchema = z.discriminatedUnion('kind', [
   z.object({ ...receiptFields, kind: z.enum(['saveDraft', 'submit']), workspaceRevision: z.number().int().positive() }),
-  z.object({ ...receiptFields, kind: z.enum(['claimApplication', 'startReview', 'transferApplication', 'unassignApplication']), actor: z.literal('salma') }),
+  z.object({ ...receiptFields, kind: z.enum(['claimApplication', 'startReview', 'transferApplication', 'unassignApplication', 'assessDocument', 'recordCheck', 'saveNote']), actor: z.literal('salma') }),
 ])
 export type MutationReceipt = z.infer<typeof mutationReceiptSchema>
 export const datasetSchema = z.object({

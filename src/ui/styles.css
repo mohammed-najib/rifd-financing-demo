@@ -158,6 +158,8 @@
   .repayment-list span { @apply text-[11px] text-muted; }
   .repayment-list bdi { @apply narrow:min-w-[42%]; }
 
+  .review-textarea { @apply w-full max-w-full min-h-[130px] resize-y rounded-[8px] border border-solid border-control-border bg-white p-2.5 text-inherit; }
+
   .draft-editor label { @apply mt-3 mb-1.5 block font-semibold; }
   .draft-editor textarea, .draft-editor select, .draft-editor input[type=file], .draft-editor input[type=text] {
     @apply w-full max-w-full rounded-[8px] border border-solid border-control-border bg-white p-2.5 text-inherit;

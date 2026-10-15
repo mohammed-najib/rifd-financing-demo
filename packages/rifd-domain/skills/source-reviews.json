@@ -7,20 +7,20 @@
       "sources": {
         "skills/validate-application/references/guide.md": "288e369bd278e23a4c00eec0a0af2097b29ca21a79eb5f3bc747d3f971ea1cd3",
         "src/application.ts": "77516299c9def5c06ad60aeaaaf5af2e943564a4dc01b9c079dd5788b350d710",
-        "src/index.ts": "44d10e500ce8fff2808949e0547fb327384c026772136e780afda1c882c9ec8d",
-        "src/model.ts": "6f7449d4bd43140733013afdccdd4c5610a5779c2a5fbb359e0d326a9aeadcec"
+        "src/index.ts": "4d2261a6c4b4b03af4f38f5d8219b6243906aee9b4db961fc681ddb1aa6e38a3",
+        "src/model.ts": "4ad400e3368ef0bbd9fc53f277d8adc38c8238efb3513a18b9e43a1b65ddfdd1"
       },
-      "reason": "Reviewed the review-permission helper and additive staff receipt variants against the field guide and preserved raw-field schemas. Field parsing, normalization and validation are unchanged; all 84 domain tests and the new-application submission integration pass."
+      "reason": "Reviewed the new review permissions, review exports and additive staff receipt variants against the field guide; field parsing and validation behavior is unchanged, and Arabic digit and exact dependency tests pass."
     },
     "freeze-repayment": {
       "version": "0.1.0",
       "skillSha256": "754ee65bf4400a0b36e35c3c5b480f75b6ea86b4bb7fad21ebb129f86828cfeb",
       "sources": {
         "skills/freeze-repayment/references/guide.md": "25db52f5d929c0814ff99bc54046240b8bfca0b2694a529cadac07f54799ce9f",
-        "src/index.ts": "44d10e500ce8fff2808949e0547fb327384c026772136e780afda1c882c9ec8d",
-        "src/model.ts": "6f7449d4bd43140733013afdccdd4c5610a5779c2a5fbb359e0d326a9aeadcec"
+        "src/index.ts": "4d2261a6c4b4b03af4f38f5d8219b6243906aee9b4db961fc681ddb1aa6e38a3",
+        "src/model.ts": "4ad400e3368ef0bbd9fc53f277d8adc38c8238efb3513a18b9e43a1b65ddfdd1"
       },
-      "reason": "Compared the review-permission and receipt-model changes with the frozen repayment guide. Product rules, arithmetic and repayment schemas are unchanged; all 84 domain tests pass and assignment tests preserve existing snapshots."
+      "reason": "Reviewed the additive review exports and receipt variants against the repayment guide; half-up markup, final remainder and exact capacity boundary tests pass without changing the frozen repayment helper."
     }
   }
 }

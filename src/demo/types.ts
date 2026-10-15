@@ -1,5 +1,5 @@
 import type { ActorId, Application, ApplicationStatus, Bilingual, DocumentSlot, Fields, Identity, Language, MutationReceipt, Notification, Preferences, ProductId, QueuePreferences, Repayment, Sample, Snapshot } from '../domain/model'
-import type { FieldIssue, reviewPermissions } from '../domain'
+import type { FieldIssue, ReviewCheck, reviewPermissions } from '../domain'
 
 export type ErrorKind = 'unavailable' | 'sessionExpired' | 'storage' | 'startup' | 'resources' | 'blocked' | 'unsupported' | 'damaged' | 'stalePreference' | 'staleNotification' | 'supersededDataset' | 'identifierMisuse' | 'validation' | 'staleWorkspace' | 'staleRecord' | 'invalidState' | 'permissionDenied' | 'uploadFailed' | 'requestFailed' | 'outcomeUnknown' | 'supersededSelection'
 export type Result<T> = { ok: true; value: T } | { ok: false; error: { kind: ErrorKind; key: `error.${ErrorKind}`; slot?: DocumentSlot; fieldIssues?: FieldIssue[] } }
@@ -67,7 +67,10 @@ export type SaveDraftOperation = {
 export type SubmitOperation = Omit<SaveDraftOperation, 'kind'> & { kind: 'submit'; expectedSharedRevision: number }
 export type ReviewOperation = {
   datasetId: string; operationId: string; applicationId: string; expectedSharedRevision: number;
-} & ({ kind: 'claimApplication' | 'startReview' | 'unassignApplication' } | { kind: 'transferApplication'; from: 'salma' | 'khaled'; to: 'salma' | 'khaled'; confirmed: true })
+} & ({ kind: 'claimApplication' | 'startReview' | 'unassignApplication' } | { kind: 'transferApplication'; from: 'salma' | 'khaled'; to: 'salma' | 'khaled'; confirmed: true }
+  | { kind: 'assessDocument'; slot: DocumentSlot; fileId: string; status: 'accepted' | 'needsReplacement'; reason: Bilingual | null }
+  | { kind: 'recordCheck'; check: ReviewCheck; outcome: 'unchecked' | 'passed' | 'failed' }
+  | { kind: 'saveNote'; text: Bilingual })
 export type ApplicationOperation = SaveDraftOperation | SubmitOperation
 export type ApplicationMutation = ApplicationOperation | ReviewOperation
 export type DemoOperation = PreferenceOperation | ApplicationMutation | NotificationReadOperation

@@ -3,7 +3,7 @@ import { defaultParseSearch, useBlocker, useNavigate, useRouter, useRouterState 
 import { createDemo, demoIdentities, type ApplicationSummary, type ApplicationView, type Context, type ErrorKind, type LanguageOperation, type PrintSummary } from '../demo'
 import { products, resolveStep } from '../domain'
 import type { ActorId, Language, ProductId } from '../domain/model'
-import { date, displayFieldValue, documentLabel, errors, events, money, outcomes, reviewChecks, text } from './i18n'
+import { date, displayFieldValue, documentLabel, errors, money, text } from './i18n'
 import { DraftEditor, RetainedDraft, draftDirty, type DraftBuffer } from './draft'
 import { DepartureDialog, type Departure, type DepartureRequest } from './departure'
 import { DocumentPreview } from './preview'
@@ -15,7 +15,7 @@ import { ApplicationInformation, PublicCorrections, PublicHistory } from './publ
 import { ApplicationRows, Status } from './application-rows'
 import { StaffApplicationQueue } from './queue'
 import { queueText } from './queue-copy'
-import { AssignmentActions } from './assignment'
+import { ReviewWorkspace, reviewDirty, type ReviewBuffer } from './review'
 
 type Screen = { kind: 'home' | 'chooser' | 'products' | 'applicantList' | 'staffList' | 'newDraft' | 'unavailable' | 'notifications' } | { kind: 'applicantDetail' | 'staffDetail' | 'applicantPrint' | 'staffPrint'; id: string }
 function resolveScreen(path: string): Screen {
@@ -40,7 +40,6 @@ export function NeutralStartup() {
 }
 function Mark() { return <span className="flex h-[35px] items-end gap-1 [direction:ltr]" aria-hidden="true"><i className="block h-[17px] w-2 rounded-[2px] bg-accent" /><i className="block h-[25px] w-2 rounded-[2px] bg-accent" /><i className="block h-[35px] w-2 rounded-[2px] bg-accent" /></span> }
 function Heading({ children }: { children: React.ReactNode }) { return <h1 tabIndex={-1}>{children}</h1> }
-const eventDateClassName = 'mt-[3px] mb-2 block text-[11px] text-muted'
 
 export function App() {
   const demo = useMemo(() => createDemo(), [])
@@ -70,6 +69,7 @@ export function App() {
   const contextRequest = useRef(0)
   const newDraftId = useRef<string | null>(null)
   const draftBuffers = useRef(new Map<string, DraftBuffer>())
+  const reviewBuffers = useRef(new Map<string, ReviewBuffer>())
   const departure = useRef<Departure | null>(null)
   const [, refreshDeparture] = useState(0)
   const [leaving, setLeaving] = useState<DepartureRequest | null>(null)
@@ -81,7 +81,7 @@ export function App() {
   const acceptContext = (next: Context) => {
     const previous = currentContext.current
     if (previous?.datasetId && previous.datasetId !== next.datasetId) {
-      draftBuffers.current.clear(); recovery.current = null; newDraftId.current = null
+      draftBuffers.current.clear(); reviewBuffers.current.clear(); recovery.current = null; newDraftId.current = null
     } else if (previous?.session && !next.session) {
       recovery.current = { identity: previous.session.identity, datasetId: previous.datasetId, href: lastProtected.current ?? (previous.identity?.role === 'reviewer' ? '/staff/applications' : '/applications') }
     }
@@ -96,7 +96,7 @@ export function App() {
     const target = new URL(to, window.location.origin)
     return to === '/' ? navigate({ to: '/', replace }) : navigate({ to: '/$', params: { _splat: target.pathname.slice(1) }, search: defaultParseSearch(target.search), replace })
   }
-  const needsDeparture = () => !!departure.current?.dirty || !!departure.current?.pending || !!currentContext.current?.session && [...draftBuffers.current.values()].some(draftDirty)
+  const needsDeparture = () => !!departure.current?.dirty || !!departure.current?.pending || !!currentContext.current?.session && [...draftBuffers.current.values()].some(draftDirty) || !!currentContext.current?.session && [...reviewBuffers.current.values()].some(reviewDirty)
   const guard = (action: () => void) => {
     if (needsDeparture()) setLeaving({ action, discardOnly: !departure.current?.save })
     else action()
@@ -107,7 +107,7 @@ export function App() {
       if (current.pathname === next.pathname || !needsDeparture()) return false
       return new Promise<boolean>(resolve => setLeaving({ action: () => resolve(false), cancel: () => resolve(true), discardOnly: !departure.current?.save }))
     },
-    enableBeforeUnload: () => !!departure.current?.dirty || !!departure.current?.pending || [...draftBuffers.current.values()].some(draftDirty),
+    enableBeforeUnload: () => !!departure.current?.dirty || !!departure.current?.pending || [...draftBuffers.current.values()].some(draftDirty) || [...reviewBuffers.current.values()].some(reviewDirty),
   })
   const home = context?.identity?.role === 'reviewer' ? '/staff/applications' : '/applications'
 
@@ -218,8 +218,8 @@ export function App() {
   }, [path, routeReady, sessionId])
 
   const selectIdentity = async (id: ActorId, intentional = false) => {
-    if ([...draftBuffers.current.entries()].some(([key, buffer]) => !key.startsWith(`${context?.datasetId}/${id}/`) && draftDirty(buffer))) {
-      setLeaving({ action: () => { draftBuffers.current.clear(); newDraftId.current = null; void selectIdentity(id, true) }, discardOnly: true })
+    if ([...draftBuffers.current.entries()].some(([key, buffer]) => !key.startsWith(`${context?.datasetId}/${id}/`) && draftDirty(buffer)) || [...reviewBuffers.current.entries()].some(([key, buffer]) => !key.startsWith(`${context?.datasetId}/${id}/`) && reviewDirty(buffer))) {
+      setLeaving({ action: () => { draftBuffers.current.clear(); reviewBuffers.current.clear(); newDraftId.current = null; void selectIdentity(id, true) }, discardOnly: true })
       return
     }
     setBusy(true); setError(null); setView(null); setList(null); setPrintSummary(null)
@@ -281,7 +281,7 @@ export function App() {
     const result = await demo.signOut()
     if (!alive.current) return
     setBusy(false)
-    if (result.ok) { draftBuffers.current.clear(); newDraftId.current = null; acceptContext(result.value); recovery.current = null; void navigateTo('/sign-in') } else setError(result.error.kind)
+    if (result.ok) { draftBuffers.current.clear(); reviewBuffers.current.clear(); newDraftId.current = null; acceptContext(result.value); recovery.current = null; void navigateTo('/sign-in') } else setError(result.error.kind)
   }
 
   useEffect(() => { setLeaving(current => { current?.cancel?.(); return null }) }, [sessionId])
@@ -343,7 +343,7 @@ export function App() {
           : printSummary ? <PrintApplication summary={printSummary} language={language} staff={screen.kind === 'staffPrint'} queueSearch={screen.kind === 'staffPrint' ? searchStr : ''} go={go} />
           : screen.kind === 'staffList' && context ? <StaffApplicationQueue key={`${context.datasetId}/${identityId}/${sessionId}`} demo={demo} context={context} language={language} input={search} href={href} reload={reload} go={go} acceptContext={acceptContext} />
           : list ? <ApplicationList list={list} language={language} go={go} />
-          : view ? <ApplicationDetail key={`${context?.datasetId}/${identityId}/${sessionId}/${view.id}`} demo={demo} view={view} language={language} queueSearch={screen.kind === 'staffDetail' ? searchStr : ''} confirmed={submittedId === view.id} redirectedCorrection={resolvedCorrectionId === view.id} go={go}>{view.role === 'reviewer' && context && <AssignmentActions demo={demo} datasetId={context.datasetId} view={view} language={language} changed={setView} departure={value => { departure.current = value; refreshDeparture(value => value + 1) }} />}{view.role === 'applicant' && view.status === 'draft' && context && <DraftEditor demo={demo} view={view} context={context} language={language} step={step} changeStep={step => { void go(`${path}?${screen.kind === 'newDraft' ? `product=${chosenProduct}&` : ''}step=${step}`) }} retained={draftBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => draftBuffers.current.set(`${context.datasetId}/${identityId}/${view.id}`, buffer)} savedView={application => {
+          : view ? <ApplicationDetail key={`${context?.datasetId}/${identityId}/${sessionId}/${view.id}`} demo={demo} view={view} language={language} queueSearch={screen.kind === 'staffDetail' ? searchStr : ''} confirmed={submittedId === view.id} redirectedCorrection={resolvedCorrectionId === view.id} go={go}>{view.role === 'reviewer' && context && <ReviewWorkspace demo={demo} datasetId={context.datasetId} view={view} language={language} retained={reviewBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => reviewBuffers.current.set(`${context.datasetId}/${identityId}/${view.id}`, buffer)} changed={setView} departure={value => { departure.current = value; refreshDeparture(value => value + 1) }} />}{view.role === 'applicant' && view.status === 'draft' && context && <DraftEditor demo={demo} view={view} context={context} language={language} step={step} changeStep={step => { void go(`${path}?${screen.kind === 'newDraft' ? `product=${chosenProduct}&` : ''}step=${step}`) }} retained={draftBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => draftBuffers.current.set(`${context.datasetId}/${identityId}/${view.id}`, buffer)} savedView={application => {
             setView(application)
             if (application.status !== 'draft') {
               draftBuffers.current.delete(`${context.datasetId}/${identityId}/${application.id}`)
@@ -365,7 +365,7 @@ export function App() {
     <footer className="disclosure border-0 border-t border-solid border-border bg-footer px-[4%] py-6 text-[12px] text-muted narrow:px-[5%] narrow:py-5"><p>{t('notice')}</p><p>{t('tabSessions')}</p><p>{t('storageNotice')}</p></footer>
     {leaving && <DepartureDialog request={leaving} work={departure.current} language={language}
       cancel={() => { leaving.cancel?.(); setLeaving(null) }}
-      discard={() => { departure.current?.discard(); departure.current = null; draftBuffers.current.clear(); newDraftId.current = null; setLeaving(null); leaving.action() }}
+      discard={() => { departure.current?.discard(); departure.current = null; draftBuffers.current.clear(); reviewBuffers.current.clear(); newDraftId.current = null; setLeaving(null); leaving.action() }}
       finish={() => { departure.current = null; setLeaving(null); leaving.action() }} />}
   </div>
 }
@@ -399,17 +399,22 @@ function ApplicationDetail({ demo, view, language, queueSearch, children, confir
     {view.role === 'applicant' && <section className="summary"><h2>{t('nextAction')}</h2><p>{t(view.status === 'draft' ? 'draftNext' : view.status === 'correctionsRequested' ? 'correctionNext' : ['approved', 'rejected'].includes(view.status) ? 'finalNext' : 'waitingNext')}</p></section>}
     {(view.status !== 'draft' || view.role === 'applicant' && !!view.workspace?.savedAt) && <a className="button secondary mb-6" href={printHref} onClick={event => { event.preventDefault(); go(printHref) }}>{printText.print[language]}</a>}
     {children}
-    {(view.status !== 'draft' || view.role === 'applicant' && !!view.workspace?.savedAt) && <div className="detail-grid grid grid-cols-[minmax(0,1.7fr)_minmax(260px,1fr)] gap-[25px] compact:grid-cols-[minmax(0,1.4fr)_minmax(240px,1fr)] narrow:grid-cols-1"><div>
+    {view.role === 'applicant' && (view.status !== 'draft' || !!view.workspace?.savedAt) && <div className="detail-grid grid grid-cols-[minmax(0,1.7fr)_minmax(260px,1fr)] gap-[25px] compact:grid-cols-[minmax(0,1.4fr)_minmax(240px,1fr)] narrow:grid-cols-1"><div>
       <section className="panel"><h2>{view.status === 'draft' ? t('savedInformation') : t('submittedInformation')}</h2><ApplicationInformation record={view} language={language} /></section>
-      <section className="panel"><h2>{t('documents')}</h2><ul className="document-list">{view.documents.map(document => <li key={document.slot}><strong>{documentLabel(document.slot, view.product)[language]}</strong><p>{document.file ? <><bdi dir="ltr" className="wrap-anywhere">{document.file.name}</bdi><span className="text-[11px]"><bdi>{document.file.mime} · {new Intl.NumberFormat('en-US').format(document.file.size)} B</bdi></span><span>{view.status === 'draft' ? t('savedInDraft') : t('included')}</span></> : t('missing')}</p>{document.file && <button className="secondary" onClick={() => setPreviewFileId(document.file!.id)}>{language === 'ar' ? 'معاينة' : 'Preview'} {documentLabel(document.slot, view.product)[language]}</button>}{view.role === 'reviewer' && view.assessments && <p className="rounded-[6px] bg-canvas px-3 py-2">{outcomes[view.assessments[document.slot].status][language]}{view.assessments[document.slot].reason && <span> · {view.assessments[document.slot].reason?.[language]}</span>}</p>}</li>)}</ul></section>
+      <section className="panel"><h2>{t('documents')}</h2><ul className="document-list">{view.documents.map(document => <li key={document.slot}><strong>{documentLabel(document.slot, view.product)[language]}</strong><p>{document.file ? <><bdi dir="ltr" className="wrap-anywhere">{document.file.name}</bdi><span className="text-[11px]"><bdi>{document.file.mime} · {new Intl.NumberFormat('en-US').format(document.file.size)} B</bdi></span><span>{view.status === 'draft' ? t('savedInDraft') : t('included')}</span></> : t('missing')}</p>{document.file && <button className="secondary" onClick={() => setPreviewFileId(document.file!.id)}>{language === 'ar' ? 'معاينة' : 'Preview'} {documentLabel(document.slot, view.product)[language]}</button>}</li>)}</ul></section>
       <PublicCorrections record={view} language={language} />
       {view.role === 'applicant' && view.status === 'correctionsRequested' && view.workspace && <section className="summary"><h2>{t('privateWorkspace')}</h2><p>{t('privateUnchanged')}</p><p>{t('amount')}: <bdi dir="ltr">{money(view.workspace.snapshot.fields.amount, language)}</bdi></p></section>}
       <PublicHistory history={view.history} language={language} />
     </div><div>
       <section className="summary"><h2>{products[view.product].name[language]}</h2><dl className="facts"><div><dt>{t('amount')}</dt><dd><bdi dir="ltr">{money(fields.amount, language)}</bdi></dd></div><div><dt>{t('term')}</dt><dd><bdi>{displayFieldValue('term', fields.term, language)}</bdi> {t('months')}</dd></div><div><dt>{t('submittedAt')}</dt><dd><bdi>{view.submittedAt ? date(view.submittedAt, language) : t('notSubmitted')}</bdi></dd></div></dl></section>
-      {view.role === 'reviewer' && <><section className="panel"><h2>{t('checks')}</h2><ul className="review-list">{Object.entries(view.checks ?? {}).map(([key, outcome]) => <li key={key}><span>{reviewChecks[key][language]}</span><strong>{outcomes[outcome][language]}</strong></li>)}</ul></section><section className="panel"><h2>{t('notes')}</h2>{view.notes.length ? view.notes.map(note => <p key={note.id}>{note.text[language]}<bdi className={eventDateClassName}>{date(note.date, language)}</bdi></p>) : <p>{t('noNotes')}</p>}</section><section className="panel"><h2>{t('activity')}</h2><ol className="timeline">{view.activity.map(event => <li key={event.id}><strong>{events[event.kind][language]}</strong><bdi className={eventDateClassName}>{date(event.date, language)}</bdi><span>{demoIdentities.find(identity => identity.id === event.actor)?.name[language] ?? (language === 'ar' ? 'خالد علي' : 'Khaled Ali')}</span><p>{event.description[language]}</p></li>)}</ol></section></>}
-      {view.repayment && <section className="panel"><h2>{t('repayment')}</h2><p>{t('notice')}</p><dl className="facts">{(['amount', 'markup', 'total', 'completed', 'remaining'] as const).map(key => <div key={key}><dt>{t(key)}</dt><dd><bdi dir="ltr">{money(view.repayment![key], language)}</bdi></dd></div>)}</dl><ol className="repayment-list">{view.repayment.rows.map(row => <li key={row.due}><bdi>{date(row.due, language)}</bdi><bdi dir="ltr">{money(row.amount, language)}</bdi><span>{t(row.status === 'completed' ? 'completedRow' : 'upcoming')}</span></li>)}</ol></section>}
+      {view.repayment && <RepaymentSummary repayment={view.repayment} language={language} />}
     </div></div>}
+    {view.role === 'reviewer' && view.repayment && <RepaymentSummary repayment={view.repayment} language={language} />}
     {previewFileId && <DocumentPreview demo={demo} applicationId={view.id} fileId={previewFileId} language={language} close={() => setPreviewFileId(null)} />}
   </>
+}
+
+function RepaymentSummary({ repayment, language }: { repayment: NonNullable<ApplicationView['repayment']>; language: Language }) {
+  const t = (key: keyof typeof text) => text[key][language]
+  return <section className="panel"><h2>{t('repayment')}</h2><p>{t('notice')}</p><dl className="facts">{(['amount', 'markup', 'total', 'completed', 'remaining'] as const).map(key => <div key={key}><dt>{t(key)}</dt><dd><bdi dir="ltr">{money(repayment[key], language)}</bdi></dd></div>)}</dl><ol className="repayment-list">{repayment.rows.map(row => <li key={row.due}><bdi>{date(row.due, language)}</bdi><bdi dir="ltr">{money(row.amount, language)}</bdi><span>{t(row.status === 'completed' ? 'completedRow' : 'upcoming')}</span></li>)}</ol></section>
 }
