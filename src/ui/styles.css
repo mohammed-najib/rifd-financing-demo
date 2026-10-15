@@ -156,13 +156,13 @@
 
   .review-textarea { @apply w-full max-w-full min-h-[130px] resize-y rounded-[8px] border border-solid border-control-border bg-white p-2.5 text-inherit; }
 
-  .draft-editor label { @apply mt-3 mb-1.5 block font-semibold; }
-  .draft-editor textarea, .draft-editor select, .draft-editor input[type=file], .draft-editor input[type=text] {
+  :is(.draft-editor, .application-field) label { @apply mt-3 mb-1.5 block font-semibold; }
+  :is(.draft-editor, .application-field) :is(textarea, select, input[type=file], input[type=text]) {
     @apply w-full max-w-full rounded-[8px] border border-solid border-control-border bg-white p-2.5 text-inherit;
   }
   .draft-editor [aria-current=step] { @apply bg-accent text-white; }
-  .draft-editor [aria-invalid=true] { @apply border-danger-border; }
-  .draft-editor textarea { @apply min-h-[130px] resize-y; }
+  :is(.draft-editor, .application-field) :is(input, textarea, select)[aria-invalid=true] { @apply border-danger-border; }
+  :is(.draft-editor, .application-field) textarea { @apply min-h-[130px] resize-y; }
   .sample-picker label { @apply m-0 w-full; }
   .sample-picker select { @apply w-auto min-w-0 flex-[1_1_250px]; }
   .draft-feedback { @apply my-[18px] rounded-[9px] bg-control-surface p-4 wrap-anywhere; }

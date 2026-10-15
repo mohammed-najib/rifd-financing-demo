@@ -7,6 +7,7 @@ import { queuePreferencesSchema, type Language, type QueuePreferences } from '..
 import { ApplicationRows } from './application-rows'
 import { errors, statuses, text } from './i18n'
 import { queueText } from './queue-copy'
+import { EmptyQueue, ReadFailure } from './feedback'
 
 export function queueHref(query: QueueQuery) {
   return `/staff/applications${defaultStringifySearch({ search: query.search, status: query.status, product: query.product, assignment: query.assignment, sort: query.sort, page: query.page })}`
@@ -113,9 +114,9 @@ export function StaffApplicationQueue({ demo, context, language, input, href, re
     </section>}
     <div aria-busy={reading}>
       <p role="status" className="my-4 text-[13px] text-muted">{reading ? t('readLoading') : queue ? language === 'ar' ? `${queue.matched} طلب من ${queue.total}` : `${queue.matched} ${queue.matched === 1 ? 'application' : 'applications'} of ${queue.total}` : ''}</p>
-      {readError ? <p role="alert">{errors[readError][language]} <button onClick={() => setRetry(value => value + 1)}>{t('retry')}</button></p>
+      {readError ? <ReadFailure error={readError} language={language} retry={() => setRetry(value => value + 1)} />
         : !reading && queue && (queue.matched ? <ApplicationRows list={queue.rows} language={language} staff go={go} query={queueHref(queue.query).slice('/staff/applications'.length)} />
-          : <section className="panel"><h2>{q('empty')}</h2><p>{q('emptyHint')}</p></section>)}
+          : <EmptyQueue language={language} />)}
     </div>
     {queue && !readError && <nav className="actions" aria-label={q('pagination')}>
       <button disabled={reading || queue.query.page <= 1} onClick={() => change({ page: queue.query.page - 1 })}>{q('previous')}</button>

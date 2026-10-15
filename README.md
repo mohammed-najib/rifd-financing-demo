@@ -38,6 +38,12 @@ A duplicated tab or one opened from another demo tab may inherit its initial ide
 
 On an Under review application assigned to Salma, Simulate reassignment to Khaled commits an identified internal transfer while holding that screen stale. The next staff write is refused. Load latest reveals Khaled and retains unapplied text as read-only. Confirm reclaim, inspect the current record and choose a new action. A final decision requires a new confirmation. Other tabs receive the transfer normally.
 
+The public [component gallery](http://127.0.0.1:4173/components) uses the same
+fields, application statuses, attachment feedback, save feedback, queue rows and
+departure dialog as the journeys. It works unsigned and during startup recovery.
+Switch languages, correct the example amount, inspect file and save states, or
+use the dialog by keyboard. Gallery edits affect only its fictional examples.
+
 ## Styling
 
 Tailwind CSS 4.3.3 compiles through `@tailwindcss/vite` in both the application and the separate browser API harness. The root route links the compiled `src/ui/styles.css` through its existing `?url` import. No Tailwind browser runtime or CDN is used. Tailwind's [browser requirements](https://tailwindcss.com/docs/upgrade-guide#browser-requirements) are Chrome 111+, Firefox 128+ and Safari 16.4+; the documented current Chrome/Firefox targets remain the acceptance scope.
@@ -94,6 +100,7 @@ The emulator uses the local `demo-rifd` project identifier and the committed `fi
 | --- | --- |
 | `/`, `/sign-in` | Neutral startup followed by identity home or chooser |
 | `/products` | Public fictional product comparison |
+| `/components` | Public bilingual production component gallery |
 | `/applications` | Current applicant's saved applications |
 | `/applications/new?product=equipment` | Explicit new-or-resume choice, then a new unsaved Equipment draft |
 | `/applications/RIFD-2026-001/edit?step=personal` | Mariam's five-step saved incomplete draft |

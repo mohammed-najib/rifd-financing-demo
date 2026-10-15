@@ -36,7 +36,13 @@ export function DepartureDialog({ request, work, language, discard, finish, canc
     }
   }, [])
   const stay = () => { restoreFocus.current = true; cancel() }
-  return <dialog ref={dialog} className="w-[650px]" aria-labelledby="leave-heading" onCancel={event => { event.preventDefault(); if (!saving) stay() }}>
+  return <dialog ref={dialog} className="w-[650px]" aria-labelledby="leave-heading" onCancel={event => { event.preventDefault(); if (!saving) stay() }} onKeyDown={event => {
+    if (event.key !== 'Tab') return
+    const buttons = Array.from(event.currentTarget.querySelectorAll<HTMLButtonElement>('button:not(:disabled)'))
+    const first = buttons[0], last = buttons.at(-1)
+    if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus() }
+    else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus() }
+  }}>
     <h2 id="leave-heading">{t('leave')}</h2><p>{t('waitLeave')}</p>
     <div className="actions">
       <button disabled={saving} onClick={stay}>{t('stay')}</button>

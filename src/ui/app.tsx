@@ -25,12 +25,16 @@ import { responseText } from './correction-response'
 import { RepaymentOverview, RepaymentSummary, repaymentText } from './repayment'
 import { StaleWriteControl } from './stale-write-control'
 import { ResetDialog, resetText } from './reset'
+import { ComponentGallery } from './gallery'
+import { galleryText } from './gallery-copy'
+import { LoadingPanel } from './feedback'
 
-type Screen = { kind: 'home' | 'chooser' | 'products' | 'applicantList' | 'staffList' | 'newDraft' | 'reset' | 'unavailable' | 'notifications' } | { kind: 'applicantDetail' | 'staffDetail' | 'staffRequest' | 'staffDecision' | 'applicantPrint' | 'staffPrint' | 'applicantRepayment' | 'staffRepayment'; id: string }
+type Screen = { kind: 'home' | 'chooser' | 'products' | 'applicantList' | 'staffList' | 'newDraft' | 'reset' | 'gallery' | 'unavailable' | 'notifications' } | { kind: 'applicantDetail' | 'staffDetail' | 'staffRequest' | 'staffDecision' | 'applicantPrint' | 'staffPrint' | 'applicantRepayment' | 'staffRepayment'; id: string }
 function resolveScreen(path: string): Screen {
   if (path === '/demo/reset') return { kind: 'reset' }
   if (path === '/') return { kind: 'home' }
   if (path === '/sign-in') return { kind: 'chooser' }
+  if (path === '/components') return { kind: 'gallery' }
   if (path === '/products') return { kind: 'products' }
   if (path === '/notifications') return { kind: 'notifications' }
   const print = /^(\/staff)?\/applications\/(RIFD-2026-[a-zA-Z0-9-]+)\/print$/.exec(path)
@@ -103,7 +107,7 @@ export function App() {
   const lastProtected = useRef<string | null>(null)
   const recovery = useRef<{ identity: ActorId; datasetId: string; href: string } | null>(null)
   currentContext.current = context
-  if (context?.session && !['home', 'chooser', 'products', 'reset', 'unavailable'].includes(screen.kind)) lastProtected.current = href
+  if (context?.session && !['home', 'chooser', 'products', 'gallery', 'reset', 'unavailable'].includes(screen.kind)) lastProtected.current = href
   const clearBuffers = () => { draftBuffers.current.clear(); reviewBuffers.current.clear(); correctionBuffers.current.clear(); decisionBuffers.current.clear() }
   const rememberBuffer = <T,>(buffers: Map<string, T>, captured: Context, applicationId: string, buffer: T) => {
     if (lastDataset.current === captured.datasetId && captured.session) buffers.set(`${captured.datasetId}/${captured.session.identity}/${applicationId}`, buffer)
@@ -282,7 +286,7 @@ export function App() {
     // Preferences do not change the record read or revoke the current identity.
   }, [path, search.round, sessionId, identityId, reload, demo, navigate])
 
-  const routeReady = !startupError && !!context && (screen.kind === 'chooser' || screen.kind === 'products' || screen.kind === 'reset' || !identity || loadedPath === path)
+  const routeReady = !startupError && !!context && (screen.kind === 'chooser' || screen.kind === 'gallery' || screen.kind === 'products' || screen.kind === 'reset' || !identity || loadedPath === path)
   useEffect(() => {
     if (routeReady || startupError) document.querySelector<HTMLElement>('main h1')?.focus()
   }, [path, routeReady, sessionId, startupError])
@@ -375,14 +379,15 @@ export function App() {
   }
 
   if (!context && !startupError) return <NeutralStartup />
-  const isChooser = screen.kind === 'chooser' || screen.kind !== 'products' && screen.kind !== 'unavailable' && screen.kind !== 'reset' && !identity
-  const isStaff = identity?.role === 'reviewer' && !isChooser && screen.kind !== 'products' && screen.kind !== 'reset'
+  const isChooser = screen.kind === 'chooser' || screen.kind !== 'products' && screen.kind !== 'gallery' && screen.kind !== 'unavailable' && screen.kind !== 'reset' && !identity
+  const isStaff = identity?.role === 'reviewer' && !isChooser && screen.kind !== 'products' && screen.kind !== 'gallery' && screen.kind !== 'reset'
   const unavailable = screen.kind === 'unavailable' || error === 'unavailable'
   return <div data-workspace-ready={routeReady ? 'true' : undefined}>
     <header className="header flex flex-wrap items-center gap-[30px] border-0 border-b border-solid border-border bg-white px-[4%] py-5 compact:gap-5 narrow:gap-[15px] narrow:px-[5%] narrow:py-4">
       <a className="brand" href="/" onClick={event => { event.preventDefault(); go('/') }}><Mark /><span>{language === 'ar' ? 'رِفد' : 'RIFD'}<small>{language === 'ar' ? 'عرض تمويل تجريبي' : 'Financing demo'}</small></span></a>
       <nav aria-label={language === 'ar' ? 'التنقل الرئيسي' : 'Main navigation'}>
         <button disabled={busy} onClick={() => setResetOpen(true)}>{resetText.title[language]}</button>
+        <a href="/components" onClick={event => { event.preventDefault(); go('/components') }}>{galleryText.title[language]}</a>
         <a href="/products" onClick={event => { event.preventDefault(); go('/products') }}>{t('products')}</a>
         {identity && <a href={home} onClick={event => { event.preventDefault(); go(home) }}>{identity.role === 'reviewer' ? t('staffApplications') : t('applications')}</a>}
         {identity?.role === 'applicant' && <a href="/notifications" onClick={event => { event.preventDefault(); go('/notifications') }}>{notificationText.title[language]}</a>}
@@ -408,6 +413,7 @@ export function App() {
           <button disabled={busy} onClick={() => setLanguageConflict(null)}>{t('discardPreference')}</button>
         </section>}
         {screen.kind === 'reset' ? <section className="panel"><Heading>{resetText.title[language]}</Heading><p>{resetText.warning[language]}</p><button disabled={busy} onClick={() => setResetOpen(true)}>{resetText.title[language]}</button></section>
+          : screen.kind === 'gallery' ? <ComponentGallery language={language} />
           : screen.kind === 'products' ? <Products language={language} choose={product => void go(`/applications/new?product=${product}`)} />
           : startupError ? <section className="panel"><Heading>{t('startupError')}</Heading><p role="alert">{errors[startupError][language]}</p><button onClick={() => void retryStartup()}>{t('retry')}</button><button onClick={() => setResetOpen(true)}>{resetText.title[language]}</button><a className="button secondary" href="/products" onClick={event => { event.preventDefault(); go('/products') }}>{t('products')}</a></section>
           : unavailable ? <section className="panel"><Heading>{t('unavailable')}</Heading><p>{t('unavailableDescription')}</p><a className="button" href={home} onClick={event => { event.preventDefault(); go(home) }}>{t('home')}</a><button onClick={() => go('/sign-in')}>{t('switchIdentity')}</button></section>
@@ -417,7 +423,7 @@ export function App() {
             <div className="grid grid-cols-2 gap-5 narrow:grid-cols-1 narrow:gap-3.5">{demoIdentities.map(person => <button className="identity-card grid min-h-[140px] grid-cols-[52px_1fr_20px] items-center gap-x-[18px] gap-y-[2px] rounded-[15px] border-border bg-white p-[26px] text-start text-ink narrow:min-h-[110px] narrow:p-5" key={person.id} disabled={busy} onClick={() => void selectIdentity(person.id as ActorId)} aria-label={person.name[language]}><span className="row-[1/3] flex size-[52px] items-center justify-center rounded-[50%] bg-summary text-[22px] text-accent" aria-hidden="true">{person.name[language].slice(0, 1)}</span><strong>{person.name[language]}</strong><span>{person.role === 'reviewer' ? t('reviewer') : t('applicant')}</span><span className="col-start-3 row-[1/3] text-[24px] text-accent" aria-hidden="true">{language === 'ar' ? '←' : '→'}</span></button>)}</div>
             <p className="my-[22px] text-[13px] text-muted">{t('sliceNotice')}</p>
           </section>
-          : !routeReady ? <section className="panel min-h-[250px] pt-[75px] text-center text-muted narrow:pt-5" role="status">{t('readLoading')}</section>
+          : !routeReady ? <LoadingPanel language={language} />
           : screen.kind === 'newDraft' && !view ? <section className="panel"><Heading>{applicationText.chooseDraft[language]}</Heading><h2>{products[chosenProduct].name[language]}</h2><p>{applicationText.choiceHint[language]}</p><button disabled={busy} onClick={async () => {
             setBusy(true)
             const result = await demo.newDraft(chosenProduct)
