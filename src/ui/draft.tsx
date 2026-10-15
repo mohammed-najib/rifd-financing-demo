@@ -66,7 +66,7 @@ export function DraftEditor({ demo, view: suppliedView, context, language, retai
   const mounted = useRef(true)
   const retainOnUnmount = useRef(true)
   const preparations = useRef<Partial<Record<DocumentSlot, Promise<Result<PreparedAttachment>>>>>({})
-  const [samples, setSamples] = useState<Sample[]>([])
+  const [samples, setSamples] = useState<Sample[] | null>(null)
   const [sampleIds, setSampleIds] = useState<Partial<Record<DocumentSlot, string>>>({})
   const [preview, setPreview] = useState<{ slot: DocumentSlot; kind: 'saved' | 'ready' } | null>(null)
   const [latest, setLatest] = useState<ApplicationView | null>(null)
@@ -120,7 +120,8 @@ export function DraftEditor({ demo, view: suppliedView, context, language, retai
   useEffect(() => {
     let active = true
     void demo.listSamples(view.id).then(result => {
-      if (!active || !result.ok) return
+      if (!active) return
+      if (!result.ok) { setSamples([]); return }
       setSamples(result.value)
       setSampleIds(Object.fromEntries(slots.map(slot => [slot, result.value.find(sample => sample.slot === slot)?.id ?? ''])))
     })
@@ -320,12 +321,11 @@ export function DraftEditor({ demo, view: suppliedView, context, language, retai
       {(corrections ? targetSlots : step === 'documents' ? slots : []).map(slot => {
         const selection = buffer.selections[slot]
         const savedFile = effectiveSaved(slot)
-        const available = samples.filter(sample => sample.slot === slot && (slot !== 'purchase' || sample.product === buffer.product))
+        const available = samples?.filter(sample => sample.slot === slot && (slot !== 'purchase' || sample.product === buffer.product)) ?? []
         const sampleId = sampleIds[slot] ?? ''
         return <section key={slot} aria-labelledby={`${slot}-heading`} className="mb-6 border-0 border-b border-solid border-border pb-6"><h3 id={`${slot}-heading`}>{documentLabel(slot, buffer.product)[language]}</h3><p>{documentRequirement(slot, buffer.product)[language]}</p><p id={`${slot}-hint`} className="text-[13px] text-muted">{t('fileHint')}</p>
           <label htmlFor={`${slot}-file`}>{t('chooseFile')}</label><input id={`${slot}-file`} type="file" accept=".pdf,.jpg,.jpeg,.png" disabled={locked} aria-describedby={`${slot}-hint${selection?.error ? ` ${slot}-preparation-error` : ''}`} aria-invalid={!!selection?.error || checked && missingSlots.includes(slot)} onChange={event => { const file = event.target.files?.[0]; if (file) prepare(slot, { kind: 'local', file }, file.name); event.target.value = '' }} />
-          {available.length === 0 && <button disabled={locked} onClick={() => prepare(slot, { kind: 'generated', fields: { ...buffer.fields } }, documentLabel(slot, buffer.product)[language])}>{t('useSample')}</button>}
-          {available.length > 0 && <div className="sample-picker my-4 flex flex-wrap items-center gap-3"><label htmlFor={`${slot}-sample`}>{t('sample')}</label><select id={`${slot}-sample`} value={sampleId} onChange={event => setSampleIds({ ...sampleIds, [slot]: event.target.value })}>{available.map(sample => <option key={sample.id} value={sample.id}>{sample.variant === 'identical' ? language === 'ar' ? 'محتوى مطابق باسم آخر' : 'Identical content, another name' : sample.variant === 'original' ? documentLabel(slot, buffer.product)[language] : sample.variant}</option>)}</select><button disabled={!sampleId || locked} onClick={() => prepare(slot, { kind: 'sample', sampleId }, documentLabel(slot, buffer.product)[language])}>{t('useSample')}</button></div>}
+          <div className="sample-picker my-4 flex flex-wrap items-center gap-3" aria-busy={samples === null}><label htmlFor={`${slot}-sample`}>{t('sample')}</label><select id={`${slot}-sample`} value={sampleId} disabled={!available.length || locked} onChange={event => setSampleIds({ ...sampleIds, [slot]: event.target.value })}>{available.length ? available.map(sample => <option key={sample.id} value={sample.id}>{sample.variant === 'identical' ? language === 'ar' ? 'محتوى مطابق باسم آخر' : 'Identical content, another name' : sample.variant === 'original' ? documentLabel(slot, buffer.product)[language] : sample.variant}</option>) : <option value="">{samples === null ? text.readLoading[language] : t('useSample')}</option>}</select><button disabled={samples === null || locked} onClick={() => prepare(slot, sampleId ? { kind: 'sample', sampleId } : { kind: 'generated', fields: { ...buffer.fields } }, documentLabel(slot, buffer.product)[language])}>{t('useSample')}</button></div>
           {selection && <AttachmentPreparation selection={selection} language={language} errorId={`${slot}-preparation-error`} locked={locked} retry={() => prepare(slot, selection.source, selection.name)} preview={() => setPreview({ slot, kind: 'ready' })} discard={() => discardSelection(slot)} />}
           <SavedAttachment file={savedFile} language={language} label={corrections ? c('saved') : undefined} preview={() => setPreview({ slot, kind: 'saved' })} />
         </section>

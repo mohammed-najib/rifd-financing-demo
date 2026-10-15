@@ -11,6 +11,35 @@ async function start(page: Page, language: 'ar' | 'en' = 'en', suffix = '/correc
   await expect(page.getByRole('heading', { name: 'RIFD-2026-004', exact: true })).toBeVisible()
 }
 
+for (const language of ['ar', 'en'] as const) for (const target of ['controls', 'retry'] as const) test(`${language} pointer activation of ${target} survives sample loading after recovery`, async ({ page }, info) => {
+  const ar = language === 'ar'
+  await page.setViewportSize({ width: 390, height: 950 })
+  await start(page, language)
+  const editor = page.getByRole('region', { name: ar ? 'الرد على التصحيحات' : 'Respond to corrections', exact: true })
+  await expect(editor.locator('#purchase-sample')).toBeEnabled()
+  const controls = editor.locator('summary').filter({ hasText: ar ? 'أدوات العرض التجريبي' : 'Demo controls' })
+  await controls.click()
+  await editor.getByRole('checkbox').check()
+  await editor.getByLabel(ar ? 'الإخفاق التالي' : 'Next failure', { exact: true }).selectOption('upload')
+  await editor.locator('input[type=file]').setInputFiles({ name: 'DEMO-pointer.png', mimeType: 'image/png', buffer: Buffer.from('fictional failed selection') })
+  const retry = editor.getByRole('button', { name: ar ? 'إعادة تجهيز الاختيار' : 'Retry preparation', exact: true })
+  await expect(retry).toBeVisible()
+  await page.getByRole('button', { name: ar ? 'إنهاء الجلسة' : 'Expire session', exact: true }).click()
+  await page.getByRole('button', { name: ar ? 'هدى علي' : 'Huda Ali', exact: true }).click()
+  await expect(editor).toBeVisible()
+  const control = target === 'controls' ? controls : retry
+  await control.scrollIntoViewIfNeeded()
+  const box = await control.boundingBox()
+  if (!box) throw new Error('Pointer target missing')
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
+  await page.mouse.down()
+  await expect(editor.locator('#purchase-sample')).toBeEnabled()
+  await page.mouse.up()
+  if (target === 'controls') await expect(editor.getByRole('checkbox')).toBeVisible()
+  else await expect(editor.getByRole('progressbar')).toBeVisible()
+  await page.screenshot({ path: info.outputPath(`pointer-${target}-${language}-390.png`), fullPage: true })
+})
+
 for (const language of ['ar', 'en'] as const) test(`${language} only requested targets are editable and private saved files restore after reload`, async ({ page }) => {
   const ar = language === 'ar'
   await page.setViewportSize({ width: ar ? 390 : 1440, height: 950 })

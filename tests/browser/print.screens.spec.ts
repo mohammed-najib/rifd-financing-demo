@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { extendPrintHistory } from './acceptance-fixtures'
 
 const samples = [
   { id: '001', identity: 'مريم سالم', state: 'draft' },
@@ -6,6 +7,37 @@ const samples = [
   { id: '005', identity: 'مريم سالم', state: 'approved' },
   { id: '006', identity: 'عمر حسن', state: 'rejected' },
 ]
+
+for (const language of ['ar', 'en'] as const) for (const sample of samples.filter(value => value.state !== 'draft')) test(`${language} ${sample.state} print matches applicant and staff public policy`, async ({ page, context }, info) => {
+  const ar = language === 'ar'
+  const route = `/applications/RIFD-2026-${sample.id}/print`
+  await page.goto(route)
+  await expect(page.locator('[data-workspace-ready="true"]')).toBeVisible({ timeout: 60_000 })
+  await page.getByRole('button', { name: sample.identity, exact: true }).click()
+  await expect(page.locator('.print-summary')).toBeVisible()
+  if (!ar) await page.getByRole('button', { name: 'English', exact: true }).click()
+  await expect(page.locator('html')).toHaveAttribute('lang', language)
+  if (sample.state === 'approved') {
+    await page.evaluate(extendPrintHistory)
+    await page.reload()
+    await expect(page.locator('.print-summary .timeline > li')).toHaveCount(27)
+  }
+  const applicantText = await page.locator('.print-summary').innerText()
+  const staff = await context.newPage()
+  await staff.goto(`/staff${route}`)
+  await expect(staff.locator('[data-workspace-ready="true"]')).toBeVisible({ timeout: 60_000 })
+  await staff.getByRole('button', { name: ar ? 'سلمى ناصر' : 'Salma Nasser', exact: true }).click()
+  const summary = staff.locator('.print-summary')
+  await expect(summary).toBeVisible()
+  expect(await summary.innerText()).toBe(applicantText)
+  await expect(summary).not.toContainText(/Salma|Khaled|سلمى|خالد|Internal notes|Review checks|Internal activity/)
+  await staff.emulateMedia({ media: 'print' })
+  await expect(staff.locator('.print-controls')).toBeHidden()
+  await staff.evaluate(() => document.fonts.ready)
+  if (info.project.name === 'chrome') await staff.pdf({ path: info.outputPath(`staff-${sample.state}-${language}.pdf`), preferCSSPageSize: true, printBackground: true, displayHeaderFooter: false })
+  await staff.screenshot({ path: info.outputPath(`staff-${sample.state}-${language}.png`), fullPage: true })
+})
+
 for (const language of ['ar', 'en'] as const) for (const sample of samples) test(`print ${sample.state} public summary in ${language}`, async ({ page }, info) => {
   const ar = language === 'ar'
   await page.goto(`/applications/RIFD-2026-${sample.id}/print`)

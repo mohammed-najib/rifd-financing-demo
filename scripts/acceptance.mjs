@@ -8,7 +8,9 @@ import { chromium, firefox, webkit } from '@playwright/test'
 
 // Every invocation has its own reports. A focused recheck cannot erase the
 // complete run's failures, screenshots or traces.
-const directory = resolve('artifacts/acceptance/20', new Date().toISOString().replaceAll(':', '-'))
+const slice = process.env.RIFD_ACCEPTANCE_SLICE ?? '20'
+if (!/^[1-9]\d*$/.test(slice)) throw new Error('RIFD_ACCEPTANCE_SLICE must be a positive issue number')
+const directory = resolve('artifacts/acceptance', slice, new Date().toISOString().replaceAll(':', '-'))
 await mkdir(directory, { recursive: true })
 const git = (...args) => execFileSync('git', args, { encoding: 'utf8' }).trim()
 const paths = git('ls-files', '--cached', '--others', '--exclude-standard', '-z').split('\0').filter(path => /^(src|tests|scripts|packages)\//.test(path) || /^(package.json|pnpm-lock.yaml|.*\.config\.(ts|js)|tsconfig.json)$/.test(path)).sort()
