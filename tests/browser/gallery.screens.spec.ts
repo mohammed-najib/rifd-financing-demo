@@ -2,6 +2,29 @@ import { expect, test } from '@playwright/test'
 
 test.setTimeout(120_000)
 
+test('the static production stylesheet supplies Tailwind layout, tokens and invalid field borders', async ({ page, request }) => {
+  await page.goto('/components')
+  await expect(page.getByRole('heading', { name: 'مكونات الواجهة', exact: true })).toBeVisible({ timeout: 90_000 })
+  const href = await page.locator('link[rel="stylesheet"][href^="/assets/"]').first().getAttribute('href')
+  if (!href) throw new Error('No production stylesheet')
+  const css = await request.get(href)
+  expect(css.headers()['content-type']).toContain('text/css')
+  expect(await css.text()).toContain('tailwindcss v4.3.3')
+  for (const language of ['ar', 'en'] as const) {
+    if (language === 'en') await page.getByRole('button', { name: 'English', exact: true }).click()
+    const amount = page.getByRole('textbox', { name: language === 'ar' ? 'مبلغ التمويل' : 'Financing amount', exact: true })
+    await amount.fill('1,00,000')
+    await expect(amount).toHaveCSS('border-top-color', 'rgb(196, 107, 91)')
+    const grid = page.getByRole('region', { name: language === 'ar' ? 'الحقول والتحقق' : 'Fields and validation', exact: true }).locator('.grid')
+    for (const width of [767, 768]) {
+      await page.setViewportSize({ width, height: 900 })
+      await expect(grid).toHaveCSS('display', 'grid')
+      expect(await grid.evaluate(element => getComputedStyle(element).gridTemplateColumns.split(' ').length)).toBe(width === 767 ? 1 : 2)
+      await expect(page.locator('html')).toHaveCSS('color', 'rgb(25, 47, 44)')
+    }
+  }
+})
+
 test('unsigned visitors can enter and refresh the bilingual production gallery', async ({ page }) => {
   await page.goto('/components')
   await expect(page.getByRole('heading', { name: 'مكونات الواجهة', exact: true })).toBeVisible({ timeout: 90_000 })

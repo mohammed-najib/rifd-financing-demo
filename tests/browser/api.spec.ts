@@ -1,4 +1,58 @@
 import { expect, test } from '@playwright/test'
+import { loseNextWriteCompletion, refuseCommitNotices } from './storage-faults'
+
+test('the separate API harness compiles the production Tailwind theme, logical spacing and breakpoint utilities', async ({ page }) => {
+  await page.goto('/tests/browser/api.html')
+  await page.evaluate(() => {
+    const probe = document.createElement('div')
+    probe.id = 'style-probe'
+    probe.className = 'grid grid-cols-2 gap-6 narrow:grid-cols-1 ms-3 narrow:ms-0'
+    probe.style.width = '200px'
+    probe.textContent = 'Shared production styles'
+    document.body.append(probe)
+  })
+  for (const direction of ['rtl', 'ltr']) {
+    await page.locator('html').evaluate((element, direction) => { element.setAttribute('dir', direction) }, direction)
+    for (const width of [767, 768]) {
+      await page.setViewportSize({ width, height: 900 })
+      const style = await page.locator('#style-probe').evaluate(element => {
+        const style = getComputedStyle(element)
+        return { display: style.display, columns: style.gridTemplateColumns.split(' ').length, gap: style.gap, margin: style.marginInlineStart, color: style.color, font: getComputedStyle(document.documentElement).fontSize }
+      })
+      expect(style).toEqual({ display: 'grid', columns: width === 767 ? 1 : 2, gap: '24px', margin: width === 767 ? '0px' : '12px', color: 'rgb(25, 47, 44)', font: '15px' })
+    }
+  }
+})
+
+test('language writes abort without a receipt, inspect uncertainty and survive failed notices', async ({ page }) => {
+  await page.goto('/tests/browser/api.html')
+  await page.waitForFunction(() => window.demo)
+  const startup = await page.evaluate(() => window.demo.startup())
+  if (!startup.ok) throw new Error('No startup')
+  const command = { kind: 'setLanguage' as const, datasetId: startup.value.datasetId, operationId: 'language-recovery', expectedRevision: 1, language: 'en' as const }
+  await page.evaluate(() => {
+    const put = IDBObjectStore.prototype.put
+    IDBObjectStore.prototype.put = function (...args: Parameters<IDBObjectStore['put']>) {
+      IDBObjectStore.prototype.put = put
+      const request = put.apply(this, args)
+      request.addEventListener('success', () => this.transaction.abort(), { once: true })
+      return request
+    }
+  })
+  expect(await page.evaluate(command => window.demo.execute(command), command)).toMatchObject({ error: { kind: 'storage' } })
+  expect(await page.evaluate(command => window.demo.inspectPreferenceOperation(command), command)).toMatchObject({ value: { status: 'notCommitted', context: { preferences: startup.value.preferences } } })
+  await page.evaluate(loseNextWriteCompletion)
+  expect(await page.evaluate(command => window.demo.execute(command), command)).toMatchObject({ error: { kind: 'outcomeUnknown' } })
+  const recovered = await page.evaluate(async command => ({ inspection: await window.demo.inspectPreferenceOperation(command), replay: await window.demo.execute(command), misuse: await window.demo.execute({ ...command, language: 'ar' }) }), command)
+  expect(recovered.replay).toMatchObject({ ok: true, value: { preferences: { revision: 2, language: 'en' } } })
+  expect(recovered.inspection).toMatchObject({ value: { status: 'committed', context: recovered.replay.ok ? recovered.replay.value : null } })
+  expect(recovered.misuse).toMatchObject({ error: { kind: 'identifierMisuse' } })
+  await page.evaluate(refuseCommitNotices)
+  const next = { ...command, operationId: 'language-notices', expectedRevision: 2, language: 'ar' as const }
+  const committed = await page.evaluate(command => window.demo.execute(command), next)
+  expect(committed).toMatchObject({ ok: true, value: { preferences: { revision: 3, language: 'ar' } } })
+  expect(await page.evaluate(command => window.demo.execute(command), next)).toEqual(committed)
+})
 
 test('startup seeds the canonical own-applicant and staff projections', async ({ page }) => {
   await page.goto('/tests/browser/api.html')

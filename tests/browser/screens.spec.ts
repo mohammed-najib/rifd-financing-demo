@@ -90,6 +90,9 @@ test('static assets have their own MIME and the generated shell reveals no prote
   const html = await shell.text()
   expect(html).toContain('جارٍ تجهيز العرض التجريبي')
   expect(html).not.toContain('ورشة المدار التجريبية')
+  const harness = await request.get('/tests/browser/api.html')
+  expect(await harness.text()).toBe(html)
+  expect(html).not.toContain('/tests/browser/api.ts')
   const assets = [...html.matchAll(/(?:src|href)="(\/assets\/[^" ]+)"/g)].map(match => match[1])
   expect(assets.length).toBeGreaterThan(0)
   for (const asset of assets) {

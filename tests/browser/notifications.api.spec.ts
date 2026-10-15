@@ -72,23 +72,14 @@ test('a stale correction notification resolves current state on replay and after
     if (!context.ok) throw new Error('No context')
     const command = { kind: 'markNotificationRead' as const, datasetId: context.value.datasetId, operationId: 'old-request', notificationId: 'RIFD-2026-004-notice', expectedRevision: 1 }
     const first = await demo.execute(command)
-    // Fixture for later correction/decision tickets. Those commands are not implemented yet.
-    await new Promise<void>((resolve, reject) => {
-      const request = indexedDB.open('rifd-demo', 1)
-      request.onsuccess = () => {
-        const db = request.result
-        const tx = db.transaction('state', 'readwrite')
-        const store = tx.objectStore('state')
-        const read = store.get('dataset')
-        read.onsuccess = () => {
-          const data = read.result
-          const application = data.applications.find((item: { id: string }) => item.id === 'RIFD-2026-004')
-          application.status = 'underReview'; application.workspace = null; application.sharedRevision++
-          store.put(data, 'dataset')
-        }
-        tx.oncomplete = () => { db.close(); resolve() }; tx.onabort = () => reject(tx.error)
-      }
-    })
+    const response = await demo.readApplication('RIFD-2026-004')
+    if (!response.ok || response.value.role !== 'applicant' || !response.value.workspace) throw new Error('No response')
+    const workspace = response.value.workspace
+    const fields = { ...workspace.snapshot.fields, amount: '450000' }
+    const prepared = await demo.prepareAttachment({ datasetId: context.value.datasetId, applicationId: response.value.id, slot: 'purchase', selectionId: 'plan', source: { kind: 'generated', fields } })
+    if (!prepared.ok) throw new Error('No plan')
+    const resubmitted = await demo.execute({ kind: 'resubmit', datasetId: context.value.datasetId, operationId: 'publish-response', applicationId: response.value.id, roundId: workspace.roundId!, expectedSharedRevision: response.value.sharedRevision, expectedWorkspaceRevision: workspace.revision, product: response.value.product, fields, documents: { ...Object.fromEntries(Object.entries(workspace.snapshot.documents).map(([slot, fileId]) => [slot, { kind: 'saved', fileId }])), purchase: { kind: 'prepared', attachment: prepared.value } } as import('../../src/demo').DraftDocuments })
+    if (!resubmitted.ok) throw new Error(JSON.stringify(resubmitted))
     return { first, command, current: await demo.resolveNotification(command.notificationId), replay: await demo.execute(command) }
   })
   expect(result.first).toMatchObject({ ok: true, value: { destination: '/applications/RIFD-2026-004/corrections/current' } })

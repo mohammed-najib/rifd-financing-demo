@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { loseNextWriteCompletion } from './storage-faults'
+import { loseNextWriteCompletion, refuseCommitNotices } from './storage-faults'
 
 test.describe.configure({ mode: 'parallel' })
 
@@ -28,6 +28,7 @@ async function response(page: Page, id = 'RIFD-2026-004') {
 
 test('publishes Huda’s complete response once, preserves review context and resets exactly four dependent checks', async ({ page, context }) => {
   const setup = await response(page)
+  await page.evaluate(refuseCommitNotices)
   const staff = await context.newPage()
   await staff.goto('/tests/browser/api.html'); await staff.waitForFunction(() => window.demo)
   const before = await staff.evaluate(async () => {
@@ -92,6 +93,40 @@ test('field verification is separate from accepting evidence and a later round s
   expect(result.published).toMatchObject({ ok: true, value: { application: { workspace: null, status: 'underReview' } } })
   expect(result.final.rounds[0]).toEqual(result.next.rounds[0])
   expect(result.final.rounds[1].targets[0].verified).toBe(true)
+})
+
+test('field verification aborts atomically, inspects uncertainty and rejects changed receipt intent', async ({ page }) => {
+  const setup = await response(page)
+  const command = await page.evaluate(async response => {
+    const published = await window.demo.execute(response)
+    if (!published.ok) throw new Error('No published response')
+    await window.demo.signIn('salma')
+    return { kind: 'verifyCorrection' as const, datasetId: response.datasetId, applicationId: response.applicationId, operationId: 'atomic-verification', expectedSharedRevision: published.value.application.sharedRevision, roundId: response.roundId, field: 'amount' as const, verified: true }
+  }, setup.command)
+  const aborted = await page.evaluate(async command => {
+    const before = await window.demo.readApplication(command.applicationId)
+    window.demo.setControls({ slow: false, failure: 'storage' })
+    const result = await window.demo.execute(command)
+    return { before, result, after: await window.demo.readApplication(command.applicationId), inspection: await window.demo.inspectOperation(command) }
+  }, command)
+  expect(aborted.result).toMatchObject({ error: { kind: 'storage' } })
+  expect(aborted.after).toEqual(aborted.before)
+  expect(aborted.inspection).toMatchObject({ value: { status: 'notCommitted' } })
+  await page.evaluate(loseNextWriteCompletion)
+  expect(await page.evaluate(command => window.demo.execute(command), command)).toMatchObject({ error: { kind: 'outcomeUnknown' } })
+  const recovered = await page.evaluate(async command => ({ inspection: await window.demo.inspectOperation(command), replay: await window.demo.execute(command), changed: await window.demo.execute({ ...command, verified: false }) }), command)
+  expect(recovered.replay).toMatchObject({ ok: true, value: { application: { sharedRevision: command.expectedSharedRevision + 1 } } })
+  expect(recovered.inspection).toMatchObject({ value: { status: 'committed', result: recovered.replay.ok ? recovered.replay.value : null } })
+  expect(recovered.changed).toMatchObject({ error: { kind: 'identifierMisuse' } })
+  if (!recovered.replay.ok || recovered.replay.value.application.role !== 'reviewer' || !aborted.before.ok || aborted.before.value.role !== 'reviewer') throw new Error('No review')
+  expect(recovered.replay.value.application.activity).toHaveLength(aborted.before.value.activity.length + 1)
+  expect(recovered.replay.value.application.history).toEqual(aborted.before.value.history)
+  expect(recovered.replay.value.application.rounds[0].targets[0].verified).toBe(true)
+  await page.evaluate(refuseCommitNotices)
+  const undo = { ...command, operationId: 'undo-notices', expectedSharedRevision: command.expectedSharedRevision + 1, verified: false }
+  const undone = await page.evaluate(command => window.demo.execute(command), undo)
+  expect(undone).toMatchObject({ ok: true, value: { application: { sharedRevision: command.expectedSharedRevision + 2, rounds: [{ targets: [{ verified: false }, { verified: false }] }] } } })
+  expect(await page.evaluate(command => window.demo.execute(command), undo)).toEqual(undone)
 })
 
 test('simultaneous resubmissions in two tabs commit one response and refuse the other intent', async ({ page, context }) => {

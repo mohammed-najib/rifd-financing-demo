@@ -1,9 +1,32 @@
 import { expect, test } from '@playwright/test'
 import { damageDataset } from './startup-fixtures'
 import { addLegacyValues, addUnknownStore, holdSlowRequest } from './reset-fixtures'
-import { loseNextWriteCompletion } from './storage-faults'
+import { loseNextWriteCompletion, refuseCommitNotices } from './storage-faults'
 
 test.describe.configure({ mode: 'parallel' })
+
+test('failed reset notices preserve the committed receipt and another tab recovers on its next read', async ({ page, context }) => {
+  await page.goto('/tests/browser/api.html')
+  await page.waitForFunction(() => window.demo)
+  await page.evaluate(() => window.demo.startup())
+  const other = await context.newPage()
+  await other.goto('/tests/browser/api.html')
+  await other.waitForFunction(() => window.demo)
+  const original = await other.evaluate(async () => { await window.demo.startup(); return window.demo.signIn('huda') })
+  const command = await page.evaluate(async () => {
+    const observed = await window.demo.inspectReset()
+    if (!observed.ok) throw new Error('No reset context')
+    return { kind: 'resetDemo' as const, context: observed.value, operationId: 'reset-notices', confirmed: true as const }
+  })
+  await page.evaluate(refuseCommitNotices)
+  const committed = await page.evaluate(command => window.demo.execute(command), command)
+  expect(committed).toMatchObject({ ok: true, value: { replay: false } })
+  if (!committed.ok || !original.ok) throw new Error('No reset result')
+  expect(committed.value.datasetId).not.toBe(original.value.datasetId)
+  expect(await page.evaluate(command => window.demo.inspectResetOperation(command), command)).toEqual({ ok: true, value: { status: 'committed', result: { ...committed.value, replay: true } } })
+  expect(await page.evaluate(command => window.demo.execute(command), command)).toEqual({ ok: true, value: { ...committed.value, replay: true } })
+  expect(await other.evaluate(() => window.demo.context())).toMatchObject({ ok: true, value: { datasetId: committed.value.datasetId, session: null, preferences: { language: 'ar', revision: 1 } } })
+})
 
 test('unsupported stores with binary keys, typed data, maps and files can be confirmed and reset', async ({ page }) => {
   await page.goto('/tests/browser/api.html')

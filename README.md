@@ -74,6 +74,7 @@ pnpm test                       # Pure domain
 pnpm test:browser:api           # Public demo interface with actual IndexedDB in Chrome
 pnpm build
 pnpm test:browser               # Production static screens, Chrome / Firefox / WebKit
+pnpm test:acceptance            # All checks, fresh build, both browser suites, retained reports
 ```
 
 Install ordinary Google Chrome and the pinned Playwright Firefox and WebKit binaries. On a Playwright-supported Linux distribution:
@@ -84,7 +85,18 @@ pnpm exec playwright install --with-deps firefox webkit
 
 Chrome tests use the installed `chrome` channel. Firefox and WebKit use Playwright's patched binaries. Responsive checks emulate CSS viewports, not physical devices. Read [slice 01 evidence](docs/implementation/01-evidence.md) for the actual tested versions and host arrangement.
 
-The API harness runs only on a separate Vite test server at `/tests/browser/api.html`. It imports the same public module as the screens. It does not ship in the static build. API and screen reports use separate artifact directories so independent runs cannot erase each other's traces. Failures retain traces and screenshots under `test-results/`; the screen HTML report is under `playwright-report/`.
+The API harness runs only on a separate Vite test server at `/tests/browser/api.html`. It imports the same public module as the screens. It does not ship in the static build. API and screen reports use separate artifact directories so independent runs cannot erase each other's traces. Failures retain traces and screenshots under `test-results/`; HTML reports are under `playwright-report/api` and `playwright-report/screens`.
+
+`pnpm test:acceptance` runs typecheck, lint, domain and packaged-guidance checks,
+builds the SPA, then runs the full API and screen suites sequentially with three
+browser workers. Each invocation retains logs, HTML/JSON reports, screenshots,
+failure traces and successful correction/decision journey traces in its own
+timestamped `artifacts/acceptance/20/` directory. `run.json` records actual browser
+versions and gate results; `source.json` binds them to the commit and source hashes.
+On this Arch host, set `RIFD_WEBKIT_EXECUTABLE=/tmp/rifd-webkit-run.sh` as documented
+in slice 01. The [functional acceptance matrix](docs/implementation/20-evidence.md)
+links requirements to the tests and final run evidence. Manual accessibility,
+visual/print inspection, performance and hosted-release gates have their own tickets.
 
 Install Firebase CLI 15.30.0 to reproduce the Hosting checks:
 

@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test'
 import type { ReviewOperation } from '../../src/demo'
-import { loseNextWriteCompletion } from './storage-faults'
+import { loseNextWriteCompletion, refuseCommitNotices } from './storage-faults'
 
 test.describe.configure({ mode: 'parallel' })
 
@@ -43,6 +43,7 @@ test('a complete initial submission is approved once with exact frozen terms and
     await demo.signIn('salma')
   })
   const { command } = await ready(page, 'RIFD-2026-001')
+  await page.evaluate(refuseCommitNotices)
   const result = await page.evaluate(async command => {
     const demo = window.demo
     const approved = await demo.execute(command as unknown as ReviewOperation)
@@ -135,6 +136,7 @@ test('a new young business submits normally and is rejected on operating history
     if (!failed.ok) throw new Error('No failed criterion')
     return { ...base, kind: 'reject' as const, operationId: 'reject-new', expectedSharedRevision: 5, confirmed: true as const, confirmationSessionId: staff.value.session.sessionId, reason: { ar: 'مدة النشاط شهران، والحد الأدنى ستة أشهر.', en: 'The business has operated for two months; six months are required.' } }
   })
+  await page.evaluate(refuseCommitNotices)
   const result = await page.evaluate(async command => {
     const rejected = await window.demo.execute(command)
     await window.demo.signIn('omar')

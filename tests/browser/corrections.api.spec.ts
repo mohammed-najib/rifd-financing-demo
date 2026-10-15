@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { loseNextWriteCompletion } from './storage-faults'
+import { loseNextWriteCompletion, refuseCommitNotices } from './storage-faults'
 
 test.describe.configure({ mode: 'parallel' })
 async function staff(page: Page) {
@@ -15,6 +15,7 @@ async function staff(page: Page) {
 
 test('requests a missing document and a field with a fixed baseline, private workspace and one public notice', async ({ page }) => {
   const datasetId = await staff(page)
+  await page.evaluate(refuseCommitNotices)
   const result = await page.evaluate(async datasetId => {
     const demo = window.demo
     const applicationId = 'RIFD-2026-003'

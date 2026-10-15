@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { loseNextWriteCompletion } from './storage-faults'
+import { loseNextWriteCompletion, refuseCommitNotices } from './storage-faults'
 
 test.describe.configure({ mode: 'parallel' })
 
@@ -16,6 +16,7 @@ async function applicant(page: Page) {
 
 test('private invalid corrections and replacement bytes survive reload while a same-context reviewer sees the submitted snapshot', async ({ page, context }) => {
   const datasetId = await applicant(page)
+  await page.evaluate(refuseCommitNotices)
   const reviewer = await context.newPage()
   await reviewer.goto('/tests/browser/api.html')
   await reviewer.waitForFunction(() => window.demo)

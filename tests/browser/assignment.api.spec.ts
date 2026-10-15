@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { loseNextWriteCompletion } from './storage-faults'
+import { loseNextWriteCompletion, refuseCommitNotices } from './storage-faults'
 
 test.describe.configure({ mode: 'parallel' })
 
@@ -16,6 +16,7 @@ async function openStaff(page: Page) {
 
 test('claim and review start commit separately with durable receipts and distinct public activity', async ({ page }) => {
   const context = await openStaff(page)
+  await page.evaluate(refuseCommitNotices)
   const result = await page.evaluate(async datasetId => {
     const demo = window.demo
     const before = await demo.readApplication('RIFD-2026-002')
@@ -55,6 +56,7 @@ test('claim and review start commit separately with durable receipts and distinc
 
 test('confirmed transfers retain correction work and stay absent from applicant history and notifications', async ({ page }) => {
   const context = await openStaff(page)
+  await page.evaluate(refuseCommitNotices)
   const result = await page.evaluate(async datasetId => {
     const demo = window.demo
     await demo.signIn('huda')
@@ -80,6 +82,20 @@ test('confirmed transfers retain correction work and stay absent from applicant 
   if (!result.applicant.ok || !result.afterApplicant.ok) throw new Error('Applicant cannot read')
   expect({ ...result.afterApplicant.value, sharedRevision: result.applicant.value.sharedRevision }).toEqual(result.applicant.value)
   expect(result.afterNotices).toEqual(result.notices)
+})
+
+test('unassignment survives failed change notices and replays without another activity entry', async ({ page }) => {
+  const context = await openStaff(page)
+  await page.evaluate(refuseCommitNotices)
+  const result = await page.evaluate(async datasetId => {
+    const command = { kind: 'unassignApplication' as const, datasetId, applicationId: 'RIFD-2026-003', expectedSharedRevision: 1, operationId: 'unassign-notice' }
+    const committed = await window.demo.execute(command)
+    return { committed, replay: await window.demo.execute(command), inspection: await window.demo.inspectOperation(command), after: await window.demo.readApplication(command.applicationId) }
+  }, context.datasetId)
+  expect(result.committed).toMatchObject({ ok: true, value: { application: { sharedRevision: 2, status: 'submitted', assignment: null } } })
+  expect(result.replay).toEqual(result.committed)
+  expect(result.inspection).toMatchObject({ value: { status: 'committed', result: result.committed.ok ? result.committed.value : null } })
+  expect(result.after).toEqual(result.committed.ok ? { ok: true, value: result.committed.value.application } : null)
 })
 
 const records = [

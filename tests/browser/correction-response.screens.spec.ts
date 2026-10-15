@@ -174,7 +174,7 @@ test('unknown private save outcome requires inspection and preserves later input
   await expect(amount).toHaveValue('400000', { timeout: 30_000 })
 })
 
-test('a clean retained buffer cannot prevent opening a newer current correction round', async ({ page }) => {
+test('a clean retained buffer cannot prevent opening a newer current correction round', async ({ page, context }) => {
   await start(page)
   const editor = page.getByRole('region', { name: 'Respond to corrections', exact: true })
   await editor.getByRole('textbox', { name: 'Financing amount', exact: true }).fill('450000')
@@ -182,33 +182,27 @@ test('a clean retained buffer cannot prevent opening a newer current correction 
   await expect(editor.getByRole('status').filter({ hasText: /^Saved$/ })).toBeVisible()
   await page.getByRole('link', { name: 'My applications', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'My applications', exact: true })).toBeVisible()
-  // System-boundary fixture: a different current round arrives while this tab
-  // retains the previous round's clean saved buffer. No publication API bypass.
-  await page.evaluate(async () => {
-    const db = await new Promise<IDBDatabase>((resolve, reject) => {
-      const request = indexedDB.open('rifd-demo', 1)
-      request.onsuccess = () => resolve(request.result)
-      request.onerror = () => reject(request.error)
-    })
-    await new Promise<void>((resolve, reject) => {
-      const tx = db.transaction('state', 'readwrite')
-      const store = tx.objectStore('state')
-      const request = store.get('dataset')
-      request.onsuccess = () => {
-        const data = request.result as import('../../src/domain/model').Dataset
-        const application = data.applications.find(application => application.id === 'RIFD-2026-004')!
-        application.rounds.at(-1)!.id = 'current-round-fixture'
-        application.workspace = { ...application.workspace!, roundId: 'current-round-fixture', revision: 1, snapshot: structuredClone(application.submitted!) }
-        application.sharedRevision++
-        store.put(data, 'dataset')
-      }
-      tx.oncomplete = () => resolve()
-      tx.onabort = () => reject(tx.error)
-    })
-    db.close()
-  })
+  const other = await context.newPage()
+  await other.goto('/applications/RIFD-2026-004/corrections/current')
+  await other.getByRole('button', { name: 'Huda Ali', exact: true }).click()
+  const response = other.getByRole('region', { name: 'Respond to corrections', exact: true })
+  await response.getByRole('textbox', { name: 'Financing amount', exact: true }).fill('400000')
+  await response.locator('input[type=file]').setInputFiles({ name: 'DEMO-next-plan.png', mimeType: 'image/png', buffer: Buffer.from('Fictional plan for the next round') })
+  await expect(response.getByRole('button', { name: 'Preview ready file', exact: true })).toBeVisible()
+  await response.getByRole('button', { name: 'Resubmit corrections', exact: true }).click()
+  await expect(other).toHaveURL(/\/applications\/RIFD-2026-004$/)
+  await other.getByRole('button', { name: 'Switch identity', exact: true }).click()
+  await other.getByRole('button', { name: 'Salma Nasser', exact: true }).click()
+  await expect(other).toHaveURL(/\/staff\/applications$/)
+  await other.goto('/staff/applications/RIFD-2026-004/correction-request')
+  await other.getByRole('checkbox', { name: 'Financing amount', exact: true }).check()
+  await other.getByRole('textbox', { name: 'Correction reason: Financing amount', exact: true }).fill('Inspect the amount again in this fresh round.')
+  await other.getByRole('button', { name: 'Inspect correction request', exact: true }).click()
+  await other.getByRole('dialog').getByRole('button', { name: 'Confirm and send request', exact: true }).click()
+  await expect(other.getByRole('status').filter({ hasText: 'Correction request sent.' })).toBeVisible()
+  await page.bringToFront()
   await page.locator('[data-application="RIFD-2026-004"]').getByRole('link').click()
   await page.getByRole('link', { name: 'Open correction workspace', exact: true }).click()
   await expect(editor).toBeVisible()
-  await expect(editor.getByRole('textbox', { name: 'Financing amount', exact: true })).toHaveValue('600000')
+  await expect(editor.getByRole('textbox', { name: 'Financing amount', exact: true })).toHaveValue('400000')
 })

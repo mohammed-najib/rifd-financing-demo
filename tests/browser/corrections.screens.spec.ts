@@ -2,6 +2,7 @@ import { expect, test, type Page } from '@playwright/test'
 import { loseNextWriteCompletion } from './storage-faults'
 
 test.describe.configure({ mode: 'parallel' })
+test.use({ trace: 'on' })
 async function start(page: Page, language: 'ar' | 'en' = 'en', id = '007', composer = true) {
   await page.goto(`/staff/applications/RIFD-2026-${id}${composer ? '/correction-request' : ''}`)
   await expect(page.locator('[data-workspace-ready="true"]')).toBeVisible({ timeout: 30_000 })
@@ -9,6 +10,59 @@ async function start(page: Page, language: 'ar' | 'en' = 'en', id = '007', compo
   await page.getByRole('button', { name: language === 'en' ? 'Salma Nasser' : 'سلمى ناصر', exact: true }).click()
   await expect(page.getByRole('heading', { name: `RIFD-2026-${id}`, exact: true })).toBeVisible()
 }
+
+for (const language of ['ar', 'en'] as const) test(`${language} missing evidence stays private until resubmission in a shared applicant and reviewer journey`, async ({ page, context }) => {
+  const ar = language === 'ar'
+  await start(page, language, '003', false)
+  await page.getByRole('button', { name: ar ? 'بدء المراجعة' : 'Start review', exact: true }).click()
+  const financial = page.getByRole('region', { name: ar ? 'ملخص الإيرادات والمصروفات' : 'Revenue and expense summary', exact: true })
+  await expect(financial).toContainText(ar ? 'لم يُرفق مستند' : 'No document supplied')
+  await page.getByRole('link', { name: ar ? 'طلب تصحيحات' : 'Request corrections', exact: true }).click()
+  await page.getByRole('checkbox', { name: ar ? 'ملخص الإيرادات والمصروفات' : 'Revenue and expense summary', exact: true }).check()
+  const reason = ar ? 'أضف ملخص الأشهر الثلاثة المفقود.' : 'Supply the missing three-month summary.'
+  await page.getByRole('textbox', { name: ar ? 'سبب التصحيح: ملخص الإيرادات والمصروفات' : 'Correction reason: Revenue and expense summary', exact: true }).fill(reason)
+  await page.getByRole('button', { name: ar ? 'فحص طلب التصحيح' : 'Inspect correction request', exact: true }).click()
+  await page.getByRole('dialog').getByRole('button', { name: ar ? 'تأكيد وإرسال الطلب' : 'Confirm and send request', exact: true }).click()
+  await expect(page.getByRole('status').filter({ hasText: ar ? 'أُرسل طلب التصحيح.' : 'Correction request sent.' })).toBeVisible()
+  await page.getByRole('link', { name: ar ? 'العودة إلى المراجعة' : 'Back to review', exact: true }).click()
+
+  const applicant = await context.newPage()
+  await applicant.goto('/notifications')
+  await applicant.getByRole('button', { name: ar ? 'هدى علي' : 'Huda Ali', exact: true }).click()
+  const notice = applicant.locator('[data-notification]').filter({ hasText: 'RIFD-2026-003' })
+  await expect(notice).toHaveCount(1)
+  await notice.getByRole('link', { name: ar ? 'فتح الطلب الحالي' : 'Open current application', exact: true }).click()
+  await expect(applicant).toHaveURL(/\/applications\/RIFD-2026-003\/corrections\/current$/)
+  const editor = applicant.getByRole('region', { name: ar ? 'الرد على التصحيحات' : 'Respond to corrections', exact: true })
+  await expect(editor).toContainText(reason)
+  await expect(editor.getByRole('textbox')).toHaveCount(0)
+  await editor.getByRole('button', { name: ar ? 'حفظ التقدم' : 'Save progress', exact: true }).click()
+  await expect(editor.getByRole('status').filter({ hasText: ar ? /^محفوظ$/ : /^Saved$/ })).toBeVisible()
+  await editor.getByRole('button', { name: ar ? 'استخدام النموذج' : 'Use sample', exact: true }).click()
+  await expect(editor.getByRole('button', { name: ar ? 'معاينة الملف الجاهز' : 'Preview ready file', exact: true })).toBeVisible()
+  await editor.getByRole('button', { name: ar ? 'حفظ التقدم' : 'Save progress', exact: true }).click()
+  await expect(editor.getByRole('button', { name: ar ? 'معاينة الملف الجاهز' : 'Preview ready file', exact: true })).toHaveCount(0)
+  await applicant.reload()
+  await expect(editor.getByRole('button', { name: ar ? 'معاينة الملف المحفوظ' : 'Preview saved file', exact: true })).toBeVisible()
+  await page.reload()
+  await expect(financial).toContainText(ar ? 'لم يُرفق مستند' : 'No document supplied')
+  await expect(page.getByRole('button', { name: ar ? 'قبول المستند' : 'Accept document', exact: true })).toHaveCount(0)
+  await applicant.bringToFront()
+  await editor.getByRole('button', { name: ar ? 'إعادة تقديم التصحيحات' : 'Resubmit corrections', exact: true }).click()
+  await expect(applicant).toHaveURL(/\/applications\/RIFD-2026-003$/)
+  await page.bringToFront()
+  await expect(financial.getByRole('button', { name: ar ? 'قبول المستند' : 'Accept document', exact: true })).toBeVisible({ timeout: 30_000 })
+  await expect(financial).toContainText(ar ? 'بانتظار التقييم' : 'Awaiting review')
+  await financial.getByRole('button', { name: ar ? 'قبول المستند' : 'Accept document', exact: true }).click()
+  const verification = page.getByRole('heading', { name: ar ? 'التحقق من التصحيحات' : 'Correction verification', exact: true }).locator('..')
+  await expect(verification.getByText(ar ? 'تم التحقق' : 'Verified', { exact: true })).toHaveCount(1)
+  await expect(page.getByRole('button', { name: ar ? 'استلام الطلب' : 'Claim application', exact: true })).toHaveCount(0)
+  await applicant.bringToFront()
+  await applicant.goto('/notifications')
+  await expect(notice).toHaveCount(1)
+  await notice.getByRole('link', { name: ar ? 'فتح الطلب الحالي' : 'Open current application', exact: true }).click()
+  await expect(applicant).toHaveURL(/\/applications\/RIFD-2026-003$/)
+})
 
 for (const language of ['ar', 'en'] as const) test(`${language} inspect and confirm only the selected field and document, then pause review`, async ({ page }) => {
   const ar = language === 'ar'
