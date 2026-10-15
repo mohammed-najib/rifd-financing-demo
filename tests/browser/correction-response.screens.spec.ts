@@ -13,7 +13,8 @@ async function start(page: Page, language: 'ar' | 'en' = 'en', suffix = '/correc
 
 for (const language of ['ar', 'en'] as const) for (const target of ['controls', 'retry'] as const) test(`${language} pointer activation of ${target} survives sample loading after recovery`, async ({ page }, info) => {
   const ar = language === 'ar'
-  await page.setViewportSize({ width: 390, height: 950 })
+  const width = target === 'controls' ? 1440 : 390
+  await page.setViewportSize({ width, height: 950 })
   await start(page, language)
   const editor = page.getByRole('region', { name: ar ? 'الرد على التصحيحات' : 'Respond to corrections', exact: true })
   await expect(editor.locator('#purchase-sample')).toBeEnabled()
@@ -37,7 +38,7 @@ for (const language of ['ar', 'en'] as const) for (const target of ['controls', 
   await page.mouse.up()
   if (target === 'controls') await expect(editor.getByRole('checkbox')).toBeVisible()
   else await expect(editor.getByRole('progressbar')).toBeVisible()
-  await page.screenshot({ path: info.outputPath(`pointer-${target}-${language}-390.png`), fullPage: true })
+  await page.screenshot({ path: info.outputPath(`pointer-${target}-${language}-${width}.png`), fullPage: true })
 })
 
 for (const language of ['ar', 'en'] as const) test(`${language} only requested targets are editable and private saved files restore after reload`, async ({ page }) => {
