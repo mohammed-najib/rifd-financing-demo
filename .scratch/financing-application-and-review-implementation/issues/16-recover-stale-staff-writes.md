@@ -4,7 +4,7 @@
 
 **Blocked by:** [14: Confirm final decisions and freeze approved terms](14-confirm-decisions-and-freeze-terms.md).
 
-**Status:** ready-for-agent
+**Status:** complete
 
 **Source:** [RIFD specification](../../financing-application-and-review/spec.md). Its accepted behavior, permissions, transaction guarantees, bilingual presentation and testing decisions apply to this slice.
 
@@ -14,8 +14,10 @@
 
 **Styling:** Follow the [Tailwind v4 conventions](../../../README.md#styling) for new or changed UI, preserving Guided A, both directions and the shared design tokens.
 
-- [ ] Offer the control only for an eligible Under review record assigned to Salma, commit the transfer/internal event and hold only the initiating view stale.
-- [ ] Reject all stale staff write families without their effects, while other tabs receive the transfer normally.
-- [ ] Load latest reveals Khaled/activity, preserves review results and unapplied text, changes write controls to read-only and invalidates confirmations.
-- [ ] Require a normal confirmed reclaim, current-record inspection and a new permitted action, including new final confirmation.
-- [ ] Verify deterministic conflict and a separate real same-context race, stale-versus-forbidden precedence, expiry during recovery and no duplicate or lost effects.
+- [x] Offer the control only for an eligible Under review record assigned to Salma, commit the transfer/internal event and hold only the initiating view stale.
+- [x] Reject all stale staff write families without their effects, while other tabs receive the transfer normally.
+- [x] Load latest reveals Khaled/activity, preserves review results and unapplied text, changes write controls to read-only and invalidates confirmations.
+- [x] Require a normal confirmed reclaim, current-record inspection and a new permitted action, including new final confirmation.
+- [x] Verify deterministic conflict and a separate real same-context race, stale-versus-forbidden precedence, expiry during recovery and no duplicate or lost effects.
+
+Implementation and validation: [slice 16 evidence](../../../docs/implementation/16-evidence.md).

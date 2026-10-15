@@ -1,3 +1,4 @@
+import { assignmentText } from './assignment-copy'
 import { useEffect, useRef, useState } from 'react'
 import { demoIdentities, type Demo, type ErrorKind, type ReviewOperation } from '../demo'
 import type { StaffView } from '../demo/types'
@@ -99,7 +100,7 @@ export function Decision({ demo, datasetId, sessionId, view, language, retained,
       <p role="status" aria-live="polite">{busy ? t('working') : message ? t(message) : ''}</p>
       {stale && <p role="alert">{t('changed')}</p>}
       {buffer.error && <p role="alert">{errors[buffer.error][language]}</p>}
-      {(stale || buffer.intent || buffer.error) && <button disabled={busy} onClick={() => void inspect()}>{t(buffer.intent ? 'outcome' : 'latest')}</button>}
+      {(stale || buffer.intent || buffer.error) && <button disabled={busy} onClick={() => void inspect()}>{buffer.error === 'staleRecord' ? assignmentText.latest[language] : t(buffer.intent ? 'outcome' : 'latest')}</button>}
       <label className="mt-4 mb-1.5 block font-semibold" htmlFor="decision-reason">{t('reason')}</label>
       <textarea id="decision-reason" className="review-textarea" value={buffer.reason} disabled={busy || !!buffer.intent} readOnly={!allowed} onChange={event => { buffer.reason = event.target.value; setMessage(null); update() }} />
       <div className="actions"><button disabled={blocked || !readiness.canApprove} onClick={() => prepare('approve')}>{t('inspectApprove')}</button><button className="secondary" disabled={blocked || !readiness.canReject} onClick={() => prepare('reject')}>{t('inspectReject')}</button></div>

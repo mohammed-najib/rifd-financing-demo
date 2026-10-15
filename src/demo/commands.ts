@@ -43,7 +43,7 @@ const reviewVersion = {
 export const reviewOperationSchema = z.discriminatedUnion('kind', [z.object({
   ...reviewVersion,
   kind: z.enum(['claimApplication', 'startReview', 'unassignApplication']),
-}).strict(), z.object({ ...reviewVersion, kind: z.literal('transferApplication'), from: z.enum(['salma', 'khaled']), to: z.enum(['salma', 'khaled']), confirmed: z.literal(true) }).strict(),
+}).strict(), z.object({ ...reviewVersion, kind: z.literal('transferApplication'), from: z.enum(['salma', 'khaled']), to: z.enum(['salma', 'khaled']), confirmed: z.literal(true), simulated: z.literal(true).optional() }).strict(),
   z.object({ ...reviewVersion, kind: z.literal('assessDocument'), slot: slotSchema, fileId: z.string().min(1), status: z.enum(['accepted', 'needsReplacement']), reason: bilingualSchema.nullable() }).strict(),
   z.object({ ...reviewVersion, kind: z.literal('recordCheck'), check: z.enum(['evidence', 'operatingHistory', 'purpose', 'budget', 'capacity']), outcome: z.enum(['unchecked', 'passed', 'failed']) }).strict(),
   z.object({ ...reviewVersion, kind: z.literal('saveNote'), text: bilingualSchema }).strict(),
@@ -71,7 +71,7 @@ export function applicationFingerprint(operation: ApplicationMutation): string {
   if (operation.kind === 'recordCheck') return JSON.stringify({ kind: operation.kind, applicationId: operation.applicationId, check: operation.check, outcome: operation.outcome })
   if (operation.kind === 'saveNote') return JSON.stringify({ kind: operation.kind, applicationId: operation.applicationId, text: operation.text })
   if (!('fields' in operation)) return JSON.stringify(operation.kind === 'transferApplication'
-    ? { kind: operation.kind, applicationId: operation.applicationId, from: operation.from, to: operation.to, confirmed: operation.confirmed }
+    ? { kind: operation.kind, applicationId: operation.applicationId, from: operation.from, to: operation.to, confirmed: operation.confirmed, ...(operation.simulated ? { simulated: true } : {}) }
     : { kind: operation.kind, applicationId: operation.applicationId })
   return JSON.stringify({
     kind: operation.kind, applicationId: operation.applicationId, product: operation.product,

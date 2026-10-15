@@ -69,7 +69,7 @@ export type SaveCorrectionsOperation = Omit<SaveDraftOperation, 'kind'> & { kind
 export type ResubmitOperation = Omit<SaveCorrectionsOperation, 'kind'> & { kind: 'resubmit'; expectedSharedRevision: number }
 export type ReviewOperation = {
   datasetId: string; operationId: string; applicationId: string; expectedSharedRevision: number;
-} & ({ kind: 'claimApplication' | 'startReview' | 'unassignApplication' } | { kind: 'transferApplication'; from: 'salma' | 'khaled'; to: 'salma' | 'khaled'; confirmed: true }
+} & ({ kind: 'claimApplication' | 'startReview' | 'unassignApplication' } | { kind: 'transferApplication'; from: 'salma' | 'khaled'; to: 'salma' | 'khaled'; confirmed: true; simulated?: true }
   | { kind: 'assessDocument'; slot: DocumentSlot; fileId: string; status: 'accepted' | 'needsReplacement'; reason: Bilingual | null }
   | { kind: 'recordCheck'; check: ReviewCheck; outcome: 'unchecked' | 'passed' | 'failed' }
   | { kind: 'saveNote'; text: Bilingual }

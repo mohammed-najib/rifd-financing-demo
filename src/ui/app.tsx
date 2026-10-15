@@ -5,7 +5,7 @@ import { products, resolveStep } from '../domain'
 import type { ActorId, Language, ProductId } from '../domain/model'
 import { date, displayFieldValue, documentLabel, errors, money, text } from './i18n'
 import { DraftEditor, RetainedDraft, draftDirty, type DraftBuffer } from './draft'
-import { DepartureDialog, type Departure, type DepartureRequest } from './departure'
+import { combineDeparture, DepartureDialog, type Departure, type DepartureRequest } from './departure'
 import { DocumentPreview } from './preview'
 import { applicationText } from './application-copy'
 import { Notifications } from './notifications'
@@ -22,6 +22,7 @@ import { CorrectionRequest, correctionDirty, type CorrectionBuffer } from './cor
 import { correctionText } from './correction-copy'
 import { responseText } from './correction-response'
 import { RepaymentOverview, RepaymentSummary, repaymentText } from './repayment'
+import { StaleWriteControl } from './stale-write-control'
 
 type Screen = { kind: 'home' | 'chooser' | 'products' | 'applicantList' | 'staffList' | 'newDraft' | 'unavailable' | 'notifications' } | { kind: 'applicantDetail' | 'staffDetail' | 'staffRequest' | 'staffDecision' | 'applicantPrint' | 'staffPrint' | 'applicantRepayment' | 'staffRepayment'; id: string }
 function resolveScreen(path: string): Screen {
@@ -86,6 +87,9 @@ export function App() {
   const reviewBuffers = useRef(new Map<string, ReviewBuffer>())
   const correctionBuffers = useRef(new Map<string, CorrectionBuffer>())
   const departure = useRef<Departure | null>(null)
+  const staffWork = useRef<Departure | null>(null)
+  const simulationWork = useRef<Departure | null>(null)
+  const heldStaffView = useRef<{ path: string; sessionId: string | undefined } | null>(null)
   const [, refreshDeparture] = useState(0)
   const [leaving, setLeaving] = useState<DepartureRequest | null>(null)
   const currentContext = useRef(context)
@@ -162,9 +166,17 @@ export function App() {
   const identity = context?.identity
   const identityId = identity?.id
   const sessionId = context?.session?.sessionId
+  const staffDeparture = (work: Departure | null, simulation = false) => {
+    if (simulation) simulationWork.current = work
+    else staffWork.current = work
+    departure.current = combineDeparture(simulationWork.current, staffWork.current)
+    refreshDeparture(value => value + 1)
+  }
+  const changeStaffView = (application: ApplicationView) => { heldStaffView.current = null; setView(application) }
   useEffect(() => {
     let active = true
     const current = resolveScreen(path)
+    if (heldStaffView.current && (heldStaffView.current.path !== path || heldStaffView.current.sessionId !== sessionId)) heldStaffView.current = null
     setError(null)
     const readContext = `${path}/${identityId}/${sessionId}`
     if (loadedContext.current !== readContext) {
@@ -217,7 +229,8 @@ export function App() {
               return
             }
           }
-          setView(result.value)
+          // Only the initiating screen is held. Explicit inspection uses changeStaffView.
+          if (!heldStaffView.current) setView(result.value)
           const retained = draftBuffers.current.get(`${context.datasetId}/${identityId}/${result.value.id}`)
           const retainedRound = retained && draftDirty(retained) ? retained.baseline : undefined
           const currentRound = result.value.role === 'applicant' ? result.value.workspace?.roundId : null
@@ -372,7 +385,7 @@ export function App() {
           : screen.kind === 'staffList' && context ? <StaffApplicationQueue key={`${context.datasetId}/${identityId}/${sessionId}`} demo={demo} context={context} language={language} input={search} href={href} reload={reload} go={go} acceptContext={acceptContext} />
           : list ? <ApplicationList list={list} language={language} go={go} />
           : view && (screen.kind === 'staffRepayment' || screen.kind === 'applicantRepayment') ? <RepaymentOverview view={view} language={language} queueSearch={screen.kind === 'staffRepayment' ? searchStr : ''} go={go} />
-          : view ? <ApplicationDetail key={`${context?.datasetId}/${identityId}/${sessionId}/${view.id}`} demo={demo} view={view} language={language} queueSearch={['staffDetail', 'staffRequest', 'staffDecision'].includes(screen.kind) ? searchStr : ''} requesting={screen.kind === 'staffRequest' || screen.kind === 'staffDecision'} confirmed={submittedId === view.id} redirectedCorrection={resolvedCorrectionId === view.id} redirectedRepayment={resolvedRepaymentId === view.id} go={go}>{view.role === 'reviewer' && context?.session && screen.kind === 'staffDecision' && <Decision demo={demo} datasetId={context.datasetId} sessionId={context.session.sessionId} view={view} language={language} queueSearch={searchStr} go={go} retained={decisionBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => decisionBuffers.current.set(`${context.datasetId}/${identityId}/${view.id}`, buffer)} changed={setView} departure={value => { departure.current = value; refreshDeparture(value => value + 1) }} />}{view.role === 'reviewer' && context && screen.kind === 'staffRequest' && <CorrectionRequest demo={demo} datasetId={context.datasetId} view={view} language={language} queueSearch={searchStr} go={go} retained={correctionBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => correctionBuffers.current.set(`${context.datasetId}/${identityId}/${view.id}`, buffer)} changed={setView} departure={value => { departure.current = value; refreshDeparture(value => value + 1) }} />}{view.role === 'reviewer' && context && screen.kind !== 'staffRequest' && screen.kind !== 'staffDecision' && <ReviewWorkspace demo={demo} datasetId={context.datasetId} view={view} language={language} retained={reviewBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => reviewBuffers.current.set(`${context.datasetId}/${identityId}/${view.id}`, buffer)} changed={setView} departure={value => { departure.current = value; refreshDeparture(value => value + 1) }} />}{view.role === 'applicant' && (view.status === 'draft' || view.status === 'correctionsRequested' && path.endsWith('/corrections/current')) && context && <DraftEditor demo={demo} view={view} context={context} language={language} step={step} changeStep={step => { void go(`${path}?${screen.kind === 'newDraft' ? `product=${chosenProduct}&` : ''}step=${step}`) }} retained={draftBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => draftBuffers.current.set(`${context.datasetId}/${identityId}/${view.id}`, buffer)} savedView={application => {
+          : view ? <ApplicationDetail key={`${context?.datasetId}/${identityId}/${sessionId}/${view.id}`} demo={demo} view={view} language={language} queueSearch={['staffDetail', 'staffRequest', 'staffDecision'].includes(screen.kind) ? searchStr : ''} requesting={screen.kind === 'staffRequest' || screen.kind === 'staffDecision'} confirmed={submittedId === view.id} redirectedCorrection={resolvedCorrectionId === view.id} redirectedRepayment={resolvedRepaymentId === view.id} go={go}>{view.role === 'reviewer' && context?.session && <StaleWriteControl demo={demo} datasetId={context.datasetId} view={view} language={language} hold={() => { heldStaffView.current = { path, sessionId } }} release={() => { heldStaffView.current = null }} changed={changeStaffView} departure={value => staffDeparture(value, true)} />}{view.role === 'reviewer' && context?.session && screen.kind === 'staffDecision' && <Decision demo={demo} datasetId={context.datasetId} sessionId={context.session.sessionId} view={view} language={language} queueSearch={searchStr} go={go} retained={decisionBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => decisionBuffers.current.set(`${context.datasetId}/${identityId}/${view.id}`, buffer)} changed={changeStaffView} departure={staffDeparture} />}{view.role === 'reviewer' && context && screen.kind === 'staffRequest' && <CorrectionRequest demo={demo} datasetId={context.datasetId} view={view} language={language} queueSearch={searchStr} go={go} retained={correctionBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => correctionBuffers.current.set(`${context.datasetId}/${identityId}/${view.id}`, buffer)} changed={changeStaffView} departure={staffDeparture} />}{view.role === 'reviewer' && context && screen.kind !== 'staffRequest' && screen.kind !== 'staffDecision' && <ReviewWorkspace demo={demo} datasetId={context.datasetId} view={view} language={language} retained={reviewBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => reviewBuffers.current.set(`${context.datasetId}/${identityId}/${view.id}`, buffer)} changed={changeStaffView} departure={staffDeparture} />}{view.role === 'applicant' && (view.status === 'draft' || view.status === 'correctionsRequested' && path.endsWith('/corrections/current')) && context && <DraftEditor demo={demo} view={view} context={context} language={language} step={step} changeStep={step => { void go(`${path}?${screen.kind === 'newDraft' ? `product=${chosenProduct}&` : ''}step=${step}`) }} retained={draftBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => draftBuffers.current.set(`${context.datasetId}/${identityId}/${view.id}`, buffer)} savedView={application => {
             setView(application)
             if (application.status !== 'draft' && application.status !== 'correctionsRequested') {
               draftBuffers.current.delete(`${context.datasetId}/${identityId}/${application.id}`)

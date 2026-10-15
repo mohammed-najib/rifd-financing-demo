@@ -1,3 +1,4 @@
+import { assignmentText } from './assignment-copy'
 import { useEffect, useRef, useState } from 'react'
 import type { Demo, ErrorKind, ReviewOperation } from '../demo'
 import type { StaffView } from '../demo/types'
@@ -14,6 +15,7 @@ import { activityDescription, reviewText } from './review-copy'
 export type ReviewBuffer = {
   note: string; replacement: { slot: DocumentSlot; text: string } | null;
   revision: number; intent: ReviewOperation | null; error: ErrorKind | null;
+  inspectAfterReclaim?: boolean;
 }
 export const reviewDirty = (buffer: ReviewBuffer) => !!buffer.note || !!buffer.replacement || !!buffer.intent
 
@@ -43,7 +45,7 @@ export function ReviewWorkspace({ demo, datasetId, view, language, retained, rem
     return () => { alive.current = false; reviewWork.current = null; assignmentWork.current = null; departureRef.current(null) }
   }, [])
   useEffect(() => { remember(buffer) }, [buffer, remember])
-  const stale = buffer.revision !== view.sharedRevision && reviewDirty(buffer)
+  const stale = buffer.revision !== view.sharedRevision && (reviewDirty(buffer) || buffer.inspectAfterReclaim)
   const blocked = busy || !!buffer.intent || stale
   const completed = (command: ReviewOperation) => {
     if (command.kind === 'saveNote' && buffer.note === command.text.ar) buffer.note = ''
@@ -73,15 +75,17 @@ export function ReviewWorkspace({ demo, datasetId, view, language, retained, rem
     const application = 'role' in value ? value : value.status === 'committed' ? value.result.application : value.application
     if ('status' in value && value.status === 'committed' && buffer.intent) { completed(buffer.intent); setMessage(true) }
     buffer.intent = null; buffer.error = null; buffer.revision = application.sharedRevision
+    buffer.inspectAfterReclaim = application.role === 'reviewer' && !application.assignedToYou && application.status === 'underReview'
     if (application.role === 'reviewer') changed(application)
     update()
   }
   const canSave = view.permissions.saveNote && !!buffer.note.trim() && !buffer.replacement && !blocked
   useEffect(() => {
-    if (!reviewDirty(buffer)) buffer.revision = view.sharedRevision
+    if (!view.assignedToYou && view.status === 'underReview') buffer.inspectAfterReclaim = true
+    if (!reviewDirty(buffer) && !buffer.inspectAfterReclaim) buffer.revision = view.sharedRevision
     reviewWork.current = {
       dirty: reviewDirty(buffer), pending: busy || buffer.error === 'outcomeUnknown',
-      discard: () => { buffer.note = ''; buffer.replacement = null; buffer.intent = null; buffer.error = null; buffer.revision = view.sharedRevision; update() },
+      discard: () => { buffer.note = ''; buffer.replacement = null; buffer.intent = null; buffer.error = null; buffer.inspectAfterReclaim = false; buffer.revision = view.sharedRevision; update() },
       ...(view.permissions.saveNote && buffer.note && !buffer.replacement ? { canSave, save: saveNote, saveLabel: reviewText.saveLeave } : {}),
     }
     publishDeparture()
@@ -106,7 +110,7 @@ export function ReviewWorkspace({ demo, datasetId, view, language, retained, rem
       <p role="status" aria-live="polite">{busy ? t('working') : message ? t('saved') : ''}</p>
       {stale && <p>{t('changed')}</p>}
       {buffer.error && <p role="alert">{errors[buffer.error][language]}</p>}
-      {(stale || buffer.error || buffer.intent) && <div className="actions"><button disabled={busy} onClick={() => void inspect()}>{t(buffer.intent ? 'inspect' : 'latest')}</button>
+      {(stale || buffer.error || buffer.intent) && <div className="actions"><button disabled={busy} onClick={() => void inspect()}>{buffer.error === 'staleRecord' ? assignmentText.latest[language] : t(buffer.intent ? 'inspect' : 'latest')}</button>
         {buffer.intent && ['storage', 'requestFailed'].includes(buffer.error ?? '') && !stale && <button disabled={busy} onClick={() => void run(buffer.intent!)}>{t('retry')}</button>}
       </div>}
     </div>
@@ -121,7 +125,7 @@ export function ReviewWorkspace({ demo, datasetId, view, language, retained, rem
             {view.permissions.assessDocument && <><button disabled={blocked || !!buffer.replacement} onClick={() => void run({ ...base(), kind: 'assessDocument', slot: document.slot, fileId: document.file!.id, status: 'accepted', reason: null })}>{t('accept')}</button>
               <button className="secondary" disabled={blocked || !!buffer.replacement} onClick={() => { buffer.replacement = { slot: document.slot, text: '' }; update() }}>{t('replace')}</button></>}
           </div>}
-          {buffer.replacement?.slot === document.slot && <div className="mt-4"><label className="mb-1.5 block font-semibold" htmlFor="replacement-reason">{t('reason')}</label><textarea className="review-textarea" id="replacement-reason" value={buffer.replacement.text} disabled={busy} onChange={event => { buffer.replacement!.text = event.target.value; update() }} />
+          {buffer.replacement?.slot === document.slot && <div className="mt-4"><label className="mb-1.5 block font-semibold" htmlFor="replacement-reason">{t('reason')}</label><textarea className="review-textarea" id="replacement-reason" value={buffer.replacement.text} disabled={busy} readOnly={!view.permissions.assessDocument} onChange={event => { buffer.replacement!.text = event.target.value; update() }} />
             <div className="actions"><button disabled={blocked || !view.permissions.assessDocument || !buffer.replacement.text.trim()} onClick={() => void run({ ...base(), kind: 'assessDocument', slot: document.slot, fileId: document.file!.id, status: 'needsReplacement', reason: { ar: buffer.replacement!.text, en: buffer.replacement!.text } })}>{t('saveAssessment')}</button><button className="secondary" disabled={busy || !!buffer.intent} onClick={() => { buffer.replacement = null; update() }}>{t('cancel')}</button></div>
           </div>}
         </section>)}</section>

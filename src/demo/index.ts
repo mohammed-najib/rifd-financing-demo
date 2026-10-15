@@ -249,6 +249,7 @@ export function createDemo(): Demo {
         if (!reviewPermissions(who, application)[command.kind]) throw new DemoError('invalidState')
         if (command.kind === 'transferApplication') {
           if (application.assignee !== command.from || command.from === command.to) throw new DemoError('invalidState')
+          if (command.simulated && (application.status !== 'underReview' || command.from !== 'salma' || command.to !== 'khaled')) throw new DemoError('invalidState')
         }
         if ((command.kind === 'approve' || command.kind === 'reject') && command.confirmationSessionId !== session?.sessionId) throw new DemoError('validation')
         validateReviewCommand(application, command)
@@ -262,7 +263,9 @@ export function createDemo(): Demo {
           const from = current.identities.find(identity => identity.id === command.from)!.name
           const to = current.identities.find(identity => identity.id === command.to)!.name
           application.assignee = command.to
-          application.activity.push({ ...entry, kind: 'assigned', actor: who, description: { ar: `نُقل الطلب من ${from.ar} إلى ${to.ar}.`, en: `Application transferred from ${from.en} to ${to.en}.` } })
+          application.activity.push({ ...entry, kind: 'assigned', actor: command.simulated ? 'khaled' : who, description: command.simulated
+            ? { ar: `نقل تجريبي من ${from.ar} إلى ${to.ar}.`, en: `Simulated transfer from ${from.en} to ${to.en}.` }
+            : { ar: `نُقل الطلب من ${from.ar} إلى ${to.ar}.`, en: `Application transferred from ${from.en} to ${to.en}.` } })
         } else if (command.kind === 'unassignApplication') {
           const from = current.identities.find(identity => identity.id === application.assignee)!.name
           application.assignee = null

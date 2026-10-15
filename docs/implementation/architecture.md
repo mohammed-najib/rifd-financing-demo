@@ -282,3 +282,27 @@ The shared summary sums Completed and Upcoming stored rows for progress amounts.
 The next entry is the first Upcoming row in schedule order, independent of the
 browser clock. Amount, markup, total, term and all dates come from the frozen
 snapshot. The overview adds no commands or persistence schema changes.
+
+## Stale staff writes
+
+`transferApplication` accepts an explicit `simulated: true` flag only for an
+Under review record assigned to Salma, transferring from Salma to Khaled. The
+flag belongs to the receipt fingerprint, so a normal transfer cannot replay a
+simulation's identifier. The existing transaction commits assignment, one
+identified simulated internal event, shared revision and receipt together.
+Review results and applicant-visible information remain unchanged.
+
+The initiating screen holds its displayed projection before dispatching the
+simulation. Background hints and activation still reread current context, but
+cannot replace that screen's projection until explicit inspection. Other tabs
+and all public reads receive current data. Navigation, dataset/session changes
+and explicit action inspection release the hold. Pending simulations join the
+departure guard; uncertain completion requires receipt inspection.
+
+Every staff write still uses the captured shared revision. Session and readable
+access checks precede revision comparison; a readable stale record takes
+precedence over lost-assignment denial. Refused writes commit no effects or
+receipt. Load latest keeps note, replacement, correction and decision text,
+updates permissions and invalidates confirmations. Confirmed reclaim changes
+the revision again, requiring inspection before retained work can be applied.
+Decisions require a newly prepared final confirmation.

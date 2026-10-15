@@ -1,3 +1,4 @@
+import { assignmentText } from './assignment-copy'
 import { useEffect, useRef, useState } from 'react'
 import type { Demo, ErrorKind, ReviewOperation } from '../demo'
 import type { StaffView } from '../demo/types'
@@ -91,7 +92,7 @@ export function CorrectionRequest({ demo, datasetId, view, language, retained, r
       <p role="status" aria-live="polite">{busy ? t('working') : message ? t(message) : ''}</p>
       {stale && <p role="alert">{t('changed')}</p>}
       {buffer.error && <p role="alert">{errors[buffer.error][language]}</p>}
-      {(stale || buffer.intent || buffer.error) && <button disabled={busy} onClick={() => void inspect()}>{t(buffer.intent ? 'outcome' : 'latest')}</button>}
+      {(stale || buffer.intent || buffer.error) && <button disabled={busy} onClick={() => void inspect()}>{buffer.error === 'staleRecord' ? assignmentText.latest[language] : t(buffer.intent ? 'outcome' : 'latest')}</button>}
       {(allowed || correctionDirty(buffer)) && <>
         {(['field', 'document'] as const).map(kind => <fieldset key={kind} className="m-0 my-5 min-w-0 rounded-[10px] border border-solid border-border p-4"><legend>{t(kind === 'field' ? 'fields' : 'documents')}</legend>
           {options.filter(option => option.kind === kind).map(option => {
