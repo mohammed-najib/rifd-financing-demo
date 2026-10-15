@@ -44,6 +44,7 @@ for (const language of ['ar', 'en'] as const) for (const chapter of chapters) te
   await page.goto('/sign-in')
   await expect(page.locator('[data-workspace-ready="true"]')).toBeVisible({ timeout: 60_000 })
   if (language === 'en') await page.getByRole('button', { name: 'English', exact: true }).click()
+  await expect(page.locator('html')).toHaveAttribute('lang', language)
   if (chapter.identity) {
     await page.getByRole('button', { name: identities[chapter.identity][language === 'ar' ? 0 : 1], exact: true }).click()
     await expect(page.locator('main h1')).toHaveText(chapter.identity === 'salma' ? language === 'ar' ? 'قائمة الطلبات' : 'Application queue' : language === 'ar' ? 'طلباتي' : 'My applications')
@@ -52,6 +53,8 @@ for (const language of ['ar', 'en'] as const) for (const chapter of chapters) te
   for (const [index, route] of chapter.routes.entries()) {
     await page.goto(route)
     await expect(page.locator('[data-workspace-ready="true"]')).toBeVisible({ timeout: 60_000 })
+    await expect(page.locator('html')).toHaveAttribute('lang', language)
+    await expect(page.locator('html')).toHaveAttribute('dir', language === 'ar' ? 'rtl' : 'ltr')
     await expect(page.locator('main h1')).toBeVisible({ timeout: 60_000 })
     // The gallery intentionally includes a permanent busy example.
     if (route !== '/components') await expect(page.locator('main [aria-busy="true"]')).toHaveCount(0, { timeout: 30_000 })
