@@ -88,3 +88,41 @@ pnpm test:browser:api tests/browser/assignment.api.spec.ts --workers=3
 pnpm build
 RIFD_WEBKIT_EXECUTABLE=/tmp/rifd-webkit-run.sh pnpm test:browser tests/browser/assignment.screens.spec.ts --workers=3
 ```
+
+The full public-interface suite passed all 71 cases. The review's helper naming
+change also passed focused claim/review-start and transfer/receipt regressions,
+typecheck, lint and the rebuilt static application. The production client asset
+hash remained identical after that rename.
+
+The final standalone production-screen sweep passed all 234 cases in Chrome,
+Firefox and WebKit. Together with 84 domain and 71 API cases, all 389 current
+domain/browser cases pass. This includes every new assignment scenario in each
+browser. The final screen run completed in 28.4 minutes.
+
+An earlier screen sweep ran alongside the API suite and was stopped after eight
+30-second startup timeouts, with 40 cases passed and three interrupted. All eight
+timed-out cases passed unchanged in the complete standalone run. Run these two
+browser suites sequentially on this host to avoid that contention. The interrupted
+report is retained locally under `test-results/09-overloaded-screen-report`; the
+successful final report is under `test-results/09-final-screen-report`.
+
+```sh
+pnpm test:browser:api --workers=3
+RIFD_WEBKIT_EXECUTABLE=/tmp/rifd-webkit-run.sh pnpm test:browser --workers=4
+```
+
+## Standards
+
+No documented-standard violations were found. The initial review identified one
+possible Mysterious Name: `draftFingerprint` and `draftReceipt` also handled staff
+commands. Both now use application-wide names. Follow-up review confirmed that
+the naming finding is resolved and found no new Standards findings.
+
+## Spec
+
+No material Spec findings. Review checked claim, confirmed transfer/reclaim,
+Submitted-only unassignment, final locks, explicit review start, preserved work,
+internal/public event separation, receipt/version ordering and screen recovery.
+The naming-only follow-up did not change that result.
+
+Final review counts: Standards 0 outstanding findings; Spec 0 outstanding findings.

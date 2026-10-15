@@ -2,7 +2,7 @@ import { z } from 'zod'
 import { canReadApplication, domainDate, emptyDocuments, initialEvidenceMonths, products, reviewPermissions, submissionMonth, validateFields, validateFileEnvelope } from '../domain'
 import { actorIdSchema, fieldsSchema, productIdSchema, slots, type ActorId, type Application, type Dataset, type Fields, type StoredFile } from '../domain/model'
 import { fileFromBytes, makeFile, prepareFonts } from './evidence'
-import { applicationMutationSchema, applicationOperationSchema, commitHintSchema, draftFingerprint, notificationReadSchema, preferenceOperationSchema, preparationSchema, reviewOperationSchema } from './commands'
+import { applicationMutationSchema, applicationOperationSchema, commitHintSchema, applicationFingerprint, notificationReadSchema, preferenceOperationSchema, preparationSchema, reviewOperationSchema } from './commands'
 import { identities } from './seed-manifest'
 import { prepareSeed } from './seed'
 import { DemoError, openStorage, readStored, transact, validateDataset } from './storage'
@@ -185,9 +185,9 @@ export function createDemo(): Demo {
     if (!prepared || prepared.actor !== who || prepared.datasetId !== datasetId || prepared.file.applicationId !== id || prepared.file.slot !== slot || JSON.stringify(reference) !== JSON.stringify(prepared.reference)) throw new DemoError('validation', slot as StoredFile['slot'])
     return prepared.file
   }
-  const draftReceipt = (data: Dataset, who: ActorId, operation: ApplicationMutation) => {
+  const applicationReceipt = (data: Dataset, who: ActorId, operation: ApplicationMutation) => {
     const receipt = data.mutationReceipts.find(receipt => receipt.actor === who && receipt.operationId === operation.operationId)
-    if (data.receipts.some(receipt => receipt.actor === who && receipt.operationId === operation.operationId) || receipt && receipt.fingerprint !== draftFingerprint(operation)) throw new DemoError('identifierMisuse')
+    if (data.receipts.some(receipt => receipt.actor === who && receipt.operationId === operation.operationId) || receipt && receipt.fingerprint !== applicationFingerprint(operation)) throw new DemoError('identifierMisuse')
     return receipt
   }
   const notificationDestination = (data: Dataset, who: ActorId, id: string) => {
@@ -234,7 +234,7 @@ export function createDemo(): Demo {
         const current = validateDataset(raw)
         authority(captured, who, command.datasetId, current)
         const application = permitted(current, who, command.applicationId)
-        const receipt = draftReceipt(current, who, command)
+        const receipt = applicationReceipt(current, who, command)
         if (receipt) { replay = true; return current }
         if (application.sharedRevision !== command.expectedSharedRevision) throw new DemoError('staleRecord')
         if (who !== 'salma' || command.kind === 'startReview' && application.assignee !== who) throw new DemoError('permissionDenied')
@@ -263,13 +263,13 @@ export function createDemo(): Demo {
           application.activity.push({ ...entry, kind: 'reviewStarted', actor: who, description: { ar: 'بدأت مراجعة الطلب.', en: 'Application review started.' } })
         }
         application.sharedRevision++
-        current.mutationReceipts.push({ kind: command.kind, actor: who, datasetId: command.datasetId, operationId: command.operationId, fingerprint: draftFingerprint(command), applicationId: application.id, sharedRevision: application.sharedRevision, savedAt: new Date().toISOString() })
+        current.mutationReceipts.push({ kind: command.kind, actor: who, datasetId: command.datasetId, operationId: command.operationId, fingerprint: applicationFingerprint(command), applicationId: application.id, sharedRevision: application.sharedRevision, savedAt: new Date().toISOString() })
         return current
       }, () => {
         if (captured !== generation || actor() !== who) throw new DemoError('sessionExpired')
         return abortStorage
       })
-      const receipt = draftReceipt(data, who, command)!
+      const receipt = applicationReceipt(data, who, command)!
       if (!replay) announce({ datasetId: command.datasetId, kind: 'application', applicationId: command.applicationId, revision: receipt.sharedRevision })
       return { receipt, application: project(data, who, permitted(data, who, command.applicationId)) }
     })
@@ -321,7 +321,7 @@ export function createDemo(): Demo {
         authority(captured, who, command.datasetId, current)
         const original = current.applications.find(application => application.id === command.applicationId)
         const application = original ? permitted(current, who, command.applicationId) : structuredClone(editable(current, who, command.applicationId))
-        const receipt = draftReceipt(current, who, command)
+        const receipt = applicationReceipt(current, who, command)
         if (receipt) {
           replay = true
           return current
@@ -379,7 +379,7 @@ export function createDemo(): Demo {
           application.activity.push({ ...entry, actor: who, description: { ar: 'قُدم الطلب.', en: 'Application submitted.' } })
         } else application.workspace = { ...application.workspace, revision: workspaceRevision, savedAt, snapshot }
         current.mutationReceipts.push({
-          kind: command.kind, actor: who, datasetId: command.datasetId, operationId: command.operationId, fingerprint: draftFingerprint(command),
+          kind: command.kind, actor: who, datasetId: command.datasetId, operationId: command.operationId, fingerprint: applicationFingerprint(command),
           applicationId: application.id, workspaceRevision, sharedRevision: application.sharedRevision, savedAt,
         })
         return current
@@ -548,7 +548,7 @@ export function createDemo(): Demo {
         const application = permitted(data, who, operation.applicationId)
         const parsed = applicationMutationSchema.safeParse(operation)
         if (!parsed.success) throw new DemoError('validation')
-        const receipt = draftReceipt(data, who, parsed.data)
+        const receipt = applicationReceipt(data, who, parsed.data)
         return receipt ? { status: 'committed', result: { receipt, application: project(data, who, application) } } : { status: 'notCommitted', application: project(data, who, application) }
       })
     },

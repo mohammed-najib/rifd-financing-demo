@@ -54,7 +54,7 @@ export const preparationSchema = z.object({
   ]),
 }).strict()
 
-export function draftFingerprint(operation: ApplicationMutation): string {
+export function applicationFingerprint(operation: ApplicationMutation): string {
   if (!('fields' in operation)) return JSON.stringify(operation.kind === 'transferApplication'
     ? { kind: operation.kind, applicationId: operation.applicationId, from: operation.from, to: operation.to, confirmed: operation.confirmed }
     : { kind: operation.kind, applicationId: operation.applicationId })
