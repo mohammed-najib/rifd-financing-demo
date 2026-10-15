@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@rifd/domain':
+        specifier: workspace:*
+        version: link:packages/rifd-domain
       '@tanstack/react-router':
         specifier: 1.170.44
         version: 1.170.44(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -36,6 +39,9 @@ importers:
       '@tailwindcss/vite':
         specifier: 4.3.3
         version: 4.3.3(vite@8.3.4(@types/node@24.10.0)(jiti@2.7.0))
+      '@tanstack/intent':
+        specifier: 0.5.5
+        version: 0.5.5
       '@types/node':
         specifier: 24.10.0
         version: 24.10.0
@@ -66,6 +72,12 @@ importers:
       vitest:
         specifier: 5.0.4
         version: 5.0.4(@types/node@24.10.0)(vite@8.3.4(@types/node@24.10.0)(jiti@2.7.0))
+
+  packages/rifd-domain:
+    dependencies:
+      zod:
+        specifier: 4.3.6
+        version: 4.3.6
 
 packages:
 
@@ -448,6 +460,11 @@ packages:
   '@tanstack/history@1.162.5':
     resolution: {integrity: sha512-w1+YvwmTkwt5n8yUqEH3IWZ9DsmorCZW/EQ3KYHnqEgIkOZpH54NvW6/Epq3Dzb8H0ifIeYX8PExvrNLIH5FIA==}
     engines: {node: '>=20.19'}
+
+  '@tanstack/intent@0.5.5':
+    resolution: {integrity: sha512-Ei5RqUWgV96HrezTEyDbScy0wZN+17dNo59Am8/3ncv0YIaIxApkiX5LkM488wxe4a1Imdi09nhjFxblxwLMSQ==}
+    engines: {node: '>=20.12.0'}
+    hasBin: true
 
   '@tanstack/react-router@1.170.44':
     resolution: {integrity: sha512-uIIZ3CHU1yWlkMkmbnGFX3WIfZozF+tNrOMMEoM9lo+jzPInCRq80LBqW3DH9ixNHWjB3TM/cNIvr05uGIlP3A==}
@@ -1954,6 +1971,8 @@ snapshots:
       vite: 8.3.4(@types/node@24.10.0)(jiti@2.7.0)
 
   '@tanstack/history@1.162.5': {}
+
+  '@tanstack/intent@0.5.5': {}
 
   '@tanstack/react-router@1.170.44(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:

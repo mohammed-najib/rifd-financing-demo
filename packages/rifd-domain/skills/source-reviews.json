@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "skills": {
+    "validate-application": {
+      "version": "0.1.0",
+      "skillSha256": "b73741022aafd05a8479cd2c63fe0bd2e2ba841ab930d6ab85730ddb1f8eea66",
+      "sources": {
+        "skills/validate-application/references/guide.md": "288e369bd278e23a4c00eec0a0af2097b29ca21a79eb5f3bc747d3f971ea1cd3",
+        "src/application.ts": "77516299c9def5c06ad60aeaaaf5af2e943564a4dc01b9c079dd5788b350d710",
+        "src/index.ts": "e6a214ef5fb60d5a0d918b12bbc460f8c3f04a24dcd4a935f437aa0e19d24cb3",
+        "src/model.ts": "ceb26ed2192dff6fa4c4ce990a8080c57e3793e19336bd773edb41528d8ceed9"
+      },
+      "reason": "Compared guide and skill with the unchanged domain source; all 84 domain tests pass, including Arabic digits, grouping, format boundaries and product limits."
+    },
+    "freeze-repayment": {
+      "version": "0.1.0",
+      "skillSha256": "754ee65bf4400a0b36e35c3c5b480f75b6ea86b4bb7fad21ebb129f86828cfeb",
+      "sources": {
+        "skills/freeze-repayment/references/guide.md": "25db52f5d929c0814ff99bc54046240b8bfca0b2694a529cadac07f54799ce9f",
+        "src/index.ts": "e6a214ef5fb60d5a0d918b12bbc460f8c3f04a24dcd4a935f437aa0e19d24cb3",
+        "src/model.ts": "ceb26ed2192dff6fa4c4ce990a8080c57e3793e19336bd773edb41528d8ceed9"
+      },
+      "reason": "Compared guide and skill with the unchanged domain source; domain tests verify half-up rounding, final-row remainder, monthly dates, completed amounts and historical snapshots."
+    }
+  }
+}

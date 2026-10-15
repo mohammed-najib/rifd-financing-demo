@@ -1,0 +1,30 @@
+name: Check package skills
+
+on:
+  pull_request:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - run: pnpm exec intent validate packages/rifd-domain --check --github-summary
+      - name: Check reviewed source contents
+        run: node scripts/skill-sources.mjs --check
+      - name: Report Intent stale signals
+        run: pnpm exec intent stale packages/rifd-domain --json
+      - run: pnpm typecheck && pnpm lint && pnpm test && pnpm test:skills
+      - name: Pack and inspect release artifact
+        run: pnpm pack:domain

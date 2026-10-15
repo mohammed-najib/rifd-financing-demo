@@ -6,7 +6,7 @@ The [specification](../../.scratch/financing-application-and-review/spec.md) and
 
 | Module | Responsibility |
 | --- | --- |
-| `src/domain` | Typed stored shapes, fictional product rules, read permission rule and explicit-date whole-rial repayment calculation. No browser storage, timers or navigation. |
+| `packages/rifd-domain/src`, re-exported through `src/domain` | Typed stored shapes, fictional product rules, read permission rule and explicit-date whole-rial repayment calculation. The npm package ships versioned Agent Skills beside their source guides. No browser storage, timers or navigation. |
 | `src/demo/index.ts` | Public asynchronous startup, context, sign-in/out, language, draft and submission operations, preparation, receipt inspection, role-filtered reads, deterministic controls and subscriptions. |
 | `src/demo/commands.ts` | Private runtime command shapes and stable intent fingerprints. |
 | `src/demo/storage.ts` | Private IndexedDB opening, validation, reads and transaction completion. Product screens never import this module. |

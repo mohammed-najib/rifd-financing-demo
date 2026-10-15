@@ -43,6 +43,11 @@ See [migration verification](docs/implementation/tailwind-v4.md) for the baselin
 
 ## Check
 
+The pure helpers also ship as the `@rifd/domain` workspace package with versioned
+Agent Skills. See [the package](packages/rifd-domain/README.md) for usage and
+[the maintainer workflow](docs/implementation/agent-skills.md) for source review,
+CI checks and `pnpm pack:domain`.
+
 ```sh
 pnpm typecheck
 pnpm lint
