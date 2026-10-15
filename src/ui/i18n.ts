@@ -122,7 +122,7 @@ export const errors: Record<ErrorKind, Bilingual> = {
   unavailable: text.unavailableDescription,
   sessionExpired: { ar: 'انتهت الجلسة. اختر هويتك التجريبية للمتابعة.', en: 'The session expired. Choose your demo identity to continue.' },
   storage: { ar: 'تعذر الوصول إلى تخزين المتصفح. لم نمسح البيانات. تحقق من السماح بالتخزين ثم أعد المحاولة.', en: 'Browser storage could not be accessed. Existing data was not erased. Allow storage and retry.' },
-  startup: text.startupError, resources: { ar: 'تعذر تجهيز الخطوط أو المستندات التجريبية. تحقق من الاتصال ثم أعد المحاولة.', en: 'Fonts or demo documents could not be prepared. Check the connection and retry.' },
+  startup: text.startupError, resources: { ar: 'تعذر تحميل الموارد اللازمة للعرض التجريبي. تحقق من الاتصال ثم أعد المحاولة.', en: 'Required demo resources could not be loaded. Check the connection and retry.' },
   blocked: { ar: 'ترقية التخزين تنتظر تبويبًا آخر. أغلق تبويبات العرض الأخرى ثم أعد المحاولة.', en: 'A storage upgrade is waiting for another tab. Close other demo tabs and retry.' },
   unsupported: { ar: 'صيغة البيانات المحفوظة غير مدعومة. حُفظت البيانات دون تغيير.', en: 'The saved data format is unsupported. Existing data was preserved.' },
   damaged: { ar: 'تعذر التحقق من البيانات أو الملفات المحفوظة. حُفظت البيانات دون تغيير.', en: 'Saved data or files could not be validated. Existing data was preserved.' },

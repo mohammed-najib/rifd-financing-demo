@@ -4,6 +4,15 @@ A fictional, Arabic-first financing demo that saves records and evidence in the 
 
 Mariam, Huda and Omar can read their own applications. Salma can read all submitted applications, including colleague assignments. Khaled is a simulated colleague and cannot sign in. Applicants can create drafts, edit all personal, business and financing fields, switch products, prepare four supporting documents, review completeness and submit. Submission opens read-only detail with a reference, immediate confirmation and public history. Authorized viewers can preview saved evidence. Applicants can read persistent notifications and follow links to the current application state. Both roles can print the same public summary. Staff can search, filter, sort and page through the queue, claim unassigned submissions, confirm reviewer transfers and start review explicitly. Assigned reviewers can assess evidence, record the five fixed checks and explicitly save internal notes. Assigned reviewers can request specific field and document corrections with individual reasons, inspect the request and confirm sending. Applicants can edit requested targets and save incomplete responses privately. Applicants can resubmit complete corrections; reviewers verify targets and repeat correction rounds. Final approval or rejection requires an applicant-visible reason and fresh confirmation. Approval freezes the submitted terms and repayment data atomically. Approved applications open a read-only repayment overview with stored installment dates, progress totals and the next Upcoming entry.
 
+Startup validates saved records, file references, file hashes and the required
+offline sample catalog before showing Ready. Storage and resource failures keep
+existing data and offer explicit Retry. Recovery and public products work in
+either language. Close other demo tabs when an upgrade is blocked, allow browser
+storage when access is denied, then retry. After readiness, saved file previews,
+draft saves, prepared replacements and the loaded product and review routes work
+without a connection. There is no server queue. A fresh offline launch is outside
+this contract. See [startup and offline evidence](docs/implementation/17-evidence.md).
+
 ## Run
 
 Use Node 22.12 or newer and pnpm 11.24.0. This slice was checked with Node 26.7.0 on Linux. The manifest pins React 19.3.1, TypeScript 5.9.3, TanStack Start 1.169.2, Router 1.170.44 and Tailwind CSS 4.3.3. The lockfile pins transitive packages.

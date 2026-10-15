@@ -5,8 +5,8 @@ import stylesheet from '../ui/styles.css?url'
 export const Route = createRootRoute({
   head: () => ({
     meta: [{ charSet: 'utf-8' }, { name: 'viewport', content: 'width=device-width, initial-scale=1' }, { title: 'رِفد / RIFD · Fictional financing demo' }],
-    links: [{ rel: 'stylesheet', href: stylesheet }],
   }),
-  component: () => <html lang="ar" dir="rtl"><head><HeadContent /></head><body><App /><Outlet /><Scripts /></body></html>,
+  // Keep CSS outside React's precedence-based suspense so its failure can render recovery.
+  component: () => <html lang="ar" dir="rtl"><head><link rel="stylesheet" href={stylesheet} /><HeadContent /></head><body><App /><Outlet /><Scripts /></body></html>,
   pendingComponent: NeutralStartup,
 })

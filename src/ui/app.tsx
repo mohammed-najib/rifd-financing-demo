@@ -4,6 +4,7 @@ import { createDemo, demoIdentities, type ApplicationSummary, type ApplicationVi
 import { products, resolveStep } from '../domain'
 import type { ActorId, Language, ProductId } from '../domain/model'
 import { date, displayFieldValue, documentLabel, errors, money, text } from './i18n'
+import { prepareStylesheet } from './resources'
 import { DraftEditor, RetainedDraft, draftDirty, type DraftBuffer } from './draft'
 import { combineDeparture, DepartureDialog, type Departure, type DepartureRequest } from './departure'
 import { DocumentPreview } from './preview'
@@ -66,6 +67,7 @@ export function App() {
   const router = useRouter()
   const screen = resolveScreen(path)
   const [context, setContext] = useState<Context | null>(null)
+  const [recoveryLanguage, setRecoveryLanguage] = useState<Language>('ar')
   const [startupError, setStartupError] = useState<ErrorKind | null>(null)
   const [error, setError] = useState<ErrorKind | null>(null)
   const [busy, setBusy] = useState(false)
@@ -106,10 +108,11 @@ export function App() {
       recovery.current = { identity: previous.session.identity, datasetId: previous.datasetId, href: lastProtected.current ?? (previous.identity?.role === 'reviewer' ? '/staff/applications' : '/applications') }
     }
     currentContext.current = next
+    setRecoveryLanguage(next.preferences.language)
     setContext(next)
   }
   const loadedContext = useRef('')
-  const language = context?.preferences.language ?? 'ar'
+  const language = context?.preferences.language ?? recoveryLanguage
   const t = (key: keyof typeof text) => text[key][language]
   const navigateTo = (to: string, replace = false) => {
     setError(null)
@@ -130,12 +133,19 @@ export function App() {
     enableBeforeUnload: () => !!departure.current?.dirty || !!departure.current?.pending || [...draftBuffers.current.values()].some(draftDirty) || [...reviewBuffers.current.values()].some(reviewDirty) || [...correctionBuffers.current.values()].some(correctionDirty) || [...decisionBuffers.current.values()].some(decisionDirty),
   })
   const home = context?.identity?.role === 'reviewer' ? '/staff/applications' : '/applications'
+  const prepareJourney = async () => {
+    await prepareStylesheet()
+    const matches = await router.preloadRoute({ to: '/$', params: { _splat: 'applications' } }).catch(() => undefined)
+    if (!matches?.length || matches.some(match => match.status !== 'success')) {
+      throw new Error('resources')
+    }
+  }
 
   useEffect(() => {
     alive.current = true
     let active = true
     // Load the protected route component before Ready, including when starting at the chooser.
-    void router.preloadRoute({ to: '/$', params: { _splat: 'applications' } }).then(() => demo.startup()).then(result => {
+    void prepareJourney().then(() => demo.startup()).then(result => {
       if (!active) return
       if (result.ok) acceptContext(result.value)
       else setStartupError(result.error.kind)
@@ -253,10 +263,10 @@ export function App() {
     // Preferences do not change the record read or revoke the current identity.
   }, [path, search.round, sessionId, identityId, reload, demo, navigate])
 
-  const routeReady = !!context && (screen.kind === 'chooser' || screen.kind === 'products' || !identity || loadedPath === path)
+  const routeReady = !startupError && !!context && (screen.kind === 'chooser' || screen.kind === 'products' || !identity || loadedPath === path)
   useEffect(() => {
-    if (routeReady) document.querySelector<HTMLElement>('main h1')?.focus()
-  }, [path, routeReady, sessionId])
+    if (routeReady || startupError) document.querySelector<HTMLElement>('main h1')?.focus()
+  }, [path, routeReady, sessionId, startupError])
 
   const selectIdentity = async (id: ActorId, intentional = false) => {
     if ([...decisionBuffers.current.entries()].some(([key, buffer]) => !key.startsWith(`${context?.datasetId}/${id}/`) && decisionDirty(buffer)) || [...draftBuffers.current.entries()].some(([key, buffer]) => !key.startsWith(`${context?.datasetId}/${id}/`) && draftDirty(buffer)) || [...reviewBuffers.current.entries()].some(([key, buffer]) => !key.startsWith(`${context?.datasetId}/${id}/`) && reviewDirty(buffer)) || [...correctionBuffers.current.entries()].some(([key, buffer]) => !key.startsWith(`${context?.datasetId}/${id}/`) && correctionDirty(buffer))) {
@@ -269,7 +279,12 @@ export function App() {
     const result = await demo.signIn(id)
     try {
       if (!alive.current) return
-      if (!result.ok) { setError(result.error.kind); return }
+      if (!result.ok) {
+        if (['storage', 'startup', 'blocked', 'unsupported', 'damaged'].includes(result.error.kind)) {
+          setContext(null); setStartupError(result.error.kind)
+        } else setError(result.error.kind)
+        return
+      }
       const interrupted = recovery.current
       const ownRecovery = interrupted?.identity === id && interrupted.datasetId === result.value.datasetId
       let target = intentional || interrupted && !ownRecovery ? (id === 'salma' ? '/staff/applications' : '/applications') : ownRecovery ? interrupted.href : href
@@ -330,7 +345,7 @@ export function App() {
   const retryStartup = async () => {
     setStartupError(null)
     try {
-      await router.preloadRoute({ to: '/$', params: { _splat: 'applications' } })
+      await prepareJourney()
       const result = await demo.startup()
       if (result.ok) acceptContext(result.value); else setStartupError(result.error.kind)
     } catch { setStartupError('resources') }
@@ -350,13 +365,17 @@ export function App() {
       </nav>
       <div className="session-controls ms-auto flex flex-wrap items-center gap-3 compact:ms-0 narrow:w-full narrow:gap-2.5">
         {identity && <span className="identity-name font-semibold leading-[1.6] narrow:me-auto narrow:text-[13px]">{identity.name[language]}<small>{identity.role === 'reviewer' ? t('reviewer') : t('applicant')}</small></span>}
-        <button aria-disabled={busy || !context || !!languageConflict} onClick={() => { if (!busy && context && !languageConflict) void changeLanguage() }} lang={language === 'ar' ? 'en' : 'ar'}>{language === 'ar' ? 'English' : 'العربية'}</button>
+        <button aria-disabled={busy || !!languageConflict} onClick={() => {
+          if (busy || languageConflict) return
+          if (context) void changeLanguage()
+          else setRecoveryLanguage(language === 'ar' ? 'en' : 'ar')
+        }} lang={language === 'ar' ? 'en' : 'ar'}>{language === 'ar' ? 'English' : 'العربية'}</button>
         {identity && <><button disabled={busy} onClick={() => go('/sign-in')}>{t('switchIdentity')}</button><button disabled={busy} onClick={() => guard(() => { void signOut() })}>{t('signOut')}</button><button onClick={() => demo.expireSession()}>{t('expireSession')}</button></>}
       </div>
     </header>
     <div className={`mx-auto max-w-[1440px] px-[4%] pt-[42px] pb-[60px] narrow:px-[5%] narrow:pt-7 narrow:pb-10 ${isStaff ? 'grid grid-cols-[190px_minmax(0,1fr)] gap-8 compact:grid-cols-1' : ''}`}>
       {isStaff && <aside className="sidebar py-5 compact:flex compact:flex-wrap compact:items-center compact:gap-5 compact:p-0 narrow:gap-3"><p className="eyebrow">{t('reviewer')}</p><nav aria-label={t('staffApplications')}><a className="active" href="/staff/applications" onClick={event => { event.preventDefault(); go('/staff/applications') }}>{t('staffApplications')}</a></nav><p>{t('staffIntro')}</p></aside>}
-      <main aria-busy={busy || !routeReady}>
+      <main aria-busy={busy || !routeReady && !startupError}>
         {languageConflict && <section className="summary mb-6" aria-label={t('preferenceConflict')}>
           <p role="status">{errors.stalePreference[language]}</p>
           <p>{t('unappliedLanguage')}: {text[languageConflict.intent.language === 'ar' ? 'arabic' : 'english'][language]}</p>

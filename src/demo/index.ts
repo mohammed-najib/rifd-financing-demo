@@ -28,6 +28,7 @@ export function createDemo(): Demo {
   let channel: BroadcastChannel | null = null
   let timer: ReturnType<typeof setTimeout> | null = null
   let startupPromise: Promise<Result<Context>> | null = null
+  let storageFailure: ErrorKind | null = 'startup'
   let listening = false
   const subscribers = new Set<(session: Session | null) => void>()
   const newDrafts = new Map<string, Application>()
@@ -41,9 +42,17 @@ export function createDemo(): Demo {
   const preparations = new Map<string, { actor: ActorId; datasetId: string; file: StoredFile; product: Application['product']; reference: PreparedAttachment }>()
   const selections = new Map<string, { token: string; status: 'preparing' | 'ready' | 'failed'; attachmentId?: string }>()
   const emit = () => { for (const listener of subscribers) { try { listener(session ? { ...session } : null) } catch { /* Observers cannot change committed outcomes. */ } } }
+  const loseStorage = (kind: ErrorKind) => {
+    storageFailure = kind
+    db?.close(); db = null
+    session = null; generation++; armExpiry(); emit()
+  }
   const storedSession = () => {
     try {
       const raw = sessionStorage.getItem(sessionKey)
+      const probe = `rifd.session.probe.${crypto.randomUUID()}`
+      sessionStorage.setItem(probe, '')
+      sessionStorage.removeItem(probe)
       if (!raw) return null
       const parsed = sessionSchema.safeParse(JSON.parse(raw))
       return parsed.success ? parsed.data : null
@@ -54,7 +63,7 @@ export function createDemo(): Demo {
   }
   const writeSession = (next: Session | null) => {
     try { if (next) sessionStorage.setItem(sessionKey, JSON.stringify(next)); else sessionStorage.removeItem(sessionKey) }
-    catch { throw new DemoError('storage') }
+    catch { loseStorage('storage'); throw new DemoError('storage') }
     session = next
     generation++
     armExpiry()
@@ -74,7 +83,7 @@ export function createDemo(): Demo {
     if (Date.now() >= session.expiresAt) { expire(); return }
     const now = Date.now()
     try { session = { ...session, lastActivity: now, expiresAt: now + inactivity }; sessionStorage.setItem(sessionKey, JSON.stringify(session)); armExpiry() }
-    catch { session = null; generation++; emit() }
+    catch { loseStorage('storage') }
   }
   const attempt = async <T>(run: () => Promise<T>): Promise<Result<T>> => {
     try { return success(await run()) }
@@ -86,7 +95,7 @@ export function createDemo(): Demo {
     }
   }
   const read = async (): Promise<Dataset> => {
-    if (!db || !datasetId) throw new DemoError('startup')
+    if (!db || !datasetId || storageFailure) throw new DemoError(storageFailure ?? 'startup')
     const connection = db
     const observedDataset = datasetId
     const captured = generation
@@ -617,7 +626,7 @@ export function createDemo(): Demo {
         if (captured !== generation) throw new DemoError('sessionExpired')
         session = storedSession()
         if (!db) {
-          const connection = await openStorage(() => { db = null; generation++; emit() })
+          const connection = await openStorage(loseStorage)
           if (captured !== generation) { connection.close(); throw new DemoError('sessionExpired') }
           db = connection
         }
@@ -645,7 +654,14 @@ export function createDemo(): Demo {
         if (session && (session.datasetId !== datasetId || session.expiresAt <= Date.now())) writeSession(null)
         armExpiry()
         connect()
+        storageFailure = null
         return contextFrom(data)
+      }).then(result => {
+        if (!result.ok && captured === generation) {
+          storageFailure = result.error.kind
+          db?.close(); db = null; session = null; armExpiry()
+        }
+        return result
       }).finally(() => { startupPromise = null })
       return startupPromise
     },

@@ -83,6 +83,47 @@ Preflight is omitted. The local fonts, 15px root typography, logical RTL/LTR spa
 
 ## Storage and authority
 
+Startup accepts physical IndexedDB version 1 and logical schema, seed and rule
+versions 1. It checks shapes, ownership, file references, byte lengths and hashes,
+event-sequence bounds and every canonical/replacement catalog entry. Raw invalid
+draft strings and the explicitly incomplete Submitted seed remain valid stored
+records. The supported additive transformations supply absent mutation receipts
+and restore absent catalog product labels from the original seed manifest. No
+other format is migrated or silently reset.
+
+Only a missing dataset in an empty state store can be seeded. Both the initial
+read and the seed transaction check emptiness. Unexpected stores or nonempty
+unrecognized records require recovery. A blocked open is refused promptly; if
+the blocker later closes, that already-refused request aborts its upgrade.
+Version changes close the connection and report coordination, while unexpected
+closure reports unavailable storage. Tab sessions must support reading, writing
+and removal before readiness. Connection or session-storage loss hides protected
+content and requires explicit startup retry, preserving durable records and
+retained work. A normal quota/write abort keeps prepared bytes for explicit save
+retry, without claiming a successful save or replacing old files.
+
+The static shell loads the shared stylesheet and eager application imports.
+The App checks that the stylesheet is applied and preloads the catch-all route,
+requiring successful route matches before calling demo startup. The two empty
+route components explicitly disable splitting, so route resources arrive with
+the entry script. This avoids the router's swallowed lazy-import errors. A failed
+stylesheet can load again through a fresh URL on Retry. Empty or inaccessible
+stylesheet rules cannot establish readiness. The root stylesheet link
+has no React precedence, so a failed load cannot suspend the recovery screen.
+No protected work is available before this resource gate succeeds. Startup
+loads and retains both local font faces, and prepares or validates durable seed
+and sample bytes before exposing context. Prepared canonical and replacement
+samples are read from IndexedDB; generated samples use the retained fonts and
+loaded PDF code. Product and review routes share this readiness contract. Future
+routes and assets must be loaded before Ready if their journeys are expected to
+work offline. There is no service worker, fresh offline launch or server queue.
+
+Recovery uses the last selected display language and permits a temporary language
+switch without storage. Only a successful preference operation claims a persisted
+language. Explicit retry restores the saved preference. Public products remain
+accessible while protected startup requires recovery. Confirmed browser-wide
+reset, including schema recovery, belongs to slice 18.
+
 IndexedDB database `rifd-demo`, physical version 1, contains a private `state` store with one dataset record. The logical metadata fixes schema, seed and product/calculation rules to version 1, and carries the dataset UUID and durable event sequence. The record contains applications, immutable correction baselines, private saved workspaces, internal/public events, notifications, file bytes and catalog, identities, independent preferences and operation receipts.
 
 A single short read/write transaction seeds the complete record only when it is absent. Resource generation and hashing finish first. Concurrent empty startups reread within the write transaction and retain the first committed dataset. Preference writes compare dataset and preference revision within that transaction, record their receipt with the preference, and resolve on transaction completion. An exact receipt replay returns current context; changed intent or cross-family use of the same actor's identifier is refused. Queue writes require the captured Salma session through commit and preserve language. Language writes preserve queue preferences. Neither changes application revisions or consumes an application-storage failure. Commit hints carry only dataset, kind and revision; missed notices never require repeating a committed write.

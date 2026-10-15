@@ -7,18 +7,30 @@ export class DemoError extends Error {
   constructor(readonly kind: ErrorKind, readonly slot?: DocumentSlot, readonly fieldIssues?: FieldIssue[]) { super(kind) }
 }
 
-export function openStorage(onClose: () => void): Promise<IDBDatabase> {
+export function openStorage(onClose: (kind: ErrorKind) => void): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     let refused = false
     const request = indexedDB.open('rifd-demo', 1)
-    request.onupgradeneeded = () => request.result.createObjectStore('state')
+    request.onupgradeneeded = () => {
+      try {
+        if (refused) request.transaction!.abort()
+        else request.result.createObjectStore('state')
+      } catch {
+        refused = true
+        try { request.transaction?.abort() } catch { /* An interrupted upgrade may already be aborted. */ }
+        reject(new DemoError('storage'))
+      }
+    }
     request.onblocked = () => { refused = true; reject(new DemoError('blocked')) }
     request.onerror = () => reject(new DemoError(request.error?.name === 'VersionError' ? 'unsupported' : 'storage'))
     request.onsuccess = () => {
       const db = request.result
       if (refused) { db.close(); return }
-      db.onversionchange = () => { db.close(); onClose() }
-      db.onclose = onClose
+      if (db.objectStoreNames.length !== 1 || !db.objectStoreNames.contains('state')) {
+        db.close(); reject(new DemoError('damaged')); return
+      }
+      db.onversionchange = () => { db.close(); onClose('blocked') }
+      db.onclose = () => onClose('storage')
       resolve(db)
     }
   })
@@ -27,8 +39,13 @@ export function openStorage(onClose: () => void): Promise<IDBDatabase> {
 export function readStored(db: IDBDatabase): Promise<unknown> {
   return new Promise((resolve, reject) => {
     const tx = db.transaction('state', 'readonly')
-    const request = tx.objectStore('state').get('dataset')
-    tx.oncomplete = () => resolve(request.result)
+    const store = tx.objectStore('state')
+    const count = store.count()
+    const request = store.get('dataset')
+    tx.oncomplete = () => {
+      if (request.result === undefined && count.result !== 0) reject(new DemoError('damaged'))
+      else resolve(request.result)
+    }
     tx.onabort = () => reject(new DemoError('storage'))
     tx.onerror = () => reject(new DemoError('storage'))
   })
@@ -39,12 +56,14 @@ export function transact(db: IDBDatabase, change: (current: unknown) => Dataset,
   return new Promise((resolve, reject) => {
     const tx = db.transaction('state', 'readwrite')
     const store = tx.objectStore('state')
+    const count = store.count()
     const request = store.get('dataset')
     let result: Dataset
     let refusal: unknown
     const timeout = setTimeout(() => reject(new DemoError('outcomeUnknown')), 10_000)
     request.onsuccess = () => {
       try {
+        if (request.result === undefined && count.result !== 0) throw new DemoError('damaged')
         result = change(request.result)
         const write = store.put(result, 'dataset')
         // Abort after a successful put to exercise rollback of all staged effects.
@@ -77,6 +96,7 @@ export function validateDataset(raw: unknown): Dataset {
     return ref === null || fileMap.get(ref)?.applicationId === id && fileMap.get(ref)?.slot === slot
   })
   for (const application of data.applications) {
+    if ([...application.history, ...application.activity].some(event => event.sequence > data.meta.eventSequence)) throw new DemoError('damaged')
     if (!data.identities.some(identity => identity.id === application.owner && identity.role === 'applicant')) throw new DemoError('damaged')
     if (application.assignee && !data.identities.some(identity => identity.id === application.assignee && identity.role === 'reviewer')) throw new DemoError('damaged')
     if ((application.status === 'draft') !== (application.submitted === null) || (application.status === 'approved') !== (application.repayment !== null)) throw new DemoError('damaged')
@@ -92,6 +112,14 @@ export function validateDataset(raw: unknown): Dataset {
     // Additive migration: legacy catalog bytes retain their original seed product after draft switches.
     sample.product ??= manifest.find(seed => sample.applicationId === `RIFD-2026-${String(seed.number).padStart(3, '0')}`)?.product
     if (!sample.product) throw new DemoError('damaged')
+  }
+  // Catalog assets survive edits and product switches, including replacements for later offline use.
+  for (const seed of manifest) {
+    const id = `RIFD-2026-${String(seed.number).padStart(3, '0')}`
+    for (const slot of slots) {
+      const variants = data.catalog.filter(sample => sample.applicationId === id && sample.slot === slot && sample.product === seed.product).map(sample => sample.variant)
+      if (!variants.includes('original') || (seed.replacement === slot || seed.missing === slot) && (!variants.includes('replacement') || !variants.includes('identical'))) throw new DemoError('damaged')
+    }
   }
   for (const notice of data.notifications) if (applicationMap.get(notice.applicationId)?.owner !== notice.owner) throw new DemoError('damaged')
   if (!unique(data.mutationReceipts.map(receipt => `${receipt.actor}/${receipt.operationId}`))) throw new DemoError('damaged')
