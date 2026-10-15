@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useBlocker, useNavigate, useRouter, useRouterState } from '@tanstack/react-router'
-import { createDemo, demoIdentities, type ApplicationSummary, type ApplicationView, type Context, type ErrorKind, type LanguageOperation } from '../demo'
+import { createDemo, demoIdentities, type ApplicationSummary, type ApplicationView, type Context, type ErrorKind, type LanguageOperation, type PrintSummary } from '../demo'
 import { products, resolveStep } from '../domain'
 import type { ActorId, ApplicationStatus, Language, ProductId } from '../domain/model'
 import { date, displayFieldValue, documentLabel, errors, events, fieldLabels, money, outcomes, reviewChecks, statuses, text } from './i18n'
@@ -8,16 +8,23 @@ import { DraftEditor, RetainedDraft, draftDirty, type DraftBuffer } from './draf
 import { DepartureDialog, type Departure, type DepartureRequest } from './departure'
 import { DocumentPreview } from './preview'
 import { applicationText } from './application-copy'
+import { Notifications } from './notifications'
+import { notificationText } from './notification-copy'
+import { PrintApplication, printText } from './print'
+import { ApplicationInformation, PublicCorrections, PublicHistory } from './public-record'
 
-type Screen = { kind: 'home' | 'chooser' | 'products' | 'applicantList' | 'staffList' | 'newDraft' | 'unavailable' } | { kind: 'applicantDetail' | 'staffDetail'; id: string }
+type Screen = { kind: 'home' | 'chooser' | 'products' | 'applicantList' | 'staffList' | 'newDraft' | 'unavailable' | 'notifications' } | { kind: 'applicantDetail' | 'staffDetail' | 'applicantPrint' | 'staffPrint'; id: string }
 function resolveScreen(path: string): Screen {
   if (path === '/') return { kind: 'home' }
   if (path === '/sign-in') return { kind: 'chooser' }
   if (path === '/products') return { kind: 'products' }
+  if (path === '/notifications') return { kind: 'notifications' }
+  const print = /^(\/staff)?\/applications\/(RIFD-2026-[a-zA-Z0-9-]+)\/print$/.exec(path)
+  if (print) return { kind: print[1] ? 'staffPrint' : 'applicantPrint', id: print[2] }
   if (path === '/applications') return { kind: 'applicantList' }
   if (path === '/staff/applications') return { kind: 'staffList' }
   if (path === '/applications/new') return { kind: 'newDraft' }
-  const applicant = /^\/applications\/(RIFD-2026-[a-zA-Z0-9-]+)(?:\/edit)?$/.exec(path)
+  const applicant = /^\/applications\/(RIFD-2026-[a-zA-Z0-9-]+)(?:\/edit|\/corrections\/current)?$/.exec(path)
   if (applicant) return { kind: 'applicantDetail', id: applicant[1] }
   const staff = /^\/staff\/applications\/(RIFD-2026-[a-zA-Z0-9-]+)$/.exec(path)
   if (staff) return { kind: 'staffDetail', id: staff[1] }
@@ -57,8 +64,10 @@ export function App() {
   const [languageConflict, setLanguageConflict] = useState<{ intent: LanguageOperation; latest: Context | null } | null>(null)
   const [reload, setReload] = useState(0)
   const [list, setList] = useState<ApplicationSummary[] | null>(null)
+  const [printSummary, setPrintSummary] = useState<PrintSummary | null>(null)
   const [view, setView] = useState<ApplicationView | null>(null)
   const [loadedPath, setLoadedPath] = useState<string | null>(null)
+  const [resolvedCorrectionId, setResolvedCorrectionId] = useState<string | null>(null)
   const [submittedId, setSubmittedId] = useState<string | null>(null)
   const alive = useRef(true)
   const identitySelection = useRef(false)
@@ -121,7 +130,7 @@ export function App() {
       // Authority loss covers protected content without waiting for busy storage.
       if (!currentSession && currentContext.current?.session) {
         acceptContext({ ...currentContext.current, session: null, identity: null })
-        setView(null); setList(null)
+        setView(null); setList(null); setPrintSummary(null)
       }
       if (identitySelection.current) return
       void demo.context().then(result => {
@@ -148,12 +157,12 @@ export function App() {
     const readContext = `${path}/${identityId}/${sessionId}`
     if (loadedContext.current !== readContext) {
       loadedContext.current = readContext
-      setLoadedPath(null); setView(null); setList(null)
+      setLoadedPath(null); setView(null); setList(null); setPrintSummary(null)
     }
     if (!context || !identityId) return
     if (current.kind === 'home') { void navigate({ to: '/$', params: { _splat: identity?.role === 'reviewer' ? 'staff/applications' : 'applications' }, replace: true }); return }
-    const staff = current.kind === 'staffList' || current.kind === 'staffDetail'
-    const applicant = current.kind === 'applicantList' || current.kind === 'applicantDetail' || current.kind === 'newDraft'
+    const staff = current.kind === 'staffList' || current.kind === 'staffDetail' || current.kind === 'staffPrint'
+    const applicant = current.kind === 'applicantList' || current.kind === 'applicantDetail' || current.kind === 'applicantPrint' || current.kind === 'notifications' || current.kind === 'newDraft'
     if ((staff && identityId !== 'salma') || (applicant && identityId === 'salma')) { setError('unavailable'); setLoadedPath(path); return }
     const retainedNew = current.kind === 'newDraft' && newDraftId.current ? draftBuffers.current.get(`${context.datasetId}/${identityId}/${newDraftId.current}`) : undefined
     if (retainedNew) {
@@ -177,11 +186,22 @@ export function App() {
         else setError(result.error.kind)
         setLoadedPath(path)
       })
+    } else if (current.kind === 'staffPrint' || current.kind === 'applicantPrint') {
+      void demo.readPrintSummary(current.id).then(result => {
+        if (!active) return
+        if (result.ok) setPrintSummary(result.value)
+        else setError(result.error.kind)
+        setLoadedPath(path)
+      })
     } else if (current.kind === 'staffDetail' || current.kind === 'applicantDetail') {
       void demo.readApplication(current.id).then(result => {
         if (!active) return
         if (result.ok) {
           setView(result.value)
+          if (path.endsWith('/corrections/current') && result.value.status !== 'correctionsRequested') {
+            setResolvedCorrectionId(result.value.id)
+            void navigate({ to: '/$', params: { _splat: `applications/${result.value.id}` }, search: {}, ignoreBlocker: true })
+          }
           if (path.endsWith('/edit') && result.value.status !== 'draft') {
             departure.current = null
             void navigate({ to: '/$', params: { _splat: path.slice(1, -5) }, search: {}, ignoreBlocker: true })
@@ -205,7 +225,7 @@ export function App() {
       setLeaving({ action: () => { draftBuffers.current.clear(); newDraftId.current = null; void selectIdentity(id, true) }, discardOnly: true })
       return
     }
-    setBusy(true); setError(null); setView(null); setList(null)
+    setBusy(true); setError(null); setView(null); setList(null); setPrintSummary(null)
     contextRequest.current++
     identitySelection.current = true
     const result = await demo.signIn(id)
@@ -216,9 +236,9 @@ export function App() {
       const ownRecovery = interrupted?.identity === id && interrupted.datasetId === result.value.datasetId
       let target = intentional || interrupted && !ownRecovery ? (id === 'salma' ? '/staff/applications' : '/applications') : ownRecovery ? interrupted.href : href
       const destination = resolveScreen(new URL(target, window.location.origin).pathname)
-      let permitted = destination.kind === 'newDraft' && id !== 'salma' || destination.kind === 'applicantList' && id !== 'salma' || destination.kind === 'staffList' && id === 'salma'
-      if (destination.kind === 'applicantDetail' && id !== 'salma' || destination.kind === 'staffDetail' && id === 'salma') {
-        const access = await demo.readApplication(destination.id)
+      let permitted = destination.kind === 'newDraft' && id !== 'salma' || destination.kind === 'applicantList' && id !== 'salma' || destination.kind === 'notifications' && id !== 'salma' || destination.kind === 'staffList' && id === 'salma'
+      if ('id' in destination && (['applicantDetail', 'applicantPrint'].includes(destination.kind) && id !== 'salma' || ['staffDetail', 'staffPrint'].includes(destination.kind) && id === 'salma')) {
+        const access = await (destination.kind.endsWith('Print') ? demo.readPrintSummary(destination.id) : demo.readApplication(destination.id))
         permitted = access.ok
         if (access.ok && access.value.status !== 'draft' && new URL(target, window.location.origin).pathname.endsWith('/edit')) target = `/applications/${destination.id}`
       }
@@ -260,7 +280,7 @@ export function App() {
     } else if (!result.ok) setError(result.error.kind)
   }
   const signOut = async () => {
-    setBusy(true); setView(null); setList(null)
+    setBusy(true); setView(null); setList(null); setPrintSummary(null)
     const result = await demo.signOut()
     if (!alive.current) return
     setBusy(false)
@@ -268,7 +288,7 @@ export function App() {
   }
 
   useEffect(() => { setLeaving(current => { current?.cancel?.(); return null }) }, [sessionId])
-  useEffect(() => { setLanguageConflict(null); setSubmittedId(null) }, [sessionId, context?.datasetId])
+  useEffect(() => { setLanguageConflict(null); setSubmittedId(null); setResolvedCorrectionId(null) }, [sessionId, context?.datasetId])
   const retryStartup = async () => {
     setStartupError(null)
     try {
@@ -288,6 +308,7 @@ export function App() {
       <nav aria-label={language === 'ar' ? 'التنقل الرئيسي' : 'Main navigation'}>
         <a href="/products" onClick={event => { event.preventDefault(); go('/products') }}>{t('products')}</a>
         {identity && <a href={home} onClick={event => { event.preventDefault(); go(home) }}>{identity.role === 'reviewer' ? t('staffApplications') : t('applications')}</a>}
+        {identity?.role === 'applicant' && <a href="/notifications" onClick={event => { event.preventDefault(); go('/notifications') }}>{notificationText.title[language]}</a>}
       </nav>
       <div className="session-controls ms-auto flex flex-wrap items-center gap-3 compact:ms-0 narrow:w-full narrow:gap-2.5">
         {identity && <span className="identity-name font-semibold leading-[1.6] narrow:me-auto narrow:text-[13px]">{identity.name[language]}<small>{identity.role === 'reviewer' ? t('reviewer') : t('applicant')}</small></span>}
@@ -321,8 +342,10 @@ export function App() {
             if (result.ok) { newDraftId.current = result.value.id; setList(null); setView(result.value) } else setError(result.error.kind)
             setBusy(false)
           }}>{applicationText.new[language]}</button><div className="actions">{list?.filter(application => application.status === 'draft').map(application => <a className="button secondary" key={application.id} href={`/applications/${application.id}/edit?step=personal`} onClick={event => { event.preventDefault(); void go(`/applications/${application.id}/edit?step=personal`) }}>{applicationText.resume[language]} <bdi>{application.id}</bdi> · {products[application.product].name[language]}</a>)}</div></section>
+          : screen.kind === 'notifications' && context ? <Notifications key={`${context.datasetId}/${identityId}/${sessionId}`} demo={demo} datasetId={context.datasetId} language={language} reload={reload} go={go} />
+          : printSummary ? <PrintApplication summary={printSummary} language={language} staff={screen.kind === 'staffPrint'} go={go} />
           : list ? <ApplicationList list={list} language={language} staff={screen.kind === 'staffList'} go={go} />
-          : view ? <ApplicationDetail key={`${context?.datasetId}/${identityId}/${sessionId}/${view.id}`} demo={demo} view={view} language={language} confirmed={submittedId === view.id}>{view.role === 'applicant' && view.status === 'draft' && context && <DraftEditor demo={demo} view={view} context={context} language={language} step={step} changeStep={step => { void go(`${path}?${screen.kind === 'newDraft' ? `product=${chosenProduct}&` : ''}step=${step}`) }} retained={draftBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => draftBuffers.current.set(`${context.datasetId}/${identityId}/${view.id}`, buffer)} savedView={application => {
+          : view ? <ApplicationDetail key={`${context?.datasetId}/${identityId}/${sessionId}/${view.id}`} demo={demo} view={view} language={language} confirmed={submittedId === view.id} redirectedCorrection={resolvedCorrectionId === view.id} go={go}>{view.role === 'applicant' && view.status === 'draft' && context && <DraftEditor demo={demo} view={view} context={context} language={language} step={step} changeStep={step => { void go(`${path}?${screen.kind === 'newDraft' ? `product=${chosenProduct}&` : ''}step=${step}`) }} retained={draftBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => draftBuffers.current.set(`${context.datasetId}/${identityId}/${view.id}`, buffer)} savedView={application => {
             setView(application)
             if (application.status !== 'draft') {
               draftBuffers.current.delete(`${context.datasetId}/${identityId}/${application.id}`)
@@ -371,25 +394,26 @@ function ApplicationList({ list, language, staff, go }: { list: ApplicationSumma
   </>
 }
 
-function ApplicationDetail({ demo, view, language, children, confirmed }: { demo: ReturnType<typeof createDemo>; view: ApplicationView; language: Language; children?: React.ReactNode; confirmed?: boolean }) {
+function ApplicationDetail({ demo, view, language, children, confirmed, redirectedCorrection, go }: { demo: ReturnType<typeof createDemo>; view: ApplicationView; language: Language; children?: React.ReactNode; confirmed?: boolean; redirectedCorrection?: boolean; go: (path: string) => void }) {
   const [previewFileId, setPreviewFileId] = useState<string | null>(null)
   useEffect(() => { if (previewFileId && !view.documents.some(document => document.file?.id === previewFileId)) setPreviewFileId(null) }, [view, previewFileId])
   const t = (key: keyof typeof text) => text[key][language]
   const fields = view.snapshot.fields
-  const numeric = ['revenue', 'expenses', 'amount', 'budget']
   return <>
     <p className="eyebrow">{products[view.product].name[language]}</p><div className="detail-heading mb-2.5 flex flex-wrap items-center gap-5 narrow:gap-3"><Heading>{view.status === 'draft' && view.role === 'applicant' && !view.workspace?.savedAt ? applicationText.new[language] : <bdi>{view.id}</bdi>}</Heading><Status status={view.status} language={language} /></div>
     <p className="intro">{fields.fullName} · {fields.businessName}</p>
+    {redirectedCorrection && <p className="summary" role="status">{language === 'ar' ? 'لم يعد طلب التصحيح هذا نشطًا. تظهر معلومات الطلب الحالية.' : 'This correction request is no longer active. The current application is shown.'}</p>}
     {confirmed && <p className="summary" role="status">{applicationText.submitted[language]} <bdi>{view.id}</bdi></p>}
     {view.role === 'reviewer' && <p className="mb-[25px] text-[14px] text-accent">{t('assignment')}: {view.assignedToYou ? t('assignedToYou') : view.assignment?.[language] ?? t('unassigned')}</p>}
     <section className="summary"><h2>{t('nextAction')}</h2><p>{t(view.status === 'draft' ? 'draftNext' : view.status === 'correctionsRequested' ? 'correctionNext' : ['approved', 'rejected'].includes(view.status) ? 'finalNext' : 'waitingNext')}</p></section>
+    {(view.status !== 'draft' || view.role === 'applicant' && !!view.workspace?.savedAt) && <a className="button secondary mb-6" href={`${view.role === 'reviewer' ? '/staff' : ''}/applications/${view.id}/print`} onClick={event => { event.preventDefault(); go(`${view.role === 'reviewer' ? '/staff' : ''}/applications/${view.id}/print`) }}>{printText.print[language]}</a>}
     {children}
     {(view.status !== 'draft' || view.role === 'applicant' && !!view.workspace?.savedAt) && <div className="detail-grid grid grid-cols-[minmax(0,1.7fr)_minmax(260px,1fr)] gap-[25px] compact:grid-cols-[minmax(0,1.4fr)_minmax(240px,1fr)] narrow:grid-cols-1"><div>
-      <section className="panel"><h2>{view.status === 'draft' ? t('savedInformation') : t('submittedInformation')}</h2><dl className="facts information">{Object.entries(fields).map(([key, value]) => <div key={key} className={key === 'explanation' || key === 'address' ? 'col-span-full narrow:col-auto' : ''}><dt>{fieldLabels[key as keyof typeof fields][language]}</dt><dd>{numeric.includes(key) ? <bdi dir="ltr">{money(value, language)}</bdi> : key === 'mobile' || key === 'email' || key === 'operatingSince' ? <bdi dir="ltr">{displayFieldValue(key as keyof typeof fields, value, language)}</bdi> : key === 'term' ? <><bdi>{displayFieldValue('term', value, language)}</bdi> {t('months')}</> : key === 'activity' ? ({ retail: { ar: 'تجارة تجزئة', en: 'Retail' }, services: { ar: 'خدمات', en: 'Services' }, production: { ar: 'إنتاج صغير', en: 'Small production' } }[fields.activity][language]) : value || t('emptyExplanation')}</dd></div>)}</dl><p>{t('financialWindow')}: {view.evidenceMonths.map(month => <bdi key={month}>{date(month, language)} </bdi>)}</p></section>
+      <section className="panel"><h2>{view.status === 'draft' ? t('savedInformation') : t('submittedInformation')}</h2><ApplicationInformation record={view} language={language} /></section>
       <section className="panel"><h2>{t('documents')}</h2><ul className="document-list">{view.documents.map(document => <li key={document.slot}><strong>{documentLabel(document.slot, view.product)[language]}</strong><p>{document.file ? <><bdi dir="ltr" className="wrap-anywhere">{document.file.name}</bdi><span className="text-[11px]"><bdi>{document.file.mime} · {new Intl.NumberFormat('en-US').format(document.file.size)} B</bdi></span><span>{view.status === 'draft' ? t('savedInDraft') : t('included')}</span></> : t('missing')}</p>{document.file && <button className="secondary" onClick={() => setPreviewFileId(document.file!.id)}>{language === 'ar' ? 'معاينة' : 'Preview'} {documentLabel(document.slot, view.product)[language]}</button>}{view.role === 'reviewer' && view.assessments && <p className="rounded-[6px] bg-canvas px-3 py-2">{outcomes[view.assessments[document.slot].status][language]}{view.assessments[document.slot].reason && <span> · {view.assessments[document.slot].reason?.[language]}</span>}</p>}</li>)}</ul></section>
-      {view.rounds.map(round => <section className="panel" key={round.id}><h2>{t('corrections')}</h2><p>{t('baseline')}: <bdi>{date(round.requestedAt, language)}</bdi></p><ul>{round.targets.map((target, index) => <li key={index}><strong>{target.kind === 'field' ? fieldLabels[target.field][language] : documentLabel(target.slot, view.product)[language]}</strong><p>{target.reason[language]}</p></li>)}</ul></section>)}
+      <PublicCorrections record={view} language={language} />
       {view.role === 'applicant' && view.status === 'correctionsRequested' && view.workspace && <section className="summary"><h2>{t('privateWorkspace')}</h2><p>{t('privateUnchanged')}</p><p>{t('amount')}: <bdi dir="ltr">{money(view.workspace.snapshot.fields.amount, language)}</bdi></p></section>}
-      <section className="panel"><h2>{t('history')}</h2>{view.history.length ? <ol className="timeline">{view.history.map(event => <li key={event.id}><strong>{events[event.kind][language]}</strong><bdi className={eventDateClassName}>{date(event.date, language)}</bdi>{event.reason && <p>{event.reason[language]}</p>}</li>)}</ol> : <p>{t('noHistory')}</p>}</section>
+      <PublicHistory history={view.history} language={language} />
     </div><div>
       <section className="summary"><h2>{products[view.product].name[language]}</h2><dl className="facts"><div><dt>{t('amount')}</dt><dd><bdi dir="ltr">{money(fields.amount, language)}</bdi></dd></div><div><dt>{t('term')}</dt><dd><bdi>{displayFieldValue('term', fields.term, language)}</bdi> {t('months')}</dd></div><div><dt>{t('submittedAt')}</dt><dd><bdi>{view.submittedAt ? date(view.submittedAt, language) : t('notSubmitted')}</bdi></dd></div></dl></section>
       {view.role === 'reviewer' && <><section className="panel"><h2>{t('checks')}</h2><ul className="review-list">{Object.entries(view.checks ?? {}).map(([key, outcome]) => <li key={key}><span>{reviewChecks[key][language]}</span><strong>{outcomes[outcome][language]}</strong></li>)}</ul></section><section className="panel"><h2>{t('notes')}</h2>{view.notes.length ? view.notes.map(note => <p key={note.id}>{note.text[language]}<bdi className={eventDateClassName}>{date(note.date, language)}</bdi></p>) : <p>{t('noNotes')}</p>}</section><section className="panel"><h2>{t('activity')}</h2><ol className="timeline">{view.activity.map(event => <li key={event.id}><strong>{events[event.kind][language]}</strong><bdi className={eventDateClassName}>{date(event.date, language)}</bdi><span>{demoIdentities.find(identity => identity.id === event.actor)?.name[language] ?? (language === 'ar' ? 'خالد علي' : 'Khaled Ali')}</span></li>)}</ol></section></>}

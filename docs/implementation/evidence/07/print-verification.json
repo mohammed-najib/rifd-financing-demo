@@ -1,0 +1,77 @@
+{
+  "renderer": "Chrome 155 / Skia PDF; Poppler 26.08.0 at 120 DPI",
+  "samples": [
+    {
+      "file": "draft-ar.pdf",
+      "pages": 2,
+      "fonts": [
+        "NotoSans-Regular",
+        "NotoSansArabic-Regular"
+      ],
+      "sha256": "f0e45ccf0f8506fbebab00c432706e92470f5239191588c070896b8f5f567191"
+    },
+    {
+      "file": "correction-ar.pdf",
+      "pages": 2,
+      "fonts": [
+        "NotoSans-Regular",
+        "NotoSansArabic-Regular"
+      ],
+      "sha256": "8b228502fe6ac98abd833caa1ca41593a9fcc4b00ae6705ca0971bc6b6812fc4"
+    },
+    {
+      "file": "approved-ar.pdf",
+      "pages": 2,
+      "fonts": [
+        "NotoSans-Regular",
+        "NotoSansArabic-Regular"
+      ],
+      "sha256": "fe26fe3240d135720466f2e5ce9259cfb39f26b912cfc5e6b1e62a5fed67ccb4"
+    },
+    {
+      "file": "rejected-ar.pdf",
+      "pages": 2,
+      "fonts": [
+        "NotoSans-Regular",
+        "NotoSansArabic-Regular"
+      ],
+      "sha256": "1672bb5628c304a1149bc99bb08cfb05d7917e8daae968e9430a9a2992eafed0"
+    },
+    {
+      "file": "draft-en.pdf",
+      "pages": 2,
+      "fonts": [
+        "NotoSans-Regular",
+        "NotoSansArabic-Regular"
+      ],
+      "sha256": "4c61a8dd0f2ef77dcb82f0b4e7276cc9ea57cce4e0a7c7961a47d556ebb64672"
+    },
+    {
+      "file": "correction-en.pdf",
+      "pages": 2,
+      "fonts": [
+        "NotoSans-Regular",
+        "NotoSansArabic-Regular"
+      ],
+      "sha256": "9d5564274671d1e390b53cff7743d028aff65370c6138d06011167847fe0e4f1"
+    },
+    {
+      "file": "approved-en.pdf",
+      "pages": 2,
+      "fonts": [
+        "NotoSans-Regular",
+        "NotoSansArabic-Regular"
+      ],
+      "sha256": "7639c4b524231980c8f5dd92bf24c80efc9c120dbc5cdd074503b3da735e3f52"
+    },
+    {
+      "file": "rejected-en.pdf",
+      "pages": 2,
+      "fonts": [
+        "NotoSans-Regular",
+        "NotoSansArabic-Regular"
+      ],
+      "sha256": "a240762fa42e3e720ad8d8961fcb98a4baa7deb0fdc3523201d906b208364bf7"
+    }
+  ]
+}

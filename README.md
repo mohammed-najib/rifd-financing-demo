@@ -1,8 +1,8 @@
 # RIFD / رِفد
 
-A fictional, Arabic-first financing demo that saves records and evidence in the browser. The first six slices provide the complete seeded dataset, product comparison, [five-step saveable drafts](.scratch/financing-application-and-review-implementation/issues/03-compare-products-and-complete-drafts.md), session recovery, tab synchronization, conflict recovery, and [submission with public history](.scratch/financing-application-and-review-implementation/issues/06-submit-and-track-applications.md) in Arabic and English.
+A fictional, Arabic-first financing demo that saves records and evidence in the browser. The first seven slices provide the complete seeded dataset, product comparison, [five-step saveable drafts](.scratch/financing-application-and-review-implementation/issues/03-compare-products-and-complete-drafts.md), session recovery, tab synchronization, conflict recovery, and [submission with public history](.scratch/financing-application-and-review-implementation/issues/06-submit-and-track-applications.md) in Arabic and English.
 
-Mariam, Huda and Omar can read their own applications. Salma can read all submitted applications, including colleague assignments. Khaled is a simulated colleague and cannot sign in. Applicants can create drafts, edit all personal, business and financing fields, switch products, prepare four supporting documents, review completeness and submit. Submission opens read-only detail with a reference, immediate confirmation and public history. Authorized viewers can preview saved evidence. Notifications UI, queue controls and review actions belong to later tickets.
+Mariam, Huda and Omar can read their own applications. Salma can read all submitted applications, including colleague assignments. Khaled is a simulated colleague and cannot sign in. Applicants can create drafts, edit all personal, business and financing fields, switch products, prepare four supporting documents, review completeness and submit. Submission opens read-only detail with a reference, immediate confirmation and public history. Authorized viewers can preview saved evidence. Applicants can read persistent notifications and follow links to the current application state. Both roles can print the same public summary. Queue controls and review actions belong to later tickets.
 
 ## Run
 
@@ -87,11 +87,18 @@ The emulator uses the local `demo-rifd` project identifier and the committed `fi
 | `/applications/new?product=equipment` | Explicit new-or-resume choice, then a new unsaved Equipment draft |
 | `/applications/RIFD-2026-001/edit?step=personal` | Mariam's five-step saved incomplete draft |
 | `/applications/RIFD-2026-004` | Huda's submitted correction baseline and separate private saved response |
+| `/notifications` | Own correction and decision notices with independent saved read flags |
+| `/applications/RIFD-2026-001/print` | Saved Draft progress in an applicant-visible print layout |
+| `/staff/applications/RIFD-2026-005/print` | The same public print policy for staff, with no internal review data |
 | `/staff/applications` | Salma's twelve-record read queue |
 | `/staff/applications/RIFD-2026-005` | Historical approval, internal review and frozen repayment data |
 | Other paths or unauthorized records | Neutral unavailable result with safe navigation |
 
 An unsigned supported protected link resumes after sign-in only if the chosen identity can read it. Other choices open the selected identity's home. A forbidden destination exposes no application details. Intentional identity switching opens the new identity's home. Applicant documents display saved presence; staff document assessments and notes remain separate.
+
+Open Notifications to mark a notice read or open its current permitted destination. Active correction requests open `/applications/:id/corrections/current`, which currently shows the submitted baseline and requested changes. The response editor belongs to ticket 12. Completed requests resolve to current detail. Reading changes only that notice's read flag and revision. An uncertain write requires inspection before retry.
+
+Print summary opens a dedicated route and invokes the browser print dialog. Saved drafts print their last saved progress; corrections print the last submitted information. Both roles receive the same public fields, document presence, correction reasons and history. Staff identities, assignment, assessments, checks, notes, private response work and controls are excluded. See [notification and print evidence](docs/implementation/07-evidence.md).
 
 Choose a product, sign in as an applicant and explicitly start a new application or resume a saved draft. The steps are Personal, Business, Financing, Documents and Review; incomplete steps remain reachable and invalid step queries fall back to Personal. Enter even incomplete or invalid values, then select prepared samples or local fictional PDF, JPEG or PNG files for the four requirements. New applications and a switched product's fourth slot generate fictional samples from the current input. Other sample choices retain the canonical seed evidence.
 

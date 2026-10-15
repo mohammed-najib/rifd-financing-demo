@@ -7,7 +7,13 @@ export const commitHintSchema = z.discriminatedUnion('kind', [
   z.object({ datasetId: z.string().uuid(), kind: z.literal('preferences'), revision: hintRevision }).strict(),
   z.object({ datasetId: z.string().uuid(), kind: z.literal('workspace'), applicationId: z.string().min(1), revision: hintRevision }).strict(),
   z.object({ datasetId: z.string().uuid(), kind: z.literal('application'), applicationId: z.string().min(1), revision: hintRevision }).strict(),
+  z.object({ datasetId: z.string().uuid(), kind: z.literal('notification'), notificationId: z.string().min(1), revision: hintRevision }).strict(),
 ])
+
+export const notificationReadSchema = z.object({
+  kind: z.literal('markNotificationRead'), datasetId: z.string().uuid(), operationId: z.string().min(1),
+  notificationId: z.string().min(1), expectedRevision: z.number().int().positive(),
+}).strict()
 
 export const preparedSchema = z.object({
   id: z.string().min(1), name: z.string().min(1), mime: z.string(), size: z.number().int().positive(),

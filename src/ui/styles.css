@@ -176,3 +176,24 @@
   .startup h1 { @apply text-[25px]; }
   .startup p { @apply text-[14px] text-muted; }
 }
+
+@layer components {
+  /* Only the public projection is printable, including from staff sessions. */
+  @media print {
+    @page { size: A4; margin: 15mm; }
+    :root { font-size: 10pt; color: var(--color-ink); background: white; }
+    body { background: white; }
+    .header, .sidebar, .disclosure, dialog, .print-controls, main > :not(.print-summary) { display: none !important; }
+    .header + div { display: block !important; max-width: none !important; margin: 0 !important; padding: 0 !important; }
+    .print-summary { max-width: none; margin: 0; }
+    .print-summary h1 { font-size: 21pt; }
+    .print-summary h2 { font-size: 14pt; break-after: avoid; }
+    .print-summary h3 { break-after: avoid; }
+    .print-summary .panel { border: 0; border-radius: 0; padding: 0; margin-block: 7mm; background: white; }
+    .print-summary .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 3mm 7mm; }
+    .print-summary .facts > div, .print-summary li { break-inside: avoid; }
+    .print-summary .timeline > li { padding-bottom: 3mm; }
+    .print-summary .document-list > li { padding-block: 2mm; }
+    .print-summary p, .print-summary dd { orphans: 3; widows: 3; }
+  }
+}

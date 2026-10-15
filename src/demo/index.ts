@@ -2,12 +2,12 @@ import { z } from 'zod'
 import { canReadApplication, domainDate, emptyDocuments, initialEvidenceMonths, products, submissionMonth, validateFields, validateFileEnvelope } from '../domain'
 import { actorIdSchema, fieldsSchema, languageSchema, productIdSchema, slots, type ActorId, type Application, type Dataset, type Fields, type StoredFile } from '../domain/model'
 import { fileFromBytes, makeFile, prepareFonts } from './evidence'
-import { applicationOperationSchema, commitHintSchema, draftFingerprint, preparationSchema } from './commands'
+import { applicationOperationSchema, commitHintSchema, draftFingerprint, notificationReadSchema, preparationSchema } from './commands'
 import { identities } from './seed-manifest'
 import { prepareSeed } from './seed'
 import { DemoError, openStorage, readStored, transact, validateDataset } from './storage'
-import type { ApplicantView, ApplicationOperation, ApplicationView, CommitHint, Context, Controls, Demo, ErrorKind, LanguageOperation, MutationResult, PreparedAttachment, Result, SaveDraftOperation, Session, SubmitOperation } from './types'
-export type { ApplicationOperation, ApplicationSummary, ApplicationView, CommitHint, Context, Controls, Demo, DemoOperation, DraftDocuments, ErrorKind, LanguageOperation, MutationResult, OperationInspection, PreparedAttachment, Preparation, Result, SaveDraftOperation, SubmitOperation } from './types'
+import type { ApplicantView, ApplicationOperation, ApplicationView, CommitHint, Context, Controls, Demo, ErrorKind, LanguageOperation, MutationResult, NotificationReadOperation, NotificationReadResult, PreparedAttachment, Result, SaveDraftOperation, Session, SubmitOperation } from './types'
+export type { ApplicationOperation, ApplicationSummary, ApplicationView, CommitHint, Context, Controls, Demo, DemoOperation, DraftDocuments, ErrorKind, LanguageOperation, MutationResult, NotificationDestination, NotificationReadOperation, NotificationReadResult, OperationInspection, PreparedAttachment, Preparation, PrintSummary, Result, SaveDraftOperation, SubmitOperation } from './types'
 
 const sessionSchema = z.object({ identity: actorIdSchema, datasetId: z.string().uuid(), sessionId: z.string().uuid(), lastActivity: z.number(), expiresAt: z.number() })
 const sessionKey = 'rifd.session.v1'
@@ -189,13 +189,55 @@ export function createDemo(): Demo {
     if (data.receipts.some(receipt => receipt.actor === who && receipt.operationId === operation.operationId) || receipt && receipt.fingerprint !== draftFingerprint(operation)) throw new DemoError('identifierMisuse')
     return receipt
   }
+  const notificationDestination = (data: Dataset, who: ActorId, id: string) => {
+    const notification = data.notifications.find(notice => notice.id === id && notice.owner === who)
+    if (!notification) throw new DemoError('unavailable')
+    const application = permitted(data, who, notification.applicationId)
+    const suffix = application.status === 'correctionsRequested' ? '/corrections/current' : application.status === 'draft' ? '/edit?step=personal' : ''
+    return { notification, destination: `/applications/${application.id}${suffix}` }
+  }
+  const notificationReceipt = (data: Dataset, who: ActorId, command: NotificationReadOperation) => {
+    const fingerprint = JSON.stringify({ kind: command.kind, notificationId: command.notificationId })
+    const receipt = data.receipts.find(receipt => receipt.actor === who && receipt.operationId === command.operationId)
+    if (data.mutationReceipts.some(receipt => receipt.actor === who && receipt.operationId === command.operationId) || receipt && receipt.fingerprint !== fingerprint) throw new DemoError('identifierMisuse')
+    return { receipt, fingerprint }
+  }
   async function execute(operation: LanguageOperation): Promise<Result<Context>>
   async function execute(operation: SaveDraftOperation): Promise<Result<MutationResult>>
   async function execute(operation: SubmitOperation): Promise<Result<MutationResult>>
   async function execute(operation: ApplicationOperation): Promise<Result<MutationResult>>
-  async function execute(input: LanguageOperation | ApplicationOperation): Promise<Result<Context | MutationResult>> {
+  async function execute(operation: NotificationReadOperation): Promise<Result<NotificationReadResult>>
+  async function execute(input: LanguageOperation | ApplicationOperation | NotificationReadOperation): Promise<Result<Context | MutationResult | NotificationReadResult>> {
     // Capture raw payload and attachment descriptors before any delay.
     const operation = structuredClone(input)
+    if (operation.kind === 'markNotificationRead') return attempt(async () => {
+      const who = actor()
+      const captured = generation
+      const parsed = notificationReadSchema.safeParse(operation)
+      if (!parsed.success) throw new DemoError('validation')
+      const command = parsed.data
+      await delay()
+      if (!db) throw new DemoError('startup')
+      let changed = false
+      const data = await transact(db, raw => {
+        const current = validateDataset(raw)
+        authority(captured, who, command.datasetId, current)
+        const { notification } = notificationDestination(current, who, command.notificationId)
+        const { receipt, fingerprint } = notificationReceipt(current, who, command)
+        if (receipt) return current
+        if (notification.revision !== command.expectedRevision) throw new DemoError('staleNotification')
+        if (!notification.read) { notification.read = true; notification.revision++; changed = true }
+        current.receipts.push({ actor: who, operationId: command.operationId, fingerprint, revision: notification.revision })
+        return current
+      }, () => {
+        if (captured !== generation || actor() !== who) throw new DemoError('sessionExpired')
+        return false
+      })
+      const current = notificationDestination(data, who, command.notificationId)
+      const receipt = notificationReceipt(data, who, command).receipt!
+      if (changed) announce({ datasetId: data.meta.datasetId, kind: 'notification', notificationId: current.notification.id, revision: current.notification.revision })
+      return { ...current, receipt: { operationId: receipt.operationId, revision: receipt.revision } }
+    })
     if (operation.kind === 'saveDraft' || operation.kind === 'submit') return attempt(async () => {
       const who = actor()
       const captured = generation
@@ -481,6 +523,18 @@ export function createDemo(): Demo {
       }
     }).sort((a, b) => (b.submittedAt ?? '').localeCompare(a.submittedAt ?? '') || a.id.localeCompare(b.id))),
     readApplication: id => protectedRead((data, who) => project(data, who, permitted(data, who, id))),
+    readPrintSummary: id => protectedRead((data, who) => {
+      const application = permitted(data, who, id)
+      if (application.status === 'draft' && !application.workspace?.savedAt) throw new DemoError('unavailable')
+      const view = project(data, application.owner, application)
+      // Explicit public fields keep workspaces and staff data out of either role's print result.
+      return {
+        id: view.id, product: view.product, status: view.status, snapshot: view.snapshot, documents: view.documents,
+        submittedAt: view.submittedAt, evidenceMonths: view.evidenceMonths, history: view.history,
+        savedAt: application.status === 'draft' ? application.workspace!.savedAt : null,
+        rounds: view.rounds.map(round => ({ id: round.id, requestedAt: round.requestedAt, targets: round.targets })),
+      }
+    }),
     readFile: (id, fileId) => protectedRead((data, who) => {
       const application = permitted(data, who, id)
       const snapshots = [application.submitted, ...application.rounds.flatMap(round => [round.baseline, round.response]), ...(who !== 'salma' ? [application.workspace?.snapshot] : [])]
@@ -491,6 +545,18 @@ export function createDemo(): Demo {
       if (who === 'salma') throw new DemoError('unavailable')
       return data.notifications.filter(notice => notice.owner === who)
     }),
+    resolveNotification: id => protectedRead((data, who) => notificationDestination(data, who, id)),
+    inspectNotificationOperation: input => {
+      const operation = structuredClone(input)
+      return protectedRead((data, who) => {
+        if (data.meta.datasetId !== operation.datasetId) throw new DemoError('supersededDataset')
+        const parsed = notificationReadSchema.safeParse(operation)
+        if (!parsed.success) throw new DemoError('validation')
+        const current = notificationDestination(data, who, operation.notificationId)
+        const receipt = notificationReceipt(data, who, operation).receipt
+        return receipt ? { status: 'committed', result: { ...current, receipt: { operationId: receipt.operationId, revision: receipt.revision } } } : { status: 'notCommitted', current }
+      })
+    },
     listSamples: id => protectedRead((data, who) => {
       const application = editable(data, who, id)
       if (who !== application.owner) throw new DemoError('unavailable')

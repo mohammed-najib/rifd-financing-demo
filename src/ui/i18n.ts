@@ -126,6 +126,7 @@ export const errors: Record<ErrorKind, Bilingual> = {
   unsupported: { ar: 'صيغة البيانات المحفوظة غير مدعومة. حُفظت البيانات دون تغيير.', en: 'The saved data format is unsupported. Existing data was preserved.' },
   damaged: { ar: 'تعذر التحقق من البيانات أو الملفات المحفوظة. حُفظت البيانات دون تغيير.', en: 'Saved data or files could not be validated. Existing data was preserved.' },
   stalePreference: { ar: 'غيّر تبويب آخر تفضيل اللغة. بقي اختيارك دون تطبيق. افحص التفضيل المحفوظ ثم اختر إعادة تطبيقه.', en: 'Another tab changed the language preference. Your choice remains unapplied. Inspect the saved preference, then choose to reapply it.' },
+  staleNotification: { ar: 'تغيرت حالة الإشعار. افحص حالته المحفوظة قبل المحاولة مجددًا.', en: 'The notification changed. Inspect its saved state before trying again.' },
   supersededDataset: { ar: 'تغيرت مجموعة البيانات. أعد تحميل الصفحة لفتح العرض الحالي.', en: 'The dataset changed. Reload to open the current demo.' },
   identifierMisuse: { ar: 'تعذر تطبيق هذا الطلب. أعد المحاولة بعد فحص الإعداد الحالي.', en: 'This operation could not be applied. Inspect the current setting before retrying.' },
   validation: { ar: 'القيمة غير صالحة.', en: 'The value is invalid.' },
