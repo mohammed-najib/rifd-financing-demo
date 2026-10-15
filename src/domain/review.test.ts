@@ -1,8 +1,26 @@
 import { describe, expect, it } from 'vitest'
-import { changedReviewChecks, currentCorrectionTargets, reviewRules } from './index'
+import { changedReviewChecks, currentCorrectionTargets, decisionReadiness, reviewRules } from './index'
 import type { Application, Fields, Snapshot } from './model'
 
 const fields: Fields = { fullName: 'مريم سالم', mobile: '+000000000001', city: 'عدن', email: '', businessName: 'متجر تجريبي', activity: 'retail', address: 'شارع السوق، عدن', operatingSince: '2026-04', revenue: '700000', expenses: '500000', amount: '100010', term: '6', budget: '250000', explanation: 'Purchase fictional retail stock.' }
+
+it('separates approval prerequisites from an independent substantive rejection', () => {
+  const snapshot: Snapshot = { fields, documents: { identity: 'id', business: 'business', financial: null, purchase: 'plan' } }
+  const review = {
+    submitted: snapshot,
+    assessments: { identity: { status: 'accepted', reason: null }, business: { status: 'accepted', reason: null }, financial: { status: 'missing', reason: null }, purchase: { status: 'accepted', reason: null } } as Application['assessments'],
+    checks: { evidence: 'failed', operatingHistory: 'passed', purpose: 'passed', budget: 'passed', capacity: 'unchecked' } as Application['checks'],
+    rounds: [],
+  }
+  expect(decisionReadiness(review)).toMatchObject({ canApprove: false, canReject: false, documents: ['financial'], checks: ['evidence', 'capacity'], corrections: [] })
+  expect(decisionReadiness({ ...review, checks: { ...review.checks!, operatingHistory: 'failed' } }).canReject).toBe(true)
+  const complete = { ...review, submitted: { ...snapshot, documents: { ...snapshot.documents, financial: 'financial' } }, assessments: { ...review.assessments!, financial: { status: 'accepted' as const, reason: null } }, checks: { evidence: 'passed', operatingHistory: 'passed', purpose: 'passed', budget: 'passed', capacity: 'passed' } as Application['checks'] }
+  expect(decisionReadiness(complete).canApprove).toBe(true)
+  const target = { kind: 'field' as const, field: 'amount' as const, reason: { ar: 'غيّر المبلغ', en: 'Change amount' }, verified: false }
+  const rounds = [{ id: 'round', requestedAt: '2026-10-01', baseline: snapshot, response: snapshot, targets: [target] }]
+  expect(decisionReadiness({ ...complete, rounds })).toMatchObject({ canApprove: false, corrections: [{ target }] })
+  expect(decisionReadiness({ ...complete, rounds: [...rounds, { ...rounds[0], id: 'later', targets: [{ ...target, verified: true }] }] }).canApprove).toBe(true)
+})
 
 it('uses the latest request for each target while retaining unrelated outstanding verification', () => {
   const snapshot: Snapshot = { fields, documents: { identity: null, business: null, financial: null, purchase: null } }

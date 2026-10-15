@@ -1,6 +1,6 @@
 import { foldDigits, normalizeField, parseWholeYER } from './application.js'
 import { domainDate, freezeRepayment, products } from './index.js'
-import type { Application, Fields, ProductId, Snapshot } from './model.js'
+import { slots, type Application, type Fields, type ProductId, type Snapshot } from './model.js'
 
 // A later request supersedes only its own targets. Earlier outcomes stay in history.
 export function currentCorrectionTargets(rounds: Application['rounds']) {
@@ -21,6 +21,17 @@ export const reviewDependencies = {
   capacity: { fields: ['amount', 'term', 'revenue', 'expenses'], documents: ['financial'] },
 } as const
 export type ReviewCheck = keyof typeof reviewDependencies
+
+export function decisionReadiness(application: Pick<Application, 'submitted' | 'assessments' | 'checks' | 'rounds'>) {
+  const documents = slots.filter(slot => !application.submitted?.documents[slot] || application.assessments?.[slot].status !== 'accepted')
+  const checks = (Object.keys(reviewDependencies) as ReviewCheck[]).filter(check => application.checks?.[check] !== 'passed')
+  const corrections = currentCorrectionTargets(application.rounds).filter(({ roundId, target }) => !target.verified || !application.rounds.find(round => round.id === roundId)?.response)
+  return {
+    documents, checks, corrections,
+    canApprove: !documents.length && !checks.length && !corrections.length,
+    canReject: (['operatingHistory', 'purpose', 'budget', 'capacity'] as const).some(check => application.checks?.[check] === 'failed'),
+  }
+}
 
 export function changedReviewChecks(before: Snapshot, after: Snapshot): ReviewCheck[] {
   return (Object.keys(reviewDependencies) as ReviewCheck[]).filter(check => {

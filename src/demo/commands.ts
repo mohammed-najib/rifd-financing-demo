@@ -49,6 +49,7 @@ export const reviewOperationSchema = z.discriminatedUnion('kind', [z.object({
   z.object({ ...reviewVersion, kind: z.literal('saveNote'), text: bilingualSchema }).strict(),
   z.object({ ...reviewVersion, kind: z.literal('verifyCorrection'), roundId: z.string().min(1), field: fieldsSchema.keyof(), verified: z.boolean() }).strict(),
   z.object({ ...reviewVersion, kind: z.literal('requestCorrections'), targets: correctionTargetsSchema, confirmed: z.literal(true) }).strict(),
+  z.object({ ...reviewVersion, kind: z.enum(['approve', 'reject']), reason: bilingualSchema, confirmed: z.literal(true), confirmationSessionId: z.string().uuid() }).strict(),
 ])
 export const applicationOperationSchema = z.discriminatedUnion('kind', [saveDraftSchema, submitSchema, saveCorrectionsSchema, resubmitSchema])
 export const applicationMutationSchema = z.discriminatedUnion('kind', [saveDraftSchema, submitSchema, saveCorrectionsSchema, resubmitSchema, reviewOperationSchema])
@@ -63,6 +64,7 @@ export const preparationSchema = z.object({
 }).strict()
 
 export function applicationFingerprint(operation: ApplicationMutation): string {
+  if (operation.kind === 'approve' || operation.kind === 'reject') return JSON.stringify({ kind: operation.kind, applicationId: operation.applicationId, reason: operation.reason, confirmed: operation.confirmed })
   if (operation.kind === 'verifyCorrection') return JSON.stringify({ kind: operation.kind, applicationId: operation.applicationId, roundId: operation.roundId, field: operation.field, verified: operation.verified })
   if (operation.kind === 'requestCorrections') return JSON.stringify({ kind: operation.kind, applicationId: operation.applicationId, targets: operation.targets, confirmed: operation.confirmed })
   if (operation.kind === 'assessDocument') return JSON.stringify({ kind: operation.kind, applicationId: operation.applicationId, slot: operation.slot, fileId: operation.fileId, status: operation.status, reason: operation.reason })

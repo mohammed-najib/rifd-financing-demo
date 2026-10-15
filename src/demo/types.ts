@@ -74,6 +74,7 @@ export type ReviewOperation = {
   | { kind: 'recordCheck'; check: ReviewCheck; outcome: 'unchecked' | 'passed' | 'failed' }
   | { kind: 'saveNote'; text: Bilingual }
   | { kind: 'verifyCorrection'; roundId: string; field: keyof Fields; verified: boolean }
+  | { kind: 'approve' | 'reject'; reason: Bilingual; confirmed: true; confirmationSessionId: string }
   | { kind: 'requestCorrections'; targets: CorrectionTarget[]; confirmed: true })
 export type ApplicationOperation = SaveDraftOperation | SubmitOperation | SaveCorrectionsOperation | ResubmitOperation
 export type ApplicationMutation = ApplicationOperation | ReviewOperation

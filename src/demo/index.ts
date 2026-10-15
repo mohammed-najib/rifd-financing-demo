@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { canReadApplication, changedReviewChecks, domainDate, emptyDocuments, initialEvidenceMonths, products, reviewPermissions, submissionMonth, validateFields, validateFileEnvelope } from '../domain'
+import { canReadApplication, changedReviewChecks, domainDate, emptyDocuments, initialEvidenceMonths, foldDigits, freezeRepayment, parseWholeYER, products, reviewPermissions, submissionMonth, validateFields, validateFileEnvelope } from '../domain'
 import { actorIdSchema, fieldsSchema, productIdSchema, slots, type ActorId, type Application, type Dataset, type Fields, type StoredFile } from '../domain/model'
 import { fileFromBytes, makeFile, prepareFonts } from './evidence'
 import { applicationMutationSchema, applicationOperationSchema, commitHintSchema, applicationFingerprint, notificationReadSchema, preferenceOperationSchema, preparationSchema, reviewOperationSchema } from './commands'
@@ -228,7 +228,7 @@ export function createDemo(): Demo {
   async function execute(input: PreferenceOperation | ApplicationMutation | NotificationReadOperation): Promise<Result<Context | MutationResult | NotificationReadResult>> {
     // Capture raw payload and attachment descriptors before any delay.
     const operation = structuredClone(input)
-    if (operation.kind === 'claimApplication' || operation.kind === 'startReview' || operation.kind === 'transferApplication' || operation.kind === 'unassignApplication' || operation.kind === 'assessDocument' || operation.kind === 'recordCheck' || operation.kind === 'saveNote' || operation.kind === 'requestCorrections' || operation.kind === 'verifyCorrection') return attempt(async () => {
+    if (operation.kind === 'claimApplication' || operation.kind === 'startReview' || operation.kind === 'transferApplication' || operation.kind === 'unassignApplication' || operation.kind === 'assessDocument' || operation.kind === 'recordCheck' || operation.kind === 'saveNote' || operation.kind === 'requestCorrections' || operation.kind === 'verifyCorrection' || operation.kind === 'approve' || operation.kind === 'reject') return attempt(async () => {
       const who = actor()
       const captured = generation
       const parsed = reviewOperationSchema.safeParse(operation)
@@ -245,11 +245,12 @@ export function createDemo(): Demo {
         const receipt = applicationReceipt(current, who, command)
         if (receipt) { replay = true; return current }
         if (application.sharedRevision !== command.expectedSharedRevision) throw new DemoError('staleRecord')
-        if (who !== 'salma' || ['startReview', 'assessDocument', 'recordCheck', 'saveNote', 'requestCorrections', 'verifyCorrection'].includes(command.kind) && application.assignee !== who) throw new DemoError('permissionDenied')
+        if (who !== 'salma' || ['startReview', 'assessDocument', 'recordCheck', 'saveNote', 'requestCorrections', 'verifyCorrection', 'approve', 'reject'].includes(command.kind) && application.assignee !== who) throw new DemoError('permissionDenied')
         if (!reviewPermissions(who, application)[command.kind]) throw new DemoError('invalidState')
         if (command.kind === 'transferApplication') {
           if (application.assignee !== command.from || command.from === command.to) throw new DemoError('invalidState')
         }
+        if ((command.kind === 'approve' || command.kind === 'reject') && command.confirmationSessionId !== session?.sessionId) throw new DemoError('validation')
         validateReviewCommand(application, command)
         authority(captured, who, command.datasetId, current)
         abortStorage = consume('storage')
@@ -266,6 +267,13 @@ export function createDemo(): Demo {
           const from = current.identities.find(identity => identity.id === application.assignee)!.name
           application.assignee = null
           application.activity.push({ ...entry, kind: 'assigned', actor: who, description: { ar: `أُلغي إسناد الطلب إلى ${from.ar}.`, en: `Application unassigned from ${from.en}.` } })
+        } else if (command.kind === 'approve' || command.kind === 'reject') {
+          const approved = command.kind === 'approve'
+          application.status = approved ? 'approved' : 'rejected'
+          application.repayment = approved ? freezeRepayment(parseWholeYER(application.submitted!.fields.amount)!, Number(foldDigits(application.submitted!.fields.term).trim()), products[application.product], domainDate) : null
+          application.history.push({ ...entry, kind: application.status, reason: command.reason })
+          application.activity.push({ ...entry, kind: application.status, actor: who, description: command.reason })
+          current.notifications.push({ id: crypto.randomUUID(), owner: application.owner, applicationId: application.id, kind: application.status, date: domainDate, read: false, revision: 1 })
         } else if (command.kind === 'requestCorrections') {
           const previousRound = application.rounds.at(-1)
           if (previousRound?.response) previousRound.responseAssessments = structuredClone(application.assessments!)

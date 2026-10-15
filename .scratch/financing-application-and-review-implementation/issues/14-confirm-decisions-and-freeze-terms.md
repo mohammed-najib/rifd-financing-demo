@@ -4,7 +4,7 @@
 
 **Blocked by:** [13: Resubmit, verify and repeat correction rounds](13-resubmit-and-verify-corrections.md).
 
-**Status:** ready-for-agent
+**Status:** complete
 
 **Source:** [RIFD specification](../../financing-application-and-review/spec.md). Its accepted behavior, permissions, transaction guarantees, bilingual presentation and testing decisions apply to this slice.
 
@@ -14,9 +14,11 @@
 
 **Styling:** Follow the [Tailwind v4 conventions](../../../README.md#styling) for new or changed UI, preserving Guided A, both directions and the shared design tokens.
 
-- [ ] Require assigned Under review, reason and current explicit confirmation for both outcomes; show unmet prerequisites and current identity/reference/terms.
-- [ ] Approve only with all documents Accepted, five checks Passed and current targets verified. Reject only for a failed substantive criterion; evidence deficiency alone is insufficient.
-- [ ] Atomically record final state/reason/history/notification/receipt and freeze approved terms, rule version, markup, total and schedule rows; newly approved installments start Upcoming.
-- [ ] Lock final fields/files/checks/assignment while preserving permitted reads, printing and assigned internal notes.
-- [ ] Invalidate confirmation on expiry, stale state or reassignment; uncertain completion/replay cannot create duplicate decisions or notifications.
-- [ ] Verify complete initial-submission approval, corrected approval, actual new young-business rejection, incomplete-review rejection on an independent criterion, terminal refusals and exact schedule arithmetic/dates.
+- [x] Require assigned Under review, reason and current explicit confirmation for both outcomes; show unmet prerequisites and current identity/reference/terms.
+- [x] Approve only with all documents Accepted, five checks Passed and current targets verified. Reject only for a failed substantive criterion; evidence deficiency alone is insufficient.
+- [x] Atomically record final state/reason/history/notification/receipt and freeze approved terms, rule version, markup, total and schedule rows; newly approved installments start Upcoming.
+- [x] Lock final fields/files/checks/assignment while preserving permitted reads, printing and assigned internal notes.
+- [x] Invalidate confirmation on expiry, stale state or reassignment; uncertain completion/replay cannot create duplicate decisions or notifications.
+- [x] Verify complete initial-submission approval, corrected approval, actual new young-business rejection, incomplete-review rejection on an independent criterion, terminal refusals and exact schedule arithmetic/dates.
+
+Implementation and validation: [slice 14 evidence](../../../docs/implementation/14-evidence.md).

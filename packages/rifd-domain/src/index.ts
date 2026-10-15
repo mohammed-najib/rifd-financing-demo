@@ -52,6 +52,8 @@ export function reviewPermissions(actor: ActorId, application: Pick<Application,
     recordCheck: staff && application.assignee === actor && application.status === 'underReview',
     verifyCorrection: staff && application.assignee === actor && application.status === 'underReview',
     requestCorrections: staff && application.assignee === actor && application.status === 'underReview',
+    approve: staff && application.assignee === actor && application.status === 'underReview',
+    reject: staff && application.assignee === actor && application.status === 'underReview',
     saveNote: staff && application.assignee === actor && ['underReview', 'correctionsRequested', 'approved', 'rejected'].includes(application.status),
   }
 }
@@ -59,5 +61,5 @@ export function reviewPermissions(actor: ActorId, application: Pick<Application,
 export { applicationSteps, emptyDocuments, foldDigits, normalizeField, parseWholeYER, resolveStep, stepFields, validateFields } from './application.js'
 export type { ApplicationStep, FieldIssue } from './application.js'
 
-export { changedReviewChecks, currentCorrectionTargets, reviewDependencies, reviewRules } from './review.js'
+export { changedReviewChecks, currentCorrectionTargets, decisionReadiness, reviewDependencies, reviewRules } from './review.js'
 export type { ReviewCheck } from './review.js'

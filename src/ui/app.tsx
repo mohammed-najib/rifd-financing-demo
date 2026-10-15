@@ -16,11 +16,13 @@ import { ApplicationRows, Status } from './application-rows'
 import { StaffApplicationQueue } from './queue'
 import { queueText } from './queue-copy'
 import { ReviewWorkspace, reviewDirty, type ReviewBuffer } from './review'
+import { Decision, decisionDirty, type DecisionBuffer } from './decision'
+import { decisionText } from './decision-copy'
 import { CorrectionRequest, correctionDirty, type CorrectionBuffer } from './correction-request'
 import { correctionText } from './correction-copy'
 import { responseText } from './correction-response'
 
-type Screen = { kind: 'home' | 'chooser' | 'products' | 'applicantList' | 'staffList' | 'newDraft' | 'unavailable' | 'notifications' } | { kind: 'applicantDetail' | 'staffDetail' | 'staffRequest' | 'applicantPrint' | 'staffPrint'; id: string }
+type Screen = { kind: 'home' | 'chooser' | 'products' | 'applicantList' | 'staffList' | 'newDraft' | 'unavailable' | 'notifications' } | { kind: 'applicantDetail' | 'staffDetail' | 'staffRequest' | 'staffDecision' | 'applicantPrint' | 'staffPrint'; id: string }
 function resolveScreen(path: string): Screen {
   if (path === '/') return { kind: 'home' }
   if (path === '/sign-in') return { kind: 'chooser' }
@@ -33,6 +35,8 @@ function resolveScreen(path: string): Screen {
   if (path === '/applications/new') return { kind: 'newDraft' }
   const applicant = /^\/applications\/(RIFD-2026-[a-zA-Z0-9-]+)(?:\/edit|\/corrections\/current|\/history)?$/.exec(path)
   if (applicant) return { kind: 'applicantDetail', id: applicant[1] }
+  const decision = /^\/staff\/applications\/(RIFD-2026-[a-zA-Z0-9-]+)\/decision$/.exec(path)
+  if (decision) return { kind: 'staffDecision', id: decision[1] }
   const request = /^\/staff\/applications\/(RIFD-2026-[a-zA-Z0-9-]+)\/correction-request$/.exec(path)
   if (request) return { kind: 'staffRequest', id: request[1] }
   const staff = /^\/staff\/applications\/(RIFD-2026-[a-zA-Z0-9-]+)$/.exec(path)
@@ -74,6 +78,7 @@ export function App() {
   const contextRequest = useRef(0)
   const newDraftId = useRef<string | null>(null)
   const draftBuffers = useRef(new Map<string, DraftBuffer>())
+  const decisionBuffers = useRef(new Map<string, DecisionBuffer>())
   const reviewBuffers = useRef(new Map<string, ReviewBuffer>())
   const correctionBuffers = useRef(new Map<string, CorrectionBuffer>())
   const departure = useRef<Departure | null>(null)
@@ -84,7 +89,7 @@ export function App() {
   const recovery = useRef<{ identity: ActorId; datasetId: string; href: string } | null>(null)
   currentContext.current = context
   if (context?.session && !['home', 'chooser', 'products', 'unavailable'].includes(screen.kind)) lastProtected.current = href
-  const clearBuffers = () => { draftBuffers.current.clear(); reviewBuffers.current.clear(); correctionBuffers.current.clear() }
+  const clearBuffers = () => { draftBuffers.current.clear(); reviewBuffers.current.clear(); correctionBuffers.current.clear(); decisionBuffers.current.clear() }
   const acceptContext = (next: Context) => {
     const previous = currentContext.current
     if (previous?.datasetId && previous.datasetId !== next.datasetId) {
@@ -103,7 +108,7 @@ export function App() {
     const target = new URL(to, window.location.origin)
     return to === '/' ? navigate({ to: '/', replace }) : navigate({ to: '/$', params: { _splat: target.pathname.slice(1) }, search: defaultParseSearch(target.search), replace })
   }
-  const needsDeparture = () => !!departure.current?.dirty || !!departure.current?.pending || !!currentContext.current?.session && [...draftBuffers.current.values()].some(draftDirty) || !!currentContext.current?.session && [...reviewBuffers.current.values()].some(reviewDirty) || !!currentContext.current?.session && [...correctionBuffers.current.values()].some(correctionDirty)
+  const needsDeparture = () => !!departure.current?.dirty || !!departure.current?.pending || !!currentContext.current?.session && [...draftBuffers.current.values()].some(draftDirty) || !!currentContext.current?.session && [...reviewBuffers.current.values()].some(reviewDirty) || !!currentContext.current?.session && [...correctionBuffers.current.values()].some(correctionDirty) || !!currentContext.current?.session && [...decisionBuffers.current.values()].some(decisionDirty)
   const guard = (action: () => void) => {
     if (needsDeparture()) setLeaving({ action, discardOnly: !departure.current?.save })
     else action()
@@ -114,7 +119,7 @@ export function App() {
       if (current.pathname === next.pathname || !needsDeparture()) return false
       return new Promise<boolean>(resolve => setLeaving({ action: () => resolve(false), cancel: () => resolve(true), discardOnly: !departure.current?.save }))
     },
-    enableBeforeUnload: () => !!departure.current?.dirty || !!departure.current?.pending || [...draftBuffers.current.values()].some(draftDirty) || [...reviewBuffers.current.values()].some(reviewDirty) || [...correctionBuffers.current.values()].some(correctionDirty),
+    enableBeforeUnload: () => !!departure.current?.dirty || !!departure.current?.pending || [...draftBuffers.current.values()].some(draftDirty) || [...reviewBuffers.current.values()].some(reviewDirty) || [...correctionBuffers.current.values()].some(correctionDirty) || [...decisionBuffers.current.values()].some(decisionDirty),
   })
   const home = context?.identity?.role === 'reviewer' ? '/staff/applications' : '/applications'
 
@@ -164,7 +169,7 @@ export function App() {
     }
     if (!context || !identityId) return
     if (current.kind === 'home') { void navigate({ to: '/$', params: { _splat: identity?.role === 'reviewer' ? 'staff/applications' : 'applications' }, replace: true }); return }
-    const staff = current.kind === 'staffList' || current.kind === 'staffDetail' || current.kind === 'staffRequest' || current.kind === 'staffPrint'
+    const staff = current.kind === 'staffList' || current.kind === 'staffDetail' || current.kind === 'staffRequest' || current.kind === 'staffDecision' || current.kind === 'staffPrint'
     const applicant = current.kind === 'applicantList' || current.kind === 'applicantDetail' || current.kind === 'applicantPrint' || current.kind === 'notifications' || current.kind === 'newDraft'
     if ((staff && identityId !== 'salma') || (applicant && identityId === 'salma')) { setError('unavailable'); setLoadedPath(path); return }
     const retainedNew = current.kind === 'newDraft' && newDraftId.current ? draftBuffers.current.get(`${context.datasetId}/${identityId}/${newDraftId.current}`) : undefined
@@ -197,7 +202,7 @@ export function App() {
         else setError(result.error.kind)
         setLoadedPath(path)
       })
-    } else if (current.kind === 'staffDetail' || current.kind === 'staffRequest' || current.kind === 'applicantDetail') {
+    } else if (current.kind === 'staffDetail' || current.kind === 'staffRequest' || current.kind === 'staffDecision' || current.kind === 'applicantDetail') {
       void demo.readApplication(current.id).then(result => {
         if (!active) return
         if (result.ok) {
@@ -230,7 +235,7 @@ export function App() {
   }, [path, routeReady, sessionId])
 
   const selectIdentity = async (id: ActorId, intentional = false) => {
-    if ([...draftBuffers.current.entries()].some(([key, buffer]) => !key.startsWith(`${context?.datasetId}/${id}/`) && draftDirty(buffer)) || [...reviewBuffers.current.entries()].some(([key, buffer]) => !key.startsWith(`${context?.datasetId}/${id}/`) && reviewDirty(buffer)) || [...correctionBuffers.current.entries()].some(([key, buffer]) => !key.startsWith(`${context?.datasetId}/${id}/`) && correctionDirty(buffer))) {
+    if ([...decisionBuffers.current.entries()].some(([key, buffer]) => !key.startsWith(`${context?.datasetId}/${id}/`) && decisionDirty(buffer)) || [...draftBuffers.current.entries()].some(([key, buffer]) => !key.startsWith(`${context?.datasetId}/${id}/`) && draftDirty(buffer)) || [...reviewBuffers.current.entries()].some(([key, buffer]) => !key.startsWith(`${context?.datasetId}/${id}/`) && reviewDirty(buffer)) || [...correctionBuffers.current.entries()].some(([key, buffer]) => !key.startsWith(`${context?.datasetId}/${id}/`) && correctionDirty(buffer))) {
       setLeaving({ action: () => { clearBuffers(); newDraftId.current = null; void selectIdentity(id, true) }, discardOnly: true })
       return
     }
@@ -246,7 +251,7 @@ export function App() {
       let target = intentional || interrupted && !ownRecovery ? (id === 'salma' ? '/staff/applications' : '/applications') : ownRecovery ? interrupted.href : href
       const destination = resolveScreen(new URL(target, window.location.origin).pathname)
       let permitted = destination.kind === 'newDraft' && id !== 'salma' || destination.kind === 'applicantList' && id !== 'salma' || destination.kind === 'notifications' && id !== 'salma' || destination.kind === 'staffList' && id === 'salma'
-      if ('id' in destination && (['applicantDetail', 'applicantPrint'].includes(destination.kind) && id !== 'salma' || ['staffDetail', 'staffRequest', 'staffPrint'].includes(destination.kind) && id === 'salma')) {
+      if ('id' in destination && (['applicantDetail', 'applicantPrint'].includes(destination.kind) && id !== 'salma' || ['staffDetail', 'staffRequest', 'staffDecision', 'staffPrint'].includes(destination.kind) && id === 'salma')) {
         const access = await (destination.kind.endsWith('Print') ? demo.readPrintSummary(destination.id) : demo.readApplication(destination.id))
         permitted = access.ok
         if (access.ok && access.value.status !== 'draft' && new URL(target, window.location.origin).pathname.endsWith('/edit')) target = `/applications/${destination.id}`
@@ -355,7 +360,7 @@ export function App() {
           : printSummary ? <PrintApplication summary={printSummary} language={language} staff={screen.kind === 'staffPrint'} queueSearch={screen.kind === 'staffPrint' ? searchStr : ''} go={go} />
           : screen.kind === 'staffList' && context ? <StaffApplicationQueue key={`${context.datasetId}/${identityId}/${sessionId}`} demo={demo} context={context} language={language} input={search} href={href} reload={reload} go={go} acceptContext={acceptContext} />
           : list ? <ApplicationList list={list} language={language} go={go} />
-          : view ? <ApplicationDetail key={`${context?.datasetId}/${identityId}/${sessionId}/${view.id}`} demo={demo} view={view} language={language} queueSearch={['staffDetail', 'staffRequest'].includes(screen.kind) ? searchStr : ''} requesting={screen.kind === 'staffRequest'} confirmed={submittedId === view.id} redirectedCorrection={resolvedCorrectionId === view.id} go={go}>{view.role === 'reviewer' && context && screen.kind === 'staffRequest' && <CorrectionRequest demo={demo} datasetId={context.datasetId} view={view} language={language} queueSearch={searchStr} go={go} retained={correctionBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => correctionBuffers.current.set(`${context.datasetId}/${identityId}/${view.id}`, buffer)} changed={setView} departure={value => { departure.current = value; refreshDeparture(value => value + 1) }} />}{view.role === 'reviewer' && context && screen.kind !== 'staffRequest' && <ReviewWorkspace demo={demo} datasetId={context.datasetId} view={view} language={language} retained={reviewBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => reviewBuffers.current.set(`${context.datasetId}/${identityId}/${view.id}`, buffer)} changed={setView} departure={value => { departure.current = value; refreshDeparture(value => value + 1) }} />}{view.role === 'applicant' && (view.status === 'draft' || view.status === 'correctionsRequested' && path.endsWith('/corrections/current')) && context && <DraftEditor demo={demo} view={view} context={context} language={language} step={step} changeStep={step => { void go(`${path}?${screen.kind === 'newDraft' ? `product=${chosenProduct}&` : ''}step=${step}`) }} retained={draftBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => draftBuffers.current.set(`${context.datasetId}/${identityId}/${view.id}`, buffer)} savedView={application => {
+          : view ? <ApplicationDetail key={`${context?.datasetId}/${identityId}/${sessionId}/${view.id}`} demo={demo} view={view} language={language} queueSearch={['staffDetail', 'staffRequest', 'staffDecision'].includes(screen.kind) ? searchStr : ''} requesting={screen.kind === 'staffRequest' || screen.kind === 'staffDecision'} confirmed={submittedId === view.id} redirectedCorrection={resolvedCorrectionId === view.id} go={go}>{view.role === 'reviewer' && context?.session && screen.kind === 'staffDecision' && <Decision demo={demo} datasetId={context.datasetId} sessionId={context.session.sessionId} view={view} language={language} queueSearch={searchStr} go={go} retained={decisionBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => decisionBuffers.current.set(`${context.datasetId}/${identityId}/${view.id}`, buffer)} changed={setView} departure={value => { departure.current = value; refreshDeparture(value => value + 1) }} />}{view.role === 'reviewer' && context && screen.kind === 'staffRequest' && <CorrectionRequest demo={demo} datasetId={context.datasetId} view={view} language={language} queueSearch={searchStr} go={go} retained={correctionBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => correctionBuffers.current.set(`${context.datasetId}/${identityId}/${view.id}`, buffer)} changed={setView} departure={value => { departure.current = value; refreshDeparture(value => value + 1) }} />}{view.role === 'reviewer' && context && screen.kind !== 'staffRequest' && screen.kind !== 'staffDecision' && <ReviewWorkspace demo={demo} datasetId={context.datasetId} view={view} language={language} retained={reviewBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => reviewBuffers.current.set(`${context.datasetId}/${identityId}/${view.id}`, buffer)} changed={setView} departure={value => { departure.current = value; refreshDeparture(value => value + 1) }} />}{view.role === 'applicant' && (view.status === 'draft' || view.status === 'correctionsRequested' && path.endsWith('/corrections/current')) && context && <DraftEditor demo={demo} view={view} context={context} language={language} step={step} changeStep={step => { void go(`${path}?${screen.kind === 'newDraft' ? `product=${chosenProduct}&` : ''}step=${step}`) }} retained={draftBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => draftBuffers.current.set(`${context.datasetId}/${identityId}/${view.id}`, buffer)} savedView={application => {
             setView(application)
             if (application.status !== 'draft' && application.status !== 'correctionsRequested') {
               draftBuffers.current.delete(`${context.datasetId}/${identityId}/${application.id}`)
@@ -411,6 +416,7 @@ function ApplicationDetail({ demo, view, language, queueSearch, children, confir
     {view.role === 'applicant' && <section className="summary"><h2>{t('nextAction')}</h2><p>{t(view.status === 'draft' ? 'draftNext' : view.status === 'correctionsRequested' ? 'correctionNext' : ['approved', 'rejected'].includes(view.status) ? 'finalNext' : 'waitingNext')}</p></section>}
     {(view.status !== 'draft' || view.role === 'applicant' && !!view.workspace?.savedAt) && <a className="button secondary mb-6" href={printHref} onClick={event => { event.preventDefault(); go(printHref) }}>{printText.print[language]}</a>}
     {view.role === 'reviewer' && view.permissions.requestCorrections && !requesting && <a className="button mb-6" href={`/staff/applications/${view.id}/correction-request${queueSearch}`} onClick={event => { event.preventDefault(); go(`/staff/applications/${view.id}/correction-request${queueSearch}`) }}>{correctionText.request[language]}</a>}
+    {view.role === 'reviewer' && view.status === 'underReview' && !requesting && <a className="button secondary ms-3 mb-6" href={`/staff/applications/${view.id}/decision${queueSearch}`} onClick={event => { event.preventDefault(); go(`/staff/applications/${view.id}/decision${queueSearch}`) }}>{decisionText.title[language]}</a>}
     {children}
     {view.role === 'applicant' && (view.status !== 'draft' || !!view.workspace?.savedAt) && <div className="detail-grid grid grid-cols-[minmax(0,1.7fr)_minmax(260px,1fr)] gap-[25px] compact:grid-cols-[minmax(0,1.4fr)_minmax(240px,1fr)] narrow:grid-cols-1"><div>
       <section className="panel"><h2>{view.status === 'draft' ? t('savedInformation') : t('submittedInformation')}</h2><ApplicationInformation record={view} language={language} /></section>

@@ -1,4 +1,4 @@
-import { currentCorrectionTargets, reviewRules } from '../domain'
+import { currentCorrectionTargets, decisionReadiness, reviewRules } from '../domain'
 import type { Application, Bilingual } from '../domain/model'
 import type { ReviewOperation } from './types'
 import { DemoError } from './storage'
@@ -18,7 +18,10 @@ const outcomes: Record<string, Bilingual> = {
 const hasText = (value: { ar: string; en: string } | null) => !!value && !!value.ar.trim() && !!value.en.trim()
 
 export function validateReviewCommand(application: Application, command: ReviewOperation) {
-  if (command.kind === 'verifyCorrection') {
+  if (command.kind === 'approve' || command.kind === 'reject') {
+    const readiness = decisionReadiness(application)
+    if (!hasText(command.reason) || !(command.kind === 'approve' ? readiness.canApprove : readiness.canReject)) throw new DemoError('validation')
+  } else if (command.kind === 'verifyCorrection') {
     const round = application.rounds.find(round => round.id === command.roundId)
     if (!round?.response || !currentCorrectionTargets(application.rounds).some(({ roundId, target }) => roundId === command.roundId && target.kind === 'field' && target.field === command.field)) throw new DemoError('validation')
   } else if (command.kind === 'assessDocument') {

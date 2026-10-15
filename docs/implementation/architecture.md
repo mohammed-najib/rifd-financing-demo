@@ -1,6 +1,6 @@
 # Browser demo architecture
 
-The [specification](../../.scratch/financing-application-and-review/spec.md) and [accepted browser contract](../../.scratch/financing-application-and-review/issues/04-browser-state-and-simulated-failures.md#answer) govern the implementation. The first thirteen slices provide startup, authorized reads, canonical field validation, five-step drafts, session and tab recovery, atomic first submission, notifications, printing, the staff queue, assignment, review start, document assessments, checks, internal notes targeted correction requests and private correction responses, atomic resubmission and correction verification. Later tickets extend the same boundaries for decisions.
+The [specification](../../.scratch/financing-application-and-review/spec.md) and [accepted browser contract](../../.scratch/financing-application-and-review/issues/04-browser-state-and-simulated-failures.md#answer) govern the implementation. The first fourteen slices provide startup, authorized reads, canonical field validation, five-step drafts, session and tab recovery, atomic first submission, notifications, printing, the staff queue, assignment, review start, document assessments, checks, internal notes targeted correction requests and private correction responses, atomic resubmission and correction verification. Final decisions use the same transaction, authority and receipt boundaries.
 
 ## Modules
 
@@ -240,3 +240,34 @@ When requesting another round, the transaction retains the preceding response's
 assessments, including reasons, in `responseAssessments`. This optional additive
 field is staff-only; applicant and print projections exclude it. Each new round
 captures its own submitted baseline and fresh private workspace.
+
+## Final decisions
+
+`approve` and `reject` carry the applicant-visible reason, explicit confirmation,
+confirming session identifier and inspected shared revision. The existing staff
+transaction checks authority, receipt, revision, assignment and Under review state
+before validating the decision. A noncommitted confirmation from an earlier
+sign-in fails even if the application revision is unchanged. Committed receipt
+replay remains available after sign-in without another decision or notification.
+
+The pure `decisionReadiness` helper identifies unaccepted or missing documents,
+checks without a Passed outcome and unverified current correction targets.
+Approval requires all three lists to be empty. Rejection requires a Failed
+Operating history, Product purpose fit, Purchase budget coverage or Repayment
+capacity check. Incomplete unrelated review does not block that rejection.
+
+The transaction records final status, reason in public history, internal activity,
+one applicant notification, shared revision and receipt. Approval also stores
+`freezeRepayment` using the submitted amount and term, selected product rules and
+fixed domain date. All new rows start Upcoming. Reads return the saved repayment
+snapshot; notes cannot recalculate or change it. Existing terminal permissions
+lock fields, evidence, review checks, verification and assignment while preserving
+assigned notes, authorized previews and public print projections.
+
+The decision screen retains the unsent reason and unresolved intent in the same
+App-owned, dataset/identity/application keyed maps as other unfinished work.
+Confirmation stays local to the mounted screen and closes on session or revision
+change. Stale and uncertain results require explicit inspection. A confirmed
+abort retains the reason and requires a new inspection and confirmation before
+retry. An unchanged retry keeps its operation identifier; changed intent or a
+newer inspected revision gets a new identifier. Departure offers Stay or Discard changes, never implicit publication.
