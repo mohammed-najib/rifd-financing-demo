@@ -21,8 +21,9 @@ import { decisionText } from './decision-copy'
 import { CorrectionRequest, correctionDirty, type CorrectionBuffer } from './correction-request'
 import { correctionText } from './correction-copy'
 import { responseText } from './correction-response'
+import { RepaymentOverview, RepaymentSummary, repaymentText } from './repayment'
 
-type Screen = { kind: 'home' | 'chooser' | 'products' | 'applicantList' | 'staffList' | 'newDraft' | 'unavailable' | 'notifications' } | { kind: 'applicantDetail' | 'staffDetail' | 'staffRequest' | 'staffDecision' | 'applicantPrint' | 'staffPrint'; id: string }
+type Screen = { kind: 'home' | 'chooser' | 'products' | 'applicantList' | 'staffList' | 'newDraft' | 'unavailable' | 'notifications' } | { kind: 'applicantDetail' | 'staffDetail' | 'staffRequest' | 'staffDecision' | 'applicantPrint' | 'staffPrint' | 'applicantRepayment' | 'staffRepayment'; id: string }
 function resolveScreen(path: string): Screen {
   if (path === '/') return { kind: 'home' }
   if (path === '/sign-in') return { kind: 'chooser' }
@@ -30,6 +31,8 @@ function resolveScreen(path: string): Screen {
   if (path === '/notifications') return { kind: 'notifications' }
   const print = /^(\/staff)?\/applications\/(RIFD-2026-[a-zA-Z0-9-]+)\/print$/.exec(path)
   if (print) return { kind: print[1] ? 'staffPrint' : 'applicantPrint', id: print[2] }
+  const repayment = /^(\/staff)?\/applications\/(RIFD-2026-[a-zA-Z0-9-]+)\/repayment$/.exec(path)
+  if (repayment) return { kind: repayment[1] ? 'staffRepayment' : 'applicantRepayment', id: repayment[2] }
   if (path === '/applications') return { kind: 'applicantList' }
   if (path === '/staff/applications') return { kind: 'staffList' }
   if (path === '/applications/new') return { kind: 'newDraft' }
@@ -72,6 +75,7 @@ export function App() {
   const [view, setView] = useState<ApplicationView | null>(null)
   const [loadedPath, setLoadedPath] = useState<string | null>(null)
   const [resolvedCorrectionId, setResolvedCorrectionId] = useState<string | null>(null)
+  const [resolvedRepaymentId, setResolvedRepaymentId] = useState<string | null>(null)
   const [submittedId, setSubmittedId] = useState<string | null>(null)
   const alive = useRef(true)
   const identitySelection = useRef(false)
@@ -169,8 +173,8 @@ export function App() {
     }
     if (!context || !identityId) return
     if (current.kind === 'home') { void navigate({ to: '/$', params: { _splat: identity?.role === 'reviewer' ? 'staff/applications' : 'applications' }, replace: true }); return }
-    const staff = current.kind === 'staffList' || current.kind === 'staffDetail' || current.kind === 'staffRequest' || current.kind === 'staffDecision' || current.kind === 'staffPrint'
-    const applicant = current.kind === 'applicantList' || current.kind === 'applicantDetail' || current.kind === 'applicantPrint' || current.kind === 'notifications' || current.kind === 'newDraft'
+    const staff = current.kind === 'staffList' || current.kind === 'staffDetail' || current.kind === 'staffRequest' || current.kind === 'staffDecision' || current.kind === 'staffPrint' || current.kind === 'staffRepayment'
+    const applicant = current.kind === 'applicantList' || current.kind === 'applicantDetail' || current.kind === 'applicantPrint' || current.kind === 'notifications' || current.kind === 'newDraft' || current.kind === 'applicantRepayment'
     if ((staff && identityId !== 'salma') || (applicant && identityId === 'salma')) { setError('unavailable'); setLoadedPath(path); return }
     const retainedNew = current.kind === 'newDraft' && newDraftId.current ? draftBuffers.current.get(`${context.datasetId}/${identityId}/${newDraftId.current}`) : undefined
     if (retainedNew) {
@@ -202,10 +206,17 @@ export function App() {
         else setError(result.error.kind)
         setLoadedPath(path)
       })
-    } else if (current.kind === 'staffDetail' || current.kind === 'staffRequest' || current.kind === 'staffDecision' || current.kind === 'applicantDetail') {
+    } else if (current.kind === 'staffDetail' || current.kind === 'staffRequest' || current.kind === 'staffDecision' || current.kind === 'applicantDetail' || current.kind === 'staffRepayment' || current.kind === 'applicantRepayment') {
       void demo.readApplication(current.id).then(result => {
         if (!active) return
         if (result.ok) {
+          if (current.kind === 'staffRepayment' || current.kind === 'applicantRepayment') {
+            if (result.value.status !== 'approved') {
+              setResolvedRepaymentId(result.value.id)
+              void navigate({ to: '/$', params: { _splat: `${current.kind === 'staffRepayment' ? 'staff/' : ''}applications/${result.value.id}` }, search: current.kind === 'staffRepayment' ? search : {}, replace: true })
+              return
+            }
+          }
           setView(result.value)
           const retained = draftBuffers.current.get(`${context.datasetId}/${identityId}/${result.value.id}`)
           const retainedRound = retained && draftDirty(retained) ? retained.baseline : undefined
@@ -251,7 +262,7 @@ export function App() {
       let target = intentional || interrupted && !ownRecovery ? (id === 'salma' ? '/staff/applications' : '/applications') : ownRecovery ? interrupted.href : href
       const destination = resolveScreen(new URL(target, window.location.origin).pathname)
       let permitted = destination.kind === 'newDraft' && id !== 'salma' || destination.kind === 'applicantList' && id !== 'salma' || destination.kind === 'notifications' && id !== 'salma' || destination.kind === 'staffList' && id === 'salma'
-      if ('id' in destination && (['applicantDetail', 'applicantPrint'].includes(destination.kind) && id !== 'salma' || ['staffDetail', 'staffRequest', 'staffDecision', 'staffPrint'].includes(destination.kind) && id === 'salma')) {
+      if ('id' in destination && (['applicantDetail', 'applicantPrint', 'applicantRepayment'].includes(destination.kind) && id !== 'salma' || ['staffDetail', 'staffRequest', 'staffDecision', 'staffPrint', 'staffRepayment'].includes(destination.kind) && id === 'salma')) {
         const access = await (destination.kind.endsWith('Print') ? demo.readPrintSummary(destination.id) : demo.readApplication(destination.id))
         permitted = access.ok
         if (access.ok && access.value.status !== 'draft' && new URL(target, window.location.origin).pathname.endsWith('/edit')) target = `/applications/${destination.id}`
@@ -360,7 +371,8 @@ export function App() {
           : printSummary ? <PrintApplication summary={printSummary} language={language} staff={screen.kind === 'staffPrint'} queueSearch={screen.kind === 'staffPrint' ? searchStr : ''} go={go} />
           : screen.kind === 'staffList' && context ? <StaffApplicationQueue key={`${context.datasetId}/${identityId}/${sessionId}`} demo={demo} context={context} language={language} input={search} href={href} reload={reload} go={go} acceptContext={acceptContext} />
           : list ? <ApplicationList list={list} language={language} go={go} />
-          : view ? <ApplicationDetail key={`${context?.datasetId}/${identityId}/${sessionId}/${view.id}`} demo={demo} view={view} language={language} queueSearch={['staffDetail', 'staffRequest', 'staffDecision'].includes(screen.kind) ? searchStr : ''} requesting={screen.kind === 'staffRequest' || screen.kind === 'staffDecision'} confirmed={submittedId === view.id} redirectedCorrection={resolvedCorrectionId === view.id} go={go}>{view.role === 'reviewer' && context?.session && screen.kind === 'staffDecision' && <Decision demo={demo} datasetId={context.datasetId} sessionId={context.session.sessionId} view={view} language={language} queueSearch={searchStr} go={go} retained={decisionBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => decisionBuffers.current.set(`${context.datasetId}/${identityId}/${view.id}`, buffer)} changed={setView} departure={value => { departure.current = value; refreshDeparture(value => value + 1) }} />}{view.role === 'reviewer' && context && screen.kind === 'staffRequest' && <CorrectionRequest demo={demo} datasetId={context.datasetId} view={view} language={language} queueSearch={searchStr} go={go} retained={correctionBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => correctionBuffers.current.set(`${context.datasetId}/${identityId}/${view.id}`, buffer)} changed={setView} departure={value => { departure.current = value; refreshDeparture(value => value + 1) }} />}{view.role === 'reviewer' && context && screen.kind !== 'staffRequest' && screen.kind !== 'staffDecision' && <ReviewWorkspace demo={demo} datasetId={context.datasetId} view={view} language={language} retained={reviewBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => reviewBuffers.current.set(`${context.datasetId}/${identityId}/${view.id}`, buffer)} changed={setView} departure={value => { departure.current = value; refreshDeparture(value => value + 1) }} />}{view.role === 'applicant' && (view.status === 'draft' || view.status === 'correctionsRequested' && path.endsWith('/corrections/current')) && context && <DraftEditor demo={demo} view={view} context={context} language={language} step={step} changeStep={step => { void go(`${path}?${screen.kind === 'newDraft' ? `product=${chosenProduct}&` : ''}step=${step}`) }} retained={draftBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => draftBuffers.current.set(`${context.datasetId}/${identityId}/${view.id}`, buffer)} savedView={application => {
+          : view && (screen.kind === 'staffRepayment' || screen.kind === 'applicantRepayment') ? <RepaymentOverview view={view} language={language} queueSearch={screen.kind === 'staffRepayment' ? searchStr : ''} go={go} />
+          : view ? <ApplicationDetail key={`${context?.datasetId}/${identityId}/${sessionId}/${view.id}`} demo={demo} view={view} language={language} queueSearch={['staffDetail', 'staffRequest', 'staffDecision'].includes(screen.kind) ? searchStr : ''} requesting={screen.kind === 'staffRequest' || screen.kind === 'staffDecision'} confirmed={submittedId === view.id} redirectedCorrection={resolvedCorrectionId === view.id} redirectedRepayment={resolvedRepaymentId === view.id} go={go}>{view.role === 'reviewer' && context?.session && screen.kind === 'staffDecision' && <Decision demo={demo} datasetId={context.datasetId} sessionId={context.session.sessionId} view={view} language={language} queueSearch={searchStr} go={go} retained={decisionBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => decisionBuffers.current.set(`${context.datasetId}/${identityId}/${view.id}`, buffer)} changed={setView} departure={value => { departure.current = value; refreshDeparture(value => value + 1) }} />}{view.role === 'reviewer' && context && screen.kind === 'staffRequest' && <CorrectionRequest demo={demo} datasetId={context.datasetId} view={view} language={language} queueSearch={searchStr} go={go} retained={correctionBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => correctionBuffers.current.set(`${context.datasetId}/${identityId}/${view.id}`, buffer)} changed={setView} departure={value => { departure.current = value; refreshDeparture(value => value + 1) }} />}{view.role === 'reviewer' && context && screen.kind !== 'staffRequest' && screen.kind !== 'staffDecision' && <ReviewWorkspace demo={demo} datasetId={context.datasetId} view={view} language={language} retained={reviewBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => reviewBuffers.current.set(`${context.datasetId}/${identityId}/${view.id}`, buffer)} changed={setView} departure={value => { departure.current = value; refreshDeparture(value => value + 1) }} />}{view.role === 'applicant' && (view.status === 'draft' || view.status === 'correctionsRequested' && path.endsWith('/corrections/current')) && context && <DraftEditor demo={demo} view={view} context={context} language={language} step={step} changeStep={step => { void go(`${path}?${screen.kind === 'newDraft' ? `product=${chosenProduct}&` : ''}step=${step}`) }} retained={draftBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => draftBuffers.current.set(`${context.datasetId}/${identityId}/${view.id}`, buffer)} savedView={application => {
             setView(application)
             if (application.status !== 'draft' && application.status !== 'correctionsRequested') {
               draftBuffers.current.delete(`${context.datasetId}/${identityId}/${application.id}`)
@@ -401,7 +413,7 @@ function ApplicationList({ list, language, go }: { list: ApplicationSummary[]; l
   </>
 }
 
-function ApplicationDetail({ demo, view, language, queueSearch, children, confirmed, redirectedCorrection, requesting, go }: { demo: ReturnType<typeof createDemo>; view: ApplicationView; language: Language; queueSearch: string; children?: React.ReactNode; confirmed?: boolean; redirectedCorrection?: boolean; requesting?: boolean; go: (path: string) => void }) {
+function ApplicationDetail({ demo, view, language, queueSearch, children, confirmed, redirectedCorrection, redirectedRepayment, requesting, go }: { demo: ReturnType<typeof createDemo>; view: ApplicationView; language: Language; queueSearch: string; children?: React.ReactNode; confirmed?: boolean; redirectedCorrection?: boolean; redirectedRepayment?: boolean; requesting?: boolean; go: (path: string) => void }) {
   const [previewFileId, setPreviewFileId] = useState<string | null>(null)
   useEffect(() => { if (previewFileId && !view.documents.some(document => document.file?.id === previewFileId)) setPreviewFileId(null) }, [view, previewFileId])
   const t = (key: keyof typeof text) => text[key][language]
@@ -412,11 +424,13 @@ function ApplicationDetail({ demo, view, language, queueSearch, children, confir
     <p className="eyebrow">{products[view.product].name[language]}</p><div className="detail-heading mb-2.5 flex flex-wrap items-center gap-5 narrow:gap-3"><Heading>{view.status === 'draft' && view.role === 'applicant' && !view.workspace?.savedAt ? applicationText.new[language] : <bdi>{view.id}</bdi>}</Heading><Status status={view.status} language={language} /></div>
     <p className="intro">{fields.fullName} · {fields.businessName}</p>
     {redirectedCorrection && <p className="summary" role="status">{language === 'ar' ? 'لم يعد طلب التصحيح هذا نشطًا. تظهر معلومات الطلب الحالية.' : 'This correction request is no longer active. The current application is shown.'}</p>}
+    {redirectedRepayment && view.status !== 'approved' && <p className="summary" role="status">{repaymentText.unavailable[language]}</p>}
     {confirmed && <p className="summary" role="status">{view.history.at(-1)?.kind === 'resubmitted' ? responseText.resubmitted[language] : applicationText.submitted[language]} <bdi>{view.id}</bdi></p>}
     {view.role === 'applicant' && <section className="summary"><h2>{t('nextAction')}</h2><p>{t(view.status === 'draft' ? 'draftNext' : view.status === 'correctionsRequested' ? 'correctionNext' : ['approved', 'rejected'].includes(view.status) ? 'finalNext' : 'waitingNext')}</p></section>}
     {(view.status !== 'draft' || view.role === 'applicant' && !!view.workspace?.savedAt) && <a className="button secondary mb-6" href={printHref} onClick={event => { event.preventDefault(); go(printHref) }}>{printText.print[language]}</a>}
     {view.role === 'reviewer' && view.permissions.requestCorrections && !requesting && <a className="button mb-6" href={`/staff/applications/${view.id}/correction-request${queueSearch}`} onClick={event => { event.preventDefault(); go(`/staff/applications/${view.id}/correction-request${queueSearch}`) }}>{correctionText.request[language]}</a>}
     {view.role === 'reviewer' && view.status === 'underReview' && !requesting && <a className="button secondary ms-3 mb-6" href={`/staff/applications/${view.id}/decision${queueSearch}`} onClick={event => { event.preventDefault(); go(`/staff/applications/${view.id}/decision${queueSearch}`) }}>{decisionText.title[language]}</a>}
+    {view.status === 'approved' && view.repayment && <a className="button mb-6" href={`${view.role === 'reviewer' ? '/staff' : ''}/applications/${view.id}/repayment${queueSearch}`} onClick={event => { event.preventDefault(); go(`${view.role === 'reviewer' ? '/staff' : ''}/applications/${view.id}/repayment${queueSearch}`) }}>{repaymentText.open[language]}</a>}
     {children}
     {view.role === 'applicant' && (view.status !== 'draft' || !!view.workspace?.savedAt) && <div className="detail-grid grid grid-cols-[minmax(0,1.7fr)_minmax(260px,1fr)] gap-[25px] compact:grid-cols-[minmax(0,1.4fr)_minmax(240px,1fr)] narrow:grid-cols-1"><div>
       <section className="panel"><h2>{view.status === 'draft' ? t('savedInformation') : t('submittedInformation')}</h2><ApplicationInformation record={view} language={language} /></section>
@@ -431,9 +445,4 @@ function ApplicationDetail({ demo, view, language, queueSearch, children, confir
     {view.role === 'reviewer' && view.repayment && <RepaymentSummary repayment={view.repayment} language={language} />}
     {previewFileId && <DocumentPreview demo={demo} applicationId={view.id} fileId={previewFileId} language={language} close={() => setPreviewFileId(null)} />}
   </>
-}
-
-function RepaymentSummary({ repayment, language }: { repayment: NonNullable<ApplicationView['repayment']>; language: Language }) {
-  const t = (key: keyof typeof text) => text[key][language]
-  return <section className="panel"><h2>{t('repayment')}</h2><p>{t('notice')}</p><dl className="facts">{(['amount', 'markup', 'total', 'completed', 'remaining'] as const).map(key => <div key={key}><dt>{t(key)}</dt><dd><bdi dir="ltr">{money(repayment[key], language)}</bdi></dd></div>)}</dl><ol className="repayment-list">{repayment.rows.map(row => <li key={row.due}><bdi>{date(row.due, language)}</bdi><bdi dir="ltr">{money(row.amount, language)}</bdi><span>{t(row.status === 'completed' ? 'completedRow' : 'upcoming')}</span></li>)}</ol></section>
 }

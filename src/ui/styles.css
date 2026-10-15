@@ -153,10 +153,6 @@
   .timeline { @apply list-none p-0; }
   .timeline > li { @apply ms-1 border-0 border-s-2 border-solid border-summary-border ps-[18px] pt-0 pb-5 text-[13px]; }
   .timeline strong { @apply block; }
-  .repayment-list { @apply list-none p-0 text-[12px]; }
-  .repayment-list li { @apply flex flex-wrap justify-between gap-2.5 border-0 border-b border-solid border-border py-2.5 narrow:justify-start; }
-  .repayment-list span { @apply text-[11px] text-muted; }
-  .repayment-list bdi { @apply narrow:min-w-[42%]; }
 
   .review-textarea { @apply w-full max-w-full min-h-[130px] resize-y rounded-[8px] border border-solid border-control-border bg-white p-2.5 text-inherit; }
 

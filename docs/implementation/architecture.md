@@ -1,6 +1,6 @@
 # Browser demo architecture
 
-The [specification](../../.scratch/financing-application-and-review/spec.md) and [accepted browser contract](../../.scratch/financing-application-and-review/issues/04-browser-state-and-simulated-failures.md#answer) govern the implementation. The first fourteen slices provide startup, authorized reads, canonical field validation, five-step drafts, session and tab recovery, atomic first submission, notifications, printing, the staff queue, assignment, review start, document assessments, checks, internal notes targeted correction requests and private correction responses, atomic resubmission and correction verification. Final decisions use the same transaction, authority and receipt boundaries.
+The [specification](../../.scratch/financing-application-and-review/spec.md) and [accepted browser contract](../../.scratch/financing-application-and-review/issues/04-browser-state-and-simulated-failures.md#answer) govern the implementation. The first fifteen slices provide startup, authorized reads, canonical field validation, five-step drafts, session and tab recovery, atomic first submission, notifications, printing, the staff queue, assignment, review start, document assessments, checks, internal notes targeted correction requests and private correction responses, atomic resubmission and correction verification. Final decisions use the same transaction, authority and receipt boundaries.
 
 ## Modules
 
@@ -271,3 +271,14 @@ change. Stale and uncertain results require explicit inspection. A confirmed
 abort retains the reason and requires a new inspection and confirmation before
 retry. An unchanged retry keeps its operation identifier; changed intent or a
 newer inspected revision gets a new identifier. Departure offers Stay or Discard changes, never implicit publication.
+
+## Repayment reads
+
+`src/ui/repayment.tsx` presents the saved approval snapshot through the existing
+role-filtered `readApplication` operation. The applicant and staff repayment
+routes resolve access before showing terms. Other states replace the route with
+permitted detail and an explanation. Staff navigation preserves the queue query.
+The shared summary sums Completed and Upcoming stored rows for progress amounts.
+The next entry is the first Upcoming row in schedule order, independent of the
+browser clock. Amount, markup, total, term and all dates come from the frozen
+snapshot. The overview adds no commands or persistence schema changes.

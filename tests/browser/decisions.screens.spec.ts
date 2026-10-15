@@ -132,6 +132,18 @@ for (const language of ['ar', 'en'] as const) test(`${language} first submission
   await page.reload()
   await expect(page.getByText(reason, { exact: true })).toBeVisible()
   await expect(page.getByRole('heading', { name: ar ? 'ملاحظات داخلية' : 'Internal notes', exact: true })).toHaveCount(0)
+  await page.getByRole('link', { name: ar ? 'عرض جدول السداد' : 'View repayment overview', exact: true }).click()
+  await expect(page).toHaveURL(/\/applications\/RIFD-2026-001\/repayment$/)
+  const rows = page.getByRole('list', { name: ar ? 'أقساط السداد التوضيحية' : 'Illustrated installments', exact: true }).getByRole('listitem')
+  await expect(rows).toHaveCount(6)
+  await expect(rows.filter({ hasText: ar ? 'قادم' : 'Upcoming' })).toHaveCount(6)
+  await expect(rows.first()).toContainText(ar ? '15 نوفمبر 2026' : '15 November 2026')
+  await expect(rows.last()).toContainText(ar ? '17,506 ر.ي.' : '17,506 YER')
+  await expect(page.getByText(ar ? '5,001 ر.ي.' : '5,001 YER', { exact: true })).toBeVisible()
+  await expect(page.getByText(ar ? '105,011 ر.ي.' : '105,011 YER', { exact: true })).toHaveCount(2)
+  await expect(page.getByText(ar ? '0 ر.ي.' : '0 YER', { exact: true })).toBeVisible()
+  await page.reload()
+  await expect(rows.filter({ hasText: ar ? 'قادم' : 'Upcoming' })).toHaveCount(6)
 })
 
 test('departure never sends the reason and a storage abort needs fresh inspection and confirmation', async ({ page }) => {

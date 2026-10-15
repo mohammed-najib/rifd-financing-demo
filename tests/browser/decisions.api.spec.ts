@@ -31,6 +31,7 @@ async function ready(page: Page, id = 'RIFD-2026-007') {
 }
 
 test('a complete initial submission is approved once with exact frozen terms and durable applicant effects', async ({ page }) => {
+  await page.clock.install()
   await start(page)
   await page.evaluate(async () => {
     const demo = window.demo
@@ -67,6 +68,16 @@ test('a complete initial submission is approved once with exact frozen terms and
     return window.demo.execute({ ...command, confirmationSessionId: context.value.session.sessionId })
   }, command)
   expect(renewedReplay).toEqual(result.approved)
+  await page.clock.setSystemTime(new Date('2035-06-20T12:00:00Z'))
+  const later = await page.evaluate(async id => {
+    const modulePath = '/src/domain/index.ts'
+    const { products } = await import(/* @vite-ignore */ modulePath) as typeof import('../../src/domain')
+    products.inventory.markupPercent = 99
+    products.inventory.terms = [12]
+    await window.demo.signIn('mariam')
+    return window.demo.readApplication(id)
+  }, command.applicationId)
+  expect(later).toEqual(result.applicant)
 })
 
 test('a corrected response needs explicit current-target verification before approval', async ({ page }) => {
