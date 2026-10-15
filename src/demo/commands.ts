@@ -1,8 +1,13 @@
 import { z } from 'zod'
-import { fieldsSchema, productIdSchema, slots, slotSchema } from '../domain/model'
+import { fieldsSchema, languageSchema, productIdSchema, queuePreferencesSchema, slots, slotSchema } from '../domain/model'
 import type { ApplicationOperation } from './types'
 
 const hintRevision = z.number().int().positive()
+const preferenceVersion = { datasetId: z.string().uuid(), operationId: z.string().min(1), expectedRevision: hintRevision }
+export const preferenceOperationSchema = z.discriminatedUnion('kind', [
+  z.object({ ...preferenceVersion, kind: z.literal('setLanguage'), language: languageSchema }).strict(),
+  z.object({ ...preferenceVersion, kind: z.literal('setQueuePreferences'), queue: queuePreferencesSchema }).strict(),
+])
 export const commitHintSchema = z.discriminatedUnion('kind', [
   z.object({ datasetId: z.string().uuid(), kind: z.literal('preferences'), revision: hintRevision }).strict(),
   z.object({ datasetId: z.string().uuid(), kind: z.literal('workspace'), applicationId: z.string().min(1), revision: hintRevision }).strict(),

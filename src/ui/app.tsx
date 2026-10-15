@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useBlocker, useNavigate, useRouter, useRouterState } from '@tanstack/react-router'
+import { defaultParseSearch, useBlocker, useNavigate, useRouter, useRouterState } from '@tanstack/react-router'
 import { createDemo, demoIdentities, type ApplicationSummary, type ApplicationView, type Context, type ErrorKind, type LanguageOperation, type PrintSummary } from '../demo'
 import { products, resolveStep } from '../domain'
-import type { ActorId, ApplicationStatus, Language, ProductId } from '../domain/model'
-import { date, displayFieldValue, documentLabel, errors, events, fieldLabels, money, outcomes, reviewChecks, statuses, text } from './i18n'
+import type { ActorId, Language, ProductId } from '../domain/model'
+import { date, displayFieldValue, documentLabel, errors, events, money, outcomes, reviewChecks, text } from './i18n'
 import { DraftEditor, RetainedDraft, draftDirty, type DraftBuffer } from './draft'
 import { DepartureDialog, type Departure, type DepartureRequest } from './departure'
 import { DocumentPreview } from './preview'
@@ -12,6 +12,9 @@ import { Notifications } from './notifications'
 import { notificationText } from './notification-copy'
 import { PrintApplication, printText } from './print'
 import { ApplicationInformation, PublicCorrections, PublicHistory } from './public-record'
+import { ApplicationRows, Status } from './application-rows'
+import { StaffApplicationQueue } from './queue'
+import { queueText } from './queue-copy'
 
 type Screen = { kind: 'home' | 'chooser' | 'products' | 'applicantList' | 'staffList' | 'newDraft' | 'unavailable' | 'notifications' } | { kind: 'applicantDetail' | 'staffDetail' | 'applicantPrint' | 'staffPrint'; id: string }
 function resolveScreen(path: string): Screen {
@@ -36,24 +39,16 @@ export function NeutralStartup() {
 }
 function Mark() { return <span className="flex h-[35px] items-end gap-1 [direction:ltr]" aria-hidden="true"><i className="block h-[17px] w-2 rounded-[2px] bg-accent" /><i className="block h-[25px] w-2 rounded-[2px] bg-accent" /><i className="block h-[35px] w-2 rounded-[2px] bg-accent" /></span> }
 function Heading({ children }: { children: React.ReactNode }) { return <h1 tabIndex={-1}>{children}</h1> }
-const statusColors: Record<ApplicationStatus, string> = {
-  draft: 'bg-status-draft text-status-draft-text',
-  submitted: 'bg-status-submitted text-status-submitted-text',
-  underReview: 'bg-status-review text-status-review-text',
-  correctionsRequested: 'bg-status-corrections text-status-corrections-text',
-  approved: 'bg-status-approved text-status-approved-text',
-  rejected: 'bg-status-rejected text-status-rejected-text',
-}
 const eventDateClassName = 'mt-[3px] mb-2 block text-[11px] text-muted'
-function Status({ status, language }: { status: ApplicationStatus; language: Language }) { return <span className={`status ${statusColors[status]}`}>{statuses[status][language]}</span> }
 
 export function App() {
   const demo = useMemo(() => createDemo(), [])
-  const search = useRouterState({ select: state => state.location.search }) as { product?: string; step?: string }
-  const step = resolveStep(search.step)
+  const search = useRouterState({ select: state => state.location.search }) as Record<string, unknown>
+  const step = resolveStep(typeof search.step === 'string' ? search.step : undefined)
   const chosenProduct: ProductId = search.product === 'equipment' ? 'equipment' : 'inventory'
   const path = useRouterState({ select: state => state.location.pathname })
   const href = useRouterState({ select: state => state.location.href })
+  const searchStr = useRouterState({ select: state => state.location.searchStr })
   const navigate = useNavigate()
   const router = useRouter()
   const screen = resolveScreen(path)
@@ -95,10 +90,10 @@ export function App() {
   const loadedContext = useRef('')
   const language = context?.preferences.language ?? 'ar'
   const t = (key: keyof typeof text) => text[key][language]
-  const navigateTo = (to: string) => {
+  const navigateTo = (to: string, replace = false) => {
     setError(null)
     const target = new URL(to, window.location.origin)
-    return to === '/' ? navigate({ to: '/' }) : navigate({ to: '/$', params: { _splat: target.pathname.slice(1) }, search: { product: target.searchParams.get('product') ?? undefined, step: target.searchParams.get('step') ?? undefined } })
+    return to === '/' ? navigate({ to: '/', replace }) : navigate({ to: '/$', params: { _splat: target.pathname.slice(1) }, search: defaultParseSearch(target.search), replace })
   }
   const needsDeparture = () => !!departure.current?.dirty || !!departure.current?.pending || !!currentContext.current?.session && [...draftBuffers.current.values()].some(draftDirty)
   const guard = (action: () => void) => {
@@ -179,7 +174,8 @@ export function App() {
       })
       return () => { active = false }
     }
-    if (current.kind === 'staffList' || current.kind === 'applicantList' || current.kind === 'newDraft') {
+    if (current.kind === 'staffList') setLoadedPath(path)
+    else if (current.kind === 'applicantList' || current.kind === 'newDraft') {
       void demo.listApplications().then(result => {
         if (!active) return
         if (result.ok) setList(result.value)
@@ -343,9 +339,10 @@ export function App() {
             setBusy(false)
           }}>{applicationText.new[language]}</button><div className="actions">{list?.filter(application => application.status === 'draft').map(application => <a className="button secondary" key={application.id} href={`/applications/${application.id}/edit?step=personal`} onClick={event => { event.preventDefault(); void go(`/applications/${application.id}/edit?step=personal`) }}>{applicationText.resume[language]} <bdi>{application.id}</bdi> · {products[application.product].name[language]}</a>)}</div></section>
           : screen.kind === 'notifications' && context ? <Notifications key={`${context.datasetId}/${identityId}/${sessionId}`} demo={demo} datasetId={context.datasetId} language={language} reload={reload} go={go} />
-          : printSummary ? <PrintApplication summary={printSummary} language={language} staff={screen.kind === 'staffPrint'} go={go} />
-          : list ? <ApplicationList list={list} language={language} staff={screen.kind === 'staffList'} go={go} />
-          : view ? <ApplicationDetail key={`${context?.datasetId}/${identityId}/${sessionId}/${view.id}`} demo={demo} view={view} language={language} confirmed={submittedId === view.id} redirectedCorrection={resolvedCorrectionId === view.id} go={go}>{view.role === 'applicant' && view.status === 'draft' && context && <DraftEditor demo={demo} view={view} context={context} language={language} step={step} changeStep={step => { void go(`${path}?${screen.kind === 'newDraft' ? `product=${chosenProduct}&` : ''}step=${step}`) }} retained={draftBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => draftBuffers.current.set(`${context.datasetId}/${identityId}/${view.id}`, buffer)} savedView={application => {
+          : printSummary ? <PrintApplication summary={printSummary} language={language} staff={screen.kind === 'staffPrint'} queueSearch={screen.kind === 'staffPrint' ? searchStr : ''} go={go} />
+          : screen.kind === 'staffList' && context ? <StaffApplicationQueue key={`${context.datasetId}/${identityId}/${sessionId}`} demo={demo} context={context} language={language} input={search} href={href} reload={reload} go={go} acceptContext={acceptContext} />
+          : list ? <ApplicationList list={list} language={language} go={go} />
+          : view ? <ApplicationDetail key={`${context?.datasetId}/${identityId}/${sessionId}/${view.id}`} demo={demo} view={view} language={language} queueSearch={screen.kind === 'staffDetail' ? searchStr : ''} confirmed={submittedId === view.id} redirectedCorrection={resolvedCorrectionId === view.id} go={go}>{view.role === 'applicant' && view.status === 'draft' && context && <DraftEditor demo={demo} view={view} context={context} language={language} step={step} changeStep={step => { void go(`${path}?${screen.kind === 'newDraft' ? `product=${chosenProduct}&` : ''}step=${step}`) }} retained={draftBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => draftBuffers.current.set(`${context.datasetId}/${identityId}/${view.id}`, buffer)} savedView={application => {
             setView(application)
             if (application.status !== 'draft') {
               draftBuffers.current.delete(`${context.datasetId}/${identityId}/${application.id}`)
@@ -377,36 +374,30 @@ function Products({ language, choose }: { language: Language; choose: (product: 
   return <><Heading>{t('products')}</Heading><p className="intro">{t('productIntro')}</p><div className="grid grid-cols-2 gap-[25px] narrow:grid-cols-1">{Object.values(products).map(product => <section className="panel" key={product.id}><h2>{product.name[language]}</h2><p>{product.purpose[language]}</p><dl className="facts"><div><dt>{t('minimum')}</dt><dd><bdi dir="ltr">{money(product.minimum, language)}</bdi></dd></div><div><dt>{t('maximum')}</dt><dd><bdi dir="ltr">{money(product.maximum, language)}</bdi></dd></div><div><dt>{t('term')}</dt><dd><bdi>{product.terms.join(' / ')}</bdi> {t('months')}</dd></div><div><dt>{t('markup')}</dt><dd><bdi>{product.markupPercent}%</bdi><small>{applicationText.once[language]}</small></dd></div></dl><h3>{t('documents')}</h3><ul>{(['identity', 'business', 'financial', 'purchase'] as const).map(slot => <li key={slot}>{documentLabel(slot, product.id)[language]}</li>)}</ul><p>{applicationText.eligibility[language]}</p><button onClick={() => choose(product.id)}>{applicationText.choose[language]}</button></section>)}</div></>
 }
 
-function ApplicationList({ list, language, staff, go }: { list: ApplicationSummary[]; language: Language; staff: boolean; go: (path: string) => void }) {
+function ApplicationList({ list, language, go }: { list: ApplicationSummary[]; language: Language; go: (path: string) => void }) {
   const t = (key: keyof typeof text) => text[key][language]
-  const destination = (application: ApplicationSummary) => `${staff ? '/staff' : ''}/applications/${application.id}${application.status === 'draft' ? '/edit?step=personal' : ''}`
   return <>
-    <p className="eyebrow">{language === 'ar' ? 'مساحة العمل' : 'Workspace'}</p><Heading>{staff ? t('staffApplications') : t('applications')}</Heading><p className="intro">{staff ? t('staffIntro') : t('ownIntro')}</p>
-    {!staff && <a className="button secondary mb-5" href="/products" onClick={event => { event.preventDefault(); go('/products') }}>{applicationText.new[language]}</a>}
-    {staff && <div className="queue-counts grid grid-cols-4 gap-[15px] narrow:grid-cols-2 narrow:gap-2.5" aria-label={t('all')}><div><strong>{list.length}</strong><span>{t('all')}</span></div>{(['submitted', 'underReview', 'correctionsRequested'] as const).map(status => <div key={status}><strong>{list.filter(application => application.status === status).length}</strong><span>{statuses[status][language]}</span></div>)}</div>}
-    <p className="my-[22px] text-[13px] text-muted">{t('sliceNotice')}</p>
-    {staff ? <div className="panel overflow-hidden p-0 compact:hidden"><table><thead><tr><th>{t('reference')}</th><th>{fieldLabels.fullName[language]} / {fieldLabels.businessName[language]}</th><th>{t('products')}</th><th>{t('amount')}</th><th>{t('status')}</th><th>{t('assignment')}</th><th>{t('submittedAt')}</th><th><span className="sr-only">{t('open')}</span></th></tr></thead><tbody>{list.map(application => <tr key={application.id}><td><bdi>{application.id}</bdi></td><td>{application.fullName}<small>{application.businessName}</small></td><td>{products[application.product].name[language]}</td><td><bdi dir="ltr">{money(application.amount, language)}</bdi></td><td><Status status={application.status} language={language} /></td><td>{application.assignedToYou ? t('assignedToYou') : application.assignment?.[language] ?? t('unassigned')}</td><td><bdi>{application.submittedAt ? date(application.submittedAt, language) : t('notSubmitted')}</bdi></td><td><a href={destination(application)} onClick={event => { event.preventDefault(); go(destination(application)) }} aria-label={`${t('open')} ${application.id}`}>{t('open')}</a></td></tr>)}</tbody></table></div> : null}
-    <div className={`grid-cols-2 gap-[22px] narrow:grid-cols-1 ${staff ? 'hidden compact:grid' : 'grid'}`}>{list.map(application => <article className="panel application-card" key={application.id} data-application={application.id}>
-      <div className="mb-[18px] flex flex-wrap items-center justify-between gap-3"><bdi className="font-latin text-[13px] text-muted">{application.id}</bdi><Status status={application.status} language={language} /></div><h2>{application.businessName}</h2><p>{application.fullName} · {products[application.product].name[language]}</p>
-      <dl className="facts"><div><dt>{t('amount')}</dt><dd><bdi dir="ltr">{money(application.amount, language)}</bdi></dd></div><div><dt>{t('term')}</dt><dd><bdi>{displayFieldValue('term', application.term, language)}</bdi> {t('months')}</dd></div>{staff && <div><dt>{t('assignment')}</dt><dd>{application.assignedToYou ? t('assignedToYou') : application.assignment?.[language] ?? t('unassigned')}</dd></div>}<div><dt>{t('submittedAt')}</dt><dd><bdi>{application.submittedAt ? date(application.submittedAt, language) : t('notSubmitted')}</bdi></dd></div></dl>
-      <a className="button secondary" href={destination(application)} onClick={event => { event.preventDefault(); go(destination(application)) }}>{staff ? t('open') : t(application.nextAction)}</a>
-    </article>)}</div>
+    <p className="eyebrow">{language === 'ar' ? 'مساحة العمل' : 'Workspace'}</p><Heading>{t('applications')}</Heading><p className="intro">{t('ownIntro')}</p>
+    <a className="button secondary mb-5" href="/products" onClick={event => { event.preventDefault(); go('/products') }}>{applicationText.new[language]}</a>
+    <ApplicationRows list={list} language={language} staff={false} go={go} />
   </>
 }
 
-function ApplicationDetail({ demo, view, language, children, confirmed, redirectedCorrection, go }: { demo: ReturnType<typeof createDemo>; view: ApplicationView; language: Language; children?: React.ReactNode; confirmed?: boolean; redirectedCorrection?: boolean; go: (path: string) => void }) {
+function ApplicationDetail({ demo, view, language, queueSearch, children, confirmed, redirectedCorrection, go }: { demo: ReturnType<typeof createDemo>; view: ApplicationView; language: Language; queueSearch: string; children?: React.ReactNode; confirmed?: boolean; redirectedCorrection?: boolean; go: (path: string) => void }) {
   const [previewFileId, setPreviewFileId] = useState<string | null>(null)
   useEffect(() => { if (previewFileId && !view.documents.some(document => document.file?.id === previewFileId)) setPreviewFileId(null) }, [view, previewFileId])
   const t = (key: keyof typeof text) => text[key][language]
   const fields = view.snapshot.fields
+  const printHref = `${view.role === 'reviewer' ? '/staff' : ''}/applications/${view.id}/print${queueSearch}`
   return <>
+    {view.role === 'reviewer' && <a className="button secondary mb-5" href={`/staff/applications${queueSearch}`} onClick={event => { event.preventDefault(); go(`/staff/applications${queueSearch}`) }}>{queueText.back[language]}</a>}
     <p className="eyebrow">{products[view.product].name[language]}</p><div className="detail-heading mb-2.5 flex flex-wrap items-center gap-5 narrow:gap-3"><Heading>{view.status === 'draft' && view.role === 'applicant' && !view.workspace?.savedAt ? applicationText.new[language] : <bdi>{view.id}</bdi>}</Heading><Status status={view.status} language={language} /></div>
     <p className="intro">{fields.fullName} · {fields.businessName}</p>
     {redirectedCorrection && <p className="summary" role="status">{language === 'ar' ? 'لم يعد طلب التصحيح هذا نشطًا. تظهر معلومات الطلب الحالية.' : 'This correction request is no longer active. The current application is shown.'}</p>}
     {confirmed && <p className="summary" role="status">{applicationText.submitted[language]} <bdi>{view.id}</bdi></p>}
     {view.role === 'reviewer' && <p className="mb-[25px] text-[14px] text-accent">{t('assignment')}: {view.assignedToYou ? t('assignedToYou') : view.assignment?.[language] ?? t('unassigned')}</p>}
     <section className="summary"><h2>{t('nextAction')}</h2><p>{t(view.status === 'draft' ? 'draftNext' : view.status === 'correctionsRequested' ? 'correctionNext' : ['approved', 'rejected'].includes(view.status) ? 'finalNext' : 'waitingNext')}</p></section>
-    {(view.status !== 'draft' || view.role === 'applicant' && !!view.workspace?.savedAt) && <a className="button secondary mb-6" href={`${view.role === 'reviewer' ? '/staff' : ''}/applications/${view.id}/print`} onClick={event => { event.preventDefault(); go(`${view.role === 'reviewer' ? '/staff' : ''}/applications/${view.id}/print`) }}>{printText.print[language]}</a>}
+    {(view.status !== 'draft' || view.role === 'applicant' && !!view.workspace?.savedAt) && <a className="button secondary mb-6" href={printHref} onClick={event => { event.preventDefault(); go(printHref) }}>{printText.print[language]}</a>}
     {children}
     {(view.status !== 'draft' || view.role === 'applicant' && !!view.workspace?.savedAt) && <div className="detail-grid grid grid-cols-[minmax(0,1.7fr)_minmax(260px,1fr)] gap-[25px] compact:grid-cols-[minmax(0,1.4fr)_minmax(240px,1fr)] narrow:grid-cols-1"><div>
       <section className="panel"><h2>{view.status === 'draft' ? t('savedInformation') : t('submittedInformation')}</h2><ApplicationInformation record={view} language={language} /></section>

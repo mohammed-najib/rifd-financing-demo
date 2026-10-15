@@ -26,7 +26,7 @@ test('staff inspects all submitted records and never sees a draft or private res
   await expect(page.locator('[data-workspace-ready="true"]')).toBeVisible({ timeout: 30_000 })
   await page.getByRole('button', { name: 'سلمى ناصر', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'قائمة الطلبات', exact: true })).toBeVisible()
-  await expect(page.locator('[data-application]')).toHaveCount(12)
+  await expect(page.locator('[data-application]')).toHaveCount(5)
   await page.goto('/staff/applications/RIFD-2026-004')
   await expect(page.getByRole('heading', { name: 'RIFD-2026-004' })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'ملاحظات داخلية' })).toBeVisible()
@@ -64,7 +64,7 @@ test('both languages fit applicant and staff views at agreed widths and keep foc
   await page.getByRole('button', { name: 'Switch identity', exact: true }).click()
   await page.getByRole('button', { name: 'Salma Nasser', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Application queue', exact: true })).toBeVisible()
-  await expect(page.locator('[data-application]')).toHaveCount(12)
+  await expect(page.locator('[data-application]')).toHaveCount(5)
   for (const language of ['en', 'ar'] as const) {
     if (language === 'ar') await page.getByRole('button', { name: 'العربية', exact: true }).click()
     await expect(page.locator('html')).toHaveAttribute('lang', language)
@@ -72,7 +72,7 @@ test('both languages fit applicant and staff views at agreed widths and keep foc
       await page.setViewportSize({ width, height: 900 })
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
       await expect(page.getByRole('table')).toHaveCount(width >= 1200 ? 1 : 0)
-      await expect(page.getByRole('article')).toHaveCount(width < 1200 ? 12 : 0)
+      await expect(page.getByRole('article')).toHaveCount(width < 1200 ? 5 : 0)
     }
   }
   await page.screenshot({ path: info.outputPath('staff-queue-ar-1440.png'), fullPage: true })

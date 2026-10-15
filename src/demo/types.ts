@@ -1,4 +1,4 @@
-import type { ActorId, Application, ApplicationStatus, Bilingual, DocumentSlot, Fields, Identity, Language, MutationReceipt, Notification, Preferences, ProductId, Repayment, Sample, Snapshot } from '../domain/model'
+import type { ActorId, Application, ApplicationStatus, Bilingual, DocumentSlot, Fields, Identity, Language, MutationReceipt, Notification, Preferences, ProductId, QueuePreferences, Repayment, Sample, Snapshot } from '../domain/model'
 import type { FieldIssue } from '../domain'
 
 export type ErrorKind = 'unavailable' | 'sessionExpired' | 'storage' | 'startup' | 'resources' | 'blocked' | 'unsupported' | 'damaged' | 'stalePreference' | 'staleNotification' | 'supersededDataset' | 'identifierMisuse' | 'validation' | 'staleWorkspace' | 'staleRecord' | 'invalidState' | 'permissionDenied' | 'uploadFailed' | 'requestFailed' | 'outcomeUnknown' | 'supersededSelection'
@@ -15,6 +15,12 @@ export type ApplicationSummary = {
   nextAction: 'inspectDraft' | 'inspectCorrections' | 'viewApplication';
   assignment?: Bilingual | null;
   assignedToYou?: boolean;
+}
+export type QueueQuery = QueuePreferences & { search: string; page: number }
+export type StaffQueue = {
+  rows: ApplicationSummary[]; query: QueueQuery; total: number; matched: number; pages: number;
+  counts: Record<Exclude<ApplicationStatus, 'draft'>, number>;
+  assignments: Record<Exclude<QueuePreferences['assignment'], 'all'>, number>;
 }
 export type CommonView = {
   id: string; product: ProductId; status: ApplicationStatus; sharedRevision: number;
@@ -46,6 +52,11 @@ export type NotificationInspection = { status: 'committed'; result: Notification
 export type LanguageOperation = {
   kind: 'setLanguage'; datasetId: string; operationId: string; expectedRevision: number; language: Language;
 }
+export type QueuePreferenceOperation = {
+  kind: 'setQueuePreferences'; datasetId: string; operationId: string; expectedRevision: number; queue: QueuePreferences;
+}
+export type PreferenceOperation = LanguageOperation | QueuePreferenceOperation
+export type PreferenceInspection = { status: 'committed' | 'notCommitted'; context: Context }
 export type PreparedAttachment = { id: string; name: string; mime: string; size: number; hash: string; source: 'local' | 'sample' }
 export type DraftDocuments = Record<DocumentSlot, { kind: 'saved'; fileId: string | null } | { kind: 'prepared'; attachment: PreparedAttachment }>
 export type SaveDraftOperation = {
@@ -54,7 +65,7 @@ export type SaveDraftOperation = {
 }
 export type SubmitOperation = Omit<SaveDraftOperation, 'kind'> & { kind: 'submit'; expectedSharedRevision: number }
 export type ApplicationOperation = SaveDraftOperation | SubmitOperation
-export type DemoOperation = LanguageOperation | ApplicationOperation | NotificationReadOperation
+export type DemoOperation = PreferenceOperation | ApplicationOperation | NotificationReadOperation
 export type MutationResult = { receipt: MutationReceipt; application: ApplicationView }
 export type OperationInspection = { status: 'committed'; result: MutationResult } | { status: 'notCommitted'; application: ApplicationView }
 export type Preparation = {
@@ -71,11 +82,14 @@ export type Demo = {
   expireSession(): void;
   newDraft(product: ProductId): Promise<Result<ApplicantView>>;
   execute(operation: LanguageOperation): Promise<Result<Context>>;
+  execute(operation: QueuePreferenceOperation): Promise<Result<Context>>;
+  execute(operation: PreferenceOperation): Promise<Result<Context>>;
   execute(operation: SaveDraftOperation): Promise<Result<MutationResult>>;
   execute(operation: SubmitOperation): Promise<Result<MutationResult>>;
   execute(operation: ApplicationOperation): Promise<Result<MutationResult>>;
   execute(operation: NotificationReadOperation): Promise<Result<NotificationReadResult>>;
   inspectOperation(operation: ApplicationOperation): Promise<Result<OperationInspection>>;
+  inspectPreferenceOperation(operation: PreferenceOperation): Promise<Result<PreferenceInspection>>;
   inspectNotificationOperation(operation: NotificationReadOperation): Promise<Result<NotificationInspection>>;
   prepareAttachment(input: Preparation, onProgress?: (percent: number) => void): Promise<Result<PreparedAttachment>>;
   cancelPreparation(applicationId: string, slot: DocumentSlot): void;
@@ -83,6 +97,7 @@ export type Demo = {
   controls(): Controls;
   setControls(controls: Controls): void;
   listApplications(): Promise<Result<ApplicationSummary[]>>;
+  readStaffQueue(query?: Record<string, unknown>): Promise<Result<StaffQueue>>;
   readApplication(id: string): Promise<Result<ApplicationView>>;
   readPrintSummary(id: string): Promise<Result<PrintSummary>>;
   readFile(applicationId: string, fileId: string): Promise<Result<{ bytes: ArrayBuffer; name: string; mime: string; hash: string }>>;

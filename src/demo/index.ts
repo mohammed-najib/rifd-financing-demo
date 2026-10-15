@@ -1,13 +1,14 @@
 import { z } from 'zod'
 import { canReadApplication, domainDate, emptyDocuments, initialEvidenceMonths, products, submissionMonth, validateFields, validateFileEnvelope } from '../domain'
-import { actorIdSchema, fieldsSchema, languageSchema, productIdSchema, slots, type ActorId, type Application, type Dataset, type Fields, type StoredFile } from '../domain/model'
+import { actorIdSchema, fieldsSchema, productIdSchema, slots, type ActorId, type Application, type Dataset, type Fields, type StoredFile } from '../domain/model'
 import { fileFromBytes, makeFile, prepareFonts } from './evidence'
-import { applicationOperationSchema, commitHintSchema, draftFingerprint, notificationReadSchema, preparationSchema } from './commands'
+import { applicationOperationSchema, commitHintSchema, draftFingerprint, notificationReadSchema, preferenceOperationSchema, preparationSchema } from './commands'
 import { identities } from './seed-manifest'
 import { prepareSeed } from './seed'
 import { DemoError, openStorage, readStored, transact, validateDataset } from './storage'
-import type { ApplicantView, ApplicationOperation, ApplicationView, CommitHint, Context, Controls, Demo, ErrorKind, LanguageOperation, MutationResult, NotificationReadOperation, NotificationReadResult, PreparedAttachment, Result, SaveDraftOperation, Session, SubmitOperation } from './types'
-export type { ApplicationOperation, ApplicationSummary, ApplicationView, CommitHint, Context, Controls, Demo, DemoOperation, DraftDocuments, ErrorKind, LanguageOperation, MutationResult, NotificationDestination, NotificationReadOperation, NotificationReadResult, OperationInspection, PreparedAttachment, Preparation, PrintSummary, Result, SaveDraftOperation, SubmitOperation } from './types'
+import { projectQueue } from './queue'
+import type { ApplicantView, ApplicationOperation, ApplicationView, CommitHint, Context, Controls, Demo, ErrorKind, LanguageOperation, MutationResult, NotificationReadOperation, NotificationReadResult, PreferenceOperation, PreparedAttachment, QueuePreferenceOperation, Result, SaveDraftOperation, Session, SubmitOperation } from './types'
+export type { ApplicationOperation, ApplicationSummary, ApplicationView, CommitHint, Context, Controls, Demo, DemoOperation, DraftDocuments, ErrorKind, LanguageOperation, MutationResult, NotificationDestination, NotificationReadOperation, NotificationReadResult, OperationInspection, PreferenceInspection, PreferenceOperation, PreparedAttachment, Preparation, PrintSummary, QueuePreferenceOperation, QueueQuery, StaffQueue, Result, SaveDraftOperation, SubmitOperation } from './types'
 
 const sessionSchema = z.object({ identity: actorIdSchema, datasetId: z.string().uuid(), sessionId: z.string().uuid(), lastActivity: z.number(), expiresAt: z.number() })
 const sessionKey = 'rifd.session.v1'
@@ -202,12 +203,20 @@ export function createDemo(): Demo {
     if (data.mutationReceipts.some(receipt => receipt.actor === who && receipt.operationId === command.operationId) || receipt && receipt.fingerprint !== fingerprint) throw new DemoError('identifierMisuse')
     return { receipt, fingerprint }
   }
+  const preferenceReceipt = (data: Dataset, by: string, command: PreferenceOperation) => {
+    const fingerprint = JSON.stringify(command.kind === 'setLanguage' ? { kind: command.kind, language: command.language } : { kind: command.kind, queue: command.queue })
+    const receipt = data.receipts.find(receipt => receipt.actor === by && receipt.operationId === command.operationId)
+    if (data.mutationReceipts.some(receipt => receipt.actor === by && receipt.operationId === command.operationId) || receipt && receipt.fingerprint !== fingerprint) throw new DemoError('identifierMisuse')
+    return { receipt, fingerprint }
+  }
   async function execute(operation: LanguageOperation): Promise<Result<Context>>
+  async function execute(operation: QueuePreferenceOperation): Promise<Result<Context>>
+  async function execute(operation: PreferenceOperation): Promise<Result<Context>>
   async function execute(operation: SaveDraftOperation): Promise<Result<MutationResult>>
   async function execute(operation: SubmitOperation): Promise<Result<MutationResult>>
   async function execute(operation: ApplicationOperation): Promise<Result<MutationResult>>
   async function execute(operation: NotificationReadOperation): Promise<Result<NotificationReadResult>>
-  async function execute(input: LanguageOperation | ApplicationOperation | NotificationReadOperation): Promise<Result<Context | MutationResult | NotificationReadResult>> {
+  async function execute(input: PreferenceOperation | ApplicationOperation | NotificationReadOperation): Promise<Result<Context | MutationResult | NotificationReadResult>> {
     // Capture raw payload and attachment descriptors before any delay.
     const operation = structuredClone(input)
     if (operation.kind === 'markNotificationRead') return attempt(async () => {
@@ -332,36 +341,67 @@ export function createDemo(): Demo {
       return { receipt, application: project(data, who, permitted(data, who, command.applicationId)) }
     })
     return attempt(async () => {
-      if (operation.kind !== 'setLanguage' || !languageSchema.safeParse(operation.language).success || !operation.operationId || !Number.isInteger(operation.expectedRevision)) throw new DemoError('validation')
+      const parsed = preferenceOperationSchema.safeParse(operation)
+      if (!parsed.success) throw new DemoError('validation')
+      const command = parsed.data
       const captured = generation
-      const by = session?.identity ?? 'unsigned'
+      const by = command.kind === 'setQueuePreferences' ? actor() : session?.identity ?? 'unsigned'
+      if (command.kind === 'setQueuePreferences' && by !== 'salma') throw new DemoError('unavailable')
       await delay()
       if (captured !== generation) throw new DemoError('sessionExpired')
       if (!db) throw new DemoError('startup')
-      const fingerprint = JSON.stringify({ kind: operation.kind, language: operation.language })
       let replay = false
       const data = await transact(db, raw => {
         const current = validateDataset(raw)
-        if (current.meta.datasetId !== operation.datasetId || current.meta.datasetId !== datasetId) throw new DemoError('supersededDataset')
-        if (current.mutationReceipts.some(receipt => receipt.actor === by && receipt.operationId === operation.operationId)) throw new DemoError('identifierMisuse')
-        const receipt = current.receipts.find(receipt => receipt.actor === by && receipt.operationId === operation.operationId)
+        if (command.kind === 'setQueuePreferences') authority(captured, 'salma', command.datasetId, current)
+        if (current.meta.datasetId !== command.datasetId || current.meta.datasetId !== datasetId) throw new DemoError('supersededDataset')
+        const { receipt, fingerprint } = preferenceReceipt(current, by, command)
         if (receipt) {
-          if (receipt.fingerprint !== fingerprint) throw new DemoError('identifierMisuse')
           replay = true
           return current
         }
         if (captured !== generation) throw new DemoError('sessionExpired')
-        if (current.preferences.revision !== operation.expectedRevision) throw new DemoError('stalePreference')
-        current.preferences = { ...current.preferences, language: operation.language, revision: current.preferences.revision + 1 }
-        current.receipts.push({ actor: by, operationId: operation.operationId, fingerprint, revision: current.preferences.revision })
+        if (current.preferences.revision !== command.expectedRevision) throw new DemoError('stalePreference')
+        current.preferences = { ...current.preferences, ...(command.kind === 'setLanguage' ? { language: command.language } : { queue: command.queue }), revision: current.preferences.revision + 1 }
+        current.receipts.push({ actor: by, operationId: command.operationId, fingerprint, revision: current.preferences.revision })
         return current
+      }, () => {
+        if (captured !== generation || command.kind === 'setQueuePreferences' && actor() !== by) throw new DemoError('sessionExpired')
+        return false
       })
       if (!replay) announce({ datasetId: data.meta.datasetId, kind: 'preferences', revision: data.preferences.revision })
       return contextFrom(data)
     })
   }
+  const summaries = (data: Dataset, who: ActorId) => data.applications.filter(application => canReadApplication(who, application)).map(application => {
+    const fields = (application.submitted ?? application.workspace!.snapshot).fields
+    return {
+      id: application.id, product: application.product, status: application.status,
+      fullName: fields.fullName, businessName: fields.businessName, amount: fields.amount, term: fields.term, submittedAt: application.submittedAt,
+      nextAction: application.status === 'draft' ? 'inspectDraft' as const : application.status === 'correctionsRequested' ? 'inspectCorrections' as const : 'viewApplication' as const,
+      ...(who === 'salma' ? { assignment: data.identities.find(identity => identity.id === application.assignee)?.name ?? null, assignedToYou: application.assignee === who } : {}),
+    }
+  }).sort((a, b) => (b.submittedAt ?? '').localeCompare(a.submittedAt ?? '') || a.id.localeCompare(b.id))
   return {
     execute,
+    inspectPreferenceOperation: input => {
+      const operation = structuredClone(input)
+      return attempt(async () => {
+        const parsed = preferenceOperationSchema.safeParse(operation)
+        if (!parsed.success) throw new DemoError('validation')
+        const command = parsed.data
+        const by = command.kind === 'setQueuePreferences' ? actor() : session?.identity ?? 'unsigned'
+        if (command.kind === 'setQueuePreferences' && by !== 'salma') throw new DemoError('unavailable')
+        const captured = generation
+        await delay()
+        const data = await read()
+        if (captured !== generation) throw new DemoError('sessionExpired')
+        if (command.kind === 'setQueuePreferences') authority(captured, 'salma', command.datasetId, data)
+        if (data.meta.datasetId !== command.datasetId) throw new DemoError('supersededDataset')
+        const { receipt } = preferenceReceipt(data, by, command)
+        return { status: receipt ? 'committed' as const : 'notCommitted' as const, context: contextFrom(data) }
+      })
+    },
     expireSession,
     newDraft: product => protectedRead((data, who) => {
       if (who === 'salma' || !productIdSchema.safeParse(product).success) throw new DemoError('unavailable')
@@ -513,15 +553,14 @@ export function createDemo(): Demo {
       return contextFrom(data)
     }),
     signOut: () => attempt(async () => { writeSession(null); emit(); return contextFrom(await read()) }),
-    listApplications: () => protectedRead((data, who) => data.applications.filter(application => canReadApplication(who, application)).map(application => {
-      const fields = (application.submitted ?? application.workspace!.snapshot).fields
-      return {
-        id: application.id, product: application.product, status: application.status,
-        fullName: fields.fullName, businessName: fields.businessName, amount: fields.amount, term: fields.term, submittedAt: application.submittedAt,
-        nextAction: application.status === 'draft' ? 'inspectDraft' as const : application.status === 'correctionsRequested' ? 'inspectCorrections' as const : 'viewApplication' as const,
-        ...(who === 'salma' ? { assignment: data.identities.find(identity => identity.id === application.assignee)?.name ?? null, assignedToYou: application.assignee === who } : {}),
-      }
-    }).sort((a, b) => (b.submittedAt ?? '').localeCompare(a.submittedAt ?? '') || a.id.localeCompare(b.id))),
+    listApplications: () => protectedRead(summaries),
+    readStaffQueue: (input = {}) => {
+      const query = structuredClone(input)
+      return protectedRead((data, who) => {
+        if (who !== 'salma') throw new DemoError('unavailable')
+        return projectQueue(summaries(data, who), query, data.preferences.queue)
+      })
+    },
     readApplication: id => protectedRead((data, who) => project(data, who, permitted(data, who, id))),
     readPrintSummary: id => protectedRead((data, who) => {
       const application = permitted(data, who, id)

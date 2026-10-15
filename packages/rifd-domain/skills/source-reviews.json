@@ -8,9 +8,9 @@
         "skills/validate-application/references/guide.md": "288e369bd278e23a4c00eec0a0af2097b29ca21a79eb5f3bc747d3f971ea1cd3",
         "src/application.ts": "77516299c9def5c06ad60aeaaaf5af2e943564a4dc01b9c079dd5788b350d710",
         "src/index.ts": "e6a214ef5fb60d5a0d918b12bbc460f8c3f04a24dcd4a935f437aa0e19d24cb3",
-        "src/model.ts": "ceb26ed2192dff6fa4c4ce990a8080c57e3793e19336bd773edb41528d8ceed9"
+        "src/model.ts": "9aed9aeeb5e78bd21df0b999e8d8d6ab47e44753a226f9986e565608f9cb8a92"
       },
-      "reason": "Compared guide and skill with the unchanged domain source; all 84 domain tests pass, including Arabic digits, grouping, format boundaries and product limits."
+      "reason": "Reviewed the added queue preference schema against the field guide. Field parsing, normalization and validation are unchanged; all 84 domain tests pass."
     },
     "freeze-repayment": {
       "version": "0.1.0",
@@ -18,9 +18,9 @@
       "sources": {
         "skills/freeze-repayment/references/guide.md": "25db52f5d929c0814ff99bc54046240b8bfca0b2694a529cadac07f54799ce9f",
         "src/index.ts": "e6a214ef5fb60d5a0d918b12bbc460f8c3f04a24dcd4a935f437aa0e19d24cb3",
-        "src/model.ts": "ceb26ed2192dff6fa4c4ce990a8080c57e3793e19336bd773edb41528d8ceed9"
+        "src/model.ts": "9aed9aeeb5e78bd21df0b999e8d8d6ab47e44753a226f9986e565608f9cb8a92"
       },
-      "reason": "Compared guide and skill with the unchanged domain source; domain tests verify half-up rounding, final-row remainder, monthly dates, completed amounts and historical snapshots."
+      "reason": "Reviewed the queue-only model extension against the repayment guide and unchanged implementation. Financing rules and frozen schedules are unchanged; all 84 domain tests pass."
     }
   }
 }

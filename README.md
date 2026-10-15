@@ -1,8 +1,8 @@
 # RIFD / رِفد
 
-A fictional, Arabic-first financing demo that saves records and evidence in the browser. The first seven slices provide the complete seeded dataset, product comparison, [five-step saveable drafts](.scratch/financing-application-and-review-implementation/issues/03-compare-products-and-complete-drafts.md), session recovery, tab synchronization, conflict recovery, and [submission with public history](.scratch/financing-application-and-review-implementation/issues/06-submit-and-track-applications.md) in Arabic and English.
+A fictional, Arabic-first financing demo that saves records and evidence in the browser. The first eight slices provide the complete seeded dataset, product comparison, [five-step saveable drafts](.scratch/financing-application-and-review-implementation/issues/03-compare-products-and-complete-drafts.md), session recovery, tab synchronization, conflict recovery, [submission with public history](.scratch/financing-application-and-review-implementation/issues/06-submit-and-track-applications.md), notifications, printing and a searchable staff queue in Arabic and English.
 
-Mariam, Huda and Omar can read their own applications. Salma can read all submitted applications, including colleague assignments. Khaled is a simulated colleague and cannot sign in. Applicants can create drafts, edit all personal, business and financing fields, switch products, prepare four supporting documents, review completeness and submit. Submission opens read-only detail with a reference, immediate confirmation and public history. Authorized viewers can preview saved evidence. Applicants can read persistent notifications and follow links to the current application state. Both roles can print the same public summary. Queue controls and review actions belong to later tickets.
+Mariam, Huda and Omar can read their own applications. Salma can read all submitted applications, including colleague assignments. Khaled is a simulated colleague and cannot sign in. Applicants can create drafts, edit all personal, business and financing fields, switch products, prepare four supporting documents, review completeness and submit. Submission opens read-only detail with a reference, immediate confirmation and public history. Authorized viewers can preview saved evidence. Applicants can read persistent notifications and follow links to the current application state. Both roles can print the same public summary. Staff can search, filter, sort and page through the queue. Review actions belong to later tickets.
 
 ## Run
 
@@ -90,11 +90,15 @@ The emulator uses the local `demo-rifd` project identifier and the committed `fi
 | `/notifications` | Own correction and decision notices with independent saved read flags |
 | `/applications/RIFD-2026-001/print` | Saved Draft progress in an applicant-visible print layout |
 | `/staff/applications/RIFD-2026-005/print` | The same public print policy for staff, with no internal review data |
-| `/staff/applications` | Salma's twelve-record read queue |
+| `/staff/applications` | Salma's twelve-record queue with search, filters, four sorts and five-row pages |
 | `/staff/applications/RIFD-2026-005` | Historical approval, internal review and frozen repayment data |
 | Other paths or unauthorized records | Neutral unavailable result with safe navigation |
 
 An unsigned supported protected link resumes after sign-in only if the chosen identity can read it. Other choices open the selected identity's home. A forbidden destination exposes no application details. Intentional identity switching opens the new identity's home. Applicant documents display saved presence; staff document assessments and notes remain separate.
+
+The staff queue searches reference, applicant and business, including Arabic-Indic reference digits. Filter by status, product and assignment; sort by submission date or amount in either direction. Ties always follow ascending references. Counts describe the complete permitted queue, while the result count describes the current search and filters. Desktop tables and compact cards show the same five records per page.
+
+Changing a filter or sort saves those preferences with a versioned operation. Fresh queue visits restore them with empty search and page one. Valid explicit URL values override the saved choice, and Back to queue preserves the previous query and page, including after refreshing detail. Search and filter changes reset the page; invalid pages clamp to the available results. Empty results retain Clear search and Reset filters. A refused preference write preserves the intended filters and requires Inspect saved queue preferences before Reapply my choice or Use latest preferences. See [queue evidence](docs/implementation/08-evidence.md).
 
 Open Notifications to mark a notice read or open its current permitted destination. Active correction requests open `/applications/:id/corrections/current`, which currently shows the submitted baseline and requested changes. The response editor belongs to ticket 12. Completed requests resolve to current detail. Reading changes only that notice's read flag and revision. An uncertain write requires inspection before retry.
 

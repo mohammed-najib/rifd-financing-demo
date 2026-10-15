@@ -94,9 +94,16 @@ export const sampleSchema = z.object({
   variant: z.enum(['original', 'replacement', 'invalidType', 'empty', 'oversized', 'identical']),
 })
 export type Sample = z.infer<typeof sampleSchema>
+export const queuePreferencesSchema = z.object({
+  status: z.enum(['all', 'submitted', 'underReview', 'correctionsRequested', 'approved', 'rejected']),
+  product: z.enum(['all', 'inventory', 'equipment']),
+  assignment: z.enum(['all', 'you', 'colleague', 'unassigned']),
+  sort: z.enum(['dateDesc', 'dateAsc', 'amountDesc', 'amountAsc']),
+}).strict()
+export type QueuePreferences = z.infer<typeof queuePreferencesSchema>
 export const preferencesSchema = z.object({
   revision: z.number().int().positive(), language: languageSchema,
-  queue: z.object({ status: z.literal('all'), product: z.literal('all'), assignment: z.literal('all'), sort: z.literal('dateDesc') }),
+  queue: queuePreferencesSchema,
 })
 export type Preferences = z.infer<typeof preferencesSchema>
 export const mutationReceiptSchema = z.object({

@@ -1,0 +1,126 @@
+import { useEffect, useRef, useState } from 'react'
+import { defaultParseSearch, defaultStringifySearch } from '@tanstack/react-router'
+import { resolveQueueQuery } from '../demo/queue'
+import type { Context, Demo, ErrorKind, QueuePreferenceOperation, QueueQuery, StaffQueue } from '../demo'
+import { products } from '../domain'
+import { queuePreferencesSchema, type Language, type QueuePreferences } from '../domain/model'
+import { ApplicationRows } from './application-rows'
+import { errors, statuses, text } from './i18n'
+import { queueText } from './queue-copy'
+
+export function queueHref(query: QueueQuery) {
+  return `/staff/applications${defaultStringifySearch({ search: query.search, status: query.status, product: query.product, assignment: query.assignment, sort: query.sort, page: query.page })}`
+}
+
+export function StaffApplicationQueue({ demo, context, language, input, href, reload, go, acceptContext }: {
+  demo: Demo; context: Context; language: Language; input: Record<string, unknown>; href: string; reload: number;
+  go: (path: string, replace?: boolean) => void; acceptContext: (context: Context) => void;
+}) {
+  const query = resolveQueueQuery(input, context.preferences.queue)
+  const [queue, setQueue] = useState<StaffQueue | null>(null)
+  const [reading, setReading] = useState(true)
+  const [readError, setReadError] = useState<ErrorKind | null>(null)
+  const [retry, setRetry] = useState(0)
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
+  const [refused, setRefused] = useState<{ intent: QueuePreferenceOperation; error: ErrorKind; latest: Context | null; committed: boolean } | null>(null)
+  const alive = useRef(true)
+  const actions = useRef({ go, acceptContext })
+  actions.current = { go, acceptContext }
+  const t = (key: keyof typeof text) => text[key][language]
+  const q = (key: keyof typeof queueText) => queueText[key][language]
+  const preferenceValues = ({ status, product, assignment, sort }: QueueQuery): QueuePreferences => ({ status, product, assignment, sort })
+
+  useEffect(() => { alive.current = true; return () => { alive.current = false } }, [])
+  useEffect(() => { setSaved(false) }, [href])
+  useEffect(() => {
+    let active = true
+    setReading(true); setReadError(null)
+    const input = defaultParseSearch(new URL(href, window.location.origin).search)
+    void demo.readStaffQueue(input).then(result => {
+      if (!active) return
+      setReading(false)
+      if (!result.ok) { setReadError(result.error.kind); return }
+      setQueue(result.value)
+      const canonical = queueHref(result.value.query)
+      if (href !== canonical) actions.current.go(canonical, true)
+    })
+    return () => { active = false }
+  }, [demo, href, reload, retry])
+
+  const persist = async (intent: QueuePreferenceOperation) => {
+    setSaving(true); setSaved(false)
+    const result = await demo.execute(intent)
+    if (!alive.current) return
+    setSaving(false)
+    if (result.ok) { setRefused(null); setSaved(true); actions.current.acceptContext(result.value) }
+    else setRefused({ intent, error: result.error.kind, latest: null, committed: false })
+  }
+  const change = (patch: Partial<QueueQuery>, save = false) => {
+    const next = { ...query, ...patch }
+    go(queueHref(next))
+    if (save) void persist({ kind: 'setQueuePreferences', datasetId: context.datasetId, operationId: crypto.randomUUID(), expectedRevision: context.preferences.revision, queue: preferenceValues(next) })
+  }
+  const inspect = async () => {
+    if (!refused) return
+    const intent = refused.intent
+    setSaving(true)
+    const result = await demo.inspectPreferenceOperation(intent)
+    if (!alive.current) return
+    setSaving(false)
+    if (result.ok) {
+      setRefused(current => current?.intent === intent ? { ...current, latest: result.value.context, committed: result.value.status === 'committed' } : current)
+      actions.current.acceptContext(result.value.context)
+    } else setRefused(current => current?.intent === intent ? { ...current, error: result.error.kind, latest: null } : current)
+  }
+  const describe = (value: QueuePreferences) => [
+    value.status === 'all' ? q('all') : statuses[value.status][language],
+    value.product === 'all' ? q('all') : products[value.product].name[language],
+    value.assignment === 'all' ? q('all') : value.assignment === 'you' ? t('assignedToYou') : value.assignment === 'unassigned' ? t('unassigned') : q('colleague'),
+    q(value.sort),
+  ].join(' · ')
+  const disabled = saving || !!refused
+  const control = 'mt-1.5 w-full max-w-full rounded-[8px] border border-solid border-control-border bg-white p-2.5 text-inherit'
+
+  return <>
+    <p className="eyebrow">{language === 'ar' ? 'مساحة العمل' : 'Workspace'}</p><h1 tabIndex={-1}>{t('staffApplications')}</h1><p className="intro">{t('staffIntro')}</p>
+    {queue && <>
+      <div className="queue-counts mb-5 grid grid-cols-6 gap-[15px] compact:grid-cols-3 narrow:grid-cols-2 narrow:gap-2.5" aria-label={t('all')}>
+        <div><strong>{queue.total}</strong><span>{t('all')}</span></div>
+        {queuePreferencesSchema.shape.status.options.filter(status => status !== 'all').map(status => <div key={status}><strong>{queue.counts[status]}</strong><span>{statuses[status][language]}</span></div>)}
+      </div>
+      <p className="text-[13px] text-muted">{t('assignedToYou')}: <bdi>{queue.assignments.you}</bdi> · {q('colleague')}: <bdi>{queue.assignments.colleague}</bdi> · {t('unassigned')}: <bdi>{queue.assignments.unassigned}</bdi></p>
+    </>}
+    <section className="panel mb-5" aria-label={q('search')} aria-busy={saving}>
+      <label className="block" htmlFor="queue-search">{q('search')}<input className={control} id="queue-search" type="search" value={query.search} aria-describedby="queue-search-hint" onChange={event => change({ search: event.target.value, page: 1 })} /></label>
+      <p className="mt-1.5 text-[12px] text-muted" id="queue-search-hint">{q('searchHint')}</p>
+      <div className="grid grid-cols-4 gap-4 compact:grid-cols-2 narrow:grid-cols-1">
+        <label htmlFor="queue-status">{q('status')}<select className={control} id="queue-status" disabled={disabled} value={query.status} onChange={event => change({ status: event.target.value as QueuePreferences['status'], page: 1 }, true)}>{queuePreferencesSchema.shape.status.options.map(status => <option value={status} key={status}>{status === 'all' ? q('all') : statuses[status][language]}</option>)}</select></label>
+        <label htmlFor="queue-product">{q('product')}<select className={control} id="queue-product" disabled={disabled} value={query.product} onChange={event => change({ product: event.target.value as QueuePreferences['product'], page: 1 }, true)}>{queuePreferencesSchema.shape.product.options.map(product => <option value={product} key={product}>{product === 'all' ? q('all') : products[product].name[language]}</option>)}</select></label>
+        <label htmlFor="queue-assignment">{q('assignment')}<select className={control} id="queue-assignment" disabled={disabled} value={query.assignment} onChange={event => change({ assignment: event.target.value as QueuePreferences['assignment'], page: 1 }, true)}>{queuePreferencesSchema.shape.assignment.options.map(assignment => <option value={assignment} key={assignment}>{assignment === 'all' ? q('all') : assignment === 'you' ? t('assignedToYou') : assignment === 'unassigned' ? t('unassigned') : q('colleague')}</option>)}</select></label>
+        <label htmlFor="queue-sort">{q('sort')}<select className={control} id="queue-sort" disabled={disabled} value={query.sort} onChange={event => change({ sort: event.target.value as QueuePreferences['sort'] }, true)}>{queuePreferencesSchema.shape.sort.options.map(sort => <option value={sort} key={sort}>{q(sort)}</option>)}</select></label>
+      </div>
+      <div className="actions mb-0"><button className="secondary" onClick={() => change({ search: '', page: 1 })}>{q('clear')}</button><button className="secondary" disabled={disabled} onClick={() => change({ status: 'all', product: 'all', assignment: 'all', page: 1 }, true)}>{q('reset')}</button></div>
+      <p className="mt-3 mb-0 text-[13px] text-muted" role="status">{saving ? q('saving') : saved ? q('saved') : ''}</p>
+    </section>
+    {refused && <section className="summary" aria-label={q('conflict')}>
+      <p role={refused.committed ? 'status' : 'alert'}>{refused.committed ? q('saved') : errors[refused.error][language]}</p>{!refused.committed && <p>{q('desired')}: {describe(refused.intent.queue)}</p>}
+      <button disabled={saving} onClick={() => void inspect()}>{q('inspect')}</button>
+      {refused.latest && <><p className="mt-3">{q('latest')}: {describe(refused.latest.preferences.queue)}</p>
+        {!refused.committed && <button disabled={saving} onClick={() => void persist({ ...refused.intent, operationId: crypto.randomUUID(), expectedRevision: refused.latest!.preferences.revision })}>{q('reapply')}</button>}
+        <button disabled={saving} onClick={() => { change({ ...refused.latest!.preferences.queue, page: 1 }); setRefused(null); setSaved(refused.committed) }}>{q('useLatest')}</button>
+      </>}
+    </section>}
+    <div aria-busy={reading}>
+      <p role="status" className="my-4 text-[13px] text-muted">{reading ? t('readLoading') : queue ? language === 'ar' ? `${queue.matched} طلب من ${queue.total}` : `${queue.matched} ${queue.matched === 1 ? 'application' : 'applications'} of ${queue.total}` : ''}</p>
+      {readError ? <p role="alert">{errors[readError][language]} <button onClick={() => setRetry(value => value + 1)}>{t('retry')}</button></p>
+        : !reading && queue && (queue.matched ? <ApplicationRows list={queue.rows} language={language} staff go={go} query={queueHref(queue.query).slice('/staff/applications'.length)} />
+          : <section className="panel"><h2>{q('empty')}</h2><p>{q('emptyHint')}</p></section>)}
+    </div>
+    {queue && !readError && <nav className="actions" aria-label={q('pagination')}>
+      <button disabled={reading || queue.query.page <= 1} onClick={() => change({ page: queue.query.page - 1 })}>{q('previous')}</button>
+      <span>{language === 'ar' ? `الصفحة ${queue.query.page} من ${queue.pages}` : `Page ${queue.query.page} of ${queue.pages}`}</span>
+      <button disabled={reading || queue.query.page >= queue.pages} onClick={() => change({ page: queue.query.page + 1 })}>{q('next')}</button>
+    </nav>}
+  </>
+}

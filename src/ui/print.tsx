@@ -13,8 +13,8 @@ export const printText = {
   saved: { ar: 'آخر حفظ', en: 'Last saved' },
 }
 
-export function PrintApplication({ summary, language, staff, go }: { summary: PrintSummary; language: Language; staff: boolean; go: (path: string) => void }) {
-  const destination = `${staff ? '/staff' : ''}/applications/${summary.id}${summary.status === 'draft' ? '/edit?step=personal' : ''}`
+export function PrintApplication({ summary, language, staff, queueSearch, go }: { summary: PrintSummary; language: Language; staff: boolean; queueSearch: string; go: (path: string) => void }) {
+  const destination = `${staff ? '/staff' : ''}/applications/${summary.id}${summary.status === 'draft' ? '/edit?step=personal' : staff ? queueSearch : ''}`
   return <article className="print-summary mx-auto max-w-[960px]" lang={language} dir={language === 'ar' ? 'rtl' : 'ltr'}>
     <p className="eyebrow">رِفد / RIFD · {products[summary.product].name[language]}</p>
     <h1 tabIndex={-1}>{printText.title[language]}</h1>
