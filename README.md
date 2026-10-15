@@ -89,8 +89,8 @@ The API harness runs only on a separate Vite test server at `/tests/browser/api.
 
 `pnpm test:acceptance` runs typecheck, lint, domain and packaged-guidance checks,
 builds the SPA, then runs the full API and screen suites sequentially with three
-browser workers. Each invocation retains logs, HTML/JSON reports, screenshots,
-failure traces and successful correction/decision journey traces in its own
+browser workers. Each invocation retains logs, HTML/JSON reports, failure traces,
+screen failure screenshots and successful correction/decision journey traces in its own
 timestamped `artifacts/acceptance/20/` directory. `run.json` records actual browser
 versions and gate results; `source.json` binds them to the commit and source hashes.
 On this Arch host, set `RIFD_WEBKIT_EXECUTABLE=/tmp/rifd-webkit-run.sh` as documented

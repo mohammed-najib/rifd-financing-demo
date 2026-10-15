@@ -30,6 +30,47 @@ async function ready(page: Page, id = 'RIFD-2026-007') {
   }, id)
 }
 
+for (const kind of ['approve', 'reject'] as const) test(`${kind} refuses all ineligible states and actors without a decision receipt or effects`, async ({ page }) => {
+  await start(page)
+  const result = await page.evaluate(async kind => {
+    const demo = window.demo
+    const context = await demo.context()
+    if (!context.ok || !context.value.session) throw new Error('No staff session')
+    const base = { datasetId: context.value.datasetId, kind, reason: { ar: 'سبب القرار', en: 'Decision reason' }, confirmed: true as const, confirmationSessionId: context.value.session.sessionId }
+    const states = []
+    for (const id of ['001', '002', '003', '011', '007', '008', '004', '013', '005', '006']) {
+      const applicationId = `RIFD-2026-${id}`
+      const before = await demo.readApplication(applicationId)
+      const command = { ...base, applicationId, expectedSharedRevision: before.ok ? before.value.sharedRevision : 1, operationId: `${kind}-${id}` }
+      states.push({ id, before, outcome: await demo.execute(command), inspection: await demo.inspectOperation(command), after: await demo.readApplication(applicationId) })
+    }
+    const beforeActors = await demo.readApplication('RIFD-2026-007')
+    const actors = []
+    for (const identity of [null, 'mariam', 'huda'] as const) {
+      if (identity) await demo.signIn(identity)
+      else await demo.signOut()
+      const current = await demo.context()
+      const before = await demo.readApplication('RIFD-2026-007')
+      const command = { ...base, confirmationSessionId: current.ok && current.value.session ? current.value.session.sessionId : base.confirmationSessionId, applicationId: 'RIFD-2026-007', expectedSharedRevision: 1, operationId: `${kind}-${identity}` }
+      actors.push({ identity, before, outcome: await demo.execute(command), after: await demo.readApplication(command.applicationId) })
+    }
+    await demo.signIn('salma')
+    return { states, actors, beforeActors, afterActors: await demo.readApplication('RIFD-2026-007') }
+  }, kind)
+  const errors: Record<string, string> = { '001': 'unavailable', '002': 'permissionDenied', '003': 'invalidState', '011': 'permissionDenied', '007': 'validation', '008': 'permissionDenied', '004': 'invalidState', '013': 'permissionDenied', '005': 'invalidState', '006': 'invalidState' }
+  for (const state of result.states) {
+    expect(state.outcome, `${kind} ${state.id}`).toMatchObject({ ok: false, error: { kind: errors[state.id] } })
+    expect(state.after).toEqual(state.before)
+    if (state.before.ok) expect(state.inspection).toMatchObject({ ok: true, value: { status: 'notCommitted' } })
+    else expect(state.inspection.ok).toBe(false)
+  }
+  for (const actor of result.actors) {
+    expect(actor.outcome, `${kind} ${actor.identity}`).toMatchObject({ ok: false, error: { kind: actor.identity === null ? 'sessionExpired' : actor.identity === 'mariam' ? 'permissionDenied' : 'unavailable' } })
+    expect(actor.after).toEqual(actor.before)
+  }
+  expect(result.afterActors).toEqual(result.beforeActors)
+})
+
 test('a complete initial submission is approved once with exact frozen terms and durable applicant effects', async ({ page }) => {
   await page.clock.install()
   await start(page)
@@ -210,6 +251,7 @@ for (const kind of ['approve', 'reject'] as const) test(`${kind} rollback, unkno
     const demo = window.demo
     const inspection = await demo.inspectOperation(command)
     const replay = await demo.execute(command)
+    const changed = await demo.execute({ ...command, reason: { ar: 'سبب مختلف', en: 'A different decision reason' } })
     if (!replay.ok || replay.value.application.role !== 'reviewer') throw new Error('No outcome')
     const view = replay.value.application
     const base = { datasetId: command.datasetId, applicationId: view.id, expectedSharedRevision: view.sharedRevision, operationId: 'locked' }
@@ -221,9 +263,10 @@ for (const kind of ['approve', 'reject'] as const) test(`${kind} rollback, unkno
     await demo.signIn('mariam')
     const notices = await demo.readNotifications()
     const applicant = await demo.readApplication(view.id)
-    return { inspection, replay, refused, note, after, notices, applicant }
+    return { inspection, replay, changed, refused, note, after, notices, applicant }
   }, command)
   expect(result.inspection).toMatchObject({ value: { status: 'committed', result: result.replay.ok ? result.replay.value : null } })
+  expect(result.changed).toMatchObject({ ok: false, error: { kind: 'identifierMisuse' } })
   for (const refusal of result.refused) expect(refusal).toMatchObject({ ok: false })
   expect(result.note).toMatchObject({ ok: true })
   if (!result.replay.ok || !result.after.ok || !result.applicant.ok) throw new Error('No final view')

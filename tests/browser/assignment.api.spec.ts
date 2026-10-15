@@ -173,12 +173,18 @@ for (const kind of ['claimApplication', 'transferApplication', 'unassignApplicat
       const inspection = await window.demo.inspectOperation(command)
       window.demo.setControls({ slow: false, failure: 'storage' })
       const replay = await window.demo.execute({ ...command, expectedSharedRevision: 99 })
-      return { inspection, replay, controls: window.demo.controls() }
+      const otherId = command.applicationId === 'RIFD-2026-002' ? 'RIFD-2026-003' : 'RIFD-2026-002'
+      const otherBefore = await window.demo.readApplication(otherId)
+      const changed = await window.demo.execute({ ...command, applicationId: otherId })
+      return { inspection, replay, changed, after: await window.demo.readApplication(command.applicationId), otherBefore, otherAfter: await window.demo.readApplication(otherId), controls: window.demo.controls() }
     }, command)
     expect(committed.inspection).toMatchObject({ ok: true, value: { status: 'committed' } })
     expect(committed.replay.ok).toBe(true)
     if (!committed.inspection.ok || committed.inspection.value.status !== 'committed') throw new Error('No receipt')
     expect(committed.replay).toEqual({ ok: true, value: committed.inspection.value.result })
+    expect(committed.changed).toMatchObject({ ok: false, error: { kind: 'identifierMisuse' } })
+    expect(committed.after).toEqual(committed.replay.ok ? { ok: true, value: committed.replay.value.application } : null)
+    expect(committed.otherAfter).toEqual(committed.otherBefore)
     expect(committed.controls.failure).toBe('storage')
     if (!aborted.before.ok || !committed.replay.ok || committed.replay.value.application.role !== 'reviewer' || aborted.before.value.role !== 'reviewer') throw new Error('No staff projection')
     expect(committed.replay.value.application.activity).toHaveLength(aborted.before.value.activity.length + 1)

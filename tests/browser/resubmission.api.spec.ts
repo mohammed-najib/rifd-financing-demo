@@ -129,6 +129,56 @@ test('field verification aborts atomically, inspects uncertainty and rejects cha
   expect(await page.evaluate(command => window.demo.execute(command), undo)).toEqual(undone)
 })
 
+test('field verification enforces all states, current assignment and applicant or unsigned access', async ({ page }) => {
+  const setup = await response(page)
+  const result = await page.evaluate(async response => {
+    const demo = window.demo
+    const published = await demo.execute(response)
+    if (!published.ok) throw new Error('No response')
+    await demo.signIn('salma')
+    const base = { kind: 'verifyCorrection' as const, datasetId: response.datasetId, roundId: response.roundId, field: 'amount' as const, verified: true }
+    const states = []
+    for (const id of ['001', '002', '003', '011', '007', '008', '012', '013', '005', '006']) {
+      const applicationId = `RIFD-2026-${id}`
+      const before = await demo.readApplication(applicationId)
+      const command = { ...base, applicationId, operationId: `verify-${id}`, expectedSharedRevision: before.ok ? before.value.sharedRevision : 1 }
+      states.push({ id, before, outcome: await demo.execute(command), inspection: await demo.inspectOperation(command), after: await demo.readApplication(applicationId) })
+    }
+    const command = { ...base, applicationId: response.applicationId, operationId: 'verify-current', expectedSharedRevision: published.value.application.sharedRevision }
+    const beforeActors = await demo.readApplication(command.applicationId)
+    const actors = []
+    for (const identity of [null, 'huda', 'mariam'] as const) {
+      if (identity) await demo.signIn(identity)
+      else await demo.signOut()
+      const before = await demo.readApplication(command.applicationId)
+      actors.push({ identity, before, outcome: await demo.execute(command), after: await demo.readApplication(command.applicationId) })
+    }
+    await demo.signIn('salma')
+    const afterActors = await demo.readApplication(command.applicationId)
+    const verified = await demo.execute(command)
+    if (!verified.ok) throw new Error('No verification')
+    const transfer = await demo.execute({ kind: 'transferApplication', datasetId: command.datasetId, applicationId: command.applicationId, operationId: 'transfer-verified', expectedSharedRevision: verified.value.application.sharedRevision, from: 'salma', to: 'khaled', confirmed: true })
+    if (!transfer.ok) throw new Error('No transfer')
+    const denied = await demo.execute({ ...command, operationId: 'verify-colleague', expectedSharedRevision: transfer.value.application.sharedRevision, verified: false })
+    return { states, actors, beforeActors, afterActors, verified, transfer, denied, after: await demo.readApplication(command.applicationId) }
+  }, setup.command)
+  const errors: Record<string, string> = { '001': 'unavailable', '002': 'permissionDenied', '003': 'invalidState', '011': 'permissionDenied', '007': 'validation', '008': 'permissionDenied', '012': 'invalidState', '013': 'permissionDenied', '005': 'invalidState', '006': 'invalidState' }
+  for (const state of result.states) {
+    expect(state.outcome, `verify ${state.id}`).toMatchObject({ ok: false, error: { kind: errors[state.id] } })
+    expect(state.after).toEqual(state.before)
+    if (state.before.ok) expect(state.inspection).toMatchObject({ ok: true, value: { status: 'notCommitted' } })
+    else expect(state.inspection.ok).toBe(false)
+  }
+  for (const actor of result.actors) {
+    expect(actor.outcome, `verify ${actor.identity}`).toMatchObject({ ok: false, error: { kind: actor.identity === null ? 'sessionExpired' : actor.identity === 'huda' ? 'permissionDenied' : 'unavailable' } })
+    expect(actor.after).toEqual(actor.before)
+  }
+  expect(result.afterActors).toEqual(result.beforeActors)
+  expect(result.verified).toMatchObject({ ok: true })
+  expect(result.denied).toMatchObject({ error: { kind: 'permissionDenied' } })
+  expect(result.after).toEqual(result.transfer.ok ? { ok: true, value: result.transfer.value.application } : null)
+})
+
 test('simultaneous resubmissions in two tabs commit one response and refuse the other intent', async ({ page, context }) => {
   const { command } = await response(page)
   const saved = await page.evaluate(command => {
