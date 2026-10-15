@@ -10,6 +10,7 @@ import { correctionText } from './correction-copy'
 import { date, documentLabel, errors, fieldLabels, money, text } from './i18n'
 import { ApplicationInformation, PublicCorrections } from './public-record'
 import { activityDescription } from './review-copy'
+import { containDialogFocus } from './dialog'
 
 type RequestCommand = Extract<ReviewOperation, { kind: 'requestCorrections' }>
 export type CorrectionBuffer = { targets: CorrectionTarget[]; revision: number; intent: RequestCommand | null; error: ErrorKind | null }
@@ -123,7 +124,7 @@ function RequestConfirmation({ command, view, language, cancel, confirm }: { com
     dialog.current?.showModal()
     return () => { requestAnimationFrame(() => { if (opener?.isConnected) opener.focus() }) }
   }, [])
-  return <dialog ref={dialog} className="w-[650px]" aria-labelledby="request-confirm-heading" onCancel={event => { event.preventDefault(); cancel() }}>
+  return <dialog ref={dialog} className="w-[650px]" aria-labelledby="request-confirm-heading" onKeyDown={containDialogFocus} onCancel={event => { event.preventDefault(); cancel() }}>
     <h2 id="request-confirm-heading">{t('confirmHeading')}</h2><p><bdi>{view.id}</bdi> · {view.snapshot.fields.fullName} · {products[view.product].name[language]}</p>
     <p><bdi dir="ltr">{money(view.snapshot.fields.amount, language)}</bdi> · <bdi>{view.snapshot.fields.term}</bdi> {text.months[language]}</p>
     <ul>{command.targets.map((target, index) => <li key={index}><strong>{target.kind === 'field' ? fieldLabels[target.field][language] : documentLabel(target.slot, view.product)[language]}</strong><p className="whitespace-pre-wrap wrap-anywhere">{target.reason[language]}</p></li>)}</ul>

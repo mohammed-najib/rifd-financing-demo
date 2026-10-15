@@ -106,6 +106,11 @@ for (const language of ['ar', 'en'] as const) test(`${language} real saved PDF J
       expect(bounds!.width).toBeLessThanOrEqual(width)
       await page.screenshot({ path: info.outputPath(`preview-${slot}-${language}-${width}.png`) })
     }
+    await download.focus()
+    await page.keyboard.press('Tab')
+    await expect(dialog.getByRole('button', { name: ar ? 'إغلاق المعاينة' : 'Close preview', exact: true })).toBeFocused()
+    await page.keyboard.press('Shift+Tab')
+    await expect(download).toBeFocused()
     await page.keyboard.press('Escape')
     await expect(dialog).toHaveCount(0)
     await expect(opener).toBeFocused()

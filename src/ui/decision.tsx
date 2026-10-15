@@ -9,6 +9,7 @@ import { combineDeparture, type Departure } from './departure'
 import { decisionText } from './decision-copy'
 import { documentLabel, errors, fieldLabels, money, reviewChecks, text } from './i18n'
 import { PublicHistory } from './public-record'
+import { containDialogFocus } from './dialog'
 
 type DecisionCommand = Extract<ReviewOperation, { kind: 'approve' | 'reject' }>
 export type DecisionBuffer = { reason: string; revision: number; intent: DecisionCommand | null; retry: DecisionCommand | null; error: ErrorKind | null }
@@ -120,7 +121,7 @@ function DecisionConfirmation({ command, view, language, cancel, confirm }: { co
     dialog.current?.showModal()
     return () => { requestAnimationFrame(() => { if (opener?.isConnected) opener.focus() }) }
   }, [])
-  return <dialog ref={dialog} className="w-[650px]" aria-labelledby="decision-confirm-heading" onCancel={event => { event.preventDefault(); cancel() }}>
+  return <dialog ref={dialog} className="w-[650px]" aria-labelledby="decision-confirm-heading" onKeyDown={containDialogFocus} onCancel={event => { event.preventDefault(); cancel() }}>
     <h2 id="decision-confirm-heading">{decisionText[command.kind === 'approve' ? 'confirmApprove' : 'confirmReject'][language]}</h2>
     <p>{text.reviewer[language]}: {demoIdentities.find(identity => identity.id === 'salma')!.name[language]}</p>
     <DecisionTerms view={view} language={language} /><p className="whitespace-pre-wrap wrap-anywhere">{command.reason[language]}</p><p>{decisionText.lock[language]}</p>

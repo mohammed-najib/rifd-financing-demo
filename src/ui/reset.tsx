@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { Demo, ErrorKind, ResetContext, ResetOperation, ResetResult } from '../demo'
 import type { Language } from '../domain/model'
 import { errors, text } from './i18n'
+import { containDialogFocus } from './dialog'
 
 export const resetText = {
   title: { ar: 'إعادة ضبط العرض', en: 'Reset demo' },
@@ -74,7 +75,7 @@ export function ResetDialog({ demo, language, prepare, pending, completed, close
       }
     } finally { if (alive.current) { setBusy(false); pending(false) } }
   }
-  return <dialog ref={dialog} className="w-[650px]" aria-labelledby="reset-heading" aria-describedby="reset-warning" aria-busy={busy || inspecting} onCancel={event => { event.preventDefault(); if (!busy) close() }}>
+  return <dialog ref={dialog} className="w-[650px]" aria-labelledby="reset-heading" aria-describedby="reset-warning" aria-busy={busy || inspecting} onKeyDown={containDialogFocus} onCancel={event => { event.preventDefault(); if (!busy) close() }}>
     <h2 id="reset-heading">{t('heading')}</h2><p id="reset-warning">{t('warning')}</p>
     {busy && <p role="status">{t('pending')}</p>}
     {inspecting && <p role="status">{text.readLoading[language]}</p>}

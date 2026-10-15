@@ -5,6 +5,7 @@ import type { Language } from '../domain/model'
 import type { Departure } from './departure'
 import { assignmentText } from './assignment-copy'
 import { errors, text } from './i18n'
+import { containDialogFocus } from './dialog'
 
 type Transfer = Extract<ReviewOperation, { kind: 'transferApplication' }>
 
@@ -83,7 +84,7 @@ function TransferDialog({ command, language, cancel, confirm }: { command: Trans
     return () => { requestAnimationFrame(() => { if (opener?.isConnected) opener.focus() }) }
   }, [])
   const names = { salma: { ar: 'سلمى ناصر', en: 'Salma Nasser' }, khaled: { ar: 'خالد علي', en: 'Khaled Ali' } }
-  return <dialog ref={dialog} className="w-[650px]" aria-labelledby="transfer-heading" onCancel={event => { event.preventDefault(); cancel() }}>
+  return <dialog ref={dialog} className="w-[650px]" aria-labelledby="transfer-heading" onKeyDown={containDialogFocus} onCancel={event => { event.preventDefault(); cancel() }}>
     <h2 id="transfer-heading">{t('confirmHeading')}</h2>
     <p>{language === 'ar' ? `نقل المسؤولية من ${names[command.from].ar} إلى ${names[command.to].ar}؟` : `Transfer responsibility from ${names[command.from].en} to ${names[command.to].en}?`}</p>
     <p>{t('keepWork')}</p><div className="actions"><button className="secondary" onClick={cancel}>{t('cancel')}</button><button onClick={confirm}>{t('confirm')}</button></div>
