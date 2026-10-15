@@ -17,6 +17,27 @@ async function showStep(page: Page, step: 'financing' | 'documents') {
 }
 const purchase = (page: Page) => page.getByRole('heading', { name: /^(Stock purchase plan|خطة شراء المخزون)$/ }).first().locator('..')
 
+for (const language of ['ar', 'en'] as const) test(`${language} keyboard save retains focus through pending and saved feedback`, async ({ page }) => {
+  const ar = language === 'ar'
+  await openDraft(page, !ar)
+  await page.getByText(ar ? 'أدوات العرض التجريبي' : 'Demo controls', { exact: true }).click()
+  await page.getByLabel(ar ? 'طلبات بطيئة' : 'Slow requests', { exact: true }).check()
+  await page.getByLabel(ar ? 'شرح الشراء' : 'Purchase explanation', { exact: true }).fill('Fictional stock for متجر صنعاء, acceptance 21.')
+  const save = page.getByRole('button', { name: ar ? 'حفظ التقدم' : 'Save progress', exact: true })
+  await save.focus()
+  await page.keyboard.press('Enter')
+  const feedback = page.getByRole('region', { name: ar ? 'إعداد المسودة' : 'Prepare draft', exact: true }).getByRole('status')
+  await expect(feedback).toHaveText(ar ? 'جارٍ الحفظ' : 'Saving')
+  await expect(save).toBeDisabled()
+  await expect(save).toBeFocused()
+  await page.keyboard.press('Enter')
+  await expect(feedback).toHaveText(ar ? 'محفوظ' : 'Saved', { timeout: 10_000 })
+  await expect(save).toBeEnabled()
+  await expect(save).toBeFocused()
+  await page.keyboard.press('Tab')
+  await expect(page.getByText(ar ? 'أدوات العرض التجريبي' : 'Demo controls', { exact: true })).toBeFocused()
+})
+
 async function loseNextCompletion(page: Page) {
   // Lose one final commit observation without changing storage behavior.
   await page.evaluate(() => {

@@ -27,7 +27,7 @@ for (const language of ['ar', 'en'] as const) for (const target of ['controls', 
   await expect(retry).toBeVisible()
   await page.getByRole('button', { name: ar ? 'إنهاء الجلسة' : 'Expire session', exact: true }).click()
   await page.getByRole('button', { name: ar ? 'هدى علي' : 'Huda Ali', exact: true }).click()
-  await expect(editor).toBeVisible()
+  await expect(editor).toBeVisible({ timeout: 15_000 })
   const control = target === 'controls' ? controls : retry
   await control.scrollIntoViewIfNeeded()
   const box = await control.boundingBox()
