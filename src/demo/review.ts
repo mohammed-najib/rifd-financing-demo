@@ -1,9 +1,9 @@
-import { reviewRules } from '../domain'
+import { currentCorrectionTargets, reviewRules } from '../domain'
 import type { Application, Bilingual } from '../domain/model'
 import type { ReviewOperation } from './types'
 import { DemoError } from './storage'
 
-type ReviewEdit = Extract<ReviewOperation, { kind: 'assessDocument' | 'recordCheck' | 'saveNote' }>
+type ReviewEdit = Extract<ReviewOperation, { kind: 'assessDocument' | 'recordCheck' | 'saveNote' | 'verifyCorrection' }>
 const checks: Record<string, Bilingual> = {
   evidence: { ar: 'اتساق المستندات والبيانات', en: 'Evidence consistency' },
   operatingHistory: { ar: 'مدة مزاولة النشاط', en: 'Operating history' },
@@ -18,7 +18,10 @@ const outcomes: Record<string, Bilingual> = {
 const hasText = (value: { ar: string; en: string } | null) => !!value && !!value.ar.trim() && !!value.en.trim()
 
 export function validateReviewCommand(application: Application, command: ReviewOperation) {
-  if (command.kind === 'assessDocument') {
+  if (command.kind === 'verifyCorrection') {
+    const round = application.rounds.find(round => round.id === command.roundId)
+    if (!round?.response || !currentCorrectionTargets(application.rounds).some(({ roundId, target }) => roundId === command.roundId && target.kind === 'field' && target.field === command.field)) throw new DemoError('validation')
+  } else if (command.kind === 'assessDocument') {
     if (!application.submitted?.documents[command.slot] || application.submitted.documents[command.slot] !== command.fileId) throw new DemoError('validation')
     if (command.status === 'needsReplacement' ? !hasText(command.reason) : command.reason !== null) throw new DemoError('validation')
   } else if (command.kind === 'recordCheck' && command.outcome === 'passed') {
@@ -35,9 +38,8 @@ export function applyReviewCommand(application: Application, command: ReviewEdit
     application.assessments![command.slot] = { status: command.status, reason: command.reason }
     // A changed assessment invalidates the prior consistency attestation.
     application.checks!.evidence = 'unchecked'
-    const round = application.rounds.at(-1)
-    if (round?.response) for (const target of round.targets) {
-      if (target.kind === 'document' && target.slot === command.slot) target.verified = command.status === 'accepted'
+    for (const { roundId, target } of currentCorrectionTargets(application.rounds)) {
+      if (application.rounds.find(round => round.id === roundId)?.response && target.kind === 'document' && target.slot === command.slot) target.verified = command.status === 'accepted'
     }
     const documents: Record<string, Bilingual> = { identity: { ar: 'إثبات هوية المتقدم', en: 'Applicant identity evidence' }, business: { ar: 'إثبات النشاط التجاري', en: 'Business evidence' }, financial: { ar: 'ملخص الإيرادات والمصروفات', en: 'Revenue and expense summary' }, purchase: application.product === 'inventory' ? { ar: 'خطة شراء المخزون', en: 'Stock purchase plan' } : { ar: 'عرض سعر المعدات', en: 'Supplier quotation' } }
     application.activity.push({ ...entry, kind: 'assessed', description: {
@@ -46,6 +48,10 @@ export function applyReviewCommand(application: Application, command: ReviewEdit
   } else if (command.kind === 'recordCheck') {
     application.checks![command.check] = command.outcome
     application.activity.push({ ...entry, kind: 'checked', description: { ar: `${checks[command.check].ar}: ${outcomes[command.outcome].ar}.`, en: `${checks[command.check].en}: ${outcomes[command.outcome].en}.` } })
+  } else if (command.kind === 'verifyCorrection') {
+    const target = application.rounds.find(round => round.id === command.roundId)!.targets.find(target => target.kind === 'field' && target.field === command.field)!
+    target.verified = command.verified
+    application.activity.push({ ...entry, kind: 'verified', description: { ar: command.verified ? 'تم التحقق من تغيير الحقل المطلوب.' : 'أُلغي التحقق من الحقل المطلوب.', en: command.verified ? 'Requested field change verified.' : 'Requested field verification cleared.' } })
   } else {
     application.notes.push({ id: entry.id, actor: 'salma', date: entry.date, text: command.text })
     application.activity.push({ ...entry, kind: 'note', description: { ar: 'حُفظت ملاحظة داخلية.', en: 'Internal note saved.' } })

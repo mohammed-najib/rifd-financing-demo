@@ -50,12 +50,14 @@ export const targetSchema = z.discriminatedUnion('kind', [
   correctionTargetSchema.options[0].extend({ verified: z.boolean() }),
   correctionTargetSchema.options[1].extend({ verified: z.boolean() }),
 ])
+export const assessmentSchema = z.object({
+  status: z.enum(['missing', 'awaitingReview', 'accepted', 'needsReplacement']), reason: bilingualSchema.nullable(),
+})
+export const assessmentsSchema = z.object({ identity: assessmentSchema, business: assessmentSchema, financial: assessmentSchema, purchase: assessmentSchema })
 export const roundSchema = z.object({
   id: z.string(), requestedAt: z.string(), baseline: snapshotSchema,
   targets: z.array(targetSchema).nonempty(), response: snapshotSchema.nullable(),
-})
-export const assessmentSchema = z.object({
-  status: z.enum(['missing', 'awaitingReview', 'accepted', 'needsReplacement']), reason: bilingualSchema.nullable(),
+  responseAssessments: assessmentsSchema.optional(),
 })
 export const checkSchema = z.enum(['unchecked', 'passed', 'failed'])
 export const checksSchema = z.object({
@@ -71,7 +73,7 @@ export const repaymentSchema = z.object({
 export type Repayment = z.infer<typeof repaymentSchema>
 export const activitySchema = z.object({
   id: z.string(), sequence: z.number().int().positive(), date: z.string(), actor: identityIdSchema,
-  kind: z.enum(['submitted', 'assigned', 'reviewStarted', 'assessed', 'checked', 'correctionsRequested', 'approved', 'rejected', 'note']),
+  kind: z.enum(['submitted', 'assigned', 'reviewStarted', 'assessed', 'checked', 'verified', 'resubmitted', 'correctionsRequested', 'approved', 'rejected', 'note']),
   description: bilingualSchema,
 })
 export const applicationSchema = z.object({
@@ -81,7 +83,7 @@ export const applicationSchema = z.object({
   submitted: snapshotSchema.nullable(),
   workspace: z.object({ revision: z.number().int().positive(), roundId: z.string().nullable(), savedAt: z.string(), snapshot: snapshotSchema }).nullable(),
   history: z.array(historySchema), rounds: z.array(roundSchema),
-  assessments: z.object({ identity: assessmentSchema, business: assessmentSchema, financial: assessmentSchema, purchase: assessmentSchema }).nullable(),
+  assessments: assessmentsSchema.nullable(),
   checks: checksSchema.nullable(),
   notes: z.array(z.object({ id: z.string(), actor: z.enum(['salma', 'khaled']), date: z.string(), text: bilingualSchema })),
   activity: z.array(activitySchema), repayment: repaymentSchema.nullable(),
@@ -121,8 +123,8 @@ const receiptFields = {
   sharedRevision: z.number().int().positive(), savedAt: z.string(),
 }
 export const mutationReceiptSchema = z.discriminatedUnion('kind', [
-  z.object({ ...receiptFields, kind: z.enum(['saveDraft', 'submit', 'saveCorrections']), workspaceRevision: z.number().int().positive() }),
-  z.object({ ...receiptFields, kind: z.enum(['claimApplication', 'startReview', 'transferApplication', 'unassignApplication', 'assessDocument', 'recordCheck', 'saveNote', 'requestCorrections']), actor: z.literal('salma') }),
+  z.object({ ...receiptFields, kind: z.enum(['saveDraft', 'submit', 'saveCorrections', 'resubmit']), workspaceRevision: z.number().int().positive() }),
+  z.object({ ...receiptFields, kind: z.enum(['claimApplication', 'startReview', 'transferApplication', 'unassignApplication', 'assessDocument', 'recordCheck', 'saveNote', 'requestCorrections', 'verifyCorrection']), actor: z.literal('salma') }),
 ])
 export type MutationReceipt = z.infer<typeof mutationReceiptSchema>
 export const datasetSchema = z.object({

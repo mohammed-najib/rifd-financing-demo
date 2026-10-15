@@ -36,6 +36,7 @@ export const saveDraftSchema = z.object({
 }).strict()
 export const submitSchema = saveDraftSchema.extend({ kind: z.literal('submit'), expectedSharedRevision: z.number().int().positive() }).strict()
 export const saveCorrectionsSchema = saveDraftSchema.extend({ kind: z.literal('saveCorrections'), roundId: z.string().min(1) }).strict()
+export const resubmitSchema = saveCorrectionsSchema.extend({ kind: z.literal('resubmit'), expectedSharedRevision: z.number().int().positive() }).strict()
 const reviewVersion = {
   datasetId: z.string().uuid(), operationId: z.string().min(1), applicationId: z.string().min(1), expectedSharedRevision: z.number().int().positive(),
 }
@@ -46,10 +47,11 @@ export const reviewOperationSchema = z.discriminatedUnion('kind', [z.object({
   z.object({ ...reviewVersion, kind: z.literal('assessDocument'), slot: slotSchema, fileId: z.string().min(1), status: z.enum(['accepted', 'needsReplacement']), reason: bilingualSchema.nullable() }).strict(),
   z.object({ ...reviewVersion, kind: z.literal('recordCheck'), check: z.enum(['evidence', 'operatingHistory', 'purpose', 'budget', 'capacity']), outcome: z.enum(['unchecked', 'passed', 'failed']) }).strict(),
   z.object({ ...reviewVersion, kind: z.literal('saveNote'), text: bilingualSchema }).strict(),
+  z.object({ ...reviewVersion, kind: z.literal('verifyCorrection'), roundId: z.string().min(1), field: fieldsSchema.keyof(), verified: z.boolean() }).strict(),
   z.object({ ...reviewVersion, kind: z.literal('requestCorrections'), targets: correctionTargetsSchema, confirmed: z.literal(true) }).strict(),
 ])
-export const applicationOperationSchema = z.discriminatedUnion('kind', [saveDraftSchema, submitSchema, saveCorrectionsSchema])
-export const applicationMutationSchema = z.discriminatedUnion('kind', [saveDraftSchema, submitSchema, saveCorrectionsSchema, reviewOperationSchema])
+export const applicationOperationSchema = z.discriminatedUnion('kind', [saveDraftSchema, submitSchema, saveCorrectionsSchema, resubmitSchema])
+export const applicationMutationSchema = z.discriminatedUnion('kind', [saveDraftSchema, submitSchema, saveCorrectionsSchema, resubmitSchema, reviewOperationSchema])
 export const preparationSchema = z.object({
   datasetId: z.string().uuid(), applicationId: z.string().min(1), slot: slotSchema, selectionId: z.string().min(1),
   product: productIdSchema.optional(),
@@ -61,6 +63,7 @@ export const preparationSchema = z.object({
 }).strict()
 
 export function applicationFingerprint(operation: ApplicationMutation): string {
+  if (operation.kind === 'verifyCorrection') return JSON.stringify({ kind: operation.kind, applicationId: operation.applicationId, roundId: operation.roundId, field: operation.field, verified: operation.verified })
   if (operation.kind === 'requestCorrections') return JSON.stringify({ kind: operation.kind, applicationId: operation.applicationId, targets: operation.targets, confirmed: operation.confirmed })
   if (operation.kind === 'assessDocument') return JSON.stringify({ kind: operation.kind, applicationId: operation.applicationId, slot: operation.slot, fileId: operation.fileId, status: operation.status, reason: operation.reason })
   if (operation.kind === 'recordCheck') return JSON.stringify({ kind: operation.kind, applicationId: operation.applicationId, check: operation.check, outcome: operation.outcome })

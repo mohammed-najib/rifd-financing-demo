@@ -1,8 +1,21 @@
 import { describe, expect, it } from 'vitest'
-import { changedReviewChecks, reviewRules } from './index'
-import type { Fields, Snapshot } from './model'
+import { changedReviewChecks, currentCorrectionTargets, reviewRules } from './index'
+import type { Application, Fields, Snapshot } from './model'
 
 const fields: Fields = { fullName: 'مريم سالم', mobile: '+000000000001', city: 'عدن', email: '', businessName: 'متجر تجريبي', activity: 'retail', address: 'شارع السوق، عدن', operatingSince: '2026-04', revenue: '700000', expenses: '500000', amount: '100010', term: '6', budget: '250000', explanation: 'Purchase fictional retail stock.' }
+
+it('uses the latest request for each target while retaining unrelated outstanding verification', () => {
+  const snapshot: Snapshot = { fields, documents: { identity: null, business: null, financial: null, purchase: null } }
+  const reason = { ar: 'تغيير مطلوب', en: 'Change required' }
+  const rounds: Application['rounds'] = [
+    { id: 'first', requestedAt: '2026-10-01', baseline: snapshot, response: snapshot, targets: [{ kind: 'field', field: 'amount', reason, verified: false }, { kind: 'field', field: 'mobile', reason, verified: false }, { kind: 'document', slot: 'purchase', reason, verified: false }] },
+    { id: 'second', requestedAt: '2026-10-02', baseline: snapshot, response: snapshot, targets: [{ kind: 'field', field: 'amount', reason, verified: true }, { kind: 'document', slot: 'purchase', reason, verified: true }] },
+  ]
+  expect(currentCorrectionTargets(rounds).map(({ roundId, target }) => [roundId, target.kind === 'field' ? target.field : target.slot, target.verified])).toEqual([
+    ['first', 'mobile', false], ['second', 'amount', true], ['second', 'purchase', true],
+  ])
+  expect(rounds[0].targets.every(target => !target.verified)).toBe(true)
+})
 
 describe('review criteria', () => {
   it('uses the initial submission month and the inclusive six-month boundary', () => {

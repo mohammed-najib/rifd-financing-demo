@@ -1,6 +1,17 @@
 import { foldDigits, normalizeField, parseWholeYER } from './application.js'
 import { domainDate, freezeRepayment, products } from './index.js'
-import type { Fields, ProductId, Snapshot } from './model.js'
+import type { Application, Fields, ProductId, Snapshot } from './model.js'
+
+// A later request supersedes only its own targets. Earlier outcomes stay in history.
+export function currentCorrectionTargets(rounds: Application['rounds']) {
+  const targets = new Map<string, { roundId: string; target: Application['rounds'][number]['targets'][number] }>()
+  for (const round of rounds) for (const target of round.targets) {
+    const key = target.kind === 'field' ? `field:${target.field}` : `document:${target.slot}`
+    targets.delete(key)
+    targets.set(key, { roundId: round.id, target })
+  }
+  return [...targets.values()]
+}
 
 export const reviewDependencies = {
   evidence: { fields: ['fullName', 'businessName', 'address', 'operatingSince', 'revenue', 'expenses', 'explanation', 'budget'], documents: ['identity', 'business', 'financial', 'purchase'] },

@@ -135,7 +135,7 @@ test('all five steps support a complete Equipment draft, four sample files and k
   await page.getByRole('button', { name: 'Save progress', exact: true }).click()
   await expect(page.getByText('Saved', { exact: true })).toBeVisible()
   await page.reload()
-  await expect(page.getByRole('heading', { name: 'Review', exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Review', level: 2, exact: true })).toBeVisible()
   await page.getByRole('button', { name: 'Check application', exact: true }).click()
   await expect(page.getByText(/Field formats and document requirements are complete/)).toBeVisible()
 })

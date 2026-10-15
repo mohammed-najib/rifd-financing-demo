@@ -7,20 +7,20 @@
       "sources": {
         "skills/validate-application/references/guide.md": "288e369bd278e23a4c00eec0a0af2097b29ca21a79eb5f3bc747d3f971ea1cd3",
         "src/application.ts": "77516299c9def5c06ad60aeaaaf5af2e943564a4dc01b9c079dd5788b350d710",
-        "src/index.ts": "9ec20b92d2712f453992130e42e3d4a93e9e054a6047c77b8b3c26830654be32",
-        "src/model.ts": "ce532a53a90fbb6819035f3c74d300e19d44e3f42afc3317fe239263463bd73d"
+        "src/index.ts": "c46d03aea71e502f670d027455e82d4ebc2b023b99ad63dff02d6a97d75400d0",
+        "src/model.ts": "78fa40bbf1b45107410040237fa7fa7bd5c2d82f921fbf212bba7caa360299f7"
       },
-      "reason": "Reviewed the saveCorrections receipt addition against the field guide. Raw field parsing, validation and normalization are unchanged; integration tests verify incomplete correction saving and refusal of unrequested edits."
+      "reason": "Reviewed the resubmit receipt, assessment history shape, review permission and current-target export against the field guide. Raw input, canonical normalization and whole-form validation remain unchanged; resubmission tests reject formatting-only edits and renamed identical evidence."
     },
     "freeze-repayment": {
       "version": "0.1.0",
       "skillSha256": "754ee65bf4400a0b36e35c3c5b480f75b6ea86b4bb7fad21ebb129f86828cfeb",
       "sources": {
         "skills/freeze-repayment/references/guide.md": "25db52f5d929c0814ff99bc54046240b8bfca0b2694a529cadac07f54799ce9f",
-        "src/index.ts": "9ec20b92d2712f453992130e42e3d4a93e9e054a6047c77b8b3c26830654be32",
-        "src/model.ts": "ce532a53a90fbb6819035f3c74d300e19d44e3f42afc3317fe239263463bd73d"
+        "src/index.ts": "c46d03aea71e502f670d027455e82d4ebc2b023b99ad63dff02d6a97d75400d0",
+        "src/model.ts": "78fa40bbf1b45107410040237fa7fa7bd5c2d82f921fbf212bba7caa360299f7"
       },
-      "reason": "Reviewed the additive saveCorrections receipt kind in model.ts against the repayment guide. Repayment shapes and arithmetic are unchanged, and all 103 domain tests pass."
+      "reason": "Reviewed the resubmission and verification additions in index.ts and model.ts against the repayment guide. Frozen repayment shape and calculation remain unchanged; the focused domain checks retain Huda capacity arithmetic, half-up rounding and historical schedules."
     }
   }
 }

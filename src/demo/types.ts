@@ -28,7 +28,7 @@ export type CommonView = {
   history: Application['history'];
   repayment: Repayment | null;
 }
-export type PublicRound = Omit<Application['rounds'][number], 'targets'> & {
+export type PublicRound = Omit<Application['rounds'][number], 'targets' | 'responseAssessments'> & {
   targets: CorrectionTarget[];
 }
 export type ApplicantView = CommonView & { role: 'applicant'; workspace: Application['workspace']; workspaceDocuments: DocumentView[]; rounds: PublicRound[] }
@@ -66,14 +66,16 @@ export type SaveDraftOperation = {
 }
 export type SubmitOperation = Omit<SaveDraftOperation, 'kind'> & { kind: 'submit'; expectedSharedRevision: number }
 export type SaveCorrectionsOperation = Omit<SaveDraftOperation, 'kind'> & { kind: 'saveCorrections'; roundId: string }
+export type ResubmitOperation = Omit<SaveCorrectionsOperation, 'kind'> & { kind: 'resubmit'; expectedSharedRevision: number }
 export type ReviewOperation = {
   datasetId: string; operationId: string; applicationId: string; expectedSharedRevision: number;
 } & ({ kind: 'claimApplication' | 'startReview' | 'unassignApplication' } | { kind: 'transferApplication'; from: 'salma' | 'khaled'; to: 'salma' | 'khaled'; confirmed: true }
   | { kind: 'assessDocument'; slot: DocumentSlot; fileId: string; status: 'accepted' | 'needsReplacement'; reason: Bilingual | null }
   | { kind: 'recordCheck'; check: ReviewCheck; outcome: 'unchecked' | 'passed' | 'failed' }
   | { kind: 'saveNote'; text: Bilingual }
+  | { kind: 'verifyCorrection'; roundId: string; field: keyof Fields; verified: boolean }
   | { kind: 'requestCorrections'; targets: CorrectionTarget[]; confirmed: true })
-export type ApplicationOperation = SaveDraftOperation | SubmitOperation | SaveCorrectionsOperation
+export type ApplicationOperation = SaveDraftOperation | SubmitOperation | SaveCorrectionsOperation | ResubmitOperation
 export type ApplicationMutation = ApplicationOperation | ReviewOperation
 export type DemoOperation = PreferenceOperation | ApplicationMutation | NotificationReadOperation
 export type MutationResult = { receipt: MutationReceipt; application: ApplicationView }
@@ -96,6 +98,7 @@ export type Demo = {
   execute(operation: PreferenceOperation): Promise<Result<Context>>;
   execute(operation: SaveDraftOperation): Promise<Result<MutationResult>>;
   execute(operation: SubmitOperation): Promise<Result<MutationResult>>;
+  execute(operation: ResubmitOperation): Promise<Result<MutationResult>>;
   execute(operation: SaveCorrectionsOperation): Promise<Result<MutationResult>>;
   execute(operation: ReviewOperation): Promise<Result<MutationResult>>;
   execute(operation: ApplicationOperation): Promise<Result<MutationResult>>;

@@ -4,6 +4,10 @@ import type { Bilingual, Fields, Language } from '../domain/model'
 import { date, displayFieldValue, documentLabel, fieldLabels, text } from './i18n'
 
 export const responseText = {
+  resubmit: { ar: 'إعادة تقديم التصحيحات', en: 'Resubmit corrections' },
+  resubmitted: { ar: 'أُعيد تقديم التصحيحات.', en: 'Corrections resubmitted.' },
+  inspectResubmission: { ar: 'فحص نتيجة إعادة التقديم', en: 'Inspect resubmission outcome' },
+  requiredChange: { ar: 'يلزم تغيير صالح عن المرجع، أو مستند بمحتوى مختلف.', en: 'Supply a valid change from baseline, or evidence with different content.' },
   title: { ar: 'الرد على التصحيحات', en: 'Respond to corrections' },
   hint: { ar: 'عدّل الأهداف المطلوبة فقط واحفظ حتى الإدخال غير المكتمل. يظل المنتج وباقي المعلومات للقراءة فقط. لا ترى المراجعة الرد الخاص حتى إعادة تقديمه.', en: 'Edit only the requested targets and save even incomplete input. The product and other information are read-only. Staff see the submitted information until resubmission.' },
   saved: { ar: 'محفوظ في مساحة التصحيح', en: 'Saved in correction workspace' },

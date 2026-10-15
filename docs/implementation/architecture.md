@@ -1,6 +1,6 @@
 # Browser demo architecture
 
-The [specification](../../.scratch/financing-application-and-review/spec.md) and [accepted browser contract](../../.scratch/financing-application-and-review/issues/04-browser-state-and-simulated-failures.md#answer) govern the implementation. The first twelve slices provide startup, authorized reads, canonical field validation, five-step drafts, session and tab recovery, atomic first submission, notifications, printing, the staff queue, assignment, review start, document assessments, checks, internal notes targeted correction requests and private correction responses. Later tickets extend the same boundaries for correction publication and decisions.
+The [specification](../../.scratch/financing-application-and-review/spec.md) and [accepted browser contract](../../.scratch/financing-application-and-review/issues/04-browser-state-and-simulated-failures.md#answer) govern the implementation. The first thirteen slices provide startup, authorized reads, canonical field validation, five-step drafts, session and tab recovery, atomic first submission, notifications, printing, the staff queue, assignment, review start, document assessments, checks, internal notes targeted correction requests and private correction responses, atomic resubmission and correction verification. Later tickets extend the same boundaries for decisions.
 
 ## Modules
 
@@ -198,3 +198,45 @@ The pure `reviewRules` helper uses normalized month/digit inputs, initial submis
 `reviewDependencies` and `changedReviewChecks` identify exact field and document-identity dependencies for correction publication. Formatting-only differences use the existing canonical comparison and leave checks intact. The complete dependency table and Huda's amount-plus-plan example are tested through the exported helper. Publication and field verification controls are still owned by ticket 13.
 
 `ReviewWorkspace` keeps unsaved note/replacement text, expected revision and unresolved command in an App-owned map keyed by dataset, identity and application. Same-identity recovery reauthorizes access before remounting it. A newer shared revision requires explicit inspection before the retained text can save. Lost acknowledgements require receipt inspection; sign-in never resends a command. Another identity requires explicit discard. Refresh removes the map. Departure combines assignment and review work, offering Save note and leave only for an authorized note without another unsent composer. The dialog navigates only after confirmed success.
+
+## Resubmission and verification
+
+`resubmit` carries the current raw response, fixed product, round identifier,
+prepared or saved file choices and both expected revisions. It uses the same
+short publication transaction as first submission. It checks the session,
+dataset, readable record, receipt, workspace/shared versions, applicant ownership,
+active round and target permissions before validating the full application.
+Every requested field must differ canonically from its fixed baseline. Missing
+evidence must be supplied; replacement hashes must differ from baseline bytes.
+Pending or failed selections block publication even when an older file exists.
+
+The transaction publishes all fields and bytes, stores the round response,
+retires the workspace, enters Under review, increments the shared revision and
+records one resubmission event and receipt. The receipt also retains the completed
+workspace revision. Current assignment, initial submission month and financial
+window survive. No notification is created. An abort rolls back every effect;
+unknown completion requires receipt inspection. Exact replay returns the receipt
+before considering the retired workspace.
+
+`changedReviewChecks` resets only dependencies of the published changes. Other
+checks and unchanged document assessments survive. Requested new/replaced files
+become Awaiting review and the round's targets start unverified. Screens highlight
+field and file changes against the fixed baseline and explain the affected checks.
+
+`verifyCorrection` binds a field target to its round, desired verification value
+and expected shared revision. Only the current assignee in Under review can
+verify it. Accepting a requested document verifies its target; marking it Needs
+replacement clears verification. Both actions remain separate from checklist
+outcomes. They add internal activity and never change applicant history or notices.
+
+`currentCorrectionTargets` selects the latest request for each field or slot.
+A later request supersedes only targets it includes, so unrelated outstanding
+verification survives. Historical insufficient responses keep their actual flags
+and do not block the carried-forward target after its later response is verified.
+Applicant and reviewer history render each published round's requested field
+values and permit previews of its requested documents through authorized
+`readFile` calls. The shared print projection stays unchanged.
+When requesting another round, the transaction retains the preceding response's
+assessments, including reasons, in `responseAssessments`. This optional additive
+field is staff-only; applicant and print projections exclude it. Each new round
+captures its own submitted baseline and fresh private workspace.

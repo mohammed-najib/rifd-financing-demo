@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { Demo, ErrorKind, ReviewOperation } from '../demo'
 import type { StaffView } from '../demo/types'
-import { products, reviewDependencies, reviewRules, type ReviewCheck } from '../domain'
+import { changedReviewChecks, currentCorrectionTargets, products, reviewDependencies, reviewRules, type ReviewCheck } from '../domain'
 import type { DocumentSlot, Language } from '../domain/model'
 import { AssignmentActions } from './assignment'
 import { combineDeparture, type Departure } from './departure'
@@ -89,6 +89,9 @@ export function ReviewWorkspace({ demo, datasetId, view, language, retained, rem
   const reviewerName = (actor: string) => demoIdentities.find(identity => identity.id === actor)?.name[language] ?? (language === 'ar' ? 'خالد علي' : 'Khaled Ali')
   useEffect(() => { if (preview && !view.documents.some(document => document.file?.id === preview)) setPreview(null) }, [preview, view.documents])
   const rules = reviewRules(view.snapshot.fields, view.product, view.submittedAt!)
+  const latestRound = view.rounds.at(-1)
+  const baseline = latestRound?.response ? latestRound.baseline : undefined
+  const currentTargets = currentCorrectionTargets(view.rounds)
   const allAccepted = view.assessments && Object.values(view.assessments).every(assessment => assessment.status === 'accepted')
   const previewDocument = view.documents.find(document => document.file?.id === preview)
   const sections = [
@@ -109,9 +112,9 @@ export function ReviewWorkspace({ demo, datasetId, view, language, retained, rem
     </div>
     <div className="grid grid-cols-[minmax(0,1.4fr)_minmax(290px,1fr)] items-start gap-6 compact:grid-cols-1">
       <div className="flex min-w-0 flex-col gap-6">
-        <section className="panel"><h2 id="review-information" tabIndex={-1}>{text.submittedInformation[language]}</h2><ApplicationInformation record={view} language={language} /></section>
+        <section className="panel"><h2 id="review-information" tabIndex={-1}>{text.submittedInformation[language]}</h2><ApplicationInformation record={view} language={language} baseline={baseline} /></section>
         <section className="panel"><h2 id="review-documents" tabIndex={-1}>{text.documents[language]}</h2>{view.documents.map(document => <section key={document.slot} aria-labelledby={`document-${document.slot}`} className="border-0 border-b border-solid border-border py-4 last:border-b-0">
-          <h3 id={`document-${document.slot}`}>{documentLabel(document.slot, view.product)[language]}</h3>
+          <h3 id={`document-${document.slot}`}>{documentLabel(document.slot, view.product)[language]}</h3>{baseline && document.file && baseline.documents[document.slot] !== document.file.id && <p className="status">{t(baseline.documents[document.slot] ? 'replaced' : 'added')}</p>}
           <p>{document.file ? <><bdi dir="ltr" className="wrap-anywhere">{document.file.name}</bdi><br /><bdi>{document.file.mime} · {document.file.size} B</bdi><br />{text.included[language]}</> : text.missing[language]}</p>
           <p>{outcomes[view.assessments![document.slot].status][language]}{view.assessments![document.slot].reason && <span> · {view.assessments![document.slot].reason![language]}</span>}</p>
           {document.file && <div className="actions"><button className="secondary" onClick={() => setPreview(document.file!.id)}>{language === 'ar' ? 'معاينة' : 'Preview'} {documentLabel(document.slot, view.product)[language]}</button>
@@ -122,11 +125,11 @@ export function ReviewWorkspace({ demo, datasetId, view, language, retained, rem
             <div className="actions"><button disabled={blocked || !view.permissions.assessDocument || !buffer.replacement.text.trim()} onClick={() => void run({ ...base(), kind: 'assessDocument', slot: document.slot, fileId: document.file!.id, status: 'needsReplacement', reason: { ar: buffer.replacement!.text, en: buffer.replacement!.text } })}>{t('saveAssessment')}</button><button className="secondary" disabled={busy || !!buffer.intent} onClick={() => { buffer.replacement = null; update() }}>{t('cancel')}</button></div>
           </div>}
         </section>)}</section>
-        <PublicCorrections record={view} language={language} />
+        <PublicCorrections record={view} language={language} preview={{ demo, applicationId: view.id }} />
         <PublicHistory history={view.history} language={language} />
       </div>
       <div className="flex min-w-0 flex-col gap-6">
-        <section className="panel"><h2 id="review-checks" tabIndex={-1}>{text.checks[language]}</h2>{(Object.keys(reviewDependencies) as ReviewCheck[]).map(check => {
+        <section className="panel"><h2 id="review-checks" tabIndex={-1}>{text.checks[language]}</h2>{baseline && <p>{t('resetChecks')}: {changedReviewChecks(baseline, view.snapshot).map(check => reviewChecks[check][language]).join('، ') || '0'}</p>}{(Object.keys(reviewDependencies) as ReviewCheck[]).map(check => {
           const canPass = check === 'evidence' ? allAccepted : check === 'purpose' || rules[check].passes
           const dependencies = reviewDependencies[check]
           return <fieldset key={check} className="m-0 mb-5 min-w-0 rounded-[10px] border border-solid border-border p-4"><legend>{reviewChecks[check][language]}</legend><strong>{outcomes[view.checks![check]][language]}</strong>
@@ -139,7 +142,7 @@ export function ReviewWorkspace({ demo, datasetId, view, language, retained, rem
             {view.permissions.recordCheck && <div className="actions">{(['unchecked', 'passed', 'failed'] as const).map(outcome => <button className="secondary" key={outcome} disabled={blocked || !!buffer.replacement || outcome === 'passed' && !canPass} aria-pressed={view.checks![check] === outcome} onClick={() => void run({ ...base(), kind: 'recordCheck', check, outcome })}>{outcomes[outcome][language]}</button>)}</div>}
           </fieldset>
         })}</section>
-        <section className="panel"><h2 id="review-verification" tabIndex={-1}>{t('verification')}</h2>{!view.rounds.length && <p>{t('noCorrections')}</p>}{view.rounds.map(round => <div key={round.id}><p><bdi>{date(round.requestedAt, language)}</bdi></p>{!round.response && <p>{t('waiting')}</p>}<ul>{round.targets.map((target, index) => <li key={index}>{target.kind === 'field' ? fieldLabels[target.field][language] : documentLabel(target.slot, view.product)[language]} · {t(target.verified ? 'verified' : 'unverified')}</li>)}</ul></div>)}</section>
+        <section className="panel"><h2 id="review-verification" tabIndex={-1}>{t('verification')}</h2>{!view.rounds.length && <p>{t('noCorrections')}</p>}{view.rounds.map(round => <div key={round.id}><p><bdi>{date(round.requestedAt, language)}</bdi></p>{!round.response && <p>{t('waiting')}</p>}<ul>{round.targets.map((target, index) => <li key={index} className="mb-4"><strong>{target.kind === 'field' ? fieldLabels[target.field][language] : documentLabel(target.slot, view.product)[language]}</strong><p>{target.reason[language]}</p><span>{t(target.verified ? 'verified' : 'unverified')}</span>{round.response && <p>{t('changedTarget')}</p>}{!currentTargets.some(item => item.roundId === round.id && item.target === target) ? <p>{t('historical')}</p> : round.response && target.kind === 'field' && view.permissions.verifyCorrection && <div className="actions"><button disabled={blocked || !!buffer.replacement} onClick={() => void run({ ...base(), kind: 'verifyCorrection', roundId: round.id, field: target.field, verified: !target.verified })}>{t(target.verified ? 'undoField' : 'verifyField')}</button></div>}</li>)}</ul>{round.responseAssessments && <details><summary>{t('previousAssessments')}</summary><ul>{Object.entries(round.responseAssessments).map(([slot, assessment]) => <li key={slot}>{documentLabel(slot as DocumentSlot, view.product)[language]} · {outcomes[assessment.status][language]}{assessment.reason && <p>{assessment.reason[language]}</p>}</li>)}</ul></details>}</div>)}</section>
         <section className="panel"><h2 id="review-notes" tabIndex={-1}>{text.notes[language]}</h2><p>{t('private')}</p>{view.notes.length ? view.notes.map(note => <div key={note.id}><p className="whitespace-pre-wrap wrap-anywhere">{note.text[language]}</p><small>{reviewerName(note.actor)} · <bdi>{date(note.date, language)}</bdi></small></div>) : <p>{text.noNotes[language]}</p>}
           {(view.permissions.saveNote || buffer.note) && <><label className="mt-4 mb-1.5 block font-semibold" htmlFor="internal-note">{t('note')}</label><textarea className="review-textarea mb-3" id="internal-note" value={buffer.note} disabled={busy} readOnly={!view.permissions.saveNote} onChange={event => { buffer.note = event.target.value; update() }} /><button disabled={!canSave} onClick={() => void saveNote()}>{t('saveNote')}</button></>}
         </section>

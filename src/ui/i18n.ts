@@ -115,6 +115,7 @@ export const events: Record<string, Bilingual> = {
   submitted: { ar: 'تقديم الطلب', en: 'Application submitted' }, reviewStarted: { ar: 'بدء المراجعة', en: 'Review started' },
   correctionsRequested: { ar: 'طلب تصحيحات', en: 'Corrections requested' }, resubmitted: { ar: 'إعادة التقديم', en: 'Application resubmitted' },
   approved: { ar: 'الموافقة على الطلب', en: 'Application approved' }, rejected: { ar: 'رفض الطلب', en: 'Application rejected' },
+  verified: { ar: 'التحقق من تصحيح', en: 'Correction verified' },
   assigned: { ar: 'إسناد الطلب', en: 'Application assigned' }, assessed: { ar: 'تقييم مستند', en: 'Document assessed' }, checked: { ar: 'فحص مراجعة', en: 'Review check recorded' }, note: { ar: 'إضافة ملاحظة داخلية', en: 'Internal note added' },
 }
 export const errors: Record<ErrorKind, Bilingual> = {

@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { canReadApplication, domainDate, emptyDocuments, initialEvidenceMonths, products, reviewPermissions, submissionMonth, validateFields, validateFileEnvelope } from '../domain'
+import { canReadApplication, changedReviewChecks, domainDate, emptyDocuments, initialEvidenceMonths, products, reviewPermissions, submissionMonth, validateFields, validateFileEnvelope } from '../domain'
 import { actorIdSchema, fieldsSchema, productIdSchema, slots, type ActorId, type Application, type Dataset, type Fields, type StoredFile } from '../domain/model'
 import { fileFromBytes, makeFile, prepareFonts } from './evidence'
 import { applicationMutationSchema, applicationOperationSchema, commitHintSchema, applicationFingerprint, notificationReadSchema, preferenceOperationSchema, preparationSchema, reviewOperationSchema } from './commands'
@@ -8,9 +8,9 @@ import { prepareSeed } from './seed'
 import { DemoError, openStorage, readStored, transact, validateDataset } from './storage'
 import { projectQueue } from './queue'
 import { applyReviewCommand, validateReviewCommand } from './review'
-import { correctionDocument, validateCorrectionSave } from './corrections'
-import type { ApplicantView, ApplicationMutation, ApplicationOperation, ApplicationView, CommitHint, Context, Controls, Demo, ErrorKind, LanguageOperation, MutationResult, NotificationReadOperation, NotificationReadResult, PreferenceOperation, PreparedAttachment, QueuePreferenceOperation, Result, ReviewOperation, SaveCorrectionsOperation, SaveDraftOperation, Session, SubmitOperation } from './types'
-export type { ApplicationOperation, ApplicationSummary, ApplicationView, CommitHint, Context, Controls, Demo, DemoOperation, DraftDocuments, ErrorKind, LanguageOperation, MutationResult, NotificationDestination, NotificationReadOperation, NotificationReadResult, OperationInspection, PreferenceInspection, PreferenceOperation, PreparedAttachment, Preparation, PrintSummary, QueuePreferenceOperation, QueueQuery, StaffQueue, Result, ReviewOperation, SaveCorrectionsOperation, SaveDraftOperation, SubmitOperation } from './types'
+import { activeCorrection, correctionDocument, validateCorrectionSave, validateResubmission } from './corrections'
+import type { ApplicantView, ApplicationMutation, ApplicationOperation, ApplicationView, CommitHint, Context, Controls, Demo, ErrorKind, LanguageOperation, MutationResult, NotificationReadOperation, NotificationReadResult, PreferenceOperation, PreparedAttachment, QueuePreferenceOperation, Result, ReviewOperation, SaveCorrectionsOperation, SaveDraftOperation, Session, SubmitOperation, ResubmitOperation } from './types'
+export type { ApplicationOperation, ApplicationSummary, ApplicationView, CommitHint, Context, Controls, Demo, DemoOperation, DraftDocuments, ErrorKind, LanguageOperation, MutationResult, NotificationDestination, NotificationReadOperation, NotificationReadResult, OperationInspection, PreferenceInspection, PreferenceOperation, PreparedAttachment, Preparation, PrintSummary, QueuePreferenceOperation, QueueQuery, StaffQueue, Result, ReviewOperation, SaveCorrectionsOperation, SaveDraftOperation, SubmitOperation, ResubmitOperation } from './types'
 
 const sessionSchema = z.object({ identity: actorIdSchema, datasetId: z.string().uuid(), sessionId: z.string().uuid(), lastActivity: z.number(), expiresAt: z.number() })
 const sessionKey = 'rifd.session.v1'
@@ -175,7 +175,7 @@ export function createDemo(): Demo {
           return { slot, file: file ? { id: file.id, name: file.name, mime: file.mime, size: file.size, hash: file.hash } : null }
         }),
         rounds: application.rounds.map(round => ({
-          ...round,
+          id: round.id, requestedAt: round.requestedAt, baseline: round.baseline, response: round.response,
           targets: round.targets.map(target => target.kind === 'field'
             ? { kind: target.kind, field: target.field, reason: target.reason }
             : { kind: target.kind, slot: target.slot, reason: target.reason }),
@@ -220,6 +220,7 @@ export function createDemo(): Demo {
   async function execute(operation: PreferenceOperation): Promise<Result<Context>>
   async function execute(operation: SaveDraftOperation): Promise<Result<MutationResult>>
   async function execute(operation: SubmitOperation): Promise<Result<MutationResult>>
+  async function execute(operation: ResubmitOperation): Promise<Result<MutationResult>>
   async function execute(operation: SaveCorrectionsOperation): Promise<Result<MutationResult>>
   async function execute(operation: ReviewOperation): Promise<Result<MutationResult>>
   async function execute(operation: ApplicationOperation): Promise<Result<MutationResult>>
@@ -227,7 +228,7 @@ export function createDemo(): Demo {
   async function execute(input: PreferenceOperation | ApplicationMutation | NotificationReadOperation): Promise<Result<Context | MutationResult | NotificationReadResult>> {
     // Capture raw payload and attachment descriptors before any delay.
     const operation = structuredClone(input)
-    if (operation.kind === 'claimApplication' || operation.kind === 'startReview' || operation.kind === 'transferApplication' || operation.kind === 'unassignApplication' || operation.kind === 'assessDocument' || operation.kind === 'recordCheck' || operation.kind === 'saveNote' || operation.kind === 'requestCorrections') return attempt(async () => {
+    if (operation.kind === 'claimApplication' || operation.kind === 'startReview' || operation.kind === 'transferApplication' || operation.kind === 'unassignApplication' || operation.kind === 'assessDocument' || operation.kind === 'recordCheck' || operation.kind === 'saveNote' || operation.kind === 'requestCorrections' || operation.kind === 'verifyCorrection') return attempt(async () => {
       const who = actor()
       const captured = generation
       const parsed = reviewOperationSchema.safeParse(operation)
@@ -244,7 +245,7 @@ export function createDemo(): Demo {
         const receipt = applicationReceipt(current, who, command)
         if (receipt) { replay = true; return current }
         if (application.sharedRevision !== command.expectedSharedRevision) throw new DemoError('staleRecord')
-        if (who !== 'salma' || ['startReview', 'assessDocument', 'recordCheck', 'saveNote', 'requestCorrections'].includes(command.kind) && application.assignee !== who) throw new DemoError('permissionDenied')
+        if (who !== 'salma' || ['startReview', 'assessDocument', 'recordCheck', 'saveNote', 'requestCorrections', 'verifyCorrection'].includes(command.kind) && application.assignee !== who) throw new DemoError('permissionDenied')
         if (!reviewPermissions(who, application)[command.kind]) throw new DemoError('invalidState')
         if (command.kind === 'transferApplication') {
           if (application.assignee !== command.from || command.from === command.to) throw new DemoError('invalidState')
@@ -266,6 +267,8 @@ export function createDemo(): Demo {
           application.assignee = null
           application.activity.push({ ...entry, kind: 'assigned', actor: who, description: { ar: `أُلغي إسناد الطلب إلى ${from.ar}.`, en: `Application unassigned from ${from.en}.` } })
         } else if (command.kind === 'requestCorrections') {
+          const previousRound = application.rounds.at(-1)
+          if (previousRound?.response) previousRound.responseAssessments = structuredClone(application.assessments!)
           const roundId = crypto.randomUUID()
           application.rounds.push({ id: roundId, requestedAt: domainDate, baseline: structuredClone(application.submitted!), targets: command.targets.map(target => ({ ...target, verified: false })), response: null })
           application.workspace = { revision: 1, roundId, savedAt: new Date().toISOString(), snapshot: structuredClone(application.submitted!) }
@@ -274,7 +277,7 @@ export function createDemo(): Demo {
           application.history.push({ ...entry, kind: 'correctionsRequested', reason })
           application.activity.push({ ...entry, kind: 'correctionsRequested', actor: who, description: { ar: 'أُرسلت تغييرات محددة إلى المتقدم.', en: 'Targeted corrections sent to the applicant.' } })
           current.notifications.push({ id: crypto.randomUUID(), owner: application.owner, applicationId: application.id, kind: 'correctionsRequested', date: domainDate, read: false, revision: 1 })
-        } else if (command.kind === 'assessDocument' || command.kind === 'recordCheck' || command.kind === 'saveNote') {
+        } else if (command.kind === 'assessDocument' || command.kind === 'recordCheck' || command.kind === 'saveNote' || command.kind === 'verifyCorrection') {
           applyReviewCommand(application, command, { ...entry, actor: who })
         } else {
           application.status = 'underReview'
@@ -320,7 +323,7 @@ export function createDemo(): Demo {
       if (changed) announce({ datasetId: data.meta.datasetId, kind: 'notification', notificationId: current.notification.id, revision: current.notification.revision })
       return { ...current, receipt: { operationId: receipt.operationId, revision: receipt.revision } }
     })
-    if (operation.kind === 'saveDraft' || operation.kind === 'submit' || operation.kind === 'saveCorrections') return attempt(async () => {
+    if (operation.kind === 'saveDraft' || operation.kind === 'submit' || operation.kind === 'saveCorrections' || operation.kind === 'resubmit') return attempt(async () => {
       const who = actor()
       const captured = generation
       const parsed = applicationOperationSchema.safeParse(operation)
@@ -346,9 +349,9 @@ export function createDemo(): Demo {
           return current
         }
         if (application.workspace?.revision !== command.expectedWorkspaceRevision) throw new DemoError('staleWorkspace')
-        if (command.kind === 'submit' && application.sharedRevision !== command.expectedSharedRevision) throw new DemoError('staleRecord')
+        if ((command.kind === 'submit' || command.kind === 'resubmit') && application.sharedRevision !== command.expectedSharedRevision) throw new DemoError('staleRecord')
         if (application.owner !== who) throw new DemoError('permissionDenied')
-        if (command.kind === 'saveCorrections') validateCorrectionSave(application, command)
+        if (command.kind === 'saveCorrections' || command.kind === 'resubmit') validateCorrectionSave(application, command)
         else if (application.status !== 'draft') throw new DemoError('invalidState')
         if (!application.workspace) throw new DemoError('invalidState')
         if (application.product !== command.product && command.documents.purchase.kind === 'saved' && command.documents.purchase.fileId !== null) throw new DemoError('validation', 'purchase')
@@ -356,7 +359,7 @@ export function createDemo(): Demo {
         const documents = { ...application.workspace.snapshot.documents }
         for (const slot of slots) {
           const document = command.documents[slot]
-          if (command.kind === 'submit') {
+          if (command.kind === 'submit' || command.kind === 'resubmit') {
             const selection = selections.get(`${who}/${application.id}/${slot}`)
             const selectedId = document.kind === 'saved' ? document.fileId : document.attachment.id
             if (selection && (selection.status !== 'ready' || selectedId !== selection.attachmentId)) throw new DemoError('validation', slot)
@@ -371,16 +374,17 @@ export function createDemo(): Demo {
             documents[slot] = file.id
           }
         }
-        if (command.kind === 'submit') {
-          const issues = validateFields(command.fields, products[command.product], submissionMonth)
+        if (command.kind === 'submit' || command.kind === 'resubmit') {
+          const issues = validateFields(command.fields, products[command.product], command.kind === 'resubmit' ? application.submittedAt!.slice(0, 7) : submissionMonth)
           if (issues.length) throw new DemoError('validation', undefined, issues)
           for (const slot of slots) {
             const file = current.files.find(file => file.id === documents[slot] && file.applicationId === application.id && file.slot === slot)
             if (!file || !validateFileEnvelope({ name: file.name, type: file.mime, size: file.size })) throw new DemoError('validation', slot)
           }
         }
+        if (command.kind === 'resubmit') validateResubmission(application, { fields: command.fields, documents }, current.files)
         authority(captured, who, command.datasetId, current)
-        if (consume(command.kind === 'submit' ? 'submission' : 'save')) throw new DemoError('requestFailed')
+        if (consume(command.kind === 'submit' || command.kind === 'resubmit' ? 'submission' : 'save')) throw new DemoError('requestFailed')
         abortStorage = consume('storage')
         const savedAt = new Date().toISOString()
         const workspaceRevision = application.workspace.revision + 1
@@ -398,6 +402,21 @@ export function createDemo(): Demo {
           const entry = { id: crypto.randomUUID(), sequence: ++current.meta.eventSequence, kind: 'submitted' as const, date: domainDate, reason: null }
           application.history.push(entry)
           application.activity.push({ ...entry, actor: who, description: { ar: 'قُدم الطلب.', en: 'Application submitted.' } })
+        } else if (command.kind === 'resubmit') {
+          const round = activeCorrection(application, command.roundId)
+          for (const check of changedReviewChecks(round.baseline, snapshot)) application.checks![check] = 'unchecked'
+          for (const target of round.targets) {
+            target.verified = false
+            if (target.kind === 'document') application.assessments![target.slot] = { status: 'awaitingReview', reason: null }
+          }
+          round.response = structuredClone(snapshot)
+          application.submitted = snapshot
+          application.workspace = null
+          application.status = 'underReview'
+          application.sharedRevision++
+          const entry = { id: crypto.randomUUID(), sequence: ++current.meta.eventSequence, kind: 'resubmitted' as const, date: domainDate, reason: null }
+          application.history.push(entry)
+          application.activity.push({ ...entry, actor: who, description: { ar: 'أُعيد تقديم التصحيحات.', en: 'Corrections resubmitted.' } })
         } else application.workspace = { ...application.workspace, revision: workspaceRevision, savedAt, snapshot }
         current.mutationReceipts.push({
           kind: command.kind, actor: who, datasetId: command.datasetId, operationId: command.operationId, fingerprint: applicationFingerprint(command),
@@ -411,7 +430,7 @@ export function createDemo(): Demo {
       const receipt = data.mutationReceipts.find(receipt => receipt.actor === who && receipt.operationId === command.operationId)!
       if (!replay) {
         newDrafts.delete(command.applicationId)
-        announce({ datasetId: receipt.datasetId, kind: command.kind === 'submit' ? 'application' : 'workspace', applicationId: command.applicationId, revision: 'workspaceRevision' in receipt && command.kind !== 'submit' ? receipt.workspaceRevision : receipt.sharedRevision })
+        announce({ datasetId: receipt.datasetId, kind: command.kind === 'submit' || command.kind === 'resubmit' ? 'application' : 'workspace', applicationId: command.applicationId, revision: 'workspaceRevision' in receipt && command.kind !== 'submit' && command.kind !== 'resubmit' ? receipt.workspaceRevision : receipt.sharedRevision })
       }
       return { receipt, application: project(data, who, permitted(data, who, command.applicationId)) }
     })
