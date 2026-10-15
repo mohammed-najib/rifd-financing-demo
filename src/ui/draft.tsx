@@ -1,11 +1,12 @@
-import { useEffect, useRef, useState } from 'react'
-import type { ApplicationOperation, ApplicationView, Context, Controls, Demo, DraftDocuments, ErrorKind, PreparedAttachment, Preparation, Result, SaveDraftOperation, SubmitOperation } from '../demo'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import type { ApplicationOperation, ApplicationView, Context, Controls, Demo, DraftDocuments, ErrorKind, PreparedAttachment, Preparation, Result, SaveCorrectionsOperation, SaveDraftOperation, SubmitOperation } from '../demo'
 import { applicationSteps, products, stepFields, submissionMonth, validateFields, type ApplicationStep } from '../domain'
 import { slots, type DocumentSlot, type Fields, type Language, type ProductId, type Sample } from '../domain/model'
 import { DocumentPreview } from './preview'
 import { displayFieldValue, documentLabel, draftText, errors, fieldLabels, money, text } from './i18n'
 import { activities, applicationText, documentRequirement, issueMessage } from './application-copy'
 import type { Departure } from './departure'
+import { CorrectionProgress, responseText, workspaceView } from './correction-response'
 
 type Selection = { id: string; source: Preparation['source']; name: string; status: 'preparing' | 'ready' | 'failed'; progress: number; attachment?: PreparedAttachment; error?: ErrorKind }
 type Selections = Partial<Record<DocumentSlot, Selection>>
@@ -15,7 +16,10 @@ export type DraftBuffer = {
   pending: ApplicationOperation | null; capturedSelections: Partial<Record<DocumentSlot, string>>;
 }
 const savedTime = (view: ApplicationView) => view.role === 'applicant' ? view.workspace?.savedAt : null
-const initialBuffer = (view: ApplicationView): DraftBuffer => ({ fields: { ...view.snapshot.fields }, product: view.product, baseline: view, selections: {}, purchaseRemoved: false, status: savedTime(view) ? 'saved' : 'unsaved', error: null, pending: null, capturedSelections: {} })
+const initialBuffer = (input: ApplicationView): DraftBuffer => {
+  const view = workspaceView(input)
+  return { fields: { ...view.snapshot.fields }, product: view.product, baseline: view, selections: {}, purchaseRemoved: false, status: savedTime(view) ? 'saved' : 'unsaved', error: null, pending: null, capturedSelections: {} }
+}
 export const draftDirty = (buffer: DraftBuffer) => !savedTime(buffer.baseline) || JSON.stringify(buffer.fields) !== JSON.stringify(buffer.baseline.snapshot.fields) || buffer.product !== buffer.baseline.product || buffer.purchaseRemoved || Object.keys(buffer.selections).length > 0 || buffer.status === 'unknown'
 const fieldId = (field: keyof Fields) => field === 'explanation' ? 'purchase-explanation' : `field-${field}`
 const sameInput = (previous: ApplicationOperation, next: Pick<ApplicationOperation, 'fields' | 'product' | 'documents'>) => previous.product === next.product && JSON.stringify(previous.fields) === JSON.stringify(next.fields) && JSON.stringify(previous.documents) === JSON.stringify(next.documents)
@@ -41,11 +45,17 @@ export function RetainedDraft({ demo, buffer, language, discard, confirmed }: { 
   </section>
 }
 
-export function DraftEditor({ demo, view, context, language, retained, remember, departure, savedView, step, changeStep }: {
+export function DraftEditor({ demo, view: suppliedView, context, language, retained, remember, departure, savedView, step, changeStep }: {
   demo: Demo; view: ApplicationView; context: Context; language: Language; step: ApplicationStep; changeStep: (step: ApplicationStep) => void;
   retained?: DraftBuffer; remember: (value: DraftBuffer) => void; departure: (value: Departure | null) => void;
   savedView: (value: ApplicationView) => void;
 }) {
+  const view = useMemo(() => workspaceView(suppliedView), [suppliedView])
+  const corrections = view.status === 'correctionsRequested'
+  const targets = corrections ? view.rounds.at(-1)!.targets : []
+  const targetFields = targets.flatMap(target => target.kind === 'field' ? [target.field] : [])
+  const targetSlots = targets.flatMap(target => target.kind === 'document' ? [target.slot] : [])
+  const c = (key: keyof typeof responseText) => responseText[key][language]
   const initial = retained && draftDirty(retained) ? retained : initialBuffer(view)
   const [buffer, render] = useState(initial)
   const state = useRef(initial)
@@ -73,7 +83,7 @@ export function DraftEditor({ demo, view, context, language, retained, remember,
   const update = (next: DraftBuffer) => { retainOnUnmount.current = true; state.current = next; remember(next); if (mounted.current) render(next) }
   const dirty = draftDirty(buffer)
   const locked = buffer.status === 'saving' || buffer.status === 'unknown'
-  const newer = view.sharedRevision > buffer.baseline.sharedRevision || view.role === 'applicant' && buffer.baseline.role === 'applicant' && !!view.workspace && !!buffer.baseline.workspace && view.workspace.revision > buffer.baseline.workspace.revision
+  const newer = !corrections && view.sharedRevision > buffer.baseline.sharedRevision || view.role === 'applicant' && buffer.baseline.role === 'applicant' && !!view.workspace && !!buffer.baseline.workspace && view.workspace.revision > buffer.baseline.workspace.revision
   const conflict = newer || buffer.error === 'staleWorkspace' || buffer.error === 'staleRecord'
   const fieldIssues = validateFields(buffer.fields, products[buffer.product], submissionMonth)
   const effectiveSaved = (slot: DocumentSlot) => slot === 'purchase' && buffer.purchaseRemoved ? null : buffer.baseline.documents.find(document => document.slot === slot)?.file
@@ -105,7 +115,7 @@ export function DraftEditor({ demo, view, context, language, retained, remember,
     return () => { active = false }
   }, [demo, view.id])
   useEffect(() => {
-    if (newer && !draftDirty(state.current) && view.status === 'draft') update(initialBuffer(view))
+    if (newer && !draftDirty(state.current) && (view.status === 'draft' || corrections)) update(initialBuffer(view))
   }, [view])
   useEffect(() => {
     document.getElementById(focusTarget.current ?? 'step-heading')?.focus()
@@ -139,12 +149,13 @@ export function DraftEditor({ demo, view, context, language, retained, remember,
       update({ ...state.current, selections: { ...state.current.selections, [slot]: result.ok ? { ...selection, status: 'ready', progress: 100, name: result.value.name, attachment: result.value } : { ...selection, status: 'failed', error: result.error.kind } } })
     })
   }
-  const acceptSaved = (application: ApplicationView, command: ApplicationOperation, captured: DraftBuffer['capturedSelections']) => {
+  const acceptSaved = (saved: ApplicationView, command: ApplicationOperation, captured: DraftBuffer['capturedSelections']) => {
+    const application = workspaceView(saved)
     const current = state.current
     if (command.kind === 'submit') {
       retainOnUnmount.current = false
       departure(null)
-      savedView(application)
+      savedView(saved)
       return
     }
     const selections = { ...current.selections }
@@ -154,7 +165,7 @@ export function DraftEditor({ demo, view, context, language, retained, remember,
     }
     const next = { ...current, baseline: application, selections, purchaseRemoved: false, status: 'saved' as const, error: null, pending: null }
     update({ ...next, status: draftDirty(next) ? 'unsaved' : 'saved' })
-    savedView(application)
+    savedView(saved)
     setLatest(null)
   }
   const execute = async (command: ApplicationOperation, captured: DraftBuffer['capturedSelections']): Promise<boolean> => {
@@ -181,10 +192,11 @@ export function DraftEditor({ demo, view, context, language, retained, remember,
       const selection = state.current.selections[slot]
       if (selection && selection.id === captured[slot] && selection.status === 'ready' && selection.attachment) documents[slot] = { kind: 'prepared', attachment: selection.attachment }
     }
-    const command: SaveDraftOperation = current.pending?.kind === 'saveDraft' && sameInput(current.pending, { fields, product: current.product, documents }) ? current.pending : {
-      kind: 'saveDraft', datasetId: context.datasetId, applicationId: view.id, operationId: crypto.randomUUID(),
-      expectedWorkspaceRevision: current.baseline.workspace.revision, product: current.product, fields, documents,
-    }
+    const kind = corrections ? 'saveCorrections' : 'saveDraft'
+    const payload = { datasetId: context.datasetId, applicationId: view.id, operationId: crypto.randomUUID(), expectedWorkspaceRevision: current.baseline.workspace.revision, product: current.product, fields, documents }
+    const command: SaveDraftOperation | SaveCorrectionsOperation = current.pending?.kind === kind && sameInput(current.pending, payload) ? current.pending : corrections
+      ? { ...payload, kind: 'saveCorrections', roundId: current.baseline.workspace.roundId! }
+      : { ...payload, kind: 'saveDraft' }
     return execute(command, captured)
   }
   const submit = async () => {
@@ -235,7 +247,7 @@ export function DraftEditor({ demo, view, context, language, retained, remember,
     const result = await demo.readApplication(view.id)
     if (!mounted.current) return
     setInspecting(false)
-    if (result.ok) setLatest(result.value)
+    if (result.ok) setLatest(workspaceView(result.value))
     else update({ ...state.current, error: result.error.kind })
   }
   const switchProduct = (product: ProductId) => {
@@ -255,7 +267,7 @@ export function DraftEditor({ demo, view, context, language, retained, remember,
     setSwitchTo(null); setReapplyConfirmation(null)
   }
   const openIssue = (target: ApplicationStep, id: string) => {
-    if (target === step) document.getElementById(id)?.focus()
+    if (corrections || target === step) document.getElementById(id)?.focus()
     else { focusTarget.current = id; changeStep(target) }
   }
   const renderField = (field: keyof Fields) => {
@@ -274,24 +286,31 @@ export function DraftEditor({ demo, view, context, language, retained, remember,
   const shownIssues = checked && (fieldIssues.length > 0 || missingSlots.length > 0)
   const savedAt = savedTime(buffer.baseline)
   return <section className="draft-editor my-6" aria-labelledby="draft-heading" aria-busy={buffer.status === 'saving'}>
-    <h2 id="draft-heading">{t('edit')}</h2>
+    <h2 id="draft-heading">{corrections ? c('title') : t('edit')}</h2>
+    {corrections && <CorrectionProgress view={suppliedView} fields={buffer.fields} documentChanged={slot => {
+      const selection = buffer.selections[slot]
+      const baselineId = view.rounds.at(-1)!.baseline.documents[slot]
+      const baselineFile = suppliedView.documents.find(document => document.file?.id === baselineId)?.file
+      const file = selection ? selection.status === 'ready' ? selection.attachment : null : effectiveSaved(slot)
+      return !!file && file.hash !== baselineFile?.hash
+    }} language={language} />}
     {!savedAt && <p className="summary">{a('newHint')}</p>}
-    <nav className="actions" aria-label={a('steps')}>{applicationSteps.map((item, index) => <a className="button secondary" key={item} href={`?step=${item}`} aria-current={step === item ? 'step' : undefined} onClick={event => { event.preventDefault(); changeStep(item) }}>{index + 1}. {a(item)}</a>)}</nav>
+    {!corrections && <nav className="actions" aria-label={a('steps')}>{applicationSteps.map((item, index) => <a className="button secondary" key={item} href={`?step=${item}`} aria-current={step === item ? 'step' : undefined} onClick={event => { event.preventDefault(); changeStep(item) }}>{index + 1}. {a(item)}</a>)}</nav>}
     <div className="grid grid-cols-[minmax(0,1.7fr)_minmax(240px,1fr)] gap-6 narrow:grid-cols-1"><div className="panel">
-      <h2 id="step-heading" tabIndex={-1}>{a(step)}</h2>
+      <h2 id="step-heading" tabIndex={-1}>{corrections ? text.corrections[language] : a(step)}</h2>
       {shownIssues && <div className="summary border-danger-border bg-danger-surface text-danger-text" id="validation-summary" role="alert" tabIndex={-1}><h3>{a('errors')}</h3><ul>{fieldIssues.map(issue => {
         const target = (Object.keys(stepFields) as Array<keyof typeof stepFields>).find(group => stepFields[group].includes(issue.field))!
         return <li key={issue.field}><a href={`?step=${target}#${fieldId(issue.field)}`} onClick={event => { event.preventDefault(); openIssue(target, fieldId(issue.field)) }}>{fieldLabels[issue.field][language]}: {issueMessage(issue)[language]}</a></li>
       })}{missingSlots.map(slot => <li key={slot}><a href={`?step=documents#${slot}-file`} onClick={event => { event.preventDefault(); openIssue('documents', `${slot}-file`) }}>{documentLabel(slot, buffer.product)[language]}: {a('missing')}</a></li>)}</ul></div>}
       {step === 'business' && <p className="text-[13px] text-muted">{a('financialHint')}</p>}
-      {step === 'financing' && <><label htmlFor="draft-product">{a('product')}</label><select id="draft-product" ref={productControl} value={buffer.product} disabled={locked} onChange={event => {
+      {!corrections && step === 'financing' && <><label htmlFor="draft-product">{a('product')}</label><select id="draft-product" ref={productControl} value={buffer.product} disabled={locked} onChange={event => {
         const product = event.target.value as ProductId
         if (product === buffer.product) return
         if (effectiveSaved('purchase') || buffer.selections.purchase) setSwitchTo(product)
         else switchProduct(product)
       }}>{Object.values(products).map(product => <option key={product.id} value={product.id}>{product.name[language]}</option>)}</select>{buffer.purchaseRemoved && <p role="status">{a('stagedRemoval')}</p>}</>}
-      {step !== 'documents' && step !== 'review' && stepFields[step].map(renderField)}
-      {step === 'documents' && slots.map(slot => {
+      {corrections ? targetFields.map(renderField) : step !== 'documents' && step !== 'review' && stepFields[step].map(renderField)}
+      {(corrections ? targetSlots : step === 'documents' ? slots : []).map(slot => {
         const selection = buffer.selections[slot]
         const savedFile = effectiveSaved(slot)
         const available = samples.filter(sample => sample.slot === slot && (slot !== 'purchase' || sample.product === buffer.product))
@@ -301,17 +320,17 @@ export function DraftEditor({ demo, view, context, language, retained, remember,
           {available.length === 0 && <button disabled={locked} onClick={() => prepare(slot, { kind: 'generated', fields: { ...buffer.fields } }, documentLabel(slot, buffer.product)[language])}>{t('useSample')}</button>}
           {available.length > 0 && <div className="sample-picker my-4 flex flex-wrap items-center gap-3"><label htmlFor={`${slot}-sample`}>{t('sample')}</label><select id={`${slot}-sample`} value={sampleId} onChange={event => setSampleIds({ ...sampleIds, [slot]: event.target.value })}>{available.map(sample => <option key={sample.id} value={sample.id}>{sample.variant === 'identical' ? language === 'ar' ? 'محتوى مطابق باسم آخر' : 'Identical content, another name' : sample.variant === 'original' ? documentLabel(slot, buffer.product)[language] : sample.variant}</option>)}</select><button disabled={!sampleId || locked} onClick={() => prepare(slot, { kind: 'sample', sampleId }, documentLabel(slot, buffer.product)[language])}>{t('useSample')}</button></div>}
           {selection && <div className="draft-feedback"><p><bdi dir="ltr" className="wrap-anywhere">{selection.name}</bdi>{selection.attachment && <small><bdi dir="ltr">{selection.attachment.mime} · {selection.attachment.size} B</bdi></small>}</p><p role="status">{t(selection.status === 'ready' ? 'ready' : selection.status === 'failed' ? 'preparationFailed' : 'preparing')}</p>{selection.status === 'preparing' && <progress max={100} value={selection.progress} aria-label={t('preparing')}>{selection.progress}%</progress>}{selection.error && <p id={`${slot}-preparation-error`} role="alert">{errors[selection.error][language]}</p>}<div className="actions">{selection.status === 'failed' && <button disabled={locked} onClick={() => prepare(slot, selection.source, selection.name)}>{t('retryPreparation')}</button>}{selection.status === 'ready' && <button onClick={() => setPreview({ slot, kind: 'ready' })}>{t('previewReady')}</button>}<button disabled={locked} onClick={() => discardSelection(slot)}>{t('discardSelection')}</button></div></div>}
-          {savedFile ? <div className="draft-feedback"><p>{text.savedInDraft[language]}: <bdi dir="ltr" className="wrap-anywhere">{savedFile.name}</bdi><small><bdi dir="ltr">{savedFile.mime} · {savedFile.size} B</bdi></small></p><button onClick={() => setPreview({ slot, kind: 'saved' })}>{t('previewSaved')}</button></div> : <p>{text.missing[language]}</p>}
+          {savedFile ? <div className="draft-feedback"><p>{corrections ? c('saved') : text.savedInDraft[language]}: <bdi dir="ltr" className="wrap-anywhere">{savedFile.name}</bdi><small><bdi dir="ltr">{savedFile.mime} · {savedFile.size} B</bdi></small></p><button onClick={() => setPreview({ slot, kind: 'saved' })}>{t('previewSaved')}</button></div> : <p>{text.missing[language]}</p>}
         </section>
       })}
-      {step === 'review' && <><p>{a('reviewHint')}</p><h3>{products[buffer.product].name[language]}</h3><dl className="facts information">{Object.entries(buffer.fields).map(([key, value]) => <div key={key}><dt>{fieldLabels[key as keyof Fields][language]}</dt><dd><bdi dir={['mobile', 'email', 'operatingSince', 'amount', 'term', 'revenue', 'expenses', 'budget'].includes(key) ? 'ltr' : undefined}>{key === 'activity' ? activities[buffer.fields.activity]?.[language] : displayFieldValue(key as keyof Fields, value, language)}</bdi></dd></div>)}</dl><ul>{slots.map(slot => <li key={slot}>{documentLabel(slot, buffer.product)[language]}: <bdi dir="ltr">{buffer.selections[slot]?.name ?? effectiveSaved(slot)?.name ?? text.missing[language]}</bdi>{buffer.selections[slot] && <span> · {t(buffer.selections[slot]?.status === 'ready' ? 'ready' : buffer.selections[slot]?.status === 'preparing' ? 'preparing' : 'preparationFailed')}</span>}</li>)}</ul><button onClick={() => { setChecked(true); requestAnimationFrame(() => document.getElementById('validation-summary')?.focus()) }}>{a('check')}</button>{checked && !shownIssues && <p role="status">{a('valid')}</p>}<button disabled={locked || inspecting || conflict} onClick={() => void submit()}>{a('submit')}</button></>}
-      <div className="actions">{step !== 'personal' && <button onClick={() => changeStep(applicationSteps[applicationSteps.indexOf(step) - 1])}>{a('previous')}</button>}{step !== 'review' && <button onClick={() => changeStep(applicationSteps[applicationSteps.indexOf(step) + 1])}>{a('next')}</button>}</div>
+      {(corrections || step === 'review') && <><h3>{corrections ? c('summary') : a('review')}</h3><p>{a('reviewHint')}</p><h3>{products[buffer.product].name[language]}</h3><dl className="facts information">{Object.entries(buffer.fields).map(([key, value]) => <div key={key}><dt>{fieldLabels[key as keyof Fields][language]}</dt><dd><bdi dir={['mobile', 'email', 'operatingSince', 'amount', 'term', 'revenue', 'expenses', 'budget'].includes(key) ? 'ltr' : undefined}>{key === 'activity' ? activities[buffer.fields.activity]?.[language] : displayFieldValue(key as keyof Fields, value, language)}</bdi></dd></div>)}</dl><ul>{slots.map(slot => <li key={slot}>{documentLabel(slot, buffer.product)[language]}: <bdi dir="ltr">{buffer.selections[slot]?.name ?? effectiveSaved(slot)?.name ?? text.missing[language]}</bdi>{buffer.selections[slot] && <span> · {t(buffer.selections[slot]?.status === 'ready' ? 'ready' : buffer.selections[slot]?.status === 'preparing' ? 'preparing' : 'preparationFailed')}</span>}</li>)}</ul><button onClick={() => { setChecked(true); requestAnimationFrame(() => document.getElementById('validation-summary')?.focus()) }}>{a('check')}</button>{checked && !shownIssues && <p role="status">{a('valid')}</p>}{!corrections && <button disabled={locked || inspecting || conflict} onClick={() => void submit()}>{a('submit')}</button>}</>}
+      <div className="actions">{!corrections && step !== 'personal' && <button onClick={() => changeStep(applicationSteps[applicationSteps.indexOf(step) - 1])}>{a('previous')}</button>}{!corrections && step !== 'review' && <button onClick={() => changeStep(applicationSteps[applicationSteps.indexOf(step) + 1])}>{a('next')}</button>}</div>
     </div><aside className="summary self-start"><h2>{products[buffer.product].name[language]}</h2><p>{products[buffer.product].purpose[language]}</p><p><bdi dir="ltr">{money(products[buffer.product].minimum, language)} / {money(products[buffer.product].maximum, language)}</bdi></p><p><bdi dir="ltr">{products[buffer.product].terms.join(' / ')}</bdi> {text.months[language]}</p><p>{text.markup[language]}: <bdi dir="ltr">{products[buffer.product].markupPercent}%</bdi>. {a('once')}</p><p>{a('eligibility')}</p></aside></div>
     <div className="draft-feedback"><p role="status">{buffer.status === 'saving' && buffer.pending?.kind === 'submit' ? a('submitting') : buffer.status === 'unknown' && buffer.pending?.kind === 'submit' ? a('submissionUnknown') : buffer.status === 'failed' && buffer.pending?.kind === 'submit' ? a('submissionFailed') : t(buffer.status)}</p><p>{t('lastSave')}: <bdi>{savedAt ? new Intl.DateTimeFormat(language === 'ar' ? 'ar-u-nu-latn' : 'en-GB', { dateStyle: 'medium', timeStyle: 'medium' }).format(new Date(savedAt)) : a('noSave')}</bdi></p></div>
     {buffer.error && <p role="alert">{buffer.pending?.kind === 'submit' && buffer.error === 'requestFailed' ? a('submissionFailed') : buffer.pending?.kind === 'submit' && buffer.error === 'outcomeUnknown' ? a('submissionUnknown') : errors[buffer.error][language]}</p>}
     {buffer.status === 'unknown' ? <button disabled={inspecting} onClick={() => void inspectOutcome()}>{buffer.pending?.kind === 'submit' ? a('inspectSubmission') : t('inspectOutcome')}</button> : <button disabled={buffer.status === 'saving' || inspecting || conflict} onClick={() => void save()}>{t('save')}</button>}
-    {conflict && <div className="summary"><p role="status">{t('newer')}</p><button disabled={inspecting || buffer.status === 'saving'} onClick={() => void inspectLatest()}>{t('loadLatest')}</button>{latest && <><p>{t('latestExplanation')}: {latest.snapshot.fields.explanation || text.emptyExplanation[language]}</p><dl className="facts">{Object.entries(latest.snapshot.fields).map(([field, value]) => <div key={field}><dt>{fieldLabels[field as keyof Fields][language]}</dt><dd>{value}</dd></div>)}</dl><p>{products[latest.product].name[language]}</p>{latest.documents.map(document => <p key={document.slot}>{documentLabel(document.slot, latest.product)[language]}: {document.file?.name ?? text.missing[language]}</p>)}<button ref={reapplyControl} onClick={() => { if (latest.product !== state.current.product && latest.snapshot.documents.purchase) setReapplyConfirmation(latest); else applyLatest(latest) }}>{t('reapply')}</button></>}</div>}
-    <details className="draft-feedback demo-controls"><summary>{t('controls')}</summary><p>{t('controlScope')}</p><label><input type="checkbox" checked={controls.slow} onChange={event => { demo.setControls({ ...controls, slow: event.target.checked }); redrawControls(value => value + 1) }} />{t('slow')}</label><p>{t(controls.slow ? 'slowTiming' : 'normalTiming')}</p><label htmlFor="next-failure">{t('nextFailure')}</label><select id="next-failure" value={controls.failure ?? ''} onChange={event => { demo.setControls({ ...controls, failure: event.target.value ? event.target.value as Controls['failure'] : null }); redrawControls(value => value + 1) }}><option value="">{t('none')}</option><option value="upload">{t('uploadFailure')}</option><option value="save">{t('saveFailure')}</option><option value="submission">{a('submissionFailure')}</option><option value="storage">{t('storageFailure')}</option></select></details>
+    {conflict && <div className="summary"><p role="status">{corrections ? c('newer') : t('newer')}</p><button disabled={inspecting || buffer.status === 'saving'} onClick={() => void inspectLatest()}>{corrections ? c('inspect') : t('loadLatest')}</button>{latest && <><p>{t('latestExplanation')}: {latest.snapshot.fields.explanation || text.emptyExplanation[language]}</p><dl className="facts">{Object.entries(latest.snapshot.fields).map(([field, value]) => <div key={field}><dt>{fieldLabels[field as keyof Fields][language]}</dt><dd>{value}</dd></div>)}</dl><p>{products[latest.product].name[language]}</p>{latest.documents.map(document => <p key={document.slot}>{documentLabel(document.slot, latest.product)[language]}: {document.file?.name ?? text.missing[language]}</p>)}<button ref={reapplyControl} onClick={() => { if (latest.product !== state.current.product && latest.snapshot.documents.purchase) setReapplyConfirmation(latest); else applyLatest(latest) }}>{t('reapply')}</button></>}</div>}
+    <details className="draft-feedback demo-controls"><summary>{t('controls')}</summary><p>{t('controlScope')}</p><label><input type="checkbox" checked={controls.slow} onChange={event => { demo.setControls({ ...controls, slow: event.target.checked }); redrawControls(value => value + 1) }} />{t('slow')}</label><p>{t(controls.slow ? 'slowTiming' : 'normalTiming')}</p><label htmlFor="next-failure">{t('nextFailure')}</label><select id="next-failure" value={controls.failure ?? ''} onChange={event => { demo.setControls({ ...controls, failure: event.target.value ? event.target.value as Controls['failure'] : null }); redrawControls(value => value + 1) }}><option value="">{t('none')}</option><option value="upload">{t('uploadFailure')}</option><option value="save">{t('saveFailure')}</option>{!corrections && <option value="submission">{a('submissionFailure')}</option>}<option value="storage">{t('storageFailure')}</option></select></details>
     {preview && <DocumentPreview demo={demo} applicationId={view.id} fileId={preview.kind === 'saved' ? effectiveSaved(preview.slot)?.id : undefined} attachment={preview.kind === 'ready' ? buffer.selections[preview.slot]?.attachment : undefined} language={language} close={() => setPreview(null)} />}
     {(switchTo || reapplyConfirmation) && <dialog ref={switchDialog} className="w-[650px]" aria-labelledby="switch-heading" onCancel={cancelSwitch}><h2 id="switch-heading">{a('switchTitle')}</h2><p>{documentLabel('purchase', reapplyConfirmation?.product ?? buffer.product)[language]}</p><p>{a('switchHint')}</p><div className="actions"><button onClick={cancelSwitch}>{a('cancel')}</button><button onClick={() => { if (reapplyConfirmation) applyLatest(reapplyConfirmation); else if (switchTo) switchProduct(switchTo) }}>{a('confirmSwitch')}</button></div></dialog>}
   </section>

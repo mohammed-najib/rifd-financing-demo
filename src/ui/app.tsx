@@ -18,6 +18,7 @@ import { queueText } from './queue-copy'
 import { ReviewWorkspace, reviewDirty, type ReviewBuffer } from './review'
 import { CorrectionRequest, correctionDirty, type CorrectionBuffer } from './correction-request'
 import { correctionText } from './correction-copy'
+import { responseText } from './correction-response'
 
 type Screen = { kind: 'home' | 'chooser' | 'products' | 'applicantList' | 'staffList' | 'newDraft' | 'unavailable' | 'notifications' } | { kind: 'applicantDetail' | 'staffDetail' | 'staffRequest' | 'applicantPrint' | 'staffPrint'; id: string }
 function resolveScreen(path: string): Screen {
@@ -201,7 +202,12 @@ export function App() {
         if (!active) return
         if (result.ok) {
           setView(result.value)
-          if (path.endsWith('/corrections/current') && result.value.status !== 'correctionsRequested') {
+          const retained = draftBuffers.current.get(`${context.datasetId}/${identityId}/${result.value.id}`)
+          const retainedRound = retained && draftDirty(retained) ? retained.baseline : undefined
+          const currentRound = result.value.role === 'applicant' ? result.value.workspace?.roundId : null
+          const obsoleteRound = typeof search.round === 'string' && search.round !== currentRound || retainedRound?.role === 'applicant' && retainedRound.workspace?.roundId && retainedRound.workspace.roundId !== currentRound
+          if (path.endsWith('/corrections/current') && (result.value.status !== 'correctionsRequested' || obsoleteRound)) {
+            departure.current = null
             setResolvedCorrectionId(result.value.id)
             void navigate({ to: '/$', params: { _splat: `applications/${result.value.id}` }, search: {}, ignoreBlocker: true })
           }
@@ -216,7 +222,7 @@ export function App() {
     } else setLoadedPath(path)
     return () => { active = false }
     // Preferences do not change the record read or revoke the current identity.
-  }, [path, sessionId, identityId, reload, demo, navigate])
+  }, [path, search.round, sessionId, identityId, reload, demo, navigate])
 
   const routeReady = !!context && (screen.kind === 'chooser' || screen.kind === 'products' || !identity || loadedPath === path)
   useEffect(() => {
@@ -349,9 +355,9 @@ export function App() {
           : printSummary ? <PrintApplication summary={printSummary} language={language} staff={screen.kind === 'staffPrint'} queueSearch={screen.kind === 'staffPrint' ? searchStr : ''} go={go} />
           : screen.kind === 'staffList' && context ? <StaffApplicationQueue key={`${context.datasetId}/${identityId}/${sessionId}`} demo={demo} context={context} language={language} input={search} href={href} reload={reload} go={go} acceptContext={acceptContext} />
           : list ? <ApplicationList list={list} language={language} go={go} />
-          : view ? <ApplicationDetail key={`${context?.datasetId}/${identityId}/${sessionId}/${view.id}`} demo={demo} view={view} language={language} queueSearch={['staffDetail', 'staffRequest'].includes(screen.kind) ? searchStr : ''} requesting={screen.kind === 'staffRequest'} confirmed={submittedId === view.id} redirectedCorrection={resolvedCorrectionId === view.id} go={go}>{view.role === 'reviewer' && context && screen.kind === 'staffRequest' && <CorrectionRequest demo={demo} datasetId={context.datasetId} view={view} language={language} queueSearch={searchStr} go={go} retained={correctionBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => correctionBuffers.current.set(`${context.datasetId}/${identityId}/${view.id}`, buffer)} changed={setView} departure={value => { departure.current = value; refreshDeparture(value => value + 1) }} />}{view.role === 'reviewer' && context && screen.kind !== 'staffRequest' && <ReviewWorkspace demo={demo} datasetId={context.datasetId} view={view} language={language} retained={reviewBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => reviewBuffers.current.set(`${context.datasetId}/${identityId}/${view.id}`, buffer)} changed={setView} departure={value => { departure.current = value; refreshDeparture(value => value + 1) }} />}{view.role === 'applicant' && view.status === 'draft' && context && <DraftEditor demo={demo} view={view} context={context} language={language} step={step} changeStep={step => { void go(`${path}?${screen.kind === 'newDraft' ? `product=${chosenProduct}&` : ''}step=${step}`) }} retained={draftBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => draftBuffers.current.set(`${context.datasetId}/${identityId}/${view.id}`, buffer)} savedView={application => {
+          : view ? <ApplicationDetail key={`${context?.datasetId}/${identityId}/${sessionId}/${view.id}`} demo={demo} view={view} language={language} queueSearch={['staffDetail', 'staffRequest'].includes(screen.kind) ? searchStr : ''} requesting={screen.kind === 'staffRequest'} confirmed={submittedId === view.id} redirectedCorrection={resolvedCorrectionId === view.id} go={go}>{view.role === 'reviewer' && context && screen.kind === 'staffRequest' && <CorrectionRequest demo={demo} datasetId={context.datasetId} view={view} language={language} queueSearch={searchStr} go={go} retained={correctionBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => correctionBuffers.current.set(`${context.datasetId}/${identityId}/${view.id}`, buffer)} changed={setView} departure={value => { departure.current = value; refreshDeparture(value => value + 1) }} />}{view.role === 'reviewer' && context && screen.kind !== 'staffRequest' && <ReviewWorkspace demo={demo} datasetId={context.datasetId} view={view} language={language} retained={reviewBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => reviewBuffers.current.set(`${context.datasetId}/${identityId}/${view.id}`, buffer)} changed={setView} departure={value => { departure.current = value; refreshDeparture(value => value + 1) }} />}{view.role === 'applicant' && (view.status === 'draft' || view.status === 'correctionsRequested' && path.endsWith('/corrections/current')) && context && <DraftEditor demo={demo} view={view} context={context} language={language} step={step} changeStep={step => { void go(`${path}?${screen.kind === 'newDraft' ? `product=${chosenProduct}&` : ''}step=${step}`) }} retained={draftBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => draftBuffers.current.set(`${context.datasetId}/${identityId}/${view.id}`, buffer)} savedView={application => {
             setView(application)
-            if (application.status !== 'draft') {
+            if (application.status !== 'draft' && application.status !== 'correctionsRequested') {
               draftBuffers.current.delete(`${context.datasetId}/${identityId}/${application.id}`)
               departure.current = null; newDraftId.current = null
               setSubmittedId(application.id)
@@ -360,7 +366,7 @@ export function App() {
             }
             // Saving names the same editor's durable route; it does not leave its buffer.
             if (screen.kind === 'newDraft') void navigate({ to: '/$', params: { _splat: `applications/${application.id}/edit` }, search: { step }, ignoreBlocker: true })
-          }} departure={value => { departure.current = value; refreshDeparture(value => value + 1) }} />}{view.role === 'applicant' && view.status !== 'draft' && context && (() => {
+          }} departure={value => { departure.current = value; refreshDeparture(value => value + 1) }} />}{view.role === 'applicant' && view.status !== 'draft' && !path.endsWith('/corrections/current') && context && (() => {
             const key = `${context.datasetId}/${identityId}/${view.id}`
             const buffer = draftBuffers.current.get(key)
             return buffer && draftDirty(buffer) ? <RetainedDraft demo={demo} buffer={buffer} language={language} discard={() => { draftBuffers.current.delete(key); refreshDeparture(value => value + 1) }} confirmed={() => { draftBuffers.current.delete(key); setSubmittedId(view.id); refreshDeparture(value => value + 1) }} /> : null
@@ -410,7 +416,7 @@ function ApplicationDetail({ demo, view, language, queueSearch, children, confir
       <section className="panel"><h2>{view.status === 'draft' ? t('savedInformation') : t('submittedInformation')}</h2><ApplicationInformation record={view} language={language} /></section>
       <section className="panel"><h2>{t('documents')}</h2><ul className="document-list">{view.documents.map(document => <li key={document.slot}><strong>{documentLabel(document.slot, view.product)[language]}</strong><p>{document.file ? <><bdi dir="ltr" className="wrap-anywhere">{document.file.name}</bdi><span className="text-[11px]"><bdi>{document.file.mime} · {new Intl.NumberFormat('en-US').format(document.file.size)} B</bdi></span><span>{view.status === 'draft' ? t('savedInDraft') : t('included')}</span></> : t('missing')}</p>{document.file && <button className="secondary" onClick={() => setPreviewFileId(document.file!.id)}>{language === 'ar' ? 'معاينة' : 'Preview'} {documentLabel(document.slot, view.product)[language]}</button>}</li>)}</ul></section>
       <PublicCorrections record={view} language={language} />
-      {view.role === 'applicant' && view.status === 'correctionsRequested' && view.workspace && <section className="summary"><h2>{t('privateWorkspace')}</h2><p>{t('privateUnchanged')}</p><p>{t('amount')}: <bdi dir="ltr">{money(view.workspace.snapshot.fields.amount, language)}</bdi></p></section>}
+      {view.role === 'applicant' && view.status === 'correctionsRequested' && view.workspace && <section className="summary"><h2>{t('privateWorkspace')}</h2><p>{responseText.private[language]}</p><a className="button" href={`/applications/${view.id}/corrections/current?round=${view.workspace.roundId}`} onClick={event => { event.preventDefault(); go(`/applications/${view.id}/corrections/current?round=${view.workspace!.roundId}`) }}>{responseText.open[language]}</a><p>{t('amount')}: <bdi dir="ltr">{money(view.workspace.snapshot.fields.amount, language)}</bdi></p></section>}
       <PublicHistory history={view.history} language={language} />
     </div><div>
       <section className="summary"><h2>{products[view.product].name[language]}</h2><dl className="facts"><div><dt>{t('amount')}</dt><dd><bdi dir="ltr">{money(fields.amount, language)}</bdi></dd></div><div><dt>{t('term')}</dt><dd><bdi>{displayFieldValue('term', fields.term, language)}</bdi> {t('months')}</dd></div><div><dt>{t('submittedAt')}</dt><dd><bdi>{view.submittedAt ? date(view.submittedAt, language) : t('notSubmitted')}</bdi></dd></div></dl></section>

@@ -35,6 +35,7 @@ export const saveDraftSchema = z.object({
   documents: z.object({ identity: documentSchema, business: documentSchema, financial: documentSchema, purchase: documentSchema }).strict(),
 }).strict()
 export const submitSchema = saveDraftSchema.extend({ kind: z.literal('submit'), expectedSharedRevision: z.number().int().positive() }).strict()
+export const saveCorrectionsSchema = saveDraftSchema.extend({ kind: z.literal('saveCorrections'), roundId: z.string().min(1) }).strict()
 const reviewVersion = {
   datasetId: z.string().uuid(), operationId: z.string().min(1), applicationId: z.string().min(1), expectedSharedRevision: z.number().int().positive(),
 }
@@ -47,8 +48,8 @@ export const reviewOperationSchema = z.discriminatedUnion('kind', [z.object({
   z.object({ ...reviewVersion, kind: z.literal('saveNote'), text: bilingualSchema }).strict(),
   z.object({ ...reviewVersion, kind: z.literal('requestCorrections'), targets: correctionTargetsSchema, confirmed: z.literal(true) }).strict(),
 ])
-export const applicationOperationSchema = z.discriminatedUnion('kind', [saveDraftSchema, submitSchema])
-export const applicationMutationSchema = z.discriminatedUnion('kind', [saveDraftSchema, submitSchema, reviewOperationSchema])
+export const applicationOperationSchema = z.discriminatedUnion('kind', [saveDraftSchema, submitSchema, saveCorrectionsSchema])
+export const applicationMutationSchema = z.discriminatedUnion('kind', [saveDraftSchema, submitSchema, saveCorrectionsSchema, reviewOperationSchema])
 export const preparationSchema = z.object({
   datasetId: z.string().uuid(), applicationId: z.string().min(1), slot: slotSchema, selectionId: z.string().min(1),
   product: productIdSchema.optional(),
@@ -69,6 +70,7 @@ export function applicationFingerprint(operation: ApplicationMutation): string {
     : { kind: operation.kind, applicationId: operation.applicationId })
   return JSON.stringify({
     kind: operation.kind, applicationId: operation.applicationId, product: operation.product,
+    ...('roundId' in operation ? { roundId: operation.roundId } : {}),
     fields: operation.fields,
     documents: slots.map(slot => {
       const document = operation.documents[slot]

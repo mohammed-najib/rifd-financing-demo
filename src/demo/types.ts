@@ -31,7 +31,7 @@ export type CommonView = {
 export type PublicRound = Omit<Application['rounds'][number], 'targets'> & {
   targets: CorrectionTarget[];
 }
-export type ApplicantView = CommonView & { role: 'applicant'; workspace: Application['workspace']; rounds: PublicRound[] }
+export type ApplicantView = CommonView & { role: 'applicant'; workspace: Application['workspace']; workspaceDocuments: DocumentView[]; rounds: PublicRound[] }
 export type StaffView = CommonView & {
   role: 'reviewer'; assignment: Bilingual | null; assignedToYou: boolean;
   permissions: ReturnType<typeof reviewPermissions>;
@@ -65,6 +65,7 @@ export type SaveDraftOperation = {
   expectedWorkspaceRevision: number; product: ProductId; fields: Fields; documents: DraftDocuments;
 }
 export type SubmitOperation = Omit<SaveDraftOperation, 'kind'> & { kind: 'submit'; expectedSharedRevision: number }
+export type SaveCorrectionsOperation = Omit<SaveDraftOperation, 'kind'> & { kind: 'saveCorrections'; roundId: string }
 export type ReviewOperation = {
   datasetId: string; operationId: string; applicationId: string; expectedSharedRevision: number;
 } & ({ kind: 'claimApplication' | 'startReview' | 'unassignApplication' } | { kind: 'transferApplication'; from: 'salma' | 'khaled'; to: 'salma' | 'khaled'; confirmed: true }
@@ -72,7 +73,7 @@ export type ReviewOperation = {
   | { kind: 'recordCheck'; check: ReviewCheck; outcome: 'unchecked' | 'passed' | 'failed' }
   | { kind: 'saveNote'; text: Bilingual }
   | { kind: 'requestCorrections'; targets: CorrectionTarget[]; confirmed: true })
-export type ApplicationOperation = SaveDraftOperation | SubmitOperation
+export type ApplicationOperation = SaveDraftOperation | SubmitOperation | SaveCorrectionsOperation
 export type ApplicationMutation = ApplicationOperation | ReviewOperation
 export type DemoOperation = PreferenceOperation | ApplicationMutation | NotificationReadOperation
 export type MutationResult = { receipt: MutationReceipt; application: ApplicationView }
@@ -95,6 +96,7 @@ export type Demo = {
   execute(operation: PreferenceOperation): Promise<Result<Context>>;
   execute(operation: SaveDraftOperation): Promise<Result<MutationResult>>;
   execute(operation: SubmitOperation): Promise<Result<MutationResult>>;
+  execute(operation: SaveCorrectionsOperation): Promise<Result<MutationResult>>;
   execute(operation: ReviewOperation): Promise<Result<MutationResult>>;
   execute(operation: ApplicationOperation): Promise<Result<MutationResult>>;
   execute(operation: NotificationReadOperation): Promise<Result<NotificationReadResult>>;

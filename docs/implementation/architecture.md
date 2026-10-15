@@ -1,6 +1,6 @@
 # Browser demo architecture
 
-The [specification](../../.scratch/financing-application-and-review/spec.md) and [accepted browser contract](../../.scratch/financing-application-and-review/issues/04-browser-state-and-simulated-failures.md#answer) govern the implementation. The first eleven slices provide startup, authorized reads, canonical field validation, five-step drafts, session and tab recovery, atomic first submission, notifications, printing, the staff queue, assignment, review start, document assessments, checks, internal notes and targeted correction requests. Later tickets extend the same boundaries for correction publication and decisions.
+The [specification](../../.scratch/financing-application-and-review/spec.md) and [accepted browser contract](../../.scratch/financing-application-and-review/issues/04-browser-state-and-simulated-failures.md#answer) govern the implementation. The first twelve slices provide startup, authorized reads, canonical field validation, five-step drafts, session and tab recovery, atomic first submission, notifications, printing, the staff queue, assignment, review start, document assessments, checks, internal notes targeted correction requests and private correction responses. Later tickets extend the same boundaries for correction publication and decisions.
 
 ## Modules
 
@@ -59,6 +59,22 @@ Inspection resolves uncertain outcomes or establishes a fresh revision without
 sending. Departure never sends or saves a request. Applicant detail, history and
 print reuse the public target projection and exclude verification and notes.
 
+`saveCorrections` carries the application, active round, private workspace revision,
+raw fields, fixed product and saved/prepared document choices. It shares the atomic
+progress-save transaction, failure controls and receipt inspection with drafts.
+The transaction checks current ownership, active state/round and target permissions.
+Unrequested raw fields and document references must match the fixed round baseline.
+Private saves update only workspace revision/time, its snapshot, ready file bytes
+and the receipt. They do not compare or increment the shared revision, so notes
+and reassignment cannot invalidate an otherwise current private save.
+
+Applicant projections expose private workspace document metadata separately from
+submitted documents. Staff and print projections omit it. The shared editor uses
+that explicit workspace projection for correction edits, saved previews, reload,
+conflict inspection and retained input. Its correction mode shows only requested
+controls and a read-only response summary beside the public submitted record.
+Round-bound links and retained buffers cannot reopen an obsolete workspace.
+
 ## Styling
 
 Tailwind CSS 4.3.3 runs through the dedicated Vite plugin in the application and browser API harness. The shared stylesheet defines Guided A theme tokens, retained base defaults and reusable component skins. Screen layouts use utilities with explicit status-class maps. Source detection covers `src`; archived prototypes and documentation do not contribute utilities.
@@ -99,7 +115,7 @@ Committed-change broadcasts and the storage-event fallback use the same public `
 
 | Hint kind | Revision scope | Operations using that scope |
 | --- | --- | --- |
-| `workspace` | Private workspace revision | Draft saves now; correction progress saves extend the same scope with active-round validation |
+| `workspace` | Private workspace revision | Draft and correction progress saves; correction saves validate the active round |
 | `application` | Shared application revision | Submission now; subsequent assignment, queue and review operations |
 | `preferences` | Independent preference revision | Language and saved queue filters/sort |
 

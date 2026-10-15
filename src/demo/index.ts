@@ -8,8 +8,9 @@ import { prepareSeed } from './seed'
 import { DemoError, openStorage, readStored, transact, validateDataset } from './storage'
 import { projectQueue } from './queue'
 import { applyReviewCommand, validateReviewCommand } from './review'
-import type { ApplicantView, ApplicationMutation, ApplicationOperation, ApplicationView, CommitHint, Context, Controls, Demo, ErrorKind, LanguageOperation, MutationResult, NotificationReadOperation, NotificationReadResult, PreferenceOperation, PreparedAttachment, QueuePreferenceOperation, Result, ReviewOperation, SaveDraftOperation, Session, SubmitOperation } from './types'
-export type { ApplicationOperation, ApplicationSummary, ApplicationView, CommitHint, Context, Controls, Demo, DemoOperation, DraftDocuments, ErrorKind, LanguageOperation, MutationResult, NotificationDestination, NotificationReadOperation, NotificationReadResult, OperationInspection, PreferenceInspection, PreferenceOperation, PreparedAttachment, Preparation, PrintSummary, QueuePreferenceOperation, QueueQuery, StaffQueue, Result, ReviewOperation, SaveDraftOperation, SubmitOperation } from './types'
+import { correctionDocument, validateCorrectionSave } from './corrections'
+import type { ApplicantView, ApplicationMutation, ApplicationOperation, ApplicationView, CommitHint, Context, Controls, Demo, ErrorKind, LanguageOperation, MutationResult, NotificationReadOperation, NotificationReadResult, PreferenceOperation, PreparedAttachment, QueuePreferenceOperation, Result, ReviewOperation, SaveCorrectionsOperation, SaveDraftOperation, Session, SubmitOperation } from './types'
+export type { ApplicationOperation, ApplicationSummary, ApplicationView, CommitHint, Context, Controls, Demo, DemoOperation, DraftDocuments, ErrorKind, LanguageOperation, MutationResult, NotificationDestination, NotificationReadOperation, NotificationReadResult, OperationInspection, PreferenceInspection, PreferenceOperation, PreparedAttachment, Preparation, PrintSummary, QueuePreferenceOperation, QueueQuery, StaffQueue, Result, ReviewOperation, SaveCorrectionsOperation, SaveDraftOperation, SubmitOperation } from './types'
 
 const sessionSchema = z.object({ identity: actorIdSchema, datasetId: z.string().uuid(), sessionId: z.string().uuid(), lastActivity: z.number(), expiresAt: z.number() })
 const sessionKey = 'rifd.session.v1'
@@ -169,6 +170,10 @@ export function createDemo(): Demo {
       ? { ...common, role: 'reviewer', rounds: application.rounds, assignment: data.identities.find(identity => identity.id === application.assignee)?.name ?? null, assignedToYou: application.assignee === who, permissions: reviewPermissions(who, application), assessments: application.assessments, checks: application.checks, notes: application.notes, activity: application.activity }
       : {
         ...common, role: 'applicant', workspace: application.workspace,
+        workspaceDocuments: slots.map(slot => {
+          const file = data.files.find(file => file.id === application.workspace?.snapshot.documents[slot])
+          return { slot, file: file ? { id: file.id, name: file.name, mime: file.mime, size: file.size, hash: file.hash } : null }
+        }),
         rounds: application.rounds.map(round => ({
           ...round,
           targets: round.targets.map(target => target.kind === 'field'
@@ -215,6 +220,7 @@ export function createDemo(): Demo {
   async function execute(operation: PreferenceOperation): Promise<Result<Context>>
   async function execute(operation: SaveDraftOperation): Promise<Result<MutationResult>>
   async function execute(operation: SubmitOperation): Promise<Result<MutationResult>>
+  async function execute(operation: SaveCorrectionsOperation): Promise<Result<MutationResult>>
   async function execute(operation: ReviewOperation): Promise<Result<MutationResult>>
   async function execute(operation: ApplicationOperation): Promise<Result<MutationResult>>
   async function execute(operation: NotificationReadOperation): Promise<Result<NotificationReadResult>>
@@ -314,7 +320,7 @@ export function createDemo(): Demo {
       if (changed) announce({ datasetId: data.meta.datasetId, kind: 'notification', notificationId: current.notification.id, revision: current.notification.revision })
       return { ...current, receipt: { operationId: receipt.operationId, revision: receipt.revision } }
     })
-    if (operation.kind === 'saveDraft' || operation.kind === 'submit') return attempt(async () => {
+    if (operation.kind === 'saveDraft' || operation.kind === 'submit' || operation.kind === 'saveCorrections') return attempt(async () => {
       const who = actor()
       const captured = generation
       const parsed = applicationOperationSchema.safeParse(operation)
@@ -342,7 +348,9 @@ export function createDemo(): Demo {
         if (application.workspace?.revision !== command.expectedWorkspaceRevision) throw new DemoError('staleWorkspace')
         if (command.kind === 'submit' && application.sharedRevision !== command.expectedSharedRevision) throw new DemoError('staleRecord')
         if (application.owner !== who) throw new DemoError('permissionDenied')
-        if (application.status !== 'draft' || !application.workspace) throw new DemoError('invalidState')
+        if (command.kind === 'saveCorrections') validateCorrectionSave(application, command)
+        else if (application.status !== 'draft') throw new DemoError('invalidState')
+        if (!application.workspace) throw new DemoError('invalidState')
         if (application.product !== command.product && command.documents.purchase.kind === 'saved' && command.documents.purchase.fileId !== null) throw new DemoError('validation', 'purchase')
         if (!original) current.applications.push(application)
         const documents = { ...application.workspace.snapshot.documents }
@@ -403,7 +411,7 @@ export function createDemo(): Demo {
       const receipt = data.mutationReceipts.find(receipt => receipt.actor === who && receipt.operationId === command.operationId)!
       if (!replay) {
         newDrafts.delete(command.applicationId)
-        announce({ datasetId: receipt.datasetId, kind: command.kind === 'submit' ? 'application' : 'workspace', applicationId: command.applicationId, revision: 'workspaceRevision' in receipt && command.kind === 'saveDraft' ? receipt.workspaceRevision : receipt.sharedRevision })
+        announce({ datasetId: receipt.datasetId, kind: command.kind === 'submit' ? 'application' : 'workspace', applicationId: command.applicationId, revision: 'workspaceRevision' in receipt && command.kind !== 'submit' ? receipt.workspaceRevision : receipt.sharedRevision })
       }
       return { receipt, application: project(data, who, permitted(data, who, command.applicationId)) }
     })
@@ -504,7 +512,8 @@ export function createDemo(): Demo {
         authority(captured, who, command.datasetId, data)
         const application = editable(data, who, command.applicationId)
         if (application.owner !== who) throw new DemoError('permissionDenied')
-        if (application.status !== 'draft') throw new DemoError('invalidState')
+        const round = application.status === 'draft' ? null : correctionDocument(application, command.slot)
+        if (round && command.product && command.product !== application.product) throw new DemoError('permissionDenied')
         const source = command.source
         const sample = source.kind === 'sample' ? data.catalog.find(sample => sample.applicationId === application.id && sample.slot === command.slot && sample.id === source.sampleId) : null
         if (sample && command.slot === 'purchase' && sample.product !== (command.product ?? application.product)) throw new DemoError('validation', command.slot)
@@ -534,7 +543,9 @@ export function createDemo(): Demo {
         const latest = await read()
         current(); authority(captured, who, command.datasetId, latest)
         const allowed = editable(latest, who, application.id)
-        if (allowed.status !== 'draft') throw new DemoError('invalidState')
+        if (round) {
+          if (correctionDocument(allowed, command.slot).id !== round.id) throw new DemoError('invalidState')
+        } else if (allowed.status !== 'draft') throw new DemoError('invalidState')
         const reference: PreparedAttachment = { id: file.id, name: file.name, mime: file.mime, size: file.size, hash: file.hash, source: source.kind === 'local' ? 'local' : 'sample' }
         preparations.set(reference.id, { actor: who, datasetId: command.datasetId, file, product: command.product ?? application.product, reference })
         progress(100)
@@ -552,6 +563,7 @@ export function createDemo(): Demo {
       const application = editable(data, who, id)
       const prepared = preparations.get(reference.id)
       if (!prepared || application.owner !== who) throw new DemoError('unavailable')
+      if (application.status !== 'draft') correctionDocument(application, prepared.file.slot)
       return fileResult(preparedFile(who, id, prepared.file.slot, reference))
     }),
     inspectOperation: input => {

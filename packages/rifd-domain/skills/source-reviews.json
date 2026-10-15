@@ -8,9 +8,9 @@
         "skills/validate-application/references/guide.md": "288e369bd278e23a4c00eec0a0af2097b29ca21a79eb5f3bc747d3f971ea1cd3",
         "src/application.ts": "77516299c9def5c06ad60aeaaaf5af2e943564a4dc01b9c079dd5788b350d710",
         "src/index.ts": "9ec20b92d2712f453992130e42e3d4a93e9e054a6047c77b8b3c26830654be32",
-        "src/model.ts": "bf3bdea8e285b352f9c02c5a2aaf2b9fa26a41e1aaeda412ad80395b984dd09a"
+        "src/model.ts": "ce532a53a90fbb6819035f3c74d300e19d44e3f42afc3317fe239263463bd73d"
       },
-      "reason": "Reviewed the correction-target schema, all editable field keys, and request permission and receipt additions against the field guide. Public-interface tests reject product and unknown targets, duplicates and empty reasons; field normalization and validation are unchanged."
+      "reason": "Reviewed the saveCorrections receipt addition against the field guide. Raw field parsing, validation and normalization are unchanged; integration tests verify incomplete correction saving and refusal of unrequested edits."
     },
     "freeze-repayment": {
       "version": "0.1.0",
@@ -18,9 +18,9 @@
       "sources": {
         "skills/freeze-repayment/references/guide.md": "25db52f5d929c0814ff99bc54046240b8bfca0b2694a529cadac07f54799ce9f",
         "src/index.ts": "9ec20b92d2712f453992130e42e3d4a93e9e054a6047c77b8b3c26830654be32",
-        "src/model.ts": "bf3bdea8e285b352f9c02c5a2aaf2b9fa26a41e1aaeda412ad80395b984dd09a"
+        "src/model.ts": "ce532a53a90fbb6819035f3c74d300e19d44e3f42afc3317fe239263463bd73d"
       },
-      "reason": "Reviewed the additive correction target, permission and receipt changes in model.ts and index.ts against the repayment guide. Repayment calculation is unchanged; focused tests pass for historical dates, half-up markup, remainder allocation and correction amounts."
+      "reason": "Reviewed the additive saveCorrections receipt kind in model.ts against the repayment guide. Repayment shapes and arithmetic are unchanged, and all 103 domain tests pass."
     }
   }
 }
