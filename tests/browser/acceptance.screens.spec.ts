@@ -234,3 +234,21 @@ for (const language of ['ar', 'en'] as const) test(`${language} a validation lin
     await expect(page.locator(`#${id}`)).toBeInViewport({ ratio: 1 })
   }
 })
+
+for (const language of ['ar', 'en'] as const) test(`${language} queue preference feedback keeps focus on the changed filter`, async ({ page }) => {
+  await page.goto('/staff/applications')
+  await expect(page.locator('[data-workspace-ready="true"]')).toBeVisible({ timeout: 60_000 })
+  if (language === 'en') await page.getByRole('button', { name: 'English', exact: true }).click()
+  await page.getByRole('button', { name: language === 'ar' ? 'سلمى ناصر' : 'Salma Nasser', exact: true }).click()
+  await expect(page.locator('[data-application]')).toHaveCount(5)
+  for (const [id, value] of [['queue-product', 'inventory'], ['queue-status', 'submitted'], ['queue-assignment', 'unassigned'], ['queue-sort', 'amountDesc']]) {
+    const control = page.locator(`#${id}`)
+    await control.focus(); await control.selectOption(value)
+    await expect(page.getByRole('status').filter({ hasText: language === 'ar' ? 'حُفظت عوامل التصفية والترتيب.' : 'Filters and sort saved.' })).toBeVisible()
+    await expect(control).toBeFocused()
+  }
+  const reset = page.getByRole('button', { name: language === 'ar' ? 'إعادة ضبط عوامل التصفية' : 'Reset filters', exact: true })
+  await reset.focus(); await page.keyboard.press('Enter')
+  await expect(page.getByRole('status').filter({ hasText: language === 'ar' ? 'حُفظت عوامل التصفية والترتيب.' : 'Filters and sort saved.' })).toBeVisible()
+  await expect(reset).toBeFocused()
+})
