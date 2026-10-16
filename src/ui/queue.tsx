@@ -119,9 +119,9 @@ export function StaffApplicationQueue({ demo, context, language, input, href, re
           : <EmptyQueue language={language} />)}
     </div>
     {queue && !readError && <nav className="actions" aria-label={q('pagination')}>
-      <button disabled={reading || queue.query.page <= 1} onClick={() => change({ page: queue.query.page - 1 })}>{q('previous')}</button>
+      <button aria-disabled={reading || queue.query.page <= 1} onClick={() => { if (!reading && queue.query.page > 1) change({ page: queue.query.page - 1 }) }}>{q('previous')}</button>
       <span>{language === 'ar' ? `الصفحة ${queue.query.page} من ${queue.pages}` : `Page ${queue.query.page} of ${queue.pages}`}</span>
-      <button disabled={reading || queue.query.page >= queue.pages} onClick={() => change({ page: queue.query.page + 1 })}>{q('next')}</button>
+      <button aria-disabled={reading || queue.query.page >= queue.pages} onClick={() => { if (!reading && queue.query.page < queue.pages) change({ page: queue.query.page + 1 }) }}>{q('next')}</button>
     </nav>}
   </>
 }

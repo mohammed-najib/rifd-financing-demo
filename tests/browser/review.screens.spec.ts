@@ -54,6 +54,7 @@ test('save note and leave navigates only after success and expiry retains a priv
   await note.fill('Retain this private staff note.')
   await page.getByRole('link', { name: 'Back to queue', exact: true }).click()
   const dialog = page.getByRole('dialog', { name: 'You have unsaved work' })
+  await expect(dialog).not.toContainText('Wait for saving or preparation.')
   await dialog.getByRole('button', { name: 'Stay', exact: true }).click()
   await expect(note).toHaveValue('Retain this private staff note.')
   await page.getByRole('button', { name: 'Expire session', exact: true }).click()

@@ -235,7 +235,7 @@ for (const language of ['ar', 'en'] as const) test(`${language} a validation lin
   }
 })
 
-for (const language of ['ar', 'en'] as const) test(`${language} queue preference feedback keeps focus on the changed filter`, async ({ page }) => {
+for (const language of ['ar', 'en'] as const) test(`${language} queue preference and page feedback keep focus on the active control`, async ({ page }) => {
   await page.goto('/staff/applications')
   await expect(page.locator('[data-workspace-ready="true"]')).toBeVisible({ timeout: 60_000 })
   if (language === 'en') await page.getByRole('button', { name: 'English', exact: true }).click()
@@ -251,6 +251,22 @@ for (const language of ['ar', 'en'] as const) test(`${language} queue preference
   await reset.focus(); await page.keyboard.press('Enter')
   await expect(page.getByRole('status').filter({ hasText: language === 'ar' ? 'حُفظت عوامل التصفية والترتيب.' : 'Filters and sort saved.' })).toBeVisible()
   await expect(reset).toBeFocused()
+  const next = page.getByRole('button', { name: language === 'ar' ? 'الصفحة التالية' : 'Next page', exact: true })
+  for (const number of [2, 3]) {
+    await expect(next).toBeEnabled()
+    await next.focus(); await page.keyboard.press('Enter')
+    await expect(page.getByText(language === 'ar' ? `الصفحة ${number} من 3` : `Page ${number} of 3`, { exact: true })).toBeVisible()
+    await expect(page.locator('main [aria-busy="true"]')).toHaveCount(0)
+    await expect(next).toBeFocused()
+  }
+  const previous = page.getByRole('button', { name: language === 'ar' ? 'الصفحة السابقة' : 'Previous page', exact: true })
+  for (const number of [2, 1]) {
+    await expect(previous).toBeEnabled()
+    await previous.focus(); await page.keyboard.press('Enter')
+    await expect(page.getByText(language === 'ar' ? `الصفحة ${number} من 3` : `Page ${number} of 3`, { exact: true })).toBeVisible()
+    await expect(page.locator('main [aria-busy="true"]')).toHaveCount(0)
+    await expect(previous).toBeFocused()
+  }
 })
 
 for (const language of ['ar', 'en'] as const) test(`${language} empty saved draft fields keep their own public meaning`, async ({ page }) => {

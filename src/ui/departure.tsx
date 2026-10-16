@@ -38,7 +38,7 @@ export function DepartureDialog({ request, work, language, discard, finish, canc
   }, [])
   const stay = () => { restoreFocus.current = true; cancel() }
   return <dialog ref={dialog} className="w-[650px]" aria-labelledby="leave-heading" onKeyDown={containDialogFocus} onCancel={event => { event.preventDefault(); if (!saving) stay() }}>
-    <h2 id="leave-heading">{t('leave')}</h2><p>{t('waitLeave')}</p>
+    <h2 id="leave-heading">{t('leave')}</h2><p>{t(saving || work?.pending || work?.save && !work.canSave ? 'waitLeave' : 'leaveHint')}</p>
     <div className="actions">
       <button disabled={saving} onClick={stay}>{t('stay')}</button>
       <button disabled={saving || work?.pending} onClick={discard}>{t('discard')}</button>

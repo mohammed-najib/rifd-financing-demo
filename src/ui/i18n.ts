@@ -96,6 +96,7 @@ export const draftText = {
   reapply: { ar: 'إعادة تطبيق تعديلاتي', en: 'Reapply my edits' }, latestExplanation: { ar: 'شرح الشراء المحفوظ الأحدث', en: 'Latest saved purchase explanation' },
   leave: { ar: 'لديك عمل غير محفوظ', en: 'You have unsaved work' }, stay: { ar: 'البقاء', en: 'Stay' }, discard: { ar: 'تجاهل التغييرات', en: 'Discard changes' }, saveLeave: { ar: 'الحفظ والمغادرة', en: 'Save and leave' },
   waitLeave: { ar: 'انتظر الحفظ أو التجهيز. أكمل الاختيارات غير المحفوظة أو تجاهلها قبل الحفظ والمغادرة.', en: 'Wait for saving or preparation. Complete or discard unfinished selections before saving and leaving.' },
+  leaveHint: { ar: 'ابقَ لمتابعة التحرير. للمغادرة، احفظ عملك إن كان الخيار متاحًا أو تجاهل التغييرات.', en: 'Stay to continue editing. To leave, save your work when available or discard your changes.' },
 } satisfies Record<string, Bilingual>
 export const fieldLabels: Record<keyof Fields, Bilingual> = {
   fullName: { ar: 'اسم المتقدم الكامل', en: 'Applicant full name' }, mobile: { ar: 'رقم الجوال', en: 'Mobile' }, city: { ar: 'المدينة', en: 'City' }, email: { ar: 'البريد الإلكتروني', en: 'Email' },
