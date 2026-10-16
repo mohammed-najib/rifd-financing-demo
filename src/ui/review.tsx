@@ -140,7 +140,7 @@ export function ReviewWorkspace({ demo, datasetId, view, language, retained, rem
             <p>{t(check === 'operatingHistory' ? 'operating' : check)}</p>
             {check === 'operatingHistory' && <p>{t('months')}: <bdi>{rules.operatingHistory.months}</bdi></p>}
             {check === 'purpose' && <p>{products[view.product].purpose[language]}</p>}
-            {check === 'budget' && <p><bdi dir="ltr">{money(rules.budget.amount, language)} ≤ {money(rules.budget.budget, language)}</bdi></p>}
+            {check === 'budget' && <p><bdi dir="ltr"><bdi dir="ltr">{money(rules.budget.amount, language)}</bdi> ≤ <bdi dir="ltr">{money(rules.budget.budget, language)}</bdi></bdi></p>}
             {check === 'capacity' && <><p>{t('surplus')}: <bdi dir="ltr">{money(rules.capacity.surplus, language)}</bdi></p><p>{t('largest')}: <bdi dir="ltr">{money(rules.capacity.largestInstallment, language)}</bdi></p><p><bdi dir="ltr">5 × {rules.capacity.largestInstallment} ≤ 2 × {rules.capacity.surplus}</bdi></p></>}
             <p className="text-[12px] text-muted">{t('dependencies')}: {[...dependencies.fields.map(field => fieldLabels[field][language]), ...dependencies.documents.map(slot => documentLabel(slot, view.product)[language])].join('، ')}</p>
             {view.permissions.recordCheck && <div className="actions">{(['unchecked', 'passed', 'failed'] as const).map(outcome => <button className="secondary" key={outcome} disabled={blocked || !!buffer.replacement || outcome === 'passed' && !canPass} aria-pressed={view.checks![check] === outcome} onClick={() => void run({ ...base(), kind: 'recordCheck', check, outcome })}>{outcomes[outcome][language]}</button>)}</div>}

@@ -145,3 +145,48 @@ for (const language of ['ar', 'en'] as const) test(`${language} applicant-to-rev
   await expect.poll(() => new URL(page.url()).searchParams.get('page')).toBe('1')
   await expect(page.getByRole('heading', { name: ar ? 'قائمة الطلبات' : 'Application queue', exact: true })).toBeFocused()
 })
+
+for (const language of ['ar', 'en'] as const) test(`${language} amount separators stay between their displayed operands`, async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 950 })
+  await page.goto('/staff/applications/RIFD-2026-007')
+  await expect(page.locator('[data-workspace-ready="true"]')).toBeVisible({ timeout: 60_000 })
+  if (language === 'en') await page.getByRole('button', { name: 'English', exact: true }).click()
+  await page.getByRole('button', { name: language === 'ar' ? 'سلمى ناصر' : 'Salma Nasser', exact: true }).click()
+  const comparison = page.getByRole('group', { name: language === 'ar' ? 'توافق مبلغ التمويل مع تكلفة الشراء' : 'Purchase budget coverage', exact: true }).locator('p').filter({ hasText: '≤' })
+  const amountCharacterPositions = (element: Element) => {
+    const content = element.textContent!
+    const separator = content.search(/[≤/]/)
+    const first = content.search(/\d/)
+    const second = separator + 1 + content.slice(separator + 1).search(/\d/)
+    const left = (index: number) => {
+      const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT)
+      let node: Node | null
+      while ((node = walker.nextNode())) {
+        const length = node.textContent!.length
+        if (index < length) {
+          const range = document.createRange()
+          range.setStart(node, index); range.setEnd(node, index + 1)
+          return range.getBoundingClientRect().left
+        }
+        index -= length
+      }
+      throw new Error('Displayed amount character missing')
+    }
+    return { first: left(first), separator: left(separator), second: left(second) }
+  }
+  await expect(comparison).toBeVisible()
+  await page.evaluate(() => document.fonts.ready)
+  const budget = await comparison.evaluate(amountCharacterPositions)
+  expect(budget.first).toBeLessThan(budget.separator)
+  expect(budget.separator).toBeLessThan(budget.second)
+  await page.getByRole('button', { name: language === 'ar' ? 'تغيير الهوية' : 'Switch identity', exact: true }).click()
+  await page.getByRole('button', { name: language === 'ar' ? 'مريم سالم' : 'Mariam Salem', exact: true }).click()
+  await expect(page.getByRole('heading', { name: language === 'ar' ? 'طلباتي' : 'My applications', exact: true })).toBeVisible()
+  await page.goto('/applications/RIFD-2026-001/edit?step=review')
+  await expect(page.getByRole('heading', { name: 'RIFD-2026-001', exact: true })).toBeVisible()
+  const range = page.locator('aside p').filter({ hasText: language === 'ar' ? '100,000 ر.ي.' : '100,000 YER' })
+  await expect(range).toBeVisible()
+  const limits = await range.evaluate(amountCharacterPositions)
+  expect(limits.first).toBeLessThan(limits.separator)
+  expect(limits.separator).toBeLessThan(limits.second)
+})
