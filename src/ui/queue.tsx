@@ -26,6 +26,7 @@ export function StaffApplicationQueue({ demo, context, language, input, href, re
   const [saved, setSaved] = useState(false)
   const [refused, setRefused] = useState<{ intent: QueuePreferenceOperation; error: ErrorKind; latest: Context | null; committed: boolean } | null>(null)
   const alive = useRef(true)
+  const pagination = useRef<HTMLElement>(null)
   const actions = useRef({ go, acceptContext })
   actions.current = { go, acceptContext }
   const t = (key: keyof typeof text) => text[key][language]
@@ -48,6 +49,13 @@ export function StaffApplicationQueue({ demo, context, language, input, href, re
     })
     return () => { active = false }
   }, [demo, href, reload, retry])
+  useEffect(() => {
+    if (reading || readError) return
+    const focused = document.activeElement
+    if (focused instanceof HTMLButtonElement && pagination.current?.contains(focused)) {
+      focused.scrollIntoView({ block: 'center' })
+    }
+  }, [reading, readError, queue])
 
   const persist = async (intent: QueuePreferenceOperation) => {
     setSaving(true); setSaved(false)
@@ -118,7 +126,7 @@ export function StaffApplicationQueue({ demo, context, language, input, href, re
         : !reading && queue && (queue.matched ? <ApplicationRows list={queue.rows} language={language} staff go={go} query={queueHref(queue.query).slice('/staff/applications'.length)} />
           : <EmptyQueue language={language} />)}
     </div>
-    {queue && !readError && <nav className="actions" aria-label={q('pagination')}>
+    {queue && !readError && <nav ref={pagination} className="actions" aria-label={q('pagination')}>
       <button aria-disabled={reading || queue.query.page <= 1} onClick={() => { if (!reading && queue.query.page > 1) change({ page: queue.query.page - 1 }) }}>{q('previous')}</button>
       <span>{language === 'ar' ? `الصفحة ${queue.query.page} من ${queue.pages}` : `Page ${queue.query.page} of ${queue.pages}`}</span>
       <button aria-disabled={reading || queue.query.page >= queue.pages} onClick={() => { if (!reading && queue.query.page < queue.pages) change({ page: queue.query.page + 1 }) }}>{q('next')}</button>

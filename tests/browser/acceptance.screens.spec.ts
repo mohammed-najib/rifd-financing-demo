@@ -236,6 +236,7 @@ for (const language of ['ar', 'en'] as const) test(`${language} a validation lin
 })
 
 for (const language of ['ar', 'en'] as const) test(`${language} queue preference and page feedback keep focus on the active control`, async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 950 })
   await page.goto('/staff/applications')
   await expect(page.locator('[data-workspace-ready="true"]')).toBeVisible({ timeout: 60_000 })
   if (language === 'en') await page.getByRole('button', { name: 'English', exact: true }).click()
@@ -258,6 +259,7 @@ for (const language of ['ar', 'en'] as const) test(`${language} queue preference
     await expect(page.getByText(language === 'ar' ? `الصفحة ${number} من 3` : `Page ${number} of 3`, { exact: true })).toBeVisible()
     await expect(page.locator('main [aria-busy="true"]')).toHaveCount(0)
     await expect(next).toBeFocused()
+    await expect(next).toBeInViewport({ ratio: 1 })
   }
   const previous = page.getByRole('button', { name: language === 'ar' ? 'الصفحة السابقة' : 'Previous page', exact: true })
   for (const number of [2, 1]) {
@@ -266,6 +268,7 @@ for (const language of ['ar', 'en'] as const) test(`${language} queue preference
     await expect(page.getByText(language === 'ar' ? `الصفحة ${number} من 3` : `Page ${number} of 3`, { exact: true })).toBeVisible()
     await expect(page.locator('main [aria-busy="true"]')).toHaveCount(0)
     await expect(previous).toBeFocused()
+    await expect(previous).toBeInViewport({ ratio: 1 })
   }
 })
 

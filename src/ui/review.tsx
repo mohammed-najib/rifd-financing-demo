@@ -29,6 +29,8 @@ export function ReviewWorkspace({ demo, datasetId, view, language, retained, rem
   const [message, setMessage] = useState(false)
   const [preview, setPreview] = useState<string | null>(null)
   const alive = useRef(true)
+  const replacementTrigger = useRef<HTMLButtonElement>(null)
+  const returnReplacementFocus = useRef(false)
   const assignmentWork = useRef<Departure | null>(null)
   const reviewWork = useRef<Departure | null>(null)
   const departureRef = useRef(departure)
@@ -45,19 +47,29 @@ export function ReviewWorkspace({ demo, datasetId, view, language, retained, rem
     return () => { alive.current = false; reviewWork.current = null; assignmentWork.current = null; departureRef.current(null) }
   }, [])
   useEffect(() => { remember(buffer) }, [buffer, remember])
+  useEffect(() => {
+    if (!buffer.replacement && returnReplacementFocus.current) {
+      returnReplacementFocus.current = false
+      if (document.activeElement === document.body) replacementTrigger.current?.focus()
+    }
+  }, [buffer.replacement])
   const stale = buffer.revision !== view.sharedRevision && (reviewDirty(buffer) || buffer.inspectAfterReclaim)
   const blocked = busy || !!buffer.intent || stale
+  const canReview = !blocked && !buffer.replacement
   const completed = (command: ReviewOperation) => {
     if (command.kind === 'saveNote' && buffer.note === command.text.ar) buffer.note = ''
     if (command.kind === 'assessDocument' && command.status === 'needsReplacement' && buffer.replacement?.slot === command.slot && buffer.replacement.text === command.reason?.ar) buffer.replacement = null
   }
   const run = async (command: ReviewOperation): Promise<boolean> => {
+    if (busy || buffer.intent && buffer.intent !== command) return false
+    const initiator = document.activeElement
     buffer.intent = command; buffer.error = null; update(); setBusy(true); setMessage(false)
     const result = await demo.execute(command)
     if (!alive.current) return false
     setBusy(false)
     if (!result.ok) { buffer.error = result.error.kind; update(); return false }
     completed(command)
+    if (command.kind === 'assessDocument' && command.status === 'needsReplacement' && !buffer.replacement && document.activeElement === initiator) returnReplacementFocus.current = true
     buffer.intent = null; buffer.error = null; buffer.revision = result.value.application.sharedRevision
     if (result.value.application.role === 'reviewer') changed(result.value.application)
     update(); setMessage(true)
@@ -122,11 +134,11 @@ export function ReviewWorkspace({ demo, datasetId, view, language, retained, rem
           <p>{document.file ? <><bdi dir="ltr" className="wrap-anywhere">{document.file.name}</bdi><br /><bdi>{document.file.mime} · {document.file.size} B</bdi><br />{text.included[language]}</> : text.missing[language]}</p>
           <p>{outcomes[view.assessments![document.slot].status][language]}{view.assessments![document.slot].reason && <span> · {view.assessments![document.slot].reason![language]}</span>}</p>
           {document.file && <div className="actions"><button className="secondary" onClick={() => setPreview(document.file!.id)}>{language === 'ar' ? 'معاينة' : 'Preview'} {documentLabel(document.slot, view.product)[language]}</button>
-            {view.permissions.assessDocument && <><button disabled={blocked || !!buffer.replacement} onClick={() => void run({ ...base(), kind: 'assessDocument', slot: document.slot, fileId: document.file!.id, status: 'accepted', reason: null })}>{t('accept')}</button>
-              <button className="secondary" disabled={blocked || !!buffer.replacement} onClick={() => { buffer.replacement = { slot: document.slot, text: '' }; update() }}>{t('replace')}</button></>}
+            {view.permissions.assessDocument && <><button aria-disabled={!canReview} onClick={() => { if (canReview) void run({ ...base(), kind: 'assessDocument', slot: document.slot, fileId: document.file!.id, status: 'accepted', reason: null }) }}>{t('accept')}</button>
+              <button className="secondary" aria-disabled={!canReview} onClick={event => { if (canReview) { replacementTrigger.current = event.currentTarget; buffer.replacement = { slot: document.slot, text: '' }; update() } }}>{t('replace')}</button></>}
           </div>}
           {buffer.replacement?.slot === document.slot && <div className="mt-4"><label className="mb-1.5 block font-semibold" htmlFor="replacement-reason">{t('reason')}</label><textarea className="review-textarea" id="replacement-reason" value={buffer.replacement.text} disabled={busy} readOnly={!view.permissions.assessDocument} onChange={event => { buffer.replacement!.text = event.target.value; update() }} />
-            <div className="actions"><button disabled={blocked || !view.permissions.assessDocument || !buffer.replacement.text.trim()} onClick={() => void run({ ...base(), kind: 'assessDocument', slot: document.slot, fileId: document.file!.id, status: 'needsReplacement', reason: { ar: buffer.replacement!.text, en: buffer.replacement!.text } })}>{t('saveAssessment')}</button><button className="secondary" disabled={busy || !!buffer.intent} onClick={() => { buffer.replacement = null; update() }}>{t('cancel')}</button></div>
+            <div className="actions"><button disabled={!view.permissions.assessDocument} aria-disabled={blocked || !buffer.replacement.text.trim()} onClick={() => { if (!blocked && view.permissions.assessDocument && buffer.replacement!.text.trim()) void run({ ...base(), kind: 'assessDocument', slot: document.slot, fileId: document.file!.id, status: 'needsReplacement', reason: { ar: buffer.replacement!.text, en: buffer.replacement!.text } }) }}>{t('saveAssessment')}</button><button className="secondary" disabled={busy || !!buffer.intent} onClick={() => { buffer.replacement = null; update(); replacementTrigger.current?.focus() }}>{t('cancel')}</button></div>
           </div>}
         </section>)}</section>
         <PublicCorrections record={view} language={language} preview={{ demo, applicationId: view.id }} />
@@ -143,10 +155,10 @@ export function ReviewWorkspace({ demo, datasetId, view, language, retained, rem
             {check === 'budget' && <p><bdi dir="ltr"><bdi dir="ltr">{money(rules.budget.amount, language)}</bdi> ≤ <bdi dir="ltr">{money(rules.budget.budget, language)}</bdi></bdi></p>}
             {check === 'capacity' && <><p>{t('surplus')}: <bdi dir="ltr">{money(rules.capacity.surplus, language)}</bdi></p><p>{t('largest')}: <bdi dir="ltr">{money(rules.capacity.largestInstallment, language)}</bdi></p><p><bdi dir="ltr">5 × {rules.capacity.largestInstallment} ≤ 2 × {rules.capacity.surplus}</bdi></p></>}
             <p className="text-[12px] text-muted">{t('dependencies')}: {[...dependencies.fields.map(field => fieldLabels[field][language]), ...dependencies.documents.map(slot => documentLabel(slot, view.product)[language])].join('، ')}</p>
-            {view.permissions.recordCheck && <div className="actions">{(['unchecked', 'passed', 'failed'] as const).map(outcome => <button className="secondary" key={outcome} disabled={blocked || !!buffer.replacement || outcome === 'passed' && !canPass} aria-pressed={view.checks![check] === outcome} onClick={() => void run({ ...base(), kind: 'recordCheck', check, outcome })}>{outcomes[outcome][language]}</button>)}</div>}
+            {view.permissions.recordCheck && <div className="actions">{(['unchecked', 'passed', 'failed'] as const).map(outcome => <button className="secondary" key={outcome} aria-disabled={!canReview || outcome === 'passed' && !canPass} aria-pressed={view.checks![check] === outcome} onClick={() => { if (canReview && (outcome !== 'passed' || canPass)) void run({ ...base(), kind: 'recordCheck', check, outcome }) }}>{outcomes[outcome][language]}</button>)}</div>}
           </fieldset>
         })}</section>
-        <section className="panel"><h2 id="review-verification" tabIndex={-1}>{t('verification')}</h2>{!view.rounds.length && <p>{t('noCorrections')}</p>}{view.rounds.map(round => <div key={round.id}><p><bdi>{date(round.requestedAt, language)}</bdi></p>{!round.response && <p>{t('waiting')}</p>}<ul>{round.targets.map((target, index) => <li key={index} className="mb-4"><strong>{target.kind === 'field' ? fieldLabels[target.field][language] : documentLabel(target.slot, view.product)[language]}</strong><p>{target.reason[language]}</p><span>{t(target.verified ? 'verified' : 'unverified')}</span>{round.response && <p>{t('changedTarget')}</p>}{!currentTargets.some(item => item.roundId === round.id && item.target === target) ? <p>{t('historical')}</p> : round.response && target.kind === 'field' && view.permissions.verifyCorrection && <div className="actions"><button disabled={blocked || !!buffer.replacement} onClick={() => void run({ ...base(), kind: 'verifyCorrection', roundId: round.id, field: target.field, verified: !target.verified })}>{t(target.verified ? 'undoField' : 'verifyField')}</button></div>}</li>)}</ul>{round.responseAssessments && <details><summary>{t('previousAssessments')}</summary><ul>{Object.entries(round.responseAssessments).map(([slot, assessment]) => <li key={slot}>{documentLabel(slot as DocumentSlot, view.product)[language]} · {outcomes[assessment.status][language]}{assessment.reason && <p>{assessment.reason[language]}</p>}</li>)}</ul></details>}</div>)}</section>
+        <section className="panel"><h2 id="review-verification" tabIndex={-1}>{t('verification')}</h2>{!view.rounds.length && <p>{t('noCorrections')}</p>}{view.rounds.map(round => <div key={round.id}><p><bdi>{date(round.requestedAt, language)}</bdi></p>{!round.response && <p>{t('waiting')}</p>}<ul>{round.targets.map((target, index) => <li key={index} className="mb-4"><strong>{target.kind === 'field' ? fieldLabels[target.field][language] : documentLabel(target.slot, view.product)[language]}</strong><p>{target.reason[language]}</p><span>{t(target.verified ? 'verified' : 'unverified')}</span>{round.response && <p>{t('changedTarget')}</p>}{!currentTargets.some(item => item.roundId === round.id && item.target === target) ? <p>{t('historical')}</p> : round.response && target.kind === 'field' && view.permissions.verifyCorrection && <div className="actions"><button aria-disabled={!canReview} onClick={() => { if (canReview) void run({ ...base(), kind: 'verifyCorrection', roundId: round.id, field: target.field, verified: !target.verified }) }}>{t(target.verified ? 'undoField' : 'verifyField')}</button></div>}</li>)}</ul>{round.responseAssessments && <details><summary>{t('previousAssessments')}</summary><ul>{Object.entries(round.responseAssessments).map(([slot, assessment]) => <li key={slot}>{documentLabel(slot as DocumentSlot, view.product)[language]} · {outcomes[assessment.status][language]}{assessment.reason && <p>{assessment.reason[language]}</p>}</li>)}</ul></details>}</div>)}</section>
         <section className="panel"><h2 id="review-notes" tabIndex={-1}>{text.notes[language]}</h2><p>{t('private')}</p>{view.notes.length ? view.notes.map(note => <div key={note.id}><p className="whitespace-pre-wrap wrap-anywhere">{note.text[language]}</p><small>{reviewerName(note.actor)} · <bdi>{date(note.date, language)}</bdi></small></div>) : <p>{text.noNotes[language]}</p>}
           {(view.permissions.saveNote || buffer.note) && <><label className="mt-4 mb-1.5 block font-semibold" htmlFor="internal-note">{t('note')}</label><textarea className="review-textarea mb-3" id="internal-note" value={buffer.note} disabled={busy} readOnly={!view.permissions.saveNote} onChange={event => { buffer.note = event.target.value; update() }} /><button disabled={!view.permissions.saveNote} aria-disabled={!canSave} onClick={() => { if (canSave) void saveNote() }}>{t('saveNote')}</button></>}
         </section>
