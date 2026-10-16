@@ -252,3 +252,24 @@ for (const language of ['ar', 'en'] as const) test(`${language} queue preference
   await expect(page.getByRole('status').filter({ hasText: language === 'ar' ? 'حُفظت عوامل التصفية والترتيب.' : 'Filters and sort saved.' })).toBeVisible()
   await expect(reset).toBeFocused()
 })
+
+for (const language of ['ar', 'en'] as const) test(`${language} empty saved draft fields keep their own public meaning`, async ({ page }) => {
+  const ar = language === 'ar'
+  await page.goto('/applications/new?product=inventory')
+  await expect(page.locator('[data-workspace-ready="true"]')).toBeVisible({ timeout: 60_000 })
+  if (!ar) await page.getByRole('button', { name: 'English', exact: true }).click()
+  await page.getByRole('button', { name: ar ? 'عمر حسن' : 'Omar Hassan', exact: true }).click()
+  await page.getByRole('button', { name: ar ? 'طلب جديد' : 'New application', exact: true }).click()
+  await page.getByRole('button', { name: ar ? 'حفظ التقدم' : 'Save progress', exact: true }).click()
+  await expect(page.getByRole('status').filter({ hasText: ar ? /^محفوظ$/ : /^Saved$/ })).toBeVisible()
+  const detail = new URL(page.url()).pathname.replace(/\/edit$/, '')
+  for (const route of [detail, `${detail}/print`]) {
+    await page.goto(route)
+    for (const label of ar ? ['اسم النشاط التجاري', 'عنوان النشاط'] : ['Business name', 'Business address']) {
+      const field = page.locator('.information > div').filter({ has: page.getByText(label, { exact: true }) })
+      await expect(field.locator('dd')).toHaveText('—')
+    }
+    const explanation = page.locator('.information > div').filter({ has: page.getByText(ar ? 'شرح الشراء' : 'Purchase explanation', { exact: true }) })
+    await expect(explanation.locator('dd')).toHaveText(ar ? 'لم يُكتب شرح الشراء بعد' : 'Purchase explanation not entered yet')
+  }
+})

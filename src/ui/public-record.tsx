@@ -16,7 +16,7 @@ export function ApplicationInformation({ record, language, baseline }: { record:
       : ['mobile', 'email', 'operatingSince'].includes(key) ? <bdi dir="ltr">{displayFieldValue(key as keyof typeof fields, value, language)}</bdi>
       : key === 'term' ? <><bdi>{displayFieldValue('term', value, language)}</bdi> {t('months')}</>
       : key === 'activity' ? ({ retail: { ar: 'تجارة تجزئة', en: 'Retail' }, services: { ar: 'خدمات', en: 'Services' }, production: { ar: 'إنتاج صغير', en: 'Small production' } }[fields.activity][language])
-      : value || t('emptyExplanation')}</dd>
+      : key === 'explanation' ? value || t('emptyExplanation') : displayFieldValue(key as keyof typeof fields, value, language)}</dd>
   </div>)}</dl><p>{t('financialWindow')}: {record.evidenceMonths.map(month => <bdi key={month}>{date(month, language)} </bdi>)}</p></>
 }
 
