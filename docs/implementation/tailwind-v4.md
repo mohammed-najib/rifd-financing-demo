@@ -89,6 +89,50 @@ The production dialogs now share Tab containment while keeping their existing
 focus indicators, Escape handling and opener return.
 
 These additions are acceptance evidence for the current production components.
-The earlier pixel-comparison results remain historical. The open native zoom,
-screen-reader and full manual-journey checks are listed in slice 21; screenshots
-do not close them.
+The earlier pixel-comparison results remain historical. The later slice 21
+follow-up records completed ordinary-browser journeys, keyboard and native
+preview checks with their own source bindings.
+
+### Applicant preview label follow-up
+
+The 16 October [ticket 21 follow-up](21-evidence.md#follow-up-acceptance-on-16-october)
+adds the existing bold document label to applicant editor and detail previews.
+It uses the shared dialog layout and `font-semibold` token. No stylesheet or
+breakpoint changed. The retained native Firefox captures include the labelled
+preview and decision controls at 200% browser zoom and a measured 390px viewport.
+Chrome captures include the saved PDF's first and second pages and 390px scrolling.
+These selected inspections retain their historical source; the completed
+ordinary-browser matrix below supplies the broader journey evidence.
+
+The later `36deb6f` queue focus fix adds complete `aria-disabled:cursor-wait`
+and `aria-disabled:opacity-65` utilities to selects. Reset filters uses the
+existing unavailable-button rule. The stylesheet is now `styles-C1VBoyd-.css`,
+SHA-256 `7aed7a781e86e538f77967a65696ba473cb680f1f658575c53effaaded9a0a39`.
+Money operand isolation, note focus and validation scroll changes precede that
+build. The later pagination controls reuse the existing unavailable-button
+rule. No breakpoint changed.
+
+The completed slice 21 follow-up contains ten ordinary-browser walks and 390
+viewport scenes, with Arabic Firefox and English Chrome at 360/390/768/1440px
+and native 200% zoom. Visual review covers all 390 scenes and selected full-page
+captures. Final-source rechecks cover page-button focus, accurate departure
+feedback and empty saved fields at every size. Supplemental composer,
+confirmation and storage-recovery scenes cover the same five sizes. The Arabic
+reset chooser has a separate corrected 200% capture. Review records and hashes
+are linked from the slice evidence. The full screen invocation passed 559 cases
+and failed five Firefox startup waits; all six cases in the affected file passed
+an unchanged-source recheck. Earlier 767/768 and 1199/1200 boundary checks remain
+part of the complete screen suite. These results do not claim a new pixel
+comparison with the original pre-Tailwind baseline.
+
+The final `9783563` focus corrections keep the current page control visible after
+queue reads and preserve reviewer assessment/check/verification focus during
+saving. Replacement-editor closure returns focus after the DOM update. They
+reuse existing focus and unavailable styles; `styles-C1VBoyd-.css` and its hash
+remain unchanged. Ordinary-browser paging rechecks cover all five sizes, and
+final review-action captures cover Arabic/English 390px. Their distinct source
+phases and the final affected-file results are recorded in slice 21.
+
+The final five-file screen recheck passes all 165 cases on `9783563`, 55 per
+engine, without skips or flaky retries. Historical complete-run failures and
+the unchanged-source assignment recheck remain separate in the evidence.

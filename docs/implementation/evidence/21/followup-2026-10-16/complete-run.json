@@ -1,0 +1,154 @@
+{
+  "startedAt": "2026-10-16T13:38:57.974Z",
+  "directory": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/acceptance/21/2026-10-16T13-38-57.906Z",
+  "source": {
+    "head": "7c2fc951b8a2ec62675380f6faa4be3844a12d7c",
+    "sha256": "49bfc493f8cc0092dd1efeb20929a7cecd09e3d16716f1371be71125f31adc58"
+  },
+  "host": {
+    "platform": "linux",
+    "release": "7.2.5-3-omarchy",
+    "arch": "x64",
+    "node": "v26.7.0",
+    "pnpm": "11.24.0",
+    "playwright": "1.64.1"
+  },
+  "browsers": [
+    {
+      "name": "chrome",
+      "version": "155.0.8059.39",
+      "executable": "installed chrome channel"
+    },
+    {
+      "name": "firefox",
+      "version": "157.0",
+      "executable": "/home/mdnb/.cache/ms-playwright/firefox-1555/firefox/firefox",
+      "bundledExecutable": "/home/mdnb/.cache/ms-playwright/firefox-1555/firefox/firefox"
+    },
+    {
+      "name": "webkit",
+      "version": "27.2",
+      "executable": "/tmp/rifd-webkit-run.sh",
+      "bundledExecutable": "/home/mdnb/.cache/ms-playwright/webkit-2370/pw_run.sh"
+    }
+  ],
+  "steps": [
+    {
+      "name": "typecheck",
+      "command": [
+        "pnpm",
+        "typecheck"
+      ],
+      "exitCode": 0,
+      "durationMs": 8689
+    },
+    {
+      "name": "lint",
+      "command": [
+        "pnpm",
+        "lint"
+      ],
+      "exitCode": 0,
+      "durationMs": 4834
+    },
+    {
+      "name": "test",
+      "command": [
+        "pnpm",
+        "test"
+      ],
+      "exitCode": 0,
+      "durationMs": 1503
+    },
+    {
+      "name": "test-skills",
+      "command": [
+        "pnpm",
+        "test:skills"
+      ],
+      "exitCode": 0,
+      "durationMs": 371
+    },
+    {
+      "name": "skills-check",
+      "command": [
+        "pnpm",
+        "skills:check"
+      ],
+      "exitCode": 0,
+      "durationMs": 3487
+    },
+    {
+      "name": "build",
+      "command": [
+        "pnpm",
+        "build"
+      ],
+      "exitCode": 0,
+      "durationMs": 3490
+    },
+    {
+      "name": "api",
+      "command": [
+        "pnpm",
+        "test:browser:api",
+        "--workers=2",
+        "--timeout=180000"
+      ],
+      "exitCode": 0,
+      "durationMs": 2822338
+    },
+    {
+      "name": "screens",
+      "command": [
+        "pnpm",
+        "test:browser",
+        "--workers=4",
+        "--timeout=180000"
+      ],
+      "exitCode": 1,
+      "durationMs": 4556148
+    }
+  ],
+  "outcome": "failed",
+  "runner": {
+    "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/acceptance/21/followup-v2/acceptance-parallel.mjs",
+    "sha256": "e33c6af51fb1271fb7e4ae1186ef849d80eb235eec7acda1909aef9e62377e97",
+    "base": "scripts/acceptance.mjs",
+    "baseSha256": "50e804029d6fed7237691a8b79f5c660ec1407d0c87bb7bf22e60d18da18e394",
+    "change": "Same complete checks and suites. Independent API and screen servers run concurrently with 2 and 4 workers respectively, instead of sequential 3-worker suites."
+  },
+  "staticBuild": [
+    {
+      "path": "dist/client/_shell.html",
+      "bytes": 2862,
+      "sha256": "2876ed327935b377858e6e18f5ffbcf9ebfe4cbddba8646a96aa1b6414737c2c"
+    },
+    {
+      "path": "dist/client/assets/styles-C1VBoyd-.css",
+      "bytes": 23410,
+      "sha256": "7aed7a781e86e538f77967a65696ba473cb680f1f658575c53effaaded9a0a39"
+    }
+  ],
+  "suites": [
+    {
+      "name": "api",
+      "startTime": "2026-10-16T13:39:25.371Z",
+      "duration": 2820769.561,
+      "expected": 158,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    {
+      "name": "screens",
+      "startTime": "2026-10-16T13:39:25.349Z",
+      "duration": 4552826.546,
+      "expected": 559,
+      "skipped": 0,
+      "unexpected": 5,
+      "flaky": 0
+    }
+  ],
+  "finishedAt": "2026-10-16T14:55:20.063Z"
+}

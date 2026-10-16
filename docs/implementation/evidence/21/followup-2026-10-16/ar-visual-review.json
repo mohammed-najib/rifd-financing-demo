@@ -1,0 +1,981 @@
+{
+  "reviewer": "spec_review",
+  "review_type": "Arabic visual review of recorded ordinary Firefox scenes",
+  "source_commit": "36deb6f4f82bfd8d0c847d00095eeb133d5e41ee",
+  "bundle": "index-HebM4UWC.js",
+  "browser_pairing": "Installed ordinary Firefox 155, headless browser keyboard walkthrough. Native 200 percent via Firefox ZoomManager.",
+  "result": "No new product visual finding. Historical source findings below require the later final-source checks.",
+  "scope": [
+    "195 viewport scenes visually inspected via lossless contact sheets and individual selected full-page captures.",
+    "Selected full-page captures were viewed in readable lossless segments; this does not claim inspection of every full-page file.",
+    "Budget comparison has readable 200,000 currency <= 250,000 currency operands and editor ranges retain their separator.",
+    "07-protected-preview deliberately records the loading stage before expiry; painted-preview evidence comes from the saved-file scenes.",
+    "Keyboard operation and completion assertions are supported by the runner logs, not inferred solely from still images.",
+    "This review does not establish physical-device support, full accessibility conformance, or final-source manual completion."
+  ],
+  "historical_findings": [
+    {
+      "finding": "Empty business name/address use the purchase-explanation fallback in 07-recovered-ready-full.",
+      "status": "Known, source fix 43bde54. Final-source targeted recapture belongs to parent review."
+    },
+    {
+      "finding": "05-departure-guard tells an idle unsaved note to wait for saving/preparation.",
+      "status": "Known, source fix 7c2fc95. Final-source targeted recapture belongs to parent review."
+    }
+  ],
+  "capture_scope_limitation": "ar-1440-z2-mvaz8vlh has 38 scenes at 720x475 CSS/DPR2. Its 07-reset-observed scene is 1440x950/DPR1 and does not prove that chooser at native 200 percent. Parent is recapturing it.",
+  "hash_verification": "All 195 reviewed viewport files and 10 selected full files match their captures.jsonl SHA256.",
+  "reviews": [
+    {
+      "prefix": "ar-360-z1-mvayudkt",
+      "viewport_scene_count": 39,
+      "all_viewports_visually_inspected": true,
+      "actual_dimensions_count": {
+        "360x950@1": 39
+      },
+      "complete_event": {
+        "at": "2026-10-16T12:53:24.766Z",
+        "kind": "firefox",
+        "step": "ar-360-z1-mvayudkt complete",
+        "rejectedId": "RIFD-2026-5dd914e4-7ec3-49a9-bebb-43ff27bd882b"
+      },
+      "observations": [
+        "Long mixed Arabic/English names, address, identifiers, phone, email and filenames remain within their panels.",
+        "Focused linked purchase-explanation textarea and its inline error are fully visible in 01-error-field-focus.",
+        "Stored PNG/JPEG and painted Firefox native PDF content appear with visible document labels and Close actions.",
+        "Notifications and filtered/persisted queue contain settled records; card/table actions remain readable.",
+        "Saved note retains its orange visible focus ring on Save note in 05-reviewed.",
+        "Decision confirmations, stale refusal, private/published correction states, expiry and reset chooser are visually legible."
+      ],
+      "viewport_files": [
+        {
+          "file": "firefox-ar-360-z1-mvayudkt-01-error-field-focus-viewport.png",
+          "sha256": "d11387ba64387d4999d718249fe2063c6870df29506a147e112a1892c24f152e"
+        },
+        {
+          "file": "firefox-ar-360-z1-mvayudkt-01-products-viewport.png",
+          "sha256": "ec04bd2c212a621d63b321772f6f0d64727711a550e8b512ab6cbd59a553b37d"
+        },
+        {
+          "file": "firefox-ar-360-z1-mvayudkt-01-review-viewport.png",
+          "sha256": "fffc29a7f1e334d79c216b662ab1bd51532c2e614f5d1fc48a591866b550f09d"
+        },
+        {
+          "file": "firefox-ar-360-z1-mvayudkt-01-saved-focus-viewport.png",
+          "sha256": "f8c8d885f376e7841cd9be6c6d13a87e7d62eed500a7eeb21b62662937d66aab"
+        },
+        {
+          "file": "firefox-ar-360-z1-mvayudkt-01-submitted-viewport.png",
+          "sha256": "65fe6fb742fa0982b2be9d5e576b76684ea62c915ade8e210f51eed50d2e551d"
+        },
+        {
+          "file": "firefox-ar-360-z1-mvayudkt-01-validation-viewport.png",
+          "sha256": "62e710358a60f8ad9a0d99ecc5cb0ab760200b292546654b9f89804a14491a2e"
+        },
+        {
+          "file": "firefox-ar-360-z1-mvayudkt-02-failed-replacement-viewport.png",
+          "sha256": "29018883556c1b507335064171ddea7e8094a72f7dad05d89497b80c8adf4834"
+        },
+        {
+          "file": "firefox-ar-360-z1-mvayudkt-02-old-saved-png-viewport.png",
+          "sha256": "db50840d5697960c31c7abe8f31f9b55af70c7a053d296e25e748490a9a05246"
+        },
+        {
+          "file": "firefox-ar-360-z1-mvayudkt-02-save-recovery-viewport.png",
+          "sha256": "c2b4d038fd001523690f9da361b5e8693696125f8045a1aad30ad6968dc5be2c"
+        },
+        {
+          "file": "firefox-ar-360-z1-mvayudkt-02-saved-business-viewport.png",
+          "sha256": "ac29c6079a707068d7cbe0c945b987e3a0eec50d694e537e703c76dbc0b05be2"
+        },
+        {
+          "file": "firefox-ar-360-z1-mvayudkt-02-saved-identity-viewport.png",
+          "sha256": "6ea52ffdcf744d8ddd4cc2f06f65feff41d46aab037947b251c90614e7750c67"
+        },
+        {
+          "file": "firefox-ar-360-z1-mvayudkt-02-saved-purchase-viewport.png",
+          "sha256": "88a1b2a1e12690615b58c5d714a9ce873f85b02267c1788634d019e9b321c0e5"
+        },
+        {
+          "file": "firefox-ar-360-z1-mvayudkt-03-historical-schedule-viewport.png",
+          "sha256": "99bb1c47c545ea7112f7ab4ef6d9af5c6c7807636e9f57616260f66b51934e37"
+        },
+        {
+          "file": "firefox-ar-360-z1-mvayudkt-03-notifications-viewport.png",
+          "sha256": "cad40c0ee062a6c2244ab91d79942180f84cb0a59c4a0fce86078c9a8aa32c68"
+        },
+        {
+          "file": "firefox-ar-360-z1-mvayudkt-03-print-viewport.png",
+          "sha256": "1399013ff63a8de4a63f51b0d2c114c3fb65d93b73f5c2101768732d8cdc1e48"
+        },
+        {
+          "file": "firefox-ar-360-z1-mvayudkt-03-tracking-viewport.png",
+          "sha256": "7c3b1b663579ea5928d9bc939f433f2e7650b135151c50119f493800f6be5760"
+        },
+        {
+          "file": "firefox-ar-360-z1-mvayudkt-04-empty-queue-viewport.png",
+          "sha256": "9e9dd432329d32cde185efcdac3fef84e67c68e7a6db3f3923d96e8376c7bfe2"
+        },
+        {
+          "file": "firefox-ar-360-z1-mvayudkt-04-filtered-queue-viewport.png",
+          "sha256": "2fd29f031a7dfd016596df29430f79e7b39d164200011c77c8936c1e7e8d10a8"
+        },
+        {
+          "file": "firefox-ar-360-z1-mvayudkt-04-persisted-filters-viewport.png",
+          "sha256": "2fd29f031a7dfd016596df29430f79e7b39d164200011c77c8936c1e7e8d10a8"
+        },
+        {
+          "file": "firefox-ar-360-z1-mvayudkt-04-queue-page-one-viewport.png",
+          "sha256": "2fd29f031a7dfd016596df29430f79e7b39d164200011c77c8936c1e7e8d10a8"
+        },
+        {
+          "file": "firefox-ar-360-z1-mvayudkt-04-queue-page-two-viewport.png",
+          "sha256": "f08e0247a2889b5dc5dccc7bf3a701efac211cf247572392d01ceb6c4575478a"
+        },
+        {
+          "file": "firefox-ar-360-z1-mvayudkt-05-departure-guard-viewport.png",
+          "sha256": "aa928f557f0530e6ba1d13161dd150429a2e6e44f4ec8f422f1d388fc5f1e8be"
+        },
+        {
+          "file": "firefox-ar-360-z1-mvayudkt-05-private-correction-viewport.png",
+          "sha256": "66209603f35979580cb3bc3b8e440052a535beb60844a94227e23e54f1248612"
+        },
+        {
+          "file": "firefox-other-ar-360-z1-mvayudkt-05-private-hidden-from-staff-viewport.png",
+          "sha256": "6851a0adf3961537eae337a53f408de577226ec7780de4a5f66a5d43eb42541d"
+        },
+        {
+          "file": "firefox-ar-360-z1-mvayudkt-05-published-and-verified-viewport.png",
+          "sha256": "aa34fe55274ca97ac4a82aaf5bf612014dfef6603abbc02e7f3758ce498d5e19"
+        },
+        {
+          "file": "firefox-ar-360-z1-mvayudkt-05-reviewed-viewport.png",
+          "sha256": "2e7552e964e519658b2b1dd1faf67880b6c0b8be1a8e82cef30eb208cfb570a1"
+        },
+        {
+          "file": "firefox-ar-360-z1-mvayudkt-05-unchanged-error-viewport.png",
+          "sha256": "1d41c4f7f7a268e608a971687a1b83be2b0c56be219c771b75ff708e08fa89f7"
+        },
+        {
+          "file": "firefox-ar-360-z1-mvayudkt-06-actual-rejection-viewport.png",
+          "sha256": "8d82efab0cf60687efb35ef5c3cb08091c58093a8f6cc6bc162634d3787075e0"
+        },
+        {
+          "file": "firefox-ar-360-z1-mvayudkt-06-confirm-approval-viewport.png",
+          "sha256": "2ffb610cb47061c1642d97bf2bcab692cffe2b727ec0b445b9efcfa37b06c294"
+        },
+        {
+          "file": "firefox-ar-360-z1-mvayudkt-06-new-upcoming-schedule-viewport.png",
+          "sha256": "97f401f7b699921fc7f7aec8f7a977fe9c91b4cdddb483d75acb13a7656ce52f"
+        },
+        {
+          "file": "firefox-ar-360-z1-mvayudkt-06-rejected-public-viewport.png",
+          "sha256": "08df16edb4c8b402536fa9e19588e59a226111e40f6d867cfd4566f3583c9711"
+        },
+        {
+          "file": "firefox-ar-360-z1-mvayudkt-06-stale-refusal-viewport.png",
+          "sha256": "61b97442ea658d65f7e058ac2bbabbf31885e86f4a9e32b9157816d82f7acebf"
+        },
+        {
+          "file": "firefox-ar-360-z1-mvayudkt-07-expired-viewport.png",
+          "sha256": "8e2c3226badbceae21f08e738b18f9397da04193b828b841d409e569514de46a"
+        },
+        {
+          "file": "firefox-ar-360-z1-mvayudkt-07-gallery-viewport.png",
+          "sha256": "cc797df7c7786b1946e0fa1ab6794eb5fe9b8b6c4530e60abda9220e88227d94"
+        },
+        {
+          "file": "firefox-ar-360-z1-mvayudkt-07-identity-discard-viewport.png",
+          "sha256": "833e5ecfd1a8ecd52909eb941e3674e97620b0b714c0b796d31193ad9b7ba415"
+        },
+        {
+          "file": "firefox-ar-360-z1-mvayudkt-07-offline-saved-preview-viewport.png",
+          "sha256": "94058ed54ddf2dcd0600b978de0e80578a52bd5209254a7ffc28c514705e1322"
+        },
+        {
+          "file": "firefox-ar-360-z1-mvayudkt-07-protected-preview-viewport.png",
+          "sha256": "4de29469d8c6729da78d17db313da4d84e824affe060edba53b526a5ac61f20f"
+        },
+        {
+          "file": "firefox-ar-360-z1-mvayudkt-07-recovered-ready-viewport.png",
+          "sha256": "c690d82726d35803a5c3e425469f84c45dcb457b8e9e68440422a9b98bd79861"
+        },
+        {
+          "file": "firefox-ar-360-z1-mvayudkt-07-reset-observed-viewport.png",
+          "sha256": "f406fb0a4ae85bf145ede78ea40e46899dd44a29eaf41bb0caefe860d66c5034"
+        }
+      ],
+      "full_files_visually_inspected": [
+        {
+          "file": "firefox-ar-360-z1-mvayudkt-01-review-full.png",
+          "sha256": "fb94ce8c50f60e5e49a9283360f223e23dfdd43f3929ae18327ed8a07a8d431f"
+        },
+        {
+          "file": "firefox-ar-360-z1-mvayudkt-03-tracking-full.png",
+          "sha256": "21d72a8d603d8c3f5eba1bef66b854bbf381ace3447582c2437ba05305802acf"
+        },
+        {
+          "file": "firefox-ar-360-z1-mvayudkt-04-filtered-queue-full.png",
+          "sha256": "f13235839195ba4d854f679065e04648a8d7c1528af93454c48e3ea30edd7376"
+        },
+        {
+          "file": "firefox-ar-360-z1-mvayudkt-05-private-correction-full.png",
+          "sha256": "ec8323843cd1d4f393291c4878f17af70f84e48330a3cb7481c892b9abf3ba79"
+        },
+        {
+          "file": "firefox-ar-360-z1-mvayudkt-05-reviewed-full.png",
+          "sha256": "d1826b829046ca7fe79f01fb6a280e756dbab9b229873f204adb276e37a45c3a"
+        },
+        {
+          "file": "firefox-ar-360-z1-mvayudkt-07-recovered-ready-full.png",
+          "sha256": "c28d73f75c1bb1434a4200c2bba869997660965879bc199e664b4216c5c12925"
+        }
+      ]
+    },
+    {
+      "prefix": "ar-390-z1-mvayyp8n",
+      "viewport_scene_count": 39,
+      "all_viewports_visually_inspected": true,
+      "actual_dimensions_count": {
+        "390x950@1": 39
+      },
+      "complete_event": {
+        "at": "2026-10-16T12:56:43.826Z",
+        "kind": "firefox",
+        "step": "ar-390-z1-mvayyp8n complete",
+        "rejectedId": "RIFD-2026-7e212f68-52fc-44c9-8b82-3e6990fcedb5"
+      },
+      "observations": [
+        "Long mixed Arabic/English names, address, identifiers, phone, email and filenames remain within their panels.",
+        "Focused linked purchase-explanation textarea and its inline error are fully visible in 01-error-field-focus.",
+        "Stored PNG/JPEG and painted Firefox native PDF content appear with visible document labels and Close actions.",
+        "Notifications and filtered/persisted queue contain settled records; card/table actions remain readable.",
+        "Saved note retains its orange visible focus ring on Save note in 05-reviewed.",
+        "Decision confirmations, stale refusal, private/published correction states, expiry and reset chooser are visually legible."
+      ],
+      "viewport_files": [
+        {
+          "file": "firefox-ar-390-z1-mvayyp8n-01-error-field-focus-viewport.png",
+          "sha256": "ed482472017f206dd8f8c4ec625c6ed2b481c1ca8f971b58df9b5ef511bdf149"
+        },
+        {
+          "file": "firefox-ar-390-z1-mvayyp8n-01-products-viewport.png",
+          "sha256": "8e8d7e36b50d92b27ab6e1b2909cafd7b124e9228cdf5c0da617a5bf1db8f6e8"
+        },
+        {
+          "file": "firefox-ar-390-z1-mvayyp8n-01-review-viewport.png",
+          "sha256": "1144ae252d6ae6d6d4b62e0e2385c45f6fcac1ab3e1ecbb7e07e672ce0e34fcc"
+        },
+        {
+          "file": "firefox-ar-390-z1-mvayyp8n-01-saved-focus-viewport.png",
+          "sha256": "ea7d75c5ed5d0314825196b22c4a2d55dfda9ca2890be34bed8bb7e754d8822e"
+        },
+        {
+          "file": "firefox-ar-390-z1-mvayyp8n-01-submitted-viewport.png",
+          "sha256": "016497c6189d423e18a1c0bafbe5862199b307bf6b01192f627d89c60cc638f2"
+        },
+        {
+          "file": "firefox-ar-390-z1-mvayyp8n-01-validation-viewport.png",
+          "sha256": "03ba4e901fe1de6d3e8f068644120e40e837c040101fa2a05d50c6cc57f80e2c"
+        },
+        {
+          "file": "firefox-ar-390-z1-mvayyp8n-02-failed-replacement-viewport.png",
+          "sha256": "3f460122481c0a229972091b1bd1538dc7705761e07919505887e8c4663bc699"
+        },
+        {
+          "file": "firefox-ar-390-z1-mvayyp8n-02-old-saved-png-viewport.png",
+          "sha256": "15ac902635060fe4eb8f299def1c1d33a57e922974d885ecd0e72bab83f61359"
+        },
+        {
+          "file": "firefox-ar-390-z1-mvayyp8n-02-save-recovery-viewport.png",
+          "sha256": "c81822fbc689a9ea169353255b695ecad1cc8d0adc0b030ed64b843db267eb04"
+        },
+        {
+          "file": "firefox-ar-390-z1-mvayyp8n-02-saved-business-viewport.png",
+          "sha256": "675b9ca64645fab10ce19885b0ddcf9c4670ff95c0e00ca1288f404f03a7afed"
+        },
+        {
+          "file": "firefox-ar-390-z1-mvayyp8n-02-saved-identity-viewport.png",
+          "sha256": "6aa0d98be882919ab5512a91d88f4efdb615577985cdd55bad54d330692b59d4"
+        },
+        {
+          "file": "firefox-ar-390-z1-mvayyp8n-02-saved-purchase-viewport.png",
+          "sha256": "a92382aa594f0fb8b4736e4fc813d1d40c342ed57b09dca08e9ae74da9ab1ca3"
+        },
+        {
+          "file": "firefox-ar-390-z1-mvayyp8n-03-historical-schedule-viewport.png",
+          "sha256": "6b4bbd7252970919fef0ec0ec60a2969f9e31954ead2e2b2da027ea4cf654c7b"
+        },
+        {
+          "file": "firefox-ar-390-z1-mvayyp8n-03-notifications-viewport.png",
+          "sha256": "d76c249e580387a067c7457c6a0c6df345f63a703157fba02cd110edec7cdb75"
+        },
+        {
+          "file": "firefox-ar-390-z1-mvayyp8n-03-print-viewport.png",
+          "sha256": "28063f40e6ff486c5644e89d303fd4218b7c586c6f10ff300fc38109105f1981"
+        },
+        {
+          "file": "firefox-ar-390-z1-mvayyp8n-03-tracking-viewport.png",
+          "sha256": "d1c9dcfe9d9caa0bc231b9b7923ccbfecadf97b36951565a5d3ab136e1dfc494"
+        },
+        {
+          "file": "firefox-ar-390-z1-mvayyp8n-04-empty-queue-viewport.png",
+          "sha256": "2f923fc77963b9de76422c3d80f2714a93914be0316fbc9e3e1d7be6cd459140"
+        },
+        {
+          "file": "firefox-ar-390-z1-mvayyp8n-04-filtered-queue-viewport.png",
+          "sha256": "9583997e4fd7f0d78ec3e21e623d7a2094935f1c74c031789436135b42006eee"
+        },
+        {
+          "file": "firefox-ar-390-z1-mvayyp8n-04-persisted-filters-viewport.png",
+          "sha256": "9583997e4fd7f0d78ec3e21e623d7a2094935f1c74c031789436135b42006eee"
+        },
+        {
+          "file": "firefox-ar-390-z1-mvayyp8n-04-queue-page-one-viewport.png",
+          "sha256": "9583997e4fd7f0d78ec3e21e623d7a2094935f1c74c031789436135b42006eee"
+        },
+        {
+          "file": "firefox-ar-390-z1-mvayyp8n-04-queue-page-two-viewport.png",
+          "sha256": "1b0fa25303031119b01b096c39cb3b59635902c6af9cc189fb1f42478f1e0325"
+        },
+        {
+          "file": "firefox-ar-390-z1-mvayyp8n-05-departure-guard-viewport.png",
+          "sha256": "22e2e4d73ead3b27f343d2d6da13b60ea29851c71154a62ed1991ff4e8d1fcf5"
+        },
+        {
+          "file": "firefox-ar-390-z1-mvayyp8n-05-private-correction-viewport.png",
+          "sha256": "ad071df2361422503992d30a62bd8926234d84ae2ac018fa41fd77161383f7ee"
+        },
+        {
+          "file": "firefox-other-ar-390-z1-mvayyp8n-05-private-hidden-from-staff-viewport.png",
+          "sha256": "fb72dd453d93a621e2f3fe0d4e7b07929c8422a3b4633bf4b831e517462ed345"
+        },
+        {
+          "file": "firefox-ar-390-z1-mvayyp8n-05-published-and-verified-viewport.png",
+          "sha256": "9dc37b374047c9a22c93b582eee85723ac1b26e431a06ae2904552e91bde4094"
+        },
+        {
+          "file": "firefox-ar-390-z1-mvayyp8n-05-reviewed-viewport.png",
+          "sha256": "000743a62eb9428e016d1d7630e8e6c421adace2dd85f07dbd63be08d97badff"
+        },
+        {
+          "file": "firefox-ar-390-z1-mvayyp8n-05-unchanged-error-viewport.png",
+          "sha256": "6e5983cbb14047de392b333dadd2c6d258eb31f8bb2f5380efb954031e82555c"
+        },
+        {
+          "file": "firefox-ar-390-z1-mvayyp8n-06-actual-rejection-viewport.png",
+          "sha256": "ea18e4bd14afbec65442a9b400b84337a52ec66cf275f6899b89da8e329bf5ea"
+        },
+        {
+          "file": "firefox-ar-390-z1-mvayyp8n-06-confirm-approval-viewport.png",
+          "sha256": "86c73847bbc0a16f988592e582b3b044b9a8befc20c119055408add17cb73dcc"
+        },
+        {
+          "file": "firefox-ar-390-z1-mvayyp8n-06-new-upcoming-schedule-viewport.png",
+          "sha256": "537c04a59b35347076c23f6c3591cc01795bcbea814ff5dd30f954951ceb8a81"
+        },
+        {
+          "file": "firefox-ar-390-z1-mvayyp8n-06-rejected-public-viewport.png",
+          "sha256": "5399aed304163ec274f1e80e20e9187ea81472bade32ba0455fc55995c9a8ec0"
+        },
+        {
+          "file": "firefox-ar-390-z1-mvayyp8n-06-stale-refusal-viewport.png",
+          "sha256": "e6f06761531d3aaf685d5041d486b29b71eaf8dcf094bc9434409e87f8e3243c"
+        },
+        {
+          "file": "firefox-ar-390-z1-mvayyp8n-07-expired-viewport.png",
+          "sha256": "36082808ac0eced15b0dbdea82c03cd14a3cf49ecf28735e454ad6dbf1c2c327"
+        },
+        {
+          "file": "firefox-ar-390-z1-mvayyp8n-07-gallery-viewport.png",
+          "sha256": "8d9e3633adb6d1d1f82227cc342bbd681815ba8d14bc843ddf73678b8862f854"
+        },
+        {
+          "file": "firefox-ar-390-z1-mvayyp8n-07-identity-discard-viewport.png",
+          "sha256": "184903e7d59a5590987a1c46bb043e7e2bd4a5b2e88187ee5a611d3c40a1e1d3"
+        },
+        {
+          "file": "firefox-ar-390-z1-mvayyp8n-07-offline-saved-preview-viewport.png",
+          "sha256": "35224866c45d77bd75a3ec5ade42bbe254641c6aee502c5bb199291a1f905084"
+        },
+        {
+          "file": "firefox-ar-390-z1-mvayyp8n-07-protected-preview-viewport.png",
+          "sha256": "cb52c7ed38b8c02829330063c8a3be1d0750b1efa3259f67adb7e84991d48efc"
+        },
+        {
+          "file": "firefox-ar-390-z1-mvayyp8n-07-recovered-ready-viewport.png",
+          "sha256": "12d8a3a542281ecb4922d649f2338aeaf523d3cb2fe1e0f5f2fa2523db0ad92d"
+        },
+        {
+          "file": "firefox-ar-390-z1-mvayyp8n-07-reset-observed-viewport.png",
+          "sha256": "9fea4ea8ce7aec041d6c51b375416714d1df0ab4197455a72ce05c59d89e5536"
+        }
+      ],
+      "full_files_visually_inspected": [
+        {
+          "file": "firefox-ar-390-z1-mvayyp8n-05-reviewed-full.png",
+          "sha256": "cff950c823c24c1be0d324055f4a2acd7168fbafb8e6895f831c2f6bf01b44fd"
+        }
+      ]
+    },
+    {
+      "prefix": "ar-768-z1-mvaz1zqr",
+      "viewport_scene_count": 39,
+      "all_viewports_visually_inspected": true,
+      "actual_dimensions_count": {
+        "768x950@1": 39
+      },
+      "complete_event": {
+        "at": "2026-10-16T12:59:17.695Z",
+        "kind": "firefox",
+        "step": "ar-768-z1-mvaz1zqr complete",
+        "rejectedId": "RIFD-2026-042d2b32-557d-4853-9c5f-154d6a64de51"
+      },
+      "observations": [
+        "Long mixed Arabic/English names, address, identifiers, phone, email and filenames remain within their panels.",
+        "Focused linked purchase-explanation textarea and its inline error are fully visible in 01-error-field-focus.",
+        "Stored PNG/JPEG and painted Firefox native PDF content appear with visible document labels and Close actions.",
+        "Notifications and filtered/persisted queue contain settled records; card/table actions remain readable.",
+        "Saved note retains its orange visible focus ring on Save note in 05-reviewed.",
+        "Decision confirmations, stale refusal, private/published correction states, expiry and reset chooser are visually legible."
+      ],
+      "viewport_files": [
+        {
+          "file": "firefox-ar-768-z1-mvaz1zqr-01-error-field-focus-viewport.png",
+          "sha256": "d4fe1d494587c07032d9cb40a7658fe0d657158e99569d46caf2adc490707a81"
+        },
+        {
+          "file": "firefox-ar-768-z1-mvaz1zqr-01-products-viewport.png",
+          "sha256": "86aa3f8ba1f924cd7ce53109784d55ede8050553ffc6047fb994754f8ced32c4"
+        },
+        {
+          "file": "firefox-ar-768-z1-mvaz1zqr-01-review-viewport.png",
+          "sha256": "a9c3493e0d0443ec378fe1d3fc7dae1edc469b852292c3feedec549d0e9d875a"
+        },
+        {
+          "file": "firefox-ar-768-z1-mvaz1zqr-01-saved-focus-viewport.png",
+          "sha256": "20eb46de67b6f19844d9f6c89cb2e34f390255b1ff40f2ba7150fcf83aba5437"
+        },
+        {
+          "file": "firefox-ar-768-z1-mvaz1zqr-01-submitted-viewport.png",
+          "sha256": "8af90a8b031cb4bd0d8f7f7f08402ba48a137a447dc8ce7a4393fb7614d9d48d"
+        },
+        {
+          "file": "firefox-ar-768-z1-mvaz1zqr-01-validation-viewport.png",
+          "sha256": "0d60c1d2dcc8df589cf431e3640ff1b2eaf500c092aff6f1a50525a3116b7d69"
+        },
+        {
+          "file": "firefox-ar-768-z1-mvaz1zqr-02-failed-replacement-viewport.png",
+          "sha256": "5a44fd13ac3789045ccfb74bd4cf4048325ce04830add69221c737c5fc949131"
+        },
+        {
+          "file": "firefox-ar-768-z1-mvaz1zqr-02-old-saved-png-viewport.png",
+          "sha256": "463457c182386280d26b7a1f3402a47ce61de9851377a75d4fc4223d16f51a0f"
+        },
+        {
+          "file": "firefox-ar-768-z1-mvaz1zqr-02-save-recovery-viewport.png",
+          "sha256": "2f70019e17df59bb40c0a0db7c26fdf55c42871c9ab83bb1799e7192c6b199f7"
+        },
+        {
+          "file": "firefox-ar-768-z1-mvaz1zqr-02-saved-business-viewport.png",
+          "sha256": "267014e351c78a0653d1c5f01357f261a91a6bb94c40758172bfe2755d6df650"
+        },
+        {
+          "file": "firefox-ar-768-z1-mvaz1zqr-02-saved-identity-viewport.png",
+          "sha256": "8b857956f17092089fd327fe9fbf616c98d39c2d8ae59c07eb5f4a3047f10aed"
+        },
+        {
+          "file": "firefox-ar-768-z1-mvaz1zqr-02-saved-purchase-viewport.png",
+          "sha256": "0f8bdccb01f20849102c978127187ad91a0b45c50c6a87b10fc135e0c4aac1cf"
+        },
+        {
+          "file": "firefox-ar-768-z1-mvaz1zqr-03-historical-schedule-viewport.png",
+          "sha256": "b5a041286e2c42028fe3bfea8c0cc89be03b2fa984763c3942f4bd8c5ed2c787"
+        },
+        {
+          "file": "firefox-ar-768-z1-mvaz1zqr-03-notifications-viewport.png",
+          "sha256": "abd03ceae482e9e24d1ffc24621b9ec7f062fbcf11fd5ce0f944642af1ab6035"
+        },
+        {
+          "file": "firefox-ar-768-z1-mvaz1zqr-03-print-viewport.png",
+          "sha256": "97ef312ad7bc677a96b9f9012b406acf1af969403f231da4dd3312a3c91bdeac"
+        },
+        {
+          "file": "firefox-ar-768-z1-mvaz1zqr-03-tracking-viewport.png",
+          "sha256": "de7835701b1d9bf5cf90be4f6fe6ed6ce271f304b41c0a4e3d82925ad8e6c81a"
+        },
+        {
+          "file": "firefox-ar-768-z1-mvaz1zqr-04-empty-queue-viewport.png",
+          "sha256": "3399c4a67edf91dfccc52a98278a77a02ae2668608593c25f69c27cf0c1eafdf"
+        },
+        {
+          "file": "firefox-ar-768-z1-mvaz1zqr-04-filtered-queue-viewport.png",
+          "sha256": "aa8a66dcde45bb90723974f012f883541a8affc4dda2553c3b557105bb3a67f4"
+        },
+        {
+          "file": "firefox-ar-768-z1-mvaz1zqr-04-persisted-filters-viewport.png",
+          "sha256": "d5afb80059da96783badf89de216481092f8b289cd025b35f4f1dcd6ab507d28"
+        },
+        {
+          "file": "firefox-ar-768-z1-mvaz1zqr-04-queue-page-one-viewport.png",
+          "sha256": "d5e9b70ba8db559e96ff81f176de90825372d29d8825cdac12717fabbd80acfa"
+        },
+        {
+          "file": "firefox-ar-768-z1-mvaz1zqr-04-queue-page-two-viewport.png",
+          "sha256": "8f5a77d654093345ebff68fd2103c05945be712804e11df39da19b841351d86c"
+        },
+        {
+          "file": "firefox-ar-768-z1-mvaz1zqr-05-departure-guard-viewport.png",
+          "sha256": "572ce2109149023a6135ddc65149d8d8934e450251cdf06853036237b679ea2f"
+        },
+        {
+          "file": "firefox-ar-768-z1-mvaz1zqr-05-private-correction-viewport.png",
+          "sha256": "f87649b752dac610b2a19c17ab617ed5040cd23e35cde02e3d610892976316d5"
+        },
+        {
+          "file": "firefox-other-ar-768-z1-mvaz1zqr-05-private-hidden-from-staff-viewport.png",
+          "sha256": "57ebd136924304c37cd1a6ddddd0dac68046144b47f399c7314f106b3af0481b"
+        },
+        {
+          "file": "firefox-ar-768-z1-mvaz1zqr-05-published-and-verified-viewport.png",
+          "sha256": "aa09a502cbc037b355798373df9f0f12c34b913e61ac0f5660f6323240aa889e"
+        },
+        {
+          "file": "firefox-ar-768-z1-mvaz1zqr-05-reviewed-viewport.png",
+          "sha256": "6c4e58454d944d7e8f96f6a7f19b8d61905c1f4fa226162a895c1fc175237c7d"
+        },
+        {
+          "file": "firefox-ar-768-z1-mvaz1zqr-05-unchanged-error-viewport.png",
+          "sha256": "acce1328ef2f7244119302019e044497cc7205725bb59455678b7a7b35c56c9a"
+        },
+        {
+          "file": "firefox-ar-768-z1-mvaz1zqr-06-actual-rejection-viewport.png",
+          "sha256": "f9e81e376ed4fe335b68c1b00adebbd664d029ca7934b90772911e07a826cca8"
+        },
+        {
+          "file": "firefox-ar-768-z1-mvaz1zqr-06-confirm-approval-viewport.png",
+          "sha256": "9bead3d701f4cf049f43dfae32b52037b9ee37e88444da9a26a7107ed22f5f11"
+        },
+        {
+          "file": "firefox-ar-768-z1-mvaz1zqr-06-new-upcoming-schedule-viewport.png",
+          "sha256": "208d6731d0fa23e3be3f2637e3d7530900f82265e0cf1c341a17de0116345f78"
+        },
+        {
+          "file": "firefox-ar-768-z1-mvaz1zqr-06-rejected-public-viewport.png",
+          "sha256": "01d607c28cb0a8b1ca76c22892ab43c4f530a4e7aad3df1d52c5f133e65f0eb2"
+        },
+        {
+          "file": "firefox-ar-768-z1-mvaz1zqr-06-stale-refusal-viewport.png",
+          "sha256": "f189d817110695ce9d47baa7cc91c52c88925dcb8795c4829b8d361442f8a9e1"
+        },
+        {
+          "file": "firefox-ar-768-z1-mvaz1zqr-07-expired-viewport.png",
+          "sha256": "e058cafe2dc89e8ab94460637244051b6187edf6baa73cb28ad5c535a253da51"
+        },
+        {
+          "file": "firefox-ar-768-z1-mvaz1zqr-07-gallery-viewport.png",
+          "sha256": "9ba3b5dea6d8c06ffcc239dffaf0515e46e99049490fb35cd7aa465030d58179"
+        },
+        {
+          "file": "firefox-ar-768-z1-mvaz1zqr-07-identity-discard-viewport.png",
+          "sha256": "b95717e298bea57a24e52b6979b25c09ae142e341b6574f77600dc49b5d9e1ef"
+        },
+        {
+          "file": "firefox-ar-768-z1-mvaz1zqr-07-offline-saved-preview-viewport.png",
+          "sha256": "a9b5bd89070fff8dc8c4835a697ca4e5ac7aeaa44e7773c9c551164e42f94f4d"
+        },
+        {
+          "file": "firefox-ar-768-z1-mvaz1zqr-07-protected-preview-viewport.png",
+          "sha256": "bbcde21159304b142a1aa7f2bbe8163c995467211e3f59b80d30c2523f4946c1"
+        },
+        {
+          "file": "firefox-ar-768-z1-mvaz1zqr-07-recovered-ready-viewport.png",
+          "sha256": "a1330c2186f28ea62e32027ace7bf4bc6496aa0d45535f435d32d0f22bdb3007"
+        },
+        {
+          "file": "firefox-ar-768-z1-mvaz1zqr-07-reset-observed-viewport.png",
+          "sha256": "de516099bb729956f007fdf5d978c53d3f21d0b316855653ec2700b0f5d440b9"
+        }
+      ],
+      "full_files_visually_inspected": [
+        {
+          "file": "firefox-ar-768-z1-mvaz1zqr-05-reviewed-full.png",
+          "sha256": "7f7e87c2cf1b964c0a01b656ac254d9560a8b8c92960aa3e8c07e45267489c4f"
+        }
+      ]
+    },
+    {
+      "prefix": "ar-1440-z1-mvaz5agv",
+      "viewport_scene_count": 39,
+      "all_viewports_visually_inspected": true,
+      "actual_dimensions_count": {
+        "1440x950@1": 39
+      },
+      "complete_event": {
+        "at": "2026-10-16T13:02:05.045Z",
+        "kind": "firefox",
+        "step": "ar-1440-z1-mvaz5agv complete",
+        "rejectedId": "RIFD-2026-133cd817-1a87-46be-ad63-6c7478ceeb97"
+      },
+      "observations": [
+        "Long mixed Arabic/English names, address, identifiers, phone, email and filenames remain within their panels.",
+        "Focused linked purchase-explanation textarea and its inline error are fully visible in 01-error-field-focus.",
+        "Stored PNG/JPEG and painted Firefox native PDF content appear with visible document labels and Close actions.",
+        "Notifications and filtered/persisted queue contain settled records; card/table actions remain readable.",
+        "Saved note retains its orange visible focus ring on Save note in 05-reviewed.",
+        "Decision confirmations, stale refusal, private/published correction states, expiry and reset chooser are visually legible."
+      ],
+      "viewport_files": [
+        {
+          "file": "firefox-ar-1440-z1-mvaz5agv-01-error-field-focus-viewport.png",
+          "sha256": "65f255aefe0b96c69938beeb7a7ac0c78bc98c5f579a6dbb335e7089c057dd04"
+        },
+        {
+          "file": "firefox-ar-1440-z1-mvaz5agv-01-products-viewport.png",
+          "sha256": "b28d87453ccd8bfa33832146e42c43e078b911c0bcd37588c1d2f6118c9fb60d"
+        },
+        {
+          "file": "firefox-ar-1440-z1-mvaz5agv-01-review-viewport.png",
+          "sha256": "01b075dada118a88726ba59eeab2aa1feb513753d3d5475b31749ea6ca16156b"
+        },
+        {
+          "file": "firefox-ar-1440-z1-mvaz5agv-01-saved-focus-viewport.png",
+          "sha256": "91829dc1a3704c581fd40601aa220802466dfd9f84d3cfa130a21e7c14df319c"
+        },
+        {
+          "file": "firefox-ar-1440-z1-mvaz5agv-01-submitted-viewport.png",
+          "sha256": "35d8c0ce8cc9c6d98880ab9f28292c69b768945b1226292f815ef9971f91ff98"
+        },
+        {
+          "file": "firefox-ar-1440-z1-mvaz5agv-01-validation-viewport.png",
+          "sha256": "5bf060093a3508d668dd87edbcb344d736a3b0b42190d05fc515064d7b02ef76"
+        },
+        {
+          "file": "firefox-ar-1440-z1-mvaz5agv-02-failed-replacement-viewport.png",
+          "sha256": "08ec916b96b375e1340a15fba5696eddf3cab210ad506c41f3bea7b6e0d22f48"
+        },
+        {
+          "file": "firefox-ar-1440-z1-mvaz5agv-02-old-saved-png-viewport.png",
+          "sha256": "ccd90c53300d12ea8048662ae740cf0557f1d1718c2a2ec1133e15e82df7aac0"
+        },
+        {
+          "file": "firefox-ar-1440-z1-mvaz5agv-02-save-recovery-viewport.png",
+          "sha256": "3b6b84d79fe3973215c2cae8e44611e4fe15aafae0e0c9090def41265c6da443"
+        },
+        {
+          "file": "firefox-ar-1440-z1-mvaz5agv-02-saved-business-viewport.png",
+          "sha256": "6817d29bc2adeff63b25b89a6d666bfe114fb96e81cdb3444ed32c269e479452"
+        },
+        {
+          "file": "firefox-ar-1440-z1-mvaz5agv-02-saved-identity-viewport.png",
+          "sha256": "b15dcd284c101448c7ebcad4189b8ece2495801051c58684e429b3bcefe2db6a"
+        },
+        {
+          "file": "firefox-ar-1440-z1-mvaz5agv-02-saved-purchase-viewport.png",
+          "sha256": "fa72433d82f9d6c2a23f94857d426b190061d6b35f8721c97003b184ea850d2f"
+        },
+        {
+          "file": "firefox-ar-1440-z1-mvaz5agv-03-historical-schedule-viewport.png",
+          "sha256": "d4c453c6bb54fe62ef6360110106a3555d02e6dfc9bc1aa641251a07672e8725"
+        },
+        {
+          "file": "firefox-ar-1440-z1-mvaz5agv-03-notifications-viewport.png",
+          "sha256": "c6258a88c40d5e25329bf9571a0b8124a3bfa78182d06d709a9027119fb68e99"
+        },
+        {
+          "file": "firefox-ar-1440-z1-mvaz5agv-03-print-viewport.png",
+          "sha256": "38a2f1b7959a9c0bab59f050d0c40b8671ab38e0e1da3efba6369a79dc9073ca"
+        },
+        {
+          "file": "firefox-ar-1440-z1-mvaz5agv-03-tracking-viewport.png",
+          "sha256": "f1b208373e9053de952460be81e649e59b4212e5e3571c6559ff93f33e0ed7fc"
+        },
+        {
+          "file": "firefox-ar-1440-z1-mvaz5agv-04-empty-queue-viewport.png",
+          "sha256": "49a203d21ec66f6b6c4f08b56b135ac981c93ae74170cf729d884373bf4c7bea"
+        },
+        {
+          "file": "firefox-ar-1440-z1-mvaz5agv-04-filtered-queue-viewport.png",
+          "sha256": "138e9fdbd40530fec4a22a4b9886752152b0115d5526a6b2661ca8359dc5f2e1"
+        },
+        {
+          "file": "firefox-ar-1440-z1-mvaz5agv-04-persisted-filters-viewport.png",
+          "sha256": "255dda6671c948ac5dc65a0788c5e5a99814a055147c0c055e65405ba84025fe"
+        },
+        {
+          "file": "firefox-ar-1440-z1-mvaz5agv-04-queue-page-one-viewport.png",
+          "sha256": "06d698da95d9efb86bf4108ebd4ec0a320f95e4d9073fdb216f7aae3bec4036c"
+        },
+        {
+          "file": "firefox-ar-1440-z1-mvaz5agv-04-queue-page-two-viewport.png",
+          "sha256": "b0ae471d95f8147a29dba40b2c2254494f99e7d9996739a148d6b5bb8f037ff8"
+        },
+        {
+          "file": "firefox-ar-1440-z1-mvaz5agv-05-departure-guard-viewport.png",
+          "sha256": "459fb52149ee2fa0ce1f546602cd1812e62ba1e30e1378050910e0242e2c89c9"
+        },
+        {
+          "file": "firefox-ar-1440-z1-mvaz5agv-05-private-correction-viewport.png",
+          "sha256": "f478a22b5edf9652838b83dfdd2cf76c5f41cc1a64ada3bfce02c6d11ae35d9d"
+        },
+        {
+          "file": "firefox-other-ar-1440-z1-mvaz5agv-05-private-hidden-from-staff-viewport.png",
+          "sha256": "f75e7d6351efac50bd431d58ed0d2071fef86fe0bc07d7bc0c22bee601cd21f6"
+        },
+        {
+          "file": "firefox-ar-1440-z1-mvaz5agv-05-published-and-verified-viewport.png",
+          "sha256": "dee63da6088df4ace0963214b0dcde15d74ae57783967d79367ce85ffce3991f"
+        },
+        {
+          "file": "firefox-ar-1440-z1-mvaz5agv-05-reviewed-viewport.png",
+          "sha256": "beffb040b5e1942f9c42a6a58b65931c6ec2086b3b48c69a4e807bb42e8e47f0"
+        },
+        {
+          "file": "firefox-ar-1440-z1-mvaz5agv-05-unchanged-error-viewport.png",
+          "sha256": "337dcbad76283e55875af5a6297279acb5452f0166db3e44cd7d9e8f1c9571a6"
+        },
+        {
+          "file": "firefox-ar-1440-z1-mvaz5agv-06-actual-rejection-viewport.png",
+          "sha256": "b2efb3fc4228dfb7afa333672a170d67f7d9012e1c6d71077124c307f35eeb19"
+        },
+        {
+          "file": "firefox-ar-1440-z1-mvaz5agv-06-confirm-approval-viewport.png",
+          "sha256": "8b391c3b8255f199cd83dff5d41f004dcbb1861483abf6d39a237b72df7b4406"
+        },
+        {
+          "file": "firefox-ar-1440-z1-mvaz5agv-06-new-upcoming-schedule-viewport.png",
+          "sha256": "da9d0c405208f329b3367734e2323f74ea723663f8a8249d5606f2ca05e1601d"
+        },
+        {
+          "file": "firefox-ar-1440-z1-mvaz5agv-06-rejected-public-viewport.png",
+          "sha256": "1f0555995c5df2cd0980407e0f7484a7a9f17650b48aa95678ddeaf44f5b6501"
+        },
+        {
+          "file": "firefox-ar-1440-z1-mvaz5agv-06-stale-refusal-viewport.png",
+          "sha256": "71ffc5c4bc9698e6c60d966181514719e0936ec9016bff31606268759a47c054"
+        },
+        {
+          "file": "firefox-ar-1440-z1-mvaz5agv-07-expired-viewport.png",
+          "sha256": "e6dfca75ffd9482b44388898eacf97ae6bbd7b76623dbcacc83de6ae61675c80"
+        },
+        {
+          "file": "firefox-ar-1440-z1-mvaz5agv-07-gallery-viewport.png",
+          "sha256": "208f0a8347ddb5620cb7c93c0271ad6cdaa351497adf7ade5e1701d542b1fb32"
+        },
+        {
+          "file": "firefox-ar-1440-z1-mvaz5agv-07-identity-discard-viewport.png",
+          "sha256": "808a49b4b5202bb1fa75cdacf32ff86557973480f067c7b291cf87d91f5f1965"
+        },
+        {
+          "file": "firefox-ar-1440-z1-mvaz5agv-07-offline-saved-preview-viewport.png",
+          "sha256": "fbf31784162762f9d79b904a5275869438d6a97ad85e8f090f7749ac641e075e"
+        },
+        {
+          "file": "firefox-ar-1440-z1-mvaz5agv-07-protected-preview-viewport.png",
+          "sha256": "de901f88ca14d04a7c7dc83a7fee7e43f9958fbfd7a78743cabef501f9595423"
+        },
+        {
+          "file": "firefox-ar-1440-z1-mvaz5agv-07-recovered-ready-viewport.png",
+          "sha256": "1b0ee350a843aea94ab4273bba2644bdf9bca3f821f730e848a41b40b212b20a"
+        },
+        {
+          "file": "firefox-ar-1440-z1-mvaz5agv-07-reset-observed-viewport.png",
+          "sha256": "717c2aa9e8fd240029c59975039f2d77a61e1e1071063cba83615e6b3a4c890b"
+        }
+      ],
+      "full_files_visually_inspected": [
+        {
+          "file": "firefox-ar-1440-z1-mvaz5agv-05-reviewed-full.png",
+          "sha256": "5f9896c8ab54ea1ee0be880a7d0bc2a63dfc6449876a493995b98ebb4b6b41df"
+        }
+      ]
+    },
+    {
+      "prefix": "ar-1440-z2-mvaz8vlh",
+      "viewport_scene_count": 39,
+      "all_viewports_visually_inspected": true,
+      "actual_dimensions_count": {
+        "720x475@2": 38,
+        "1440x950@1": 1
+      },
+      "complete_event": {
+        "at": "2026-10-16T13:04:43.213Z",
+        "kind": "firefox",
+        "step": "ar-1440-z2-mvaz8vlh complete",
+        "rejectedId": "RIFD-2026-ac8cca3a-6192-4720-b95a-b7873fddc2a4"
+      },
+      "observations": [
+        "Long mixed Arabic/English names, address, identifiers, phone, email and filenames remain within their panels.",
+        "Focused linked purchase-explanation textarea and its inline error are fully visible in 01-error-field-focus.",
+        "Stored PNG/JPEG and painted Firefox native PDF content appear with visible document labels and Close actions.",
+        "Notifications and filtered/persisted queue contain settled records; card/table actions remain readable.",
+        "Saved note retains its orange visible focus ring on Save note in 05-reviewed.",
+        "Decision confirmations, stale refusal, private/published correction states, expiry and reset chooser are visually legible."
+      ],
+      "viewport_files": [
+        {
+          "file": "firefox-ar-1440-z2-mvaz8vlh-01-error-field-focus-viewport.png",
+          "sha256": "f2bdcd4d9da6b5980c897b12a207c61008b3cc92a5a6cec6792b125fdbc7e318"
+        },
+        {
+          "file": "firefox-ar-1440-z2-mvaz8vlh-01-products-viewport.png",
+          "sha256": "3845bc024bb5e45ed854bfd51100a9b5666137ecfead44dad0822418d1ceea77"
+        },
+        {
+          "file": "firefox-ar-1440-z2-mvaz8vlh-01-review-viewport.png",
+          "sha256": "103b2e83daf14ac96dce676791f71bc0762db130d269332fa0c4074d24661357"
+        },
+        {
+          "file": "firefox-ar-1440-z2-mvaz8vlh-01-saved-focus-viewport.png",
+          "sha256": "5823277e49780cb47eb37501cd01171c01640a595c0ce7a3b0ce24e44cf83f77"
+        },
+        {
+          "file": "firefox-ar-1440-z2-mvaz8vlh-01-submitted-viewport.png",
+          "sha256": "74e7b78cb893f021fa8c96e2a1dd0bc628db87a130773489fa5a6a290459e268"
+        },
+        {
+          "file": "firefox-ar-1440-z2-mvaz8vlh-01-validation-viewport.png",
+          "sha256": "eaa98c609329730a6311fd2d3a3e53b1b1a60c3b34d8d26eb1bcbbb642b7e18a"
+        },
+        {
+          "file": "firefox-ar-1440-z2-mvaz8vlh-02-failed-replacement-viewport.png",
+          "sha256": "db955c44454ffd794472f7177f4be18f727661568165474c4348b1dd768c959f"
+        },
+        {
+          "file": "firefox-ar-1440-z2-mvaz8vlh-02-old-saved-png-viewport.png",
+          "sha256": "9a3426af5d742a2fa44d0212d555bc9a3ae73be53e2d1ab2c198dca9a0b5a156"
+        },
+        {
+          "file": "firefox-ar-1440-z2-mvaz8vlh-02-save-recovery-viewport.png",
+          "sha256": "3bc32dcb0ec306ab36b1ae820fdec9b54465ac2f7f559fcb515c37ba730cb4e3"
+        },
+        {
+          "file": "firefox-ar-1440-z2-mvaz8vlh-02-saved-business-viewport.png",
+          "sha256": "6de5bc16a0f0db6993f41413c5ec18ad3f2c506471561e3fc9e15771c24ff3c3"
+        },
+        {
+          "file": "firefox-ar-1440-z2-mvaz8vlh-02-saved-identity-viewport.png",
+          "sha256": "e6aefb3723c0e29a662e235c8b0324655a556df45a8f760ff955f249eb25bd5b"
+        },
+        {
+          "file": "firefox-ar-1440-z2-mvaz8vlh-02-saved-purchase-viewport.png",
+          "sha256": "8632215b1f724b12a6833726fe4ae4ff99cd9878ec4895ff644b5ca37fc086bb"
+        },
+        {
+          "file": "firefox-ar-1440-z2-mvaz8vlh-03-historical-schedule-viewport.png",
+          "sha256": "2b425f6e793fe0b762e956b086678fa369845f1ca0975cd149e1e7db1548ba31"
+        },
+        {
+          "file": "firefox-ar-1440-z2-mvaz8vlh-03-notifications-viewport.png",
+          "sha256": "fb75dbded6ece486ea36314890123940b2468b9ae2e3c34e4e57aca2e3f53cf4"
+        },
+        {
+          "file": "firefox-ar-1440-z2-mvaz8vlh-03-print-viewport.png",
+          "sha256": "60777018bd6a35eadc8cec2441724de12aac7ef4dbb5e5d896c822a5defe6f16"
+        },
+        {
+          "file": "firefox-ar-1440-z2-mvaz8vlh-03-tracking-viewport.png",
+          "sha256": "e97fba632b8b18bdb830e47ee568f55d7539741846d50ebfd75b96b40ba1a9e8"
+        },
+        {
+          "file": "firefox-ar-1440-z2-mvaz8vlh-04-empty-queue-viewport.png",
+          "sha256": "9e328fc50d0877f43294a582b99f9fa28e3969d3dc27bc013d19b2ecfee8e990"
+        },
+        {
+          "file": "firefox-ar-1440-z2-mvaz8vlh-04-filtered-queue-viewport.png",
+          "sha256": "d12b47413dea8305ddc191fffe23b5b4d1f65fef5cc5b50ef1657e27b063aa4f"
+        },
+        {
+          "file": "firefox-ar-1440-z2-mvaz8vlh-04-persisted-filters-viewport.png",
+          "sha256": "d12b47413dea8305ddc191fffe23b5b4d1f65fef5cc5b50ef1657e27b063aa4f"
+        },
+        {
+          "file": "firefox-ar-1440-z2-mvaz8vlh-04-queue-page-one-viewport.png",
+          "sha256": "d12b47413dea8305ddc191fffe23b5b4d1f65fef5cc5b50ef1657e27b063aa4f"
+        },
+        {
+          "file": "firefox-ar-1440-z2-mvaz8vlh-04-queue-page-two-viewport.png",
+          "sha256": "f2c1d9cd4da593764cb2d24cbbadc6ac276367ab83d37f7c76fe9c4d74709255"
+        },
+        {
+          "file": "firefox-ar-1440-z2-mvaz8vlh-05-departure-guard-viewport.png",
+          "sha256": "7e46c8c4fa7c7eec2ef6a3b1ad10a59e640bafa516d6afd72d8db9c62bd48660"
+        },
+        {
+          "file": "firefox-ar-1440-z2-mvaz8vlh-05-private-correction-viewport.png",
+          "sha256": "5843d522f3c83707e3fa8689291e2b7ed361dbaeac4474fd48ecb25ab2fd0f78"
+        },
+        {
+          "file": "firefox-other-ar-1440-z2-mvaz8vlh-05-private-hidden-from-staff-viewport.png",
+          "sha256": "546b8063efc2f72a0c0a6a79e22653c9d5b47f6988cff72109852f42f24690a9"
+        },
+        {
+          "file": "firefox-ar-1440-z2-mvaz8vlh-05-published-and-verified-viewport.png",
+          "sha256": "c9b10a79aaff2ef51e44248cd0f77c02e0144b1dd51642481cc1b8ec564e6bcb"
+        },
+        {
+          "file": "firefox-ar-1440-z2-mvaz8vlh-05-reviewed-viewport.png",
+          "sha256": "721a37b37de0f86bd76849d3054a5fb9a91e3cf7b46ca31e50a6ee547f09d610"
+        },
+        {
+          "file": "firefox-ar-1440-z2-mvaz8vlh-05-unchanged-error-viewport.png",
+          "sha256": "cf58e3261b8f024f0d726c29e095ae41aa765c670c1a697f518a3ed6153f50ff"
+        },
+        {
+          "file": "firefox-ar-1440-z2-mvaz8vlh-06-actual-rejection-viewport.png",
+          "sha256": "14320b91933ef4c837f077e53175a25ae6fe73fd269035ef33778e564c9a3c5a"
+        },
+        {
+          "file": "firefox-ar-1440-z2-mvaz8vlh-06-confirm-approval-viewport.png",
+          "sha256": "479735d592ffb51bad726c5ebf2f67c250e4d27fa73943a48e9d1c8e5c08a680"
+        },
+        {
+          "file": "firefox-ar-1440-z2-mvaz8vlh-06-new-upcoming-schedule-viewport.png",
+          "sha256": "636feb65792fe9b77a9640180f0b68c0ea3377cca2aa4f45f9361de0bc473ef4"
+        },
+        {
+          "file": "firefox-ar-1440-z2-mvaz8vlh-06-rejected-public-viewport.png",
+          "sha256": "b6237b549e3c30bcd7d45f5bff502c5bd965469f4ba860a104c92508b578d29a"
+        },
+        {
+          "file": "firefox-ar-1440-z2-mvaz8vlh-06-stale-refusal-viewport.png",
+          "sha256": "7de29b8261d25b149004923b5faa31ef8e2fc425af75e64692f0f29351c670d1"
+        },
+        {
+          "file": "firefox-ar-1440-z2-mvaz8vlh-07-expired-viewport.png",
+          "sha256": "2f8c5d6f1ee533b70331ef0eb2abb900be7b0553fa3fadb014981343129b75ee"
+        },
+        {
+          "file": "firefox-ar-1440-z2-mvaz8vlh-07-gallery-viewport.png",
+          "sha256": "2d991e0b319f5bf34d2e78d317b4900cf97b6cca79e099f9943de5b79b91eebc"
+        },
+        {
+          "file": "firefox-ar-1440-z2-mvaz8vlh-07-identity-discard-viewport.png",
+          "sha256": "82a5e9d1acc01f4ddc05278c25bbb8cce338b93a1f02acf18885902350bbde5c"
+        },
+        {
+          "file": "firefox-ar-1440-z2-mvaz8vlh-07-offline-saved-preview-viewport.png",
+          "sha256": "8850f9b808abe861f2646548d338846b3e8e0d6b0c81a619ada217b9a4d3bb27"
+        },
+        {
+          "file": "firefox-ar-1440-z2-mvaz8vlh-07-protected-preview-viewport.png",
+          "sha256": "98e33147b03f4724aa5920863684ae861e96d2817c1e6bd2f7dc157df4d2f978"
+        },
+        {
+          "file": "firefox-ar-1440-z2-mvaz8vlh-07-recovered-ready-viewport.png",
+          "sha256": "aa802ebbabd74165fb4774a8888ebbe13273b72ee23fde052afd425487930f37"
+        },
+        {
+          "file": "firefox-ar-1440-z2-mvaz8vlh-07-reset-observed-viewport.png",
+          "sha256": "717c2aa9e8fd240029c59975039f2d77a61e1e1071063cba83615e6b3a4c890b"
+        }
+      ],
+      "full_files_visually_inspected": [
+        {
+          "file": "firefox-ar-1440-z2-mvaz8vlh-05-reviewed-full.png",
+          "sha256": "e73dfcf154f2eb3ad3874fd54be2d8729104c2381043c4e7601851f82f3f56b3"
+        }
+      ]
+    }
+  ]
+}

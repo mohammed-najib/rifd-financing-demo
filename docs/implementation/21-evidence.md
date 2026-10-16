@@ -1,13 +1,14 @@
 # Slice 21 bilingual, accessibility, preview and print acceptance
 
 [Issue 21](../../.scratch/financing-application-and-review-implementation/issues/21-bilingual-accessibility-preview-and-print-acceptance.md)
-is **partial**. The implementation and automated checks are committed; the full
-manual journey matrix, native 200% browser zoom, screen-reader smoke and visible
-native multipage PDF preview still need completed evidence. Responsive
-screenshots and accessibility-tree reads do not close those requirements.
+is complete. The 16 October follow-up records ten ordinary-browser walkthroughs,
+supplemental correction and recovery flows, final control rechecks, native PDF
+and image-fallback checks, and the four-scene user-assisted reader pass.
+The complete automated invocation failed five Firefox startup waits; all five
+passed in an unchanged-source file recheck. Both results are retained.
 
 The implementation started at `4ba0547e76d23fdfe2b291153d5dbd454cfba5e2`.
-The final UI source is `a3d0610e159dc1d95143988f660c38a7a56d219e`.
+The UI source for the earlier evidence below is `a3d0610e159dc1d95143988f660c38a7a56d219e`.
 The later reset test corrections are `c364706` and `9472adf`; production source
 files match `a3d0610` exactly.
 No hosted release or physical-device result is claimed.
@@ -194,50 +195,350 @@ and history stay within their pages, with no staff controls or internal review
 sections observed. The original PDFs are retained under `evidence/21/print/`;
 rendered pages remain in the final run's `print-review/` directory.
 
-The ordinary Firefox PDF viewer exposed two pages but the captured embedded
+The earlier ordinary Firefox PDF viewer exposed two pages but the captured embedded
 viewer remained blank at page 0. Later inspection reported the Firefox document
 as hidden despite a focus request; a requestAnimationFrame read also timed out.
 Stored/downloaded PDF bytes and Poppler renders are valid. This does not confirm
 a product defect or establish successful native multipage preview rendering;
-the ordinary-browser preview check remains open.
+the ordinary-browser preview check remained open at that stage. The follow-up
+below records later visible native rendering.
 
-## Remaining manual acceptance
+## Follow-up acceptance on 16 October
 
-| Check | Required follow-up |
-| --- | --- |
-| Seven complete journeys | Walk both languages and roles at every agreed width, including long text, errors, recovery, transitions and primary actions. Record each result and capture against the tested commit. |
-| Ordinary-browser keyboard flows | Complete keyboard-only application, correction, review and decision flows in ordinary Chrome and Firefox. Include departure guards and live feedback; selected gallery and validation checks do not close this row. |
-| Native 200% zoom | Verify the browser's zoom value and actual CSS viewport. Check reflow, focus, errors and primary actions in both directions. |
-| Screen reader | Complete validation, save, preview and decision-dialog smoke with an actual reader/browser pairing. Orca 50.2 with AT-SPI2 2.60.6 and Speech Dispatcher started, but concurrent automation took focus and prevented a reliable paired pass. Startup/output logs alone are not a pass. |
-| Native PDF preview | Confirm visible first/second PDF pages, scrolling and open/download fallback in ordinary Chrome and Firefox, including a narrow viewport. |
-| Manual image preview | Inspect JPEG/PNG mobile scrolling, labels and fallback, then verify closure on expiry, identity change and reset in ordinary Chrome and Firefox. Automated stored-byte and security checks do not establish this manual pass. |
+This pass starts at `522fc0f2224564ad92692d8f146673da3e09aab4`.
+Commits `df4eda1` and `4950b07` fix missing document-slot labels in applicant
+previews. The draft and correction editor previously opened a generic dialog
+without identifying its document requirement. Review found the same omission in
+read-only applicant detail. Every preview now requires a bilingual label, renders
+it visibly and uses it as the dialog's accessible description. Staff review and
+public correction-history previews already supplied their labels.
 
-The remaining checks do not require a conformance score. No full accessibility
-conformance, Safari, Android or iPhone result is inferred from these artifacts.
+Each missing entry point failed a screen regression before its fix. The final
+[preview results](evidence/21/followup-2026-10-16/preview-results.json) contain six
+passing Arabic/English cases across Chrome 155.0.8059.39, pinned Firefox 157.0 and
+WebKit 27.2. They inspect the saved PNG, JPEG and multipage PDF after refresh,
+then open the separate applicant-detail preview. Typecheck, lint and all 105
+domain tests also passed. These assertions use the accepted production-screen
+seam and literal document names from the screen contract.
+
+The [capture record](evidence/21/followup-2026-10-16/captures.json) and retained
+images extend the direct ordinary-browser evidence. Chrome displays both PDF
+pages at a measured 1441 CSS pixels and scrolls to page two at 390px. Firefox
+155.0.1 also visibly renders page two. Its native zoom manager reports `2`, and a
+floating test window measures 390 by 473 CSS pixels at that setting. The narrow
+Firefox captures show the document label, saved PNG and JPEG, keyboard-reachable
+Open file and Download file links, and a decision confirmation with its reason
+and two actions. Activating the explicit Expire session demo control while a
+preview is open closes protected content and shows the recovery chooser. That
+control was invoked programmatically because the modal makes the header inert.
+This is a simulated expiry observation, not a fifteen-minute idle-timer test.
+
+These native captures use the editor-label build at `df4eda1`. Their loaded
+script was `index-QBNcnFOq.js`. The
+[editor source manifest](evidence/21/followup-2026-10-16/editor-source.json)
+was captured with the equivalent uncommitted source before that commit. Its
+129 source hashes match `df4eda1`. The
+[applicant-detail source manifest](evidence/21/followup-2026-10-16/final-source.json)
+pins `4950b07` and `index-BffC_UcS.js`. Only the applicant-detail caller, required
+label prop and additional detail assertion differ between those manifests.
+The full stylesheet hash stays
+`7cdf6b5894543437ca5c964660faa44fb8dff2359df2ac168ebcf40f66710345`.
+The native editor captures do not claim to retest the later detail caller.
+
+The `4950b07` [native preview observations](evidence/21/followup-2026-10-16/native-preview-observations.json)
+add ordinary Firefox applicant-detail captures at 795 by 965 CSS pixels. The
+native page-number field navigates to visibly rendered pages one and two. The
+Download file link saves the actual 97,887-byte PDF, retained with its hash.
+Open file creates a separate viewer that parses two pages, but its capture still
+shows loading. A diagnostic in the background test window receives no animation
+frame within two seconds despite reporting `visibilityState: visible`. Pointer
+closure also leaves its deferred focus return unobserved. These background
+attempts establish neither successful separate-viewer painting nor a new product
+defect. They remain distinct from the user-operated foreground reader scenes.
+
+The [reader observations](evidence/21/followup-2026-10-16/reader-observations.json)
+record a user-assisted smoke pass with Orca 50.2, ordinary Firefox 155.0.1,
+AT-SPI2 2.60.6 and Speech Dispatcher on Omarchy Linux. The user supplied physical
+keyboard input and confirmed all four selected scenes. Arabic validation
+announces the business-address field and its error. Arabic Save progress
+announces the saved state while keeping focus. The English identity preview
+announces its title, document label and Close control. The English decision
+confirmation announces its content/actions, and Escape returns focus to Inspect
+rejection. A post-check read confirms the decision dialog closed and the opener
+has focus. No final decision was committed.
+
+The reader scenes loaded `index-BffC_UcS.js` from `4950b07`. Two `4950b07`
+captures retain the preview and decision scenes. Filtered speech excerpts retain
+only relevant fictional UI announcements. The saved-state announcement is a
+user observation, without a claimed matching speech excerpt. Earlier attempts
+were interrupted by other browser accessibility activity or unreliable synthetic
+input into Orca's navigation context. They do not count as passes. This smoke
+does not repeat every scene in both languages or establish full conformance.
+
+An ordinary Firefox role switch exposed a separate focus race. The queue briefly
+focused an unavailable heading read for the previous identity, then removed it.
+Commit `30cc416` makes route readiness wait for the captured path, identity and
+session to match the completed read. Re-selecting the same identity alone had
+missed this defect. The guard-only attempt still failed all six role-switch
+cases. The corrected [focused results](evidence/21/followup-2026-10-16/focus-results.json)
+contain 18 passes, without skipped or flaky cases. They cover role-switch heading
+focus, saved preview labels and retained Save progress focus in both languages
+and all three acceptance engines. The separate
+[focus source manifest](evidence/21/followup-2026-10-16/identity-focus-source.json)
+pins `30cc416` and `index-DnvbKOzo.js`. It does not relabel the earlier reader run.
+
+Visual review then found Arabic currency runs reordering a shared separator in
+the editor minimum/maximum range and staff budget comparison. Commit `47121d2`
+isolates each formatted operand inside the LTR expression. A public-screen
+regression measures the rendered character positions at both locations. Before
+the fix, the three Arabic cases failed and the three English cases passed.
+Afterward all six passed. Typecheck, lint and build also passed. The bundle is
+`index-BDM__Rll.js`, SHA-256
+`6381673d50b8af12c990a526a8332a44b4d1cb7f5190c2e2b93e3d9fe3d8c1d4`.
+
+Commit `787fa2f` keeps the reviewer note Save button focused during saving and
+after clearing the saved note. It exposes its unavailable state with
+`aria-disabled` and guards repeat activation; permission loss still disables it.
+All six bilingual regressions failed before the fix. The final completed engine
+rechecks pass. Earlier attempts include temporary Firefox storage exhaustion and
+Chrome socket-path failures, retained separately in the
+[additional regression reports](evidence/21/followup-2026-10-16/additional-regressions.json).
+Those environmental failures are not passing runs.
+
+Commit `b04763b` keeps validation-linked fields visible. Same-path query changes
+preserve the field's focus scroll, and structural and unchanged-correction error
+links center their target. The first fix still left WebKit targets partly off
+screen. The final six cases pass with the entire field in the viewport, including
+repeated same-step links and unchanged correction field/file targets. An earlier
+extended WebKit attempt did not wait for the validation summary's intended
+initial focus; the settled-summary recheck is the passing report.
+
+Commit `36deb6f` preserves focus on queue preference selects and Reset filters
+while saving. Pending and refused operations expose `aria-disabled`, retain their
+visible unavailable state and reject further changes through guarded handlers.
+The six select cases fail before the fix; a separate Reset filters regression
+also fails before its fix. The final 12 cases pass in three engines, including
+existing missed-notice conflict and uncertain-save recovery. The
+[queue source manifest](evidence/21/followup-2026-10-16/queue-source.json)
+pins 129 source files, `index-HebM4UWC.js` and `styles-C1VBoyd-.css`. The added
+unavailable-select Tailwind variants change the stylesheet SHA-256 to
+`7aed7a781e86e538f77967a65696ba473cb680f1f658575c53effaaded9a0a39`.
+
+Commit `43bde54` corrects empty saved-draft fields in detail and print. Blank
+business name and address now use the shared empty marker; only the purchase
+explanation uses its specific message. All six bilingual cases pass. The first
+red run confirms the English defect; its Arabic cases used a shortened label,
+so those failures are excluded as product evidence.
+
+Commit `7c2fc95` keeps queue page buttons focused during reading and at page
+boundaries, with guarded `aria-disabled` controls. It also shows waiting and
+preparation instructions only when work is pending or cannot yet be saved.
+Ordinary unsaved work has accurate departure guidance. Corrected public-screen
+regressions fail before these fixes and all nine cases pass afterward. The first
+pagination attempt pressed Next while it was still unavailable after Reset;
+that setup failure is retained separately from the confirmed focus defect.
+
+The [complete-gate source manifest](evidence/21/followup-2026-10-16/gate-source.json)
+pins `7c2fc951b8a2ec62675380f6faa4be3844a12d7c`, 129 source files and
+`index-DspimcEY.js`, SHA-256
+`dafc403575a77c4fe8264d1c8b69796561932b68c075d7f5c61e7fbf867c2cb4`.
+The stylesheet remains `styles-C1VBoyd-.css` with the hash above.
+
+### Complete ordinary-browser journeys
+
+The [journey record](evidence/21/followup-2026-10-16/journey-results.json)
+contains ten completed walks with 390 captured scenes. Arabic uses ordinary
+Firefox 155.0.1; English uses installed Chrome 155.0.8059.39. Both run headless.
+Each pairing completes all seven journeys at 360, 390, 768 and 1440 CSS pixels,
+then at native browser zoom 2, measured as 720 by 475 CSS pixels and DPR 2.
+The Arabic walkthrough's final reset chooser was actually captured at 100%;
+a separate final-build reset chooser recapture supplies the missing 200% scene.
+These are UI-driven walks with visual screenshot review, distinct from the
+production-screen checkpoint suite. The record retains scene metadata, source
+bindings and hashes, plus 43 supplemental scenes, 38 scene rechecks and 30 final
+focus rechecks. The 188 selected unaltered screenshots are committed under
+`evidence/21/followup-2026-10-16/journeys/`; the manifest records their count,
+pixel dimensions and hashes.
+Full viewport/full-page captures and keyboard/event logs remain in the ignored
+`artifacts/acceptance/21/followup-v2/matrix` directory.
+
+The walks exercise validation/error links, long mixed text, real saves and hard
+refresh, preparation/save failure and retry, saved PNG/JPEG/PDF previews,
+notifications, tracking and schedules, queue pages and durable preferences,
+review checks and notes, departure guards, stale decision refusal and fresh
+confirmation, approval and rejection, private corrections and publication,
+loaded-demo offline behavior, recovery and protected-preview closure. The
+correction case compares separate applicant/staff tabs before publication.
+Browser setup uses direct route entry and genuine hard refresh. Product actions
+use Tab/Shift+Tab, Enter/Escape, text input and native select typeahead.
+
+Most walks use `36deb6f`. Their known empty-field, departure-copy and pagination
+findings are corrected by the later commits, with 38 targeted scene rechecks
+bound to `7c2fc95`. Both ordinary browsers recheck pagination focus, idle
+departure guidance and empty fields at every width and native 200% zoom. The
+English 360px secondary staff tab initially measured 1440px after helper
+reinitialization; a separate both-tabs 360px privacy recheck passes.
+
+The original Chrome native200 viewport images were cropped by the capture API.
+They are excluded. A complete repeat uses CDP capture without a clip and retains
+1440 by 950 physical-pixel images for the measured 720 by 475 CSS viewport.
+Firefox's native200 viewport captures render the complete visible viewport.
+Each explicit reset intentionally restores Arabic. Expire/switch demo controls
+are invoked programmatically while the modal makes the header inert; this does
+not claim a fifteen-minute idle-expiry test.
+
+Supplemental `7c2fc95` walks create and send a new missing-financial-document
+request, save its private applicant response, confirm staff still sees no
+document, then publish and accept the replacement. English uses separate tabs;
+Arabic uses explicit identity switches in one tab. The primary matrix already
+checks simultaneous applicant/staff privacy in both languages. Composer and
+confirmation captures cover all five sizes. After resizing or zooming, keyboard
+refocus brings the reason into view before its capture.
+
+Both supplemental walks enable the actual Slow demo control and observe
+Saving followed by Saved while focus stays on Save progress. They then inject a
+`SecurityError` at the native IndexedDB open boundary before a genuine reload.
+The startup error hides the protected draft and offers Retry at all five sizes.
+Restoring that boundary and activating Retry recovers the exact saved fictional
+text. This is an injected platform fault, not a claim that the machine denied
+storage permission. Earlier Firefox driver/protocol timeouts are excluded;
+`coredumpctl` found no Firefox core dumps in the checked time range, so no crash
+cause is inferred.
+
+Visual review covers all 390 primary viewport scenes, selected readable
+full-page captures, final control rechecks, supplemental scenes and final focus corrections.
+Review records retain their source and image hashes. The known historical findings
+above have passing final-source regressions and ordinary-browser rechecks.
+
+### Final native preview checks
+
+The [native observations](evidence/21/followup-2026-10-16/native-final-observations.json)
+record the completed native checks against `7c2fc95`. Both ordinary browsers
+visibly render PDF pages one and two after refresh, paint a separate Open file viewer, and download a PDF
+that parses as two pages. The embedded previews use 390 CSS pixels. Chrome's
+separate viewer is also 390px; Firefox's separate viewer measures 1366 by 682.
+The actual files and their byte counts/hashes are retained.
+
+Both languages also show the correct document label and render-error fallback
+for a saved unreadable PNG after refresh. Retry preserves the error and file;
+Download returns the exact 34 original bytes. Escape closes the dialog and
+returns focus to its opener. The complete walks cover ordinary PNG/JPEG
+painting and preview closure on simulated expiry, identity change and reset.
+
+Chrome uses pointer wheel input inside the native PDF to reach page two. Open
+and Download use explicit focus setup on the public link followed by keyboard
+Enter after returning from the native viewer. This does not claim keyboard
+traversal of every native PDF toolbar control. Earlier native-toolbar keyboard
+targeting attempts, interrupted interactive controls and hibernation are not
+passing results. The fresh sessions complete their checks independently.
+
+### Final keyboard-focus corrections
+
+The last screenshot review found that Firefox could keep Next focused while
+list replacement left the control below the viewport. Two bilingual red cases
+confirmed viewport ratio zero after a settled page update. Commit `9783563`
+centers an already focused pagination button after a successful read. It keeps
+focus in place and leaves other active controls alone. Ordinary Chrome and
+Firefox verify Next and Previous at every width and native 200% zoom. Their
+centered-paging captures use `index-XBvAwAew.js` from the uncommitted
+[paging source](evidence/21/followup-2026-10-16/paging-source.json); the queue
+file and stylesheet exactly match the final commit. A preliminary nearest-edge
+scroll left a fractional edge at 950.2 CSS pixels; its interrupted run is retained.
+
+Review also found BODY focus after accepting a document. A corrected settled-save
+regression reproduced that loss in both languages. The first red attempt tried
+Accept before the previous assessment finished, so it is excluded. The same
+commit keeps assessment, check and field-verification actions focused through
+pending saves, exposes `aria-disabled`, and guards repeated activation. A
+synchronous pending-intent guard prevents distinct overlapping writes. When a
+saved replacement editor disappears, a post-commit effect returns focus to its
+opener only if the user kept focus on the initiating action and the removal
+left BODY focused. Failed saves retain the editor. Cancel returns its opener.
+The first animation-frame restoration failed two focused cases; those failures
+remain separate from the passing post-commit recheck.
+
+All six focused Firefox cases pass, covering both languages, pending feedback,
+one assessment after repeated Enter, check/verification focus, replacement
+opener return and complete page-button visibility. Both ordinary browsers also
+complete the final review-action walkthrough, including field verification
+after a real correction response. These final review captures use the final
+`index-BlDMRUUu.js` bundle. Editor-only Slow controls were mistakenly requested
+on a staff screen in an earlier setup; that attempt was stopped and excluded.
+The separate supplemental editor Slow-save evidence above remains valid.
+The [execution notes](evidence/21/followup-2026-10-16/browser-execution-notes.json)
+retain setup failures, superseded captures and temporary-storage recovery with
+raw log hashes.
+
+The [final source manifest](evidence/21/followup-2026-10-16/release-source.json)
+pins `9783563`, source SHA-256
+`b1da0583e187615428a923dd61d6c1a47317920616ed0b841c738e3f2903970b`,
+and `index-BlDMRUUu.js`, SHA-256
+`66acc0897d2a32d60c3747de56aebf4227248c141f9ed4c7c74ecc277c645051`.
+The stylesheet remains `styles-C1VBoyd-.css`. Relative to the complete gate,
+only two UI files and three screen-test files changed; all other 124 recorded
+files, including the domain and browser API suite, match. Typecheck, lint and
+build pass on the final source. The complete affected-file recheck is recorded
+with its own result below.
+
+### Final acceptance gate
+
+The complete gate ran against `7c2fc95` in
+`artifacts/acceptance/21/2026-10-16T13-38-57.906Z`. Typecheck, lint, all 105
+domain tests, all 11 skill tests, packaged-guidance checks and build passed.
+All 158 API cases passed. The screen suite passed 559 of 564 cases and failed
+five Firefox workspace-startup waits. The full invocation remains **failed**.
+
+All five failures stopped at the 30-second readiness assertion before their
+assignment actions. An unchanged-source Firefox recheck of the entire affected
+file passed all six cases, without skips, flaky retries or longer assertion
+waits. The 129-file source guard found no changes. Resource contention is a
+possible explanation, but these results do not establish its cause. Every
+distinct required API/screen case has a passing result in this consolidated
+verification; this is not a claim of one uninterrupted passing full run.
+The [verification record](evidence/21/followup-2026-10-16/verification-results.json)
+retains exact case names, report hashes, timings and source bindings.
+
+The final affected-file run against `9783563` passed all 165 cases across the
+complete acceptance, queue, review, correction-request and resubmission screen
+files. Chrome, Firefox and WebKit each passed 55 cases, with no skips or flaky
+retries. The [case record](evidence/21/followup-2026-10-16/affected-file-results.json)
+retains every case, its source binding and the complete report hash. This final
+recheck supplements the earlier full run and unchanged assignment recheck.
+
+The copied runner executes the same checks, with independent API/screen servers
+concurrently using two/four workers. The repository runner is unchanged; the
+retained [complete run](evidence/21/followup-2026-10-16/complete-run.json)
+records both runner hashes and this execution change, with the exact
+[copied runner](evidence/21/followup-2026-10-16/acceptance-parallel.mjs.txt). Stopped
+invocations remain in the
+[interrupted run record](evidence/21/followup-2026-10-16/interrupted-runs.json).
+The final source has the narrower affected-file and ordinary-browser rechecks
+above. The unchanged domain/API results retain their `7c2fc95` binding. No claim
+is made that every required case ran against `9783563`, or that either source
+has one uninterrupted passing full-gate invocation. No full accessibility
+conformance, Safari, Android or iPhone result is inferred.
 
 ## Review and reproduction
 
-The required two-axis review compared `4ba0547...2453162`, then reviewed the
-Save progress focus fix, final evidence, shared dialog containment, and sample-selection, language-setup, reset-foreground and measured reset-budget corrections.
+The earlier review compared `4ba0547...2453162` and its subsequent fixes.
+The follow-up two-axis review compares
+`522fc0f2224564ad92692d8f146673da3e09aab4` through
+`7c2fc951b8a2ec62675380f6faa4be3844a12d7c`, then reviews `9783563` and the
+final evidence.
 
-### Standards
+Standards has no outstanding findings. Changes follow the repository's Tailwind
+conventions and accepted screen seam. Pending controls preserve focus, expose
+unavailable states and guard activation. Shared dialog containment keeps the
+existing Escape and opener-return behavior. Native PDF toolbar internals have
+the narrower input scope recorded above.
 
-No outstanding findings. The UI follows the repository's Tailwind conventions. Tests observe
-screen, file, pointer and print behavior at the accepted browser seam. The
-synthetic history is fixture setup, not a private storage assertion. The focus
-fix preserves disabled semantics and guards repeat activation synchronously.
-The dialog helper serves seven existing callers and keeps their Escape and
-opener-return handlers. Its browser tests cover controls and links; native PDF
-viewer internals remain outside that evidence.
+Spec has no outstanding findings. The completed ordinary-browser matrix,
+supplemental recovery/correction flows, reader smoke, native preview checks and
+saved print inspection close the previously unperformed manual work. Historical
+source and failed attempts retain their own labels. The synthetic long print
+history demonstrates pagination, not twelve actual correction rounds.
 
-### Spec
-
-No outstanding code or scope findings. The review identified unperformed
-manual journeys, native zoom and screen-reader checks. The later native PDF
-inspection also remains open. Layout checkpoints do not establish those passes,
-and the synthetic history does not establish twelve real correction rounds.
-
-Standards: 0 findings. Spec: 0 code findings; manual acceptance remains open.
+Standards: 0 outstanding findings. Spec: 0 outstanding findings.
 
 Run the complete gate with the reviewed source:
 

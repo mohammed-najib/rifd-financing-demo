@@ -1,0 +1,51 @@
+{
+  "reviewer": "standards_review",
+  "source": "36deb6f",
+  "bundle": "index-HebM4UWC.js",
+  "prefixes": [
+    {
+      "prefix": "en-360-z1-mvaytag8",
+      "viewportImagesInspected": 39,
+      "pertinentFullImagesInspected": true
+    },
+    {
+      "prefix": "en-390-z1-mvaz05g9",
+      "viewportImagesInspected": 39,
+      "pertinentFullImagesInspected": true
+    },
+    {
+      "prefix": "en-768-z1-mvaz2vqa",
+      "viewportImagesInspected": 39,
+      "pertinentFullImagesInspected": true
+    }
+  ],
+  "findings": [
+    {
+      "kind": "product copy",
+      "scene": "07-recovered-ready",
+      "source": "src/ui/public-record.tsx:19",
+      "description": "Empty Business name and Business address display Purchase explanation not entered yet.",
+      "status": "Fixed by parent in 43bde54; current-source visual recheck pending."
+    },
+    {
+      "kind": "product copy",
+      "scene": "05-departure-guard",
+      "source": "src/ui/departure.tsx:41",
+      "description": "Idle unsaved staff note shows wait/preparation and unfinished-selection instructions while Save note and leave is available.",
+      "status": "Reported to parent."
+    }
+  ],
+  "observations": [
+    "No additional page-wide overflow, clipped errors, fixed-UI obstruction or action layout defects found in the inspected views.",
+    "Stored PNG, JPEG and embedded PDF content paint visibly with labels and Close controls. Smaller mobile dialogs require internal scrolling to reach lower fallback links.",
+    "Saved queue filters show two results in descending amount order; reference search shows one matching result and empty search shows explicit recovery controls.",
+    "Private correction workspace shows 450,000 YER while separate reviewer tab retains the 600,000 YER submitted baseline.",
+    "Expiry covers the preview and opens the chooser; recovered screen retains ready selection without automatic save."
+  ],
+  "scopeExceptions": [
+    "en-360-z1-mvaytag8-05-private-hidden-from-staff is actually 1440 CSS pixels because the helper was reinstalled during resume; it does not establish the 360px staff scene.",
+    "Reset chooser scenes intentionally return to Arabic.",
+    "Capture 07-protected-preview shows loading before expiry, not a fully painted ready-file preview.",
+    "Screenshots do not establish keyboard-only completion, actual screen-reader announcements or native fallback activation."
+  ]
+}

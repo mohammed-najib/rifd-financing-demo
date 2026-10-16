@@ -1,0 +1,49 @@
+{
+  "logs": [
+    {
+      "path": "artifacts/acceptance/21/followup-v2/firefox-final-focus.log",
+      "sha256": "1037da85132def9c9068059741e6b5ab8cad293e9a599c2827b48ba5304e9911",
+      "scope": "Excluded nearest-edge attempt; numeric check found bottom950.2 in950px viewport before any retained paging capture."
+    },
+    {
+      "path": "artifacts/acceptance/21/followup-v2/firefox-final-focus-centered.log",
+      "sha256": "dae65e1f70154f03a40a49a1334decc0602e1f49f19589518f7e72244f455254",
+      "scope": "All five paging stages and ten captures pass. Later staff-screen editor-only Demo controls lookup fails; the whole invocation is not passed."
+    },
+    {
+      "path": "artifacts/acceptance/21/followup-v2/chrome-final-focus.log",
+      "sha256": "f30fa9b8495d1790bdd9c8f5e30c2bc36885cb65105962fdca9d27ecdc4b978c",
+      "scope": "Excluded startup/language attempt. Browser reports storage unavailable while system temporary quota is exhausted. No passing product step is claimed."
+    },
+    {
+      "path": "artifacts/acceptance/21/followup-v2/chrome-final-focus-verified.log",
+      "sha256": "6222024dadf23fa1286e4b989224b408e57d3859174e71d3800ff151bd1f6570",
+      "scope": "All five paging stages pass with ten retained captures. Three interim review scenes precede a driver-helper wait on a local editor opener; superseded review files are excluded."
+    },
+    {
+      "path": "artifacts/acceptance/21/followup-v2/firefox-final-review.log",
+      "sha256": "cae0037ce18e319c921f214465ae04b47121e189a47430dbcb40ffe3355aa9ce",
+      "scope": "Excluded continuation after the helper waited for Needs replacement to become enabled while its newly opened editor intentionally keeps it unavailable."
+    },
+    {
+      "path": "artifacts/acceptance/21/followup-v2/firefox-final-review-verified.log",
+      "sha256": "74f2781a9c2129f82a265e35df28b721cad588091fe7e559f03be75d89fd2b5f",
+      "scope": "Review-only continuation completes. Its generic runner scope incorrectly included paging; only its review-stage result is usable. Final uniquely named closed runs replace it in retained acceptance evidence."
+    },
+    {
+      "path": "artifacts/acceptance/21/followup-v2/chrome-final-review-closed.log",
+      "sha256": "fc025d7f5387a8f5da7c38e0243bab820851904e799c6b90eefa62062dbb2638",
+      "scope": "Final review-only walkthrough passes; retained five uniquely named captures bind9783563."
+    },
+    {
+      "path": "artifacts/acceptance/21/followup-v2/firefox-final-review-closed.log",
+      "sha256": "367763ce8b9de27012b9e9016b0bb78fc0093dc1b7083e0e3c210cec2b9c323a",
+      "scope": "Final review-only walkthrough passes; retained five uniquely named captures bind9783563."
+    }
+  ],
+  "temporaryStorageRecovery": {
+    "action": "Archived only task-owned closed /tmp/rifd21-chrome* profiles into ignored workspace artifacts. New profiles and browser temporary files use the workspace through /tmp/rifd21-tmp. Shared temporary files were left untouched.",
+    "manifest": "artifacts/acceptance/21/followup-v2/archived-temp-profiles/final-focus-cleanup/moved.json"
+  },
+  "limits": "Storage error and exhausted quota were both observed. No Firefox crash cause or unexplained driver protocol failure is inferred. Superseded files and setup failures are not passing results."
+}

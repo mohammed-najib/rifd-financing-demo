@@ -1,0 +1,37 @@
+{
+  "recordedAt": "2026-10-16T10:51:09.406956+00:00",
+  "implementation": "4950b07",
+  "bundle": "index-BffC_UcS.js",
+  "browser": "ordinary Firefox 155.0.1",
+  "route": "/applications/RIFD-2026-001",
+  "language": "en",
+  "checks": [
+    {
+      "action": "Embedded viewer page-number control",
+      "result": "Visible page one and page two retained as separate inspected captures. Page two was entered through the native number field with Enter."
+    },
+    {
+      "action": "Download file link",
+      "result": "Passed. Browser saved the real PDF to the isolated test download directory.",
+      "file": "firefox-native-download.pdf",
+      "bytes": 97887,
+      "sha256": "c49405206a2180df33c21731b5dfbb90dc7cb25e1dfe0a1e6525b5e2d66d6441",
+      "header": "%PDF-1.7"
+    },
+    {
+      "action": "Open file link",
+      "result": "Created a separate native viewer at the stored blob URL, reporting page 1 of 2. Painting stayed incomplete; not a rendered-preview pass."
+    }
+  ],
+  "backgroundDiagnostic": {
+    "animationFrame": "No callback within 2000ms",
+    "documentVisibility": "visible",
+    "pendingFocusReturn": "BODY remained active after pointer closure while animation frames were suspended",
+    "result": "Background painting/focus-return checks are inconclusive. No new product defect or passing return-focus check is inferred."
+  },
+  "limits": [
+    "Current Firefox native PDF scene is measured at 795x965 CSS pixels. Earlier selected native-200% narrow captures retain their separate df4eda1 source binding.",
+    "Open/download activation remains to be completed in ordinary Chrome, and separate-viewer painting in Firefox.",
+    "Raw diagnostic and desktop logs remain local."
+  ]
+}
