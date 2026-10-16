@@ -102,6 +102,8 @@ test('public reset warning is available unsigned and during startup recovery in 
     await page.setViewportSize({ width, height: 900 })
     await page.screenshot({ path: `docs/implementation/evidence/18/reset-ar-${width}.png`, fullPage: true })
   }
+  // Foreground this page after captures so Chrome does not throttle seed-image encoding.
+  await page.bringToFront()
   await page.getByRole('button', { name: 'استبدال جميع بيانات العرض', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'اختر هوية تجريبية', exact: true })).toBeVisible({ timeout: 30_000 })
 })
