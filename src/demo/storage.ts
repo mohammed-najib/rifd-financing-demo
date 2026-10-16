@@ -7,6 +7,34 @@ export class DemoError extends Error {
   constructor(readonly kind: ErrorKind, readonly slot?: DocumentSlot, readonly fieldIssues?: FieldIssue[]) { super(kind) }
 }
 
+const minimumZeroBytes = 65_536
+const maximumZeroBytes = 5_000_001
+
+// The large all-zero boundary samples otherwise copy megabytes on every
+// metadata write. This lossless stored representation keeps the domain's bytes.
+export function encodeStored(data: Dataset): unknown {
+  return { ...data, files: data.files.map(file => {
+    const length = file.bytes.byteLength
+    if (length < minimumZeroBytes || length > maximumZeroBytes) return file
+    const words = new Uint32Array(file.bytes, 0, Math.floor(length / 4))
+    for (let index = 0; index < words.length; index++) if (words[index] !== 0) return file
+    const tail = new Uint8Array(file.bytes, words.byteLength)
+    for (const byte of tail) if (byte !== 0) return file
+    return { ...file, bytes: { encoding: 'rifd-zero-v1', byteLength: length } }
+  }) }
+}
+
+function decodeStored(raw: Record<string, unknown>): unknown {
+  if (!Array.isArray(raw.files)) return raw
+  return { ...raw, files: raw.files.map(file => {
+    if (!file || typeof file !== 'object' || !file.bytes || typeof file.bytes !== 'object' || file.bytes instanceof ArrayBuffer) return file
+    const bytes = file.bytes as Record<string, unknown>
+    const length = bytes.byteLength
+    if (bytes.encoding !== 'rifd-zero-v1' || typeof length !== 'number' || !Number.isSafeInteger(length) || length < minimumZeroBytes || length > maximumZeroBytes || Object.keys(bytes).length !== 2) throw new DemoError('damaged')
+    return { ...file, bytes: new ArrayBuffer(length) }
+  }) }
+}
+
 export function openStorage(onClose: (kind: ErrorKind) => void): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     let refused = false
@@ -75,7 +103,7 @@ export function transact(db: IDBDatabase, change: (current: unknown) => Dataset,
       try {
         if (request.result === undefined && count.result !== 0) throw new DemoError('damaged')
         result = change(request.result)
-        const write = store.put(result, 'dataset')
+        const write = store.put(encodeStored(result), 'dataset')
         // Abort after a successful put to exercise rollback of all staged effects.
         write.onsuccess = () => {
           try { if (abortWrite?.()) { refusal = new DemoError('storage'); tx.abort() } }
@@ -94,7 +122,9 @@ export function validateDataset(raw: unknown): Dataset {
   if (typeof raw !== 'object' || raw === null) throw new DemoError('damaged')
   const versions = (raw as { meta?: { schemaVersion?: unknown; seedVersion?: unknown; ruleVersion?: unknown } }).meta
   if (versions && (versions.schemaVersion !== 1 || versions.seedVersion !== 1 || versions.ruleVersion !== 1)) throw new DemoError('unsupported')
-  const parsed = datasetSchema.safeParse(raw)
+  // Run the same complete checks without compiling this large schema during a
+  // cold navigation. Reads are dominated by storage and the deliberate delay.
+  const parsed = datasetSchema.safeParse(decodeStored(raw as Record<string, unknown>), { jitless: true })
   if (!parsed.success) throw new DemoError('damaged')
   const data = parsed.data
   if (data.meta.lastReset && data.meta.lastReset.datasetId !== data.meta.datasetId) throw new DemoError('damaged')

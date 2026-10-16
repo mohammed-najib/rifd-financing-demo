@@ -40,7 +40,7 @@ test('storage recovery stays usable in both languages and retries without replac
   await expect(page.getByLabel('Purchase explanation', { exact: true })).toHaveValue('Retain my saved explanation')
 })
 
-for (const resource of ['**/fonts/NotoSansArabic-Regular.ttf', '**/assets/*.css*']) test(`${resource} failure offers explicit retry before readiness`, async ({ page }) => {
+for (const resource of ['**/fonts/NotoSansArabic-Regular.woff2', '**/assets/*.css*']) test(`${resource} failure offers explicit retry before readiness`, async ({ page }) => {
   await page.route(resource, route => route.abort())
   await page.goto('/')
   await expect(page.getByRole('heading', { name: 'تعذر تجهيز العرض التجريبي', exact: true })).toBeVisible()

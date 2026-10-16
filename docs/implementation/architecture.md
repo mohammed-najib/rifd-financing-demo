@@ -89,8 +89,15 @@ rule versions 1. It checks shapes, ownership, file references, byte lengths and 
 event-sequence bounds and every canonical/replacement catalog entry. Raw invalid
 draft strings and the explicitly incomplete Submitted seed remain valid stored
 records. The supported additive transformations supply absent mutation receipts
-and restore absent catalog product labels from the original seed manifest. No
-other format is migrated or silently reset.
+and restore absent catalog product labels from the original seed manifest.
+Storage also supports lossless `rifd-zero-v1` byte descriptors for all-zero
+buffers from 65,536 through 5,000,001 bytes. The encoder checks every word and
+trailing byte. Decoding checks the exact keys, version and bounded integer length
+before allocating real bytes, then performs the existing validation and startup
+hash checks. Legacy raw ArrayBuffers remain supported. Reset writes use the same
+encoder; recovery observations still compare the actual stored representation.
+Unknown or malformed descriptors require recovery. No other format is migrated
+or silently reset.
 
 Only a missing dataset in an empty state store can be seeded. Both the initial
 read and the seed transaction check emptiness. Unexpected stores or nonempty
@@ -118,6 +125,16 @@ samples are read from IndexedDB; generated samples use the retained fonts and
 loaded PDF code. Product and review routes share this readiness contract. Future
 routes and assets must be loaded before Ready if their journeys are expected to
 work offline. There is no service worker, fresh offline launch or server queue.
+
+The PDF code is a small writer for our own two-page RGB JPEG canvases. The
+general PDF editor remains a development dependency for independent format
+validation. Each seed preparation reuses identical rendered content locally,
+while retaining every application's file IDs, ownership, bytes and hashes.
+Canvas work and startup hash validation yield between short batches. Readiness
+still waits for all resources, sample bytes and validation. The dataset validator
+uses Zod's interpreted path to avoid compiling the large schema on a cold load.
+Language selection updates the display after its preference operation commits.
+Language and direction apply together before the workspace paints.
 
 Recovery uses the last selected display language and permits a temporary language
 switch without storage. Only a successful preference operation claims a persisted

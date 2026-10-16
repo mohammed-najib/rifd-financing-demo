@@ -18,6 +18,7 @@ export function StaffApplicationQueue({ demo, context, language, input, href, re
   go: (path: string, replace?: boolean) => void; acceptContext: (context: Context) => void;
 }) {
   const query = resolveQueueQuery(input, context.preferences.queue)
+  const queryHref = queueHref(query)
   const [queue, setQueue] = useState<StaffQueue | null>(null)
   const [reading, setReading] = useState(true)
   const [readError, setReadError] = useState<ErrorKind | null>(null)
@@ -27,8 +28,8 @@ export function StaffApplicationQueue({ demo, context, language, input, href, re
   const [refused, setRefused] = useState<{ intent: QueuePreferenceOperation; error: ErrorKind; latest: Context | null; committed: boolean } | null>(null)
   const alive = useRef(true)
   const pagination = useRef<HTMLElement>(null)
-  const actions = useRef({ go, acceptContext })
-  actions.current = { go, acceptContext }
+  const actions = useRef({ go, acceptContext, href })
+  actions.current = { go, acceptContext, href }
   const t = (key: keyof typeof text) => text[key][language]
   const q = (key: keyof typeof queueText) => queueText[key][language]
   const preferenceValues = ({ status, product, assignment, sort }: QueueQuery): QueuePreferences => ({ status, product, assignment, sort })
@@ -38,17 +39,17 @@ export function StaffApplicationQueue({ demo, context, language, input, href, re
   useEffect(() => {
     let active = true
     setReading(true); setReadError(null)
-    const input = defaultParseSearch(new URL(href, window.location.origin).search)
+    const input = defaultParseSearch(new URL(queryHref, window.location.origin).search)
     void demo.readStaffQueue(input).then(result => {
       if (!active) return
       setReading(false)
       if (!result.ok) { setReadError(result.error.kind); return }
       setQueue(result.value)
       const canonical = queueHref(result.value.query)
-      if (href !== canonical) actions.current.go(canonical, true)
+      if (actions.current.href !== canonical) actions.current.go(canonical, true)
     })
     return () => { active = false }
-  }, [demo, href, reload, retry])
+  }, [demo, queryHref, reload, retry])
   useEffect(() => {
     if (reading || readError) return
     const focused = document.activeElement
@@ -93,13 +94,11 @@ export function StaffApplicationQueue({ demo, context, language, input, href, re
 
   return <>
     <p className="eyebrow">{language === 'ar' ? 'مساحة العمل' : 'Workspace'}</p><h1 tabIndex={-1}>{t('staffApplications')}</h1><p className="intro">{t('staffIntro')}</p>
-    {queue && <>
-      <div className="queue-counts mb-5 grid grid-cols-6 gap-[15px] compact:grid-cols-3 narrow:grid-cols-2 narrow:gap-2.5" aria-label={t('all')}>
-        <div><strong>{queue.total}</strong><span>{t('all')}</span></div>
-        {queuePreferencesSchema.shape.status.options.filter(status => status !== 'all').map(status => <div key={status}><strong>{queue.counts[status]}</strong><span>{statuses[status][language]}</span></div>)}
+      <div className="queue-counts mb-5 grid grid-cols-6 gap-[15px] compact:grid-cols-3 narrow:grid-cols-2 narrow:gap-2.5" aria-label={t('all')} aria-busy={!queue && reading}>
+        <div><strong>{queue?.total ?? '…'}</strong><span>{t('all')}</span></div>
+        {queuePreferencesSchema.shape.status.options.filter(status => status !== 'all').map(status => <div key={status}><strong>{queue?.counts[status] ?? '…'}</strong><span>{statuses[status][language]}</span></div>)}
       </div>
-      <p className="text-[13px] text-muted">{t('assignedToYou')}: <bdi>{queue.assignments.you}</bdi> · {q('colleague')}: <bdi>{queue.assignments.colleague}</bdi> · {t('unassigned')}: <bdi>{queue.assignments.unassigned}</bdi></p>
-    </>}
+      <p className="text-[13px] text-muted">{t('assignedToYou')}: <bdi>{queue?.assignments.you ?? '…'}</bdi> · {q('colleague')}: <bdi>{queue?.assignments.colleague ?? '…'}</bdi> · {t('unassigned')}: <bdi>{queue?.assignments.unassigned ?? '…'}</bdi></p>
     <section className="panel mb-5" aria-label={q('search')} aria-busy={saving}>
       <label className="block" htmlFor="queue-search">{q('search')}<input className={control} id="queue-search" type="search" value={query.search} aria-describedby="queue-search-hint" onChange={event => change({ search: event.target.value, page: 1 })} /></label>
       <p className="mt-1.5 text-[12px] text-muted" id="queue-search-hint">{q('searchHint')}</p>

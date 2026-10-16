@@ -1,4 +1,4 @@
-import { PDFDocument } from 'pdf-lib'
+import { imagePdf } from './image-pdf'
 import type { DocumentSlot, Fields, ProductId, StoredFile } from '../domain/model'
 
 const labels: Record<DocumentSlot, string> = {
@@ -9,20 +9,26 @@ const labels: Record<DocumentSlot, string> = {
 }
 
 let fontsReady: Promise<void> | null = null
+let fontsFailed = false
 
 export function prepareFonts(): Promise<void> {
-  fontsReady ??= loadFonts().catch(error => { fontsReady = null; throw error })
+  fontsReady ??= loadFonts(fontsFailed).catch(error => { fontsFailed = true; fontsReady = null; throw error })
   return fontsReady
 }
 
-async function loadFonts(): Promise<void> {
+async function loadFonts(retrying: boolean): Promise<void> {
   // A missing resource must fail startup, even when FontFaceSet would silently use a fallback.
-  for (const [family, path] of [['Noto Sans', '/fonts/NotoSans-Regular.ttf'], ['Noto Sans Arabic', '/fonts/NotoSansArabic-Regular.ttf']]) {
-    const response = await fetch(path)
-    if (!response.ok) throw new Error('resources')
-    const face = new FontFace(family, await response.arrayBuffer())
-    document.fonts.add(await face.load())
-  }
+  await Promise.all([['Noto Sans', '/fonts/NotoSans-Regular.woff2'], ['Noto Sans Arabic', '/fonts/NotoSansArabic-Regular.woff2']].map(async ([family, path]) => {
+    // Reuse the stylesheet/preload request instead of fetching a second copy as data.
+    const faces = [...document.fonts].filter(face => face.family.replace(/["']/g, '') === family)
+    let face = faces.find(face => face.status === 'loaded') ?? faces[0]
+    // A failed face cannot load again. Only an explicit retry replaces it.
+    if (!face || retrying && face.status === 'error') {
+      const url = face ? `${path}?rifd-resource=${crypto.randomUUID()}` : path
+      face = new FontFace(family, `url("${url}")`); document.fonts.add(face)
+    }
+    await face.load()
+  }))
 }
 
 function evidenceLines(fields: Fields, slot: DocumentSlot, product: ProductId, months: string[], young: boolean): string[] {
@@ -46,7 +52,13 @@ function evidenceLines(fields: Fields, slot: DocumentSlot, product: ProductId, m
   }
 }
 
-function renderPage(title: string, lines: string[], unreadable: boolean, pageNumber: number): HTMLCanvasElement {
+export async function yieldToInput(): Promise<void> {
+  const scheduler = (globalThis as typeof globalThis & { scheduler?: { yield(): Promise<void> } }).scheduler
+  if (scheduler?.yield) await scheduler.yield()
+  else await new Promise<void>(resolve => setTimeout(resolve, 0))
+}
+
+async function renderPage(title: string, lines: string[], unreadable: boolean, pageNumber: number): Promise<HTMLCanvasElement> {
   const canvas = document.createElement('canvas')
   canvas.width = 1000
   canvas.height = 1320
@@ -63,6 +75,8 @@ function renderPage(title: string, lines: string[], unreadable: boolean, pageNum
   ctx.font = '24px "Noto Sans Arabic", "Noto Sans"'
   ctx.fillText(title, 50, 205, 900)
   ctx.font = '23px "Noto Sans Arabic", "Noto Sans"'
+  await yieldToInput()
+  let sliceStart = performance.now()
   let y = 290
   for (const line of lines) {
     ctx.direction = /[\u0600-\u06ff]/.test(line) ? 'rtl' : 'ltr'
@@ -75,6 +89,8 @@ function renderPage(title: string, lines: string[], unreadable: boolean, pageNum
       ctx.fillText(line, ctx.direction === 'rtl' ? 950 : 50, y, 900)
     }
     y += 75
+    // Keep shaping/rendering the full catalog responsive on slower CPUs.
+    if (performance.now() - sliceStart >= 8) { await yieldToInput(); sliceStart = performance.now() }
   }
   ctx.direction = 'ltr'
   ctx.textAlign = 'left'
@@ -93,25 +109,33 @@ async function canvasBytes(canvas: HTMLCanvasElement, mime: string): Promise<Arr
 export async function makeFile(
   applicationId: string, slot: DocumentSlot, fields: Fields, product: ProductId,
   months: string[], variant: 'original' | 'replacement', unreadable: boolean, young: boolean,
+  rendered: Map<string, Promise<ArrayBuffer>> = new Map(),
 ): Promise<StoredFile> {
   const title = labels[slot]
   const lines = evidenceLines(fields, slot, product, months, young)
   if (variant === 'replacement') lines.push('Readable replacement / نسخة بديلة مقروءة')
-  const canvas = renderPage(title, lines, unreadable, 1)
   const mime = slot === 'identity' ? 'image/png' : slot === 'purchase' ? 'image/jpeg' : 'application/pdf'
-  let bytes: ArrayBuffer
-  if (mime === 'application/pdf') {
-    const pdf = await PDFDocument.create()
-    pdf.setTitle(`DEMO RIFD ${title}`)
-    for (const pageCanvas of [canvas, renderPage(title, ['DEMO / تجريبي', fields.fullName, fields.businessName, 'All information is fictional / جميع البيانات افتراضية', ...lines.slice(-3)], unreadable, 2)]) {
-      const image = await pdf.embedPng(await canvasBytes(pageCanvas, 'image/png'))
-      const page = pdf.addPage([500, 660])
-      page.drawImage(image, { x: 0, y: 0, width: 500, height: 660 })
-    }
-    bytes = new Uint8Array(await pdf.save()).buffer
-  } else bytes = await canvasBytes(canvas, mime)
+  const key = JSON.stringify([title, lines, unreadable, mime])
+  let prepared = rendered.get(key)
+  if (!prepared) { prepared = renderEvidence(title, lines, unreadable, mime); rendered.set(key, prepared) }
+  const bytes = await prepared
   const extension = mime === 'application/pdf' ? 'pdf' : mime === 'image/jpeg' ? 'jpg' : 'png'
   return fileFromBytes(`${applicationId}-${slot}-${variant}`, applicationId, slot, `DEMO-${applicationId}-${slot}-${variant}.${extension}`, mime, bytes)
+}
+
+async function renderEvidence(title: string, lines: string[], unreadable: boolean, mime: string): Promise<ArrayBuffer> {
+  const canvas = await renderPage(title, lines, unreadable, 1)
+  let bytes: ArrayBuffer
+  if (mime === 'application/pdf') {
+    const pages = []
+    for (const pageCanvas of [canvas, await renderPage(title, ['DEMO / تجريبي', ...lines.slice(0, 2), 'All information is fictional / جميع البيانات افتراضية', ...lines.slice(-3)], unreadable, 2)]) {
+      // JPEG pages retain the rendered bilingual evidence without PNG decoding
+      // and recompression on the main thread during first-visit preparation.
+      pages.push({ bytes: await canvasBytes(pageCanvas, 'image/jpeg'), width: pageCanvas.width, height: pageCanvas.height })
+    }
+    bytes = imagePdf(pages)
+  } else bytes = await canvasBytes(canvas, mime)
+  return bytes
 }
 
 export async function fileFromBytes(id: string, applicationId: string, slot: DocumentSlot, name: string, mime: string, bytes: ArrayBuffer): Promise<StoredFile> {

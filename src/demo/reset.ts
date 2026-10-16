@@ -1,5 +1,5 @@
 import { datasetSchema, type Dataset, type ResetContext } from '../domain/model'
-import { DemoError, validateDataset } from './storage'
+import { DemoError, encodeStored, validateDataset } from './storage'
 import type { ResetInspection, ResetOperation, ResetResult } from './types'
 
 type StoreObservation = { name: string; keyPath: string | string[] | null; autoIncrement: boolean; indexes: unknown[]; keys: IDBValidKey[]; values: unknown[] }
@@ -169,7 +169,7 @@ export function createResetStorage() {
                 for (const name of Array.from(target.objectStoreNames)) target.deleteObjectStore(name)
                 target.createObjectStore('state')
               } else tx.objectStore('state').clear()
-              const write = tx.objectStore('state').put(seed, 'dataset')
+              const write = tx.objectStore('state').put(encodeStored(seed), 'dataset')
               result = { datasetId: seed.meta.datasetId, replay: false }
               write.onsuccess = () => { try { if (abort()) fail(new DemoError('storage')) } catch (error) { fail(error) } }
             } catch (error) { fail(error) }

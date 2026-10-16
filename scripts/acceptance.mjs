@@ -1,10 +1,10 @@
-import { createHash } from 'node:crypto'
 import { execFileSync, spawn } from 'node:child_process'
 import { createWriteStream } from 'node:fs'
-import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { arch, platform, release } from 'node:os'
 import { resolve } from 'node:path'
 import { chromium, firefox, webkit } from '@playwright/test'
+import { sourceEvidence, staticEvidence } from './delivery-evidence.mjs'
 
 // Every invocation has its own reports. A focused recheck cannot erase the
 // complete run's failures, screenshots or traces.
@@ -12,10 +12,7 @@ const slice = process.env.RIFD_ACCEPTANCE_SLICE ?? '20'
 if (!/^[1-9]\d*$/.test(slice)) throw new Error('RIFD_ACCEPTANCE_SLICE must be a positive issue number')
 const directory = resolve('artifacts/acceptance', slice, new Date().toISOString().replaceAll(':', '-'))
 await mkdir(directory, { recursive: true })
-const git = (...args) => execFileSync('git', args, { encoding: 'utf8' }).trim()
-const paths = git('ls-files', '--cached', '--others', '--exclude-standard', '-z').split('\0').filter(path => /^(src|tests|scripts|packages)\//.test(path) || /^(package.json|pnpm-lock.yaml|.*\.config\.(ts|js)|tsconfig.json)$/.test(path)).sort()
-const files = await Promise.all(paths.map(async path => ({ path, sha256: createHash('sha256').update(await readFile(path)).digest('hex') })))
-const source = { head: git('rev-parse', 'HEAD'), changes: git('status', '--short'), sha256: createHash('sha256').update(JSON.stringify(files)).digest('hex'), files }
+const source = await sourceEvidence()
 await writeFile(`${directory}/source.json`, JSON.stringify(source, null, 2) + '\n')
 const report = {
   startedAt: new Date().toISOString(), directory, source: { head: source.head, sha256: source.sha256 },
@@ -47,19 +44,16 @@ try {
   }
   for (const name of ['typecheck', 'lint', 'test', 'test:skills', 'skills:check']) await run(name.replaceAll(':', '-'), [name])
   if (await run('build', ['build'])) {
-    const staticFiles = ['dist/client/_shell.html', ...(await readdir('dist/client/assets')).filter(name => name.endsWith('.css')).map(name => `dist/client/assets/${name}`)]
-    report.staticBuild = await Promise.all(staticFiles.map(async path => {
-      const bytes = await readFile(path)
-      return { path, bytes: bytes.length, sha256: createHash('sha256').update(bytes).digest('hex') }
-    }))
+    report.staticBuild = (await staticEvidence()).files
     await run('api', ['test:browser:api', '--workers=3', '--timeout=180000'])
     await run('screens', ['test:browser', '--workers=3', '--timeout=180000'])
-    report.suites = await Promise.all(['api', 'screens'].map(async name => {
+    await run('delivery', ['test:delivery'])
+    report.suites = await Promise.all(['api', 'screens', 'delivery'].map(async name => {
       const result = JSON.parse(await readFile(`${directory}/${name}/report.json`, 'utf8'))
       return { name, ...result.stats }
     }))
   }
-  report.outcome = report.steps.length === 8 && report.steps.every(step => step.exitCode === 0) ? 'passed' : 'failed'
+  report.outcome = report.steps.length === 9 && report.steps.every(step => step.exitCode === 0) ? 'passed' : 'failed'
 } catch (error) {
   report.error = String(error)
 } finally {

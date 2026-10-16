@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { canReadApplication, changedReviewChecks, domainDate, emptyDocuments, initialEvidenceMonths, foldDigits, freezeRepayment, parseWholeYER, products, reviewPermissions, submissionMonth, validateFields, validateFileEnvelope } from '../domain'
 import { actorIdSchema, fieldsSchema, productIdSchema, slots, type ActorId, type Application, type Dataset, type Fields, type StoredFile } from '../domain/model'
-import { fileFromBytes, makeFile, prepareFonts } from './evidence'
+import { fileFromBytes, makeFile, prepareFonts, yieldToInput } from './evidence'
 import { applicationMutationSchema, applicationOperationSchema, commitHintSchema, applicationFingerprint, notificationReadSchema, preferenceOperationSchema, preparationSchema, reviewOperationSchema, resetOperationSchema } from './commands'
 import type { ResetOperation, ResetResult } from './types'
 import { createResetStorage } from './reset'
@@ -122,7 +122,11 @@ export function createDemo(): Demo {
     const connection = db
     const observedDataset = datasetId
     const captured = generation
-    const data = validateDataset(await readStored(connection))
+    const raw = await readStored(connection)
+    // IndexedDB materializes the complete saved byte catalog on access. Give
+    // input a turn before validation and projection add more work to that task.
+    await yieldToInput()
+    const data = validateDataset(raw)
     // A disposed screen's late read must never clear a newer screen's tab session.
     if (captured !== generation || db !== connection) throw new DemoError('sessionExpired')
     if (data.meta.datasetId !== observedDataset) {
@@ -694,11 +698,16 @@ export function createDemo(): Demo {
             return current === undefined ? seed : validateDataset(current)
           })
         }
+        await yieldToInput()
         const data = validateDataset(raw)
+        await yieldToInput()
+        let validationSlice = performance.now()
         for (const file of data.files) {
           const hash = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', file.bytes)), byte => byte.toString(16).padStart(2, '0')).join('')
           if (hash !== file.hash) throw new DemoError('damaged')
+          if (performance.now() - validationSlice >= 2) { await yieldToInput(); validationSlice = performance.now() }
         }
+        await yieldToInput()
         if (captured !== generation) throw new DemoError('sessionExpired')
         if (datasetId && datasetId !== data.meta.datasetId) {
           newDrafts.clear(); preparations.clear(); selections.clear()

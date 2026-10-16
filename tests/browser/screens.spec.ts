@@ -100,7 +100,7 @@ test('static assets have their own MIME and the generated shell reveals no prote
     expect(response.status()).toBe(200)
     expect(response.headers()['content-type']).toContain(asset.endsWith('.css') ? 'text/css' : 'javascript')
   }
-  for (const font of ['NotoSans-Regular.ttf', 'NotoSansArabic-Regular.ttf']) {
+  for (const font of ['NotoSans-Regular.woff2', 'NotoSansArabic-Regular.woff2']) {
     const response = await request.get(`/fonts/${font}`)
     expect(response.status()).toBe(200)
     expect(response.headers()['content-type']).not.toContain('text/html')

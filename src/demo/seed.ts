@@ -4,6 +4,9 @@ import { fileFromBytes, makeFile } from './evidence'
 import { amountReason, approvalReason, financialReason, identities, manifest, purchaseReason, quotationReason, rejectionReason, seedFields } from './seed-manifest'
 
 export async function prepareSeed(): Promise<Dataset> {
+  // Reuse identical rendered content within this preparation only. File IDs,
+  // ownership, hashes and the complete durable catalog remain per application.
+  const rendered = new Map<string, Promise<ArrayBuffer>>()
   const files: StoredFile[] = []
   const catalog: Dataset['catalog'] = []
   const applications: Application[] = []
@@ -18,12 +21,12 @@ export async function prepareSeed(): Promise<Dataset> {
     const evidenceMonths = seed.number === 5 ? ['2026-04', '2026-05', '2026-06'] : ['2026-07', '2026-08', '2026-09']
     const documents: Application['submitted'] = { fields, documents: { identity: null, business: null, financial: null, purchase: null } }
     for (const slot of slots) {
-      const file = await makeFile(id, slot, fields, seed.product, evidenceMonths, 'original', seed.replacement === slot, seed.number === 6)
+      const file = await makeFile(id, slot, fields, seed.product, evidenceMonths, 'original', seed.replacement === slot, seed.number === 6, rendered)
       addFile(file, 'original')
       if (seed.missing !== slot) documents.documents[slot] = file.id
       if (seed.replacement === slot || seed.missing === slot) {
         const responseFields = seed.number === 4 ? { ...fields, amount: '450000' } : fields
-        addFile(await makeFile(id, slot, responseFields, seed.product, evidenceMonths, 'replacement', false, false), 'replacement')
+        addFile(await makeFile(id, slot, responseFields, seed.product, evidenceMonths, 'replacement', false, false, rendered), 'replacement')
         const identical = { ...file, id: `${file.id}-renamed`, name: `DEMO-renamed-${file.name}` }
         addFile(identical, 'identical')
       }

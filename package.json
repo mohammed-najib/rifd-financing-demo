@@ -4,7 +4,7 @@
   "type": "module",
   "packageManager": "pnpm@11.24.0",
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=22.19.0"
   },
   "scripts": {
     "dev": "vite --host 127.0.0.1",
@@ -15,6 +15,10 @@
     "test:browser": "playwright test",
     "test:browser:api": "playwright test --config playwright.api.config.ts",
     "test:acceptance": "node scripts/acceptance.mjs",
+    "test:delivery": "RIFD_HOSTING=1 playwright test --config playwright.delivery.config.ts",
+    "test:performance": "node scripts/performance.mjs",
+    "verify:performance": "node scripts/verify-performance.mjs",
+    "check:css-sources": "node scripts/check-css-sources.mjs",
     "preview": "node scripts/serve-static.mjs",
     "emulators": "firebase emulators:start --only hosting --project demo-rifd",
     "build:domain": "pnpm --filter @rifd/domain build",
@@ -28,13 +32,12 @@
     "pack:domain": "node scripts/pack-domain.mjs"
   },
   "dependencies": {
+    "@rifd/domain": "workspace:*",
     "@tanstack/react-router": "1.170.44",
     "@tanstack/react-start": "1.169.2",
-    "pdf-lib": "1.17.1",
     "react": "19.3.1",
     "react-dom": "19.3.1",
-    "zod": "4.3.6",
-    "@rifd/domain": "workspace:*"
+    "zod": "4.3.6"
   },
   "devDependencies": {
     "@eslint/js": "9.39.1",
@@ -46,6 +49,9 @@
     "@types/react-dom": "19.2.2",
     "@vitejs/plugin-react": "6.1.2",
     "eslint": "9.39.1",
+    "lighthouse": "13.5.0",
+    "pdf-lib": "1.17.1",
+    "puppeteer-core": "25.9.0",
     "tailwindcss": "4.3.3",
     "typescript": "5.9.3",
     "typescript-eslint": "8.46.2",

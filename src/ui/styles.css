@@ -44,13 +44,13 @@
 
 @font-face {
   font-family: 'Noto Sans';
-  src: url('/fonts/NotoSans-Regular.ttf') format('truetype');
+  src: url('/fonts/NotoSans-Regular.woff2') format('woff2');
   font-display: swap;
 }
 
 @font-face {
   font-family: 'Noto Sans Arabic';
-  src: url('/fonts/NotoSansArabic-Regular.ttf') format('truetype');
+  src: url('/fonts/NotoSansArabic-Regular.woff2') format('woff2');
   font-display: swap;
 }
 
@@ -64,7 +64,8 @@
   }
 
   * { @apply box-border; }
-  body { @apply m-0; }
+  /* Keep the startup margin inside the body when the workspace replaces it. */
+  body { @apply m-0 flow-root; }
   button, input, a, textarea, select { font: inherit; }
   button, a { @apply touch-manipulation; }
   button { @apply cursor-pointer; }

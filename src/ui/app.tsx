@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { flushSync } from 'react-dom'
 import { defaultParseSearch, useBlocker, useNavigate, useRouter, useRouterState } from '@tanstack/react-router'
 import { createDemo, demoIdentities, type ApplicationSummary, type ApplicationView, type Context, type ErrorKind, type LanguageOperation, type PrintSummary } from '../demo'
 import { products, resolveStep } from '../domain'
@@ -191,7 +192,7 @@ export function App() {
     return () => { active = false; alive.current = false; unsubscribe(); demo.dispose() }
   }, [demo, router])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     document.documentElement.lang = language
     document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr'
   }, [language])
@@ -288,7 +289,7 @@ export function App() {
 
   const routeReady = !startupError && !!context && !identitySelection.current && (screen.kind === 'chooser' || screen.kind === 'gallery' || screen.kind === 'products' || screen.kind === 'reset' || !identity || loadedRead === `${path}/${identityId}/${sessionId}`)
   useEffect(() => {
-    if (routeReady || startupError) document.querySelector<HTMLElement>('main h1')?.focus()
+    if (routeReady || startupError) document.querySelector<HTMLElement>('main h1')?.focus({ preventScroll: true })
   }, [path, routeReady, sessionId, startupError])
 
   const selectIdentity = async (id: ActorId, intentional = false) => {
@@ -341,7 +342,8 @@ export function App() {
     if (!alive.current) return
     setBusy(false)
     if (capturedSession !== currentContext.current?.session?.sessionId || command.datasetId !== currentContext.current?.datasetId) return
-    if (result.ok) { setLanguageConflict(null); acceptContext(result.value) }
+    // Commit the saved language before background refreshes defer its frame.
+    if (result.ok) flushSync(() => { setLanguageConflict(null); acceptContext(result.value) })
     else {
       if (result.error.kind === 'stalePreference') setLanguageConflict({ intent: command, latest: null })
       else setError(result.error.kind)
@@ -394,15 +396,15 @@ export function App() {
       </nav>
       <div className="session-controls ms-auto flex flex-wrap items-center gap-3 compact:ms-0 narrow:w-full narrow:gap-2.5">
         {identity && <span className="identity-name font-semibold leading-[1.6] narrow:me-auto narrow:text-[13px]">{identity.name[language]}<small>{identity.role === 'reviewer' ? t('reviewer') : t('applicant')}</small></span>}
-        <button aria-disabled={busy || !!languageConflict} onClick={() => {
-          if (busy || languageConflict) return
+        <button aria-disabled={busy || !!languageConflict || !context && !startupError} onClick={() => {
+          if (busy || languageConflict || !context && !startupError) return
           if (context) void changeLanguage()
           else setRecoveryLanguage(language === 'ar' ? 'en' : 'ar')
         }} lang={language === 'ar' ? 'en' : 'ar'}>{language === 'ar' ? 'English' : 'العربية'}</button>
         {identity && <><button disabled={busy} onClick={() => go('/sign-in')}>{t('switchIdentity')}</button><button disabled={busy} onClick={() => guard(() => { void signOut() })}>{t('signOut')}</button><button onClick={() => demo.expireSession()}>{t('expireSession')}</button></>}
       </div>
     </header>
-    <div className={`mx-auto max-w-[1440px] px-[4%] pt-[42px] pb-[60px] narrow:px-[5%] narrow:pt-7 narrow:pb-10 ${isStaff ? 'grid grid-cols-[190px_minmax(0,1fr)] gap-8 compact:grid-cols-1' : ''}`}>
+    <div className={`mx-auto min-h-screen max-w-[1440px] px-[4%] pt-[42px] pb-[60px] narrow:px-[5%] narrow:pt-7 narrow:pb-10 ${isStaff ? 'grid content-start grid-cols-[190px_minmax(0,1fr)] gap-8 compact:grid-cols-1' : ''}`}>
       {isStaff && <aside className="sidebar py-5 compact:flex compact:flex-wrap compact:items-center compact:gap-5 compact:p-0 narrow:gap-3"><p className="eyebrow">{t('reviewer')}</p><nav aria-label={t('staffApplications')}><a className="active" href="/staff/applications" onClick={event => { event.preventDefault(); go('/staff/applications') }}>{t('staffApplications')}</a></nav><p>{t('staffIntro')}</p></aside>}
       <main aria-busy={busy || !routeReady && !startupError}>
         {languageConflict && <section className="summary mb-6" aria-label={t('preferenceConflict')}>

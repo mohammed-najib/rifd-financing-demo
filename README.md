@@ -15,7 +15,7 @@ this contract. See [startup and offline evidence](docs/implementation/17-evidenc
 
 ## Run
 
-Use Node 22.12 or newer and pnpm 11.24.0. This slice was checked with Node 26.7.0 on Linux. The manifest pins React 19.3.1, TypeScript 5.9.3, TanStack Start 1.169.2, Router 1.170.44 and Tailwind CSS 4.3.3. The lockfile pins transitive packages.
+Use Node 22.19 or newer and pnpm 11.24.0. Lighthouse 13.5.0 requires Node 22.19. This slice was checked with Node 26.7.0 on Linux. The manifest pins React 19.3.1, TypeScript 5.9.3, TanStack Start 1.169.2, Router 1.170.44 and Tailwind CSS 4.3.3. The lockfile pins transitive packages.
 
 ```sh
 npm install --global pnpm@11.24.0
@@ -75,6 +75,8 @@ pnpm test:browser:api           # Public demo interface with actual IndexedDB in
 pnpm build
 pnpm test:browser               # Production static screens, Chrome / Firefox / WebKit
 pnpm test:acceptance            # All checks, fresh build, both browser suites, retained reports
+pnpm test:delivery              # Hosting emulator deep links, assets, feedback and layout gates
+pnpm check:css-sources          # Production source inclusion, archive/docs exclusion, clean rebuild
 ```
 
 Install ordinary Google Chrome and the pinned Playwright Firefox and WebKit binaries. On a Playwright-supported Linux distribution:
@@ -89,7 +91,7 @@ The API harness runs only on a separate Vite test server at `/tests/browser/api.
 
 `pnpm test:acceptance` runs typecheck, lint, domain and packaged-guidance checks,
 builds the SPA, then runs the full API and screen suites sequentially with three
-browser workers. Each invocation retains logs, HTML/JSON reports, failure traces,
+browser workers and the delivery gates with one worker. Each invocation retains logs, HTML/JSON reports, failure traces,
 screen failure screenshots and successful correction/decision journey traces in its own
 timestamped `artifacts/acceptance/20/` directory. `run.json` records actual browser
 versions and gate results; `source.json` binds them to the commit and source hashes.
@@ -112,6 +114,18 @@ RIFD_HOSTING=1 pnpm test:browser
 ```
 
 The emulator uses the local `demo-rifd` project identifier and the committed `firebase.json`. It serves only `dist/client`, preserves actual assets before the fallback, and runs without a Start runtime server. `pnpm emulators` starts it for manual inspection. No Firebase project has been provisioned or deployed. The SPA setup follows [Start's SPA guide](https://tanstack.com/start/latest/docs/framework/react/guide/spa-mode); the inspected output determines the [Hosting fallback](https://firebase.google.com/docs/hosting/full-config).
+
+For performance measurement, keep `pnpm emulators` running in a separate terminal
+and stop other test, build and audit jobs. `pnpm test:performance` builds fresh
+output, then runs the 24 mobile Lighthouse navigations sequentially in installed
+Chrome. Reports, traces, screenshots, cold-cache checks, startup timings and
+source/build hashes go to a new `artifacts/performance/22/` directory. Public
+products start with empty storage; protected routes retain their prepared tab
+session. `pnpm verify:performance <directory>/run.json` refuses a failed report
+or changed source/build. Rerun affected gates after later code changes.
+Keep the audited `dist/client` output for release. Even a same-source rebuild
+changes TanStack's serialized prerender timestamp and fails the exact build check.
+See [performance and static delivery evidence](docs/implementation/22-evidence.md).
 
 ## Explore
 
