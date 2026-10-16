@@ -1,0 +1,20 @@
+{
+  "status": "passed unchanged focused rechecks",
+  "originalRun": "2026-10-16T21-11-20.586Z",
+  "originalCase": "[firefox] application.screens.spec.ts:67 cancel and confirm switching retain raw amount and term and stage document removal until saving",
+  "originalFailure": "Prepare draft English heading not visible within the unchanged 5-second assertion. The screenshot shows the Arabic draft; the intended product-switch scenario had not begun.",
+  "sourceChanged": false,
+  "rootCause": "Not isolated. Three unchanged focused repetitions passed; no application or assertion changes made.",
+  "recheckCommand": "RIFD_GATE_SERVER=existing RIFD_ACCEPTANCE_DIR=artifacts/acceptance/24/focus-recheck TMPDIR=/tmp/rifd24 pnpm exec playwright test tests/browser/application.screens.spec.ts --project firefox --grep 'cancel and confirm switching retain raw amount' --repeat-each=3 --workers=1 --timeout=180000",
+  "stats": {
+    "startTime": "2026-10-16T21:45:23.724Z",
+    "duration": 39516.306,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "reportSha256": "a13053535c97729e42c6e0dc40caf1f4b7583dc79617fa9509e6596b87e03ece",
+  "sourceSha256": "b40ed3702f8c955998aaf4b38246930469a1cdbd47bbec6ba68357c0d8e1f8fd",
+  "acceptanceMethod": "Keep the original full run failed; associate the original case with passing unchanged rechecks only after the remaining suites finish. No complete gate pass is claimed."
+}

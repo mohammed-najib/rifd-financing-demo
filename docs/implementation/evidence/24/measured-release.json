@@ -1,0 +1,156 @@
+{
+  "checkedAt": "2026-10-16T22:24:41.064Z",
+  "outcome": "passed",
+  "applicationCommit": "1352c140782168ce9e77773547e35658c19cff45",
+  "measuredSourceSha256": "b40ed3702f8c955998aaf4b38246930469a1cdbd47bbec6ba68357c0d8e1f8fd",
+  "currentVerificationSourceSha256": "0236c5e5f6a48d3ff971c5143452e8b91c50daa79d96f102c88d498d620e67fe",
+  "allowedSourceDifferences": [
+    {
+      "path": "tests/browser/performance.gates.spec.ts",
+      "before": "9a9fe1391e471c868b70b9e9714fe0365c02226a11b678b49983cb4dfbe93db4",
+      "after": "26f5fb1899d60c1a0a652647163842fd245e1bbb3889ee63fc90bec087d3f26b",
+      "reason": "Measure sample loading from its first captured frame; retain queued earlier route/focus entries separately."
+    }
+  ],
+  "staticBuild": {
+    "hosting": {
+      "public": "dist/client",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "rewrites": [
+        {
+          "source": "**",
+          "destination": "/_shell.html"
+        }
+      ]
+    },
+    "files": [
+      {
+        "path": "dist/client/_shell.html",
+        "bytes": 2594,
+        "gzipBytes": 1369,
+        "sha256": "72dd9c41ec5fe87d2b450ec8b40c3c010572dc8f121b1414c491a43ed9ebe359"
+      },
+      {
+        "path": "dist/client/assets/index-CzJ0UPGN.js",
+        "bytes": 663477,
+        "gzipBytes": 195047,
+        "sha256": "5ab57f6aa0ecb606f50853e0c8c776966781ef8bffca6f03abb0168fdd21f626"
+      },
+      {
+        "path": "dist/client/assets/styles-xNi-mU-7.css",
+        "bytes": 23929,
+        "gzipBytes": 5240,
+        "sha256": "40d15d3ffc8996ec3bb44848c9535168dce5720abfc935f0c06fd86008a261f9"
+      },
+      {
+        "path": "dist/client/fonts/LICENSE.txt",
+        "bytes": 11357,
+        "gzipBytes": 3926,
+        "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+      },
+      {
+        "path": "dist/client/fonts/NotoSans-Regular.woff2",
+        "bytes": 60276,
+        "gzipBytes": 60314,
+        "sha256": "f8852643f9f81e2cab27f89ce0ca85584e044e52d566feb5b6c705e063c3e8aa"
+      },
+      {
+        "path": "dist/client/fonts/NotoSansArabic-Regular.woff2",
+        "bytes": 74292,
+        "gzipBytes": 74084,
+        "sha256": "f83b522ea7404908ad1a6a4e55cc69ea342aa4434190a14309c673d2306c3c55"
+      },
+      {
+        "path": "dist/client/fonts/OFL-NotoSans.txt",
+        "bytes": 4395,
+        "gzipBytes": 1980,
+        "sha256": "e2e177a32561584d4fc13aaa3cd8e53758a12910f013fe9ca125419111722029"
+      },
+      {
+        "path": "dist/client/fonts/OFL-NotoSansArabic.txt",
+        "bytes": 4381,
+        "gzipBytes": 1967,
+        "sha256": "a783ea143e23dc0374b472b79d3b76a369e57a28eb599d19535073c0a4b3aa4d"
+      }
+    ],
+    "totals": {
+      "js": {
+        "bytes": 663477,
+        "gzipBytes": 195047
+      },
+      "css": {
+        "bytes": 23929,
+        "gzipBytes": 5240
+      },
+      "woff2": {
+        "bytes": 134568,
+        "gzipBytes": 134398
+      }
+    }
+  },
+  "note": "All application, domain, dependency, asset, build and Hosting sources match the measured run. The original strict performance verifier intentionally refuses the changed test source; this verifier permits only the exact hash pair above.",
+  "origin": "https://rifd-portfolio-mdnb.web.app",
+  "assets": [
+    {
+      "path": "/_shell.html",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 2594,
+      "sha256": "72dd9c41ec5fe87d2b450ec8b40c3c010572dc8f121b1414c491a43ed9ebe359"
+    },
+    {
+      "path": "/assets/index-CzJ0UPGN.js",
+      "status": 200,
+      "contentType": "text/javascript; charset=utf-8",
+      "bytes": 663477,
+      "sha256": "5ab57f6aa0ecb606f50853e0c8c776966781ef8bffca6f03abb0168fdd21f626"
+    },
+    {
+      "path": "/assets/styles-xNi-mU-7.css",
+      "status": 200,
+      "contentType": "text/css; charset=utf-8",
+      "bytes": 23929,
+      "sha256": "40d15d3ffc8996ec3bb44848c9535168dce5720abfc935f0c06fd86008a261f9"
+    },
+    {
+      "path": "/fonts/LICENSE.txt",
+      "status": 200,
+      "contentType": "text/plain; charset=utf-8",
+      "bytes": 11357,
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+    },
+    {
+      "path": "/fonts/NotoSans-Regular.woff2",
+      "status": 200,
+      "contentType": "font/woff2",
+      "bytes": 60276,
+      "sha256": "f8852643f9f81e2cab27f89ce0ca85584e044e52d566feb5b6c705e063c3e8aa"
+    },
+    {
+      "path": "/fonts/NotoSansArabic-Regular.woff2",
+      "status": 200,
+      "contentType": "font/woff2",
+      "bytes": 74292,
+      "sha256": "f83b522ea7404908ad1a6a4e55cc69ea342aa4434190a14309c673d2306c3c55"
+    },
+    {
+      "path": "/fonts/OFL-NotoSans.txt",
+      "status": 200,
+      "contentType": "text/plain; charset=utf-8",
+      "bytes": 4395,
+      "sha256": "e2e177a32561584d4fc13aaa3cd8e53758a12910f013fe9ca125419111722029"
+    },
+    {
+      "path": "/fonts/OFL-NotoSansArabic.txt",
+      "status": 200,
+      "contentType": "text/plain; charset=utf-8",
+      "bytes": 4381,
+      "sha256": "a783ea143e23dc0374b472b79d3b76a369e57a28eb599d19535073c0a4b3aa4d"
+    }
+  ],
+  "deepLinkShell": "matches the exact measured neutral shell"
+}

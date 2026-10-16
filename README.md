@@ -4,7 +4,17 @@ Open the [live demo](https://rifd-portfolio-mdnb.web.app). See the
 [Firebase release record](docs/implementation/23-evidence.md) for the preview,
 build hashes, release identifiers and hosted checks.
 
-A fictional, Arabic-first financing demo that saves records and evidence in the browser. The first sixteen slices provide the complete seeded dataset, product comparison, [five-step saveable drafts](.scratch/financing-application-and-review-implementation/issues/03-compare-products-and-complete-drafts.md), session recovery, tab synchronization, conflict recovery, [submission with public history](.scratch/financing-application-and-review-implementation/issues/06-submit-and-track-applications.md), notifications, printing, a searchable staff queue, reviewer assignment, the staff review workspace, targeted correction requests and private correction responses in Arabic and English.
+[Public repository](https://github.com/mohammed-najib/rifd-financing-demo) ·
+[Delivery release and film download](https://github.com/mohammed-najib/rifd-financing-demo/releases/tag/rifd-delivery-v1) ·
+[4:30 film](docs/demo/rifd-demo.mp4) · [Chapter and reset guide](docs/demo-guide.md) ·
+[Case study](docs/case-study.md) · [Acceptance checklist](docs/acceptance/README.md) ·
+[Architecture](docs/architecture.md) · [State and role flow](docs/user-flow.md).
+
+The hosted application is commit `1352c140782168ce9e77773547e35658c19cff45`,
+Hosting version `ea1a7ab0ece6377e`. The delivery release adds the public evidence,
+documentation and measured film. See [delivery verification](docs/implementation/24-evidence.md).
+
+A fictional, Arabic-first financing demo that saves records and evidence in the browser. The delivered application provides the complete seeded dataset, product comparison, [five-step saveable drafts](.scratch/financing-application-and-review-implementation/issues/03-compare-products-and-complete-drafts.md), session recovery, tab synchronization, conflict recovery, [submission with public history](.scratch/financing-application-and-review-implementation/issues/06-submit-and-track-applications.md), notifications, printing, a searchable staff queue, reviewer assignment, the staff review workspace, targeted correction requests and private correction responses in Arabic and English.
 
 Mariam, Huda and Omar can read their own applications. Salma can read all submitted applications, including colleague assignments. Khaled is a simulated colleague and cannot sign in. Applicants can create drafts, edit all personal, business and financing fields, switch products, prepare four supporting documents, review completeness and submit. Submission opens read-only detail with a reference, immediate confirmation and public history. Authorized viewers can preview saved evidence. Applicants can read persistent notifications and follow links to the current application state. Both roles can print the same public summary. Staff can search, filter, sort and page through the queue, claim unassigned submissions, confirm reviewer transfers and start review explicitly. Assigned reviewers can assess evidence, record the five fixed checks and explicitly save internal notes. Assigned reviewers can request specific field and document corrections with individual reasons, inspect the request and confirm sending. Applicants can edit requested targets and save incomplete responses privately. Applicants can resubmit complete corrections; reviewers verify targets and repeat correction rounds. Final approval or rejection requires an applicant-visible reason and fresh confirmation. Approval freezes the submitted terms and repayment data atomically. Approved applications open a read-only repayment overview with stored installment dates, progress totals and the next Upcoming entry.
 
@@ -22,6 +32,8 @@ this contract. See [startup and offline evidence](docs/implementation/17-evidenc
 Use Node 22.19 or newer and pnpm 11.24.0. Lighthouse 13.5.0 requires Node 22.19. This slice was checked with Node 26.7.0 on Linux. The manifest pins React 19.3.1, TypeScript 5.9.3, TanStack Start 1.169.2, Router 1.170.44 and Tailwind CSS 4.3.3. The lockfile pins transitive packages.
 
 ```sh
+git clone https://github.com/mohammed-najib/rifd-financing-demo.git
+cd rifd-financing-demo
 npm install --global pnpm@11.24.0
 pnpm install --frozen-lockfile
 pnpm dev
@@ -49,6 +61,20 @@ Switch languages, correct the example amount, inspect file and save states, or
 use the dialog by keyboard. Gallery edits affect only its fictional examples.
 See [gallery verification](docs/implementation/19-evidence.md) for shared component
 usage, browser checks and captures.
+
+## Demo identities
+
+| Arabic / English | Access |
+| --- | --- |
+| مريم سالم / Mariam Salem | Five own applications, including saved Draft 001 and historical Approved 005 |
+| هدى علي / Huda Ali | Five own applications, including private correction response 004 |
+| عمر حسن / Omar Hassan | Three own applications; create a new application for the actual rejection walkthrough |
+| سلمى ناصر / Salma Nasser | Staff queue, all submitted records; review writes require current assignment |
+
+Khaled Ali is a simulated colleague and cannot sign in. These are fictional,
+passwordless identities. The [delivery guide](docs/demo-guide.md) records all
+thirteen seeds, sample choices, labelled controls, normal submission/rejection
+setup, failure recovery and browser-wide reset.
 
 ## Styling
 
@@ -89,7 +115,7 @@ Install ordinary Google Chrome and the pinned Playwright Firefox and WebKit bina
 pnpm exec playwright install --with-deps firefox webkit
 ```
 
-Chrome tests use the installed `chrome` channel. Firefox and WebKit use Playwright's patched binaries. Responsive checks emulate CSS viewports, not physical devices. Read [slice 01 evidence](docs/implementation/01-evidence.md) for the actual tested versions and host arrangement.
+Chrome tests use the installed `chrome` channel. Firefox and WebKit use Playwright's patched binaries. Responsive checks emulate CSS viewports, not physical devices. See [delivery verification](docs/implementation/24-evidence.md) for the final browser results and [slice 01 evidence](docs/implementation/01-evidence.md) for the host arrangement.
 
 The API harness runs only on a separate Vite test server at `/tests/browser/api.html`. It imports the same public module as the screens. It does not ship in the static build. API and screen reports use separate artifact directories so independent runs cannot erase each other's traces. Failures retain traces and screenshots under `test-results/`; HTML reports are under `playwright-report/api` and `playwright-report/screens`.
 
@@ -104,10 +130,11 @@ in slice 01. The [functional acceptance matrix](docs/implementation/20-evidence.
 links requirements to the tests and final run evidence. Manual accessibility,
 visual/print inspection, performance and hosted-release gates have their own tickets.
 
-Set `RIFD_ACCEPTANCE_SLICE=21` to retain a run under `artifacts/acceptance/21/`.
+Set `RIFD_ACCEPTANCE_SLICE=24` to retain a run under `artifacts/acceptance/24/`.
 The [bilingual and accessibility evidence](docs/implementation/21-evidence.md)
-records the pointer/focus fixes, layout and print checks, and the manual
-acceptance still open for ticket 21.
+records the pointer/focus fixes, layout and print checks, and the four-scene
+user-assisted screen-reader inspection. The [final checklist](docs/acceptance/README.md)
+records the checked browser, viewport and assistive-technology scope.
 
 Install Firebase CLI 15.30.0 to reproduce the Hosting checks:
 
@@ -130,6 +157,19 @@ or changed source/build. Rerun affected gates after later code changes.
 Keep the audited `dist/client` output for release. Even a same-source rebuild
 changes TanStack's serialized prerender timestamp and fails the exact build check.
 See [performance and static delivery evidence](docs/implementation/22-evidence.md).
+
+Slice 24 corrects the sample-layout test's measurement boundary. Its
+[delivery verifier](docs/implementation/evidence/24/verify-measured-release.mjs)
+permits only that test's exact reviewed old/new hashes and requires every other
+measured source and static file to match. With the retained measured output:
+
+```sh
+node docs/implementation/evidence/24/verify-measured-release.mjs artifacts/measured-release.json https://rifd-portfolio-mdnb.web.app
+```
+
+The original strict performance verifier still refuses changed test sources.
+See [delivery verification](docs/implementation/24-evidence.md) for the original
+failures, corrected measurements and exact live-build check.
 
 ## Explore
 
@@ -200,4 +240,4 @@ Reset demo is available from the header, the unsigned `/demo/reset` route and st
 
 A new browser profile or isolated Playwright context starts a fresh demo. For development, clearing this origin's site data in browser settings removes its saved dataset and sessions; the next startup seeds it again. The domain date is fixed at 2026-10-14. Session timing uses elapsed real time.
 
-Local Noto Sans and Noto Sans Arabic fonts come from the archived Guided A evidence. The matching [Noto Sans OFL](public/fonts/OFL-NotoSans.txt) and [Noto Sans Arabic OFL](public/fonts/OFL-NotoSansArabic.txt) licenses accompany the unchanged font bytes. The prototype's [original license bundle](public/fonts/LICENSE.txt) is also preserved. Seed documents visibly identify their contents as DEMO / تجريبي. These are invented people, evidence, terms and outcomes. No application reaches a bank and no payment is processed.
+Local Noto Sans and Noto Sans Arabic fonts come from the archived Guided A evidence. The matching [Noto Sans OFL](public/fonts/OFL-NotoSans.txt) and [Noto Sans Arabic OFL](public/fonts/OFL-NotoSansArabic.txt) licenses accompany the local WOFF2 font builds described in the performance record. The prototype's [original license bundle](public/fonts/LICENSE.txt) is also preserved. Seed documents visibly identify their contents as DEMO / تجريبي. These are invented people, evidence, terms and outcomes. No application reaches a bank and no payment is processed.

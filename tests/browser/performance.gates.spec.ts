@@ -68,21 +68,24 @@ for (const language of ['ar', 'en'] as const) for (const width of [390, 1440]) t
   test.skip(info.project.name !== 'chrome', 'Layout Shift API measurement uses Chrome')
   await page.setViewportSize({ width, height: 950 })
   await page.addInitScript(() => {
-    const frames: { busy: boolean; x: number; y: number; width: number; height: number; buttonX: number }[] = []
-    const shifts: { value: number; time: number; recentInput: boolean; nodes: string[] }[] = []
+    const frames: { time: number; busy: boolean; x: number; y: number; width: number; height: number; buttonX: number }[] = []
+    const shifts: { value: number; time: number; recentInput: boolean; afterFirstSampleFrame: boolean; nodes: string[] }[] = []
     Object.assign(window, { sampleFrames: frames, sampleShifts: shifts })
     new PerformanceObserver(list => {
       if (!frames.length) return
       for (const entry of list.getEntries()) {
         const shift = entry as PerformanceEntry & { value: number; hadRecentInput: boolean; sources?: { node?: Element }[] }
-        shifts.push({ value: shift.value, time: shift.startTime, recentInput: shift.hadRecentInput, nodes: shift.sources?.map(source => source.node?.id || source.node?.tagName || 'removed') ?? [] })
+        // Entries can arrive after the first frame even when recorded before it.
+        // Retain those route/focus transitions, but measure loading from the
+        // picker's first frame rather than the observer callback's delivery time.
+        shifts.push({ value: shift.value, time: shift.startTime, recentInput: shift.hadRecentInput, afterFirstSampleFrame: shift.startTime >= frames[0].time, nodes: shift.sources?.map(source => source.node?.id || source.node?.tagName || 'removed') ?? [] })
       }
     }).observe({ type: 'layout-shift', buffered: false })
     const observe = () => {
       const picker = document.querySelector('.sample-picker')
       if (picker) {
         const rect = picker.getBoundingClientRect()
-        frames.push({ busy: picker.getAttribute('aria-busy') === 'true', x: rect.x, y: rect.y, width: rect.width, height: rect.height, buttonX: picker.querySelector('button')!.getBoundingClientRect().x - rect.x })
+        frames.push({ time: performance.now(), busy: picker.getAttribute('aria-busy') === 'true', x: rect.x, y: rect.y, width: rect.width, height: rect.height, buttonX: picker.querySelector('button')!.getBoundingClientRect().x - rect.x })
       }
       requestAnimationFrame(observe)
     }
@@ -97,9 +100,9 @@ for (const language of ['ar', 'en'] as const) for (const width of [390, 1440]) t
   await expect(picker).toHaveAttribute('aria-busy', 'false')
   const frames = () => page.evaluate(() => (window as unknown as { sampleFrames: { busy: boolean; height: number; buttonX: number }[] }).sampleFrames)
   const stability = () => page.evaluate(() => {
-    const shifts = (window as unknown as { sampleShifts: { value: number; time: number; recentInput: boolean }[] }).sampleShifts
+    const shifts = (window as unknown as { sampleShifts: { value: number; time: number; recentInput: boolean; afterFirstSampleFrame: boolean }[] }).sampleShifts
     let cls = 0, sum = 0, start = 0, last = 0
-    for (const shift of shifts.filter(shift => !shift.recentInput)) {
+    for (const shift of shifts.filter(shift => !shift.recentInput && shift.afterFirstSampleFrame)) {
       if (shift.time - last > 1000 || shift.time - start > 5000) { sum = 0; start = shift.time }
       sum += shift.value; last = shift.time; cls = Math.max(cls, sum)
     }

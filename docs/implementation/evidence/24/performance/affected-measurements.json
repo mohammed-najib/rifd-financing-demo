@@ -1,0 +1,130 @@
+[
+  {
+    "case": "ar slow save, upload, submission and decision paint pending feedback within 100ms",
+    "name": "save-paint.json",
+    "elapsedMs": 24.80000001192093
+  },
+  {
+    "case": "ar slow save, upload, submission and decision paint pending feedback within 100ms",
+    "name": "upload-paint.json",
+    "elapsedMs": 25.400000005960464
+  },
+  {
+    "case": "ar slow save, upload, submission and decision paint pending feedback within 100ms",
+    "name": "submission-paint.json",
+    "elapsedMs": 25.099999994039536
+  },
+  {
+    "case": "ar slow save, upload, submission and decision paint pending feedback within 100ms",
+    "name": "decision-paint.json",
+    "elapsedMs": 26.599999994039536
+  },
+  {
+    "case": "en slow save, upload, submission and decision paint pending feedback within 100ms",
+    "name": "save-paint.json",
+    "elapsedMs": 24.5
+  },
+  {
+    "case": "en slow save, upload, submission and decision paint pending feedback within 100ms",
+    "name": "upload-paint.json",
+    "elapsedMs": 28.19999998807907
+  },
+  {
+    "case": "en slow save, upload, submission and decision paint pending feedback within 100ms",
+    "name": "submission-paint.json",
+    "elapsedMs": 28.69999998807907
+  },
+  {
+    "case": "en slow save, upload, submission and decision paint pending feedback within 100ms",
+    "name": "decision-paint.json",
+    "elapsedMs": 26.80000001192093
+  },
+  {
+    "case": "ar 390 correction samples keep their loading and recovery positions",
+    "name": "initial-sample-layout.json",
+    "heightDelta": 0,
+    "buttonXDelta": 0
+  },
+  {
+    "case": "ar 390 correction samples keep their loading and recovery positions",
+    "name": "initial-layout-shifts.json",
+    "cls": 0
+  },
+  {
+    "case": "ar 390 correction samples keep their loading and recovery positions",
+    "name": "recovery-sample-layout.json",
+    "heightDelta": 0,
+    "buttonXDelta": 0
+  },
+  {
+    "case": "ar 390 correction samples keep their loading and recovery positions",
+    "name": "recovery-layout-shifts.json",
+    "cls": 0
+  },
+  {
+    "case": "ar 1440 correction samples keep their loading and recovery positions",
+    "name": "initial-sample-layout.json",
+    "heightDelta": 0,
+    "buttonXDelta": 0
+  },
+  {
+    "case": "ar 1440 correction samples keep their loading and recovery positions",
+    "name": "initial-layout-shifts.json",
+    "cls": 0
+  },
+  {
+    "case": "ar 1440 correction samples keep their loading and recovery positions",
+    "name": "recovery-sample-layout.json",
+    "heightDelta": 0,
+    "buttonXDelta": 0
+  },
+  {
+    "case": "ar 1440 correction samples keep their loading and recovery positions",
+    "name": "recovery-layout-shifts.json",
+    "cls": 0
+  },
+  {
+    "case": "en 390 correction samples keep their loading and recovery positions",
+    "name": "initial-sample-layout.json",
+    "heightDelta": 0,
+    "buttonXDelta": 0
+  },
+  {
+    "case": "en 390 correction samples keep their loading and recovery positions",
+    "name": "initial-layout-shifts.json",
+    "cls": 0
+  },
+  {
+    "case": "en 390 correction samples keep their loading and recovery positions",
+    "name": "recovery-sample-layout.json",
+    "heightDelta": 0,
+    "buttonXDelta": 0
+  },
+  {
+    "case": "en 390 correction samples keep their loading and recovery positions",
+    "name": "recovery-layout-shifts.json",
+    "cls": 0
+  },
+  {
+    "case": "en 1440 correction samples keep their loading and recovery positions",
+    "name": "initial-sample-layout.json",
+    "heightDelta": 0,
+    "buttonXDelta": 0
+  },
+  {
+    "case": "en 1440 correction samples keep their loading and recovery positions",
+    "name": "initial-layout-shifts.json",
+    "cls": 0
+  },
+  {
+    "case": "en 1440 correction samples keep their loading and recovery positions",
+    "name": "recovery-sample-layout.json",
+    "heightDelta": 0,
+    "buttonXDelta": 0
+  },
+  {
+    "case": "en 1440 correction samples keep their loading and recovery positions",
+    "name": "recovery-layout-shifts.json",
+    "cls": 0
+  }
+]

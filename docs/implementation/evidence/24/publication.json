@@ -1,0 +1,18 @@
+{
+  "status": "ready to publish",
+  "repository": {
+    "url": "https://github.com/mohammed-najib/rifd-financing-demo",
+    "public": true,
+    "defaultBranch": "main",
+    "name": "rifd-financing-demo"
+  },
+  "nameConfirmedByUser": true,
+  "sourcePublishedThrough": "86a9523565d09ac6775a60f322a475dc32fe8807",
+  "releaseTag": "rifd-delivery-v1",
+  "releasePublished": false,
+  "remaining": [
+    "commit and push delivery",
+    "publish and verify release assets"
+  ],
+  "draftAssetsVerified": 6
+}

@@ -1,0 +1,1082 @@
+{
+  "recordedAt": "2026-10-16T21:14:13.664Z",
+  "exportedAt": "2026-10-16T21:39:30.575Z",
+  "origin": "https://rifd-portfolio-mdnb.web.app",
+  "browser": "155.0.8059.39",
+  "viewport": {
+    "width": 1440,
+    "height": 950
+  },
+  "video": {
+    "width": 1440,
+    "height": 1080,
+    "fps": 20,
+    "seconds": 270,
+    "sha256": "d26286398d5cde66aae567aa9ba25dc2247b4cf91701cf60437093a9a1d11875"
+  },
+  "raw": {
+    "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/demo/24/final/page@2de1930dcaf02a39ee308bef8741fed9.webm",
+    "sha256": "c9837d84933d3eec3a4e5a193348fa8f1259bca303272594eccb70ea3cfb6cc0"
+  },
+  "traceSha256": "af7d2803d091e6057adfd7d9f9ed60e1b7d6d025fdc56ffc0ef684858c350137",
+  "captionsSha256": "294dc942713d4b88913f5091bf43751a6b444b4b6167c1a99523f0a0fe3abfe4",
+  "rejectionId": "RIFD-2026-220f6d40-02bf-4d5e-8919-b21485f889d0",
+  "chapters": [
+    {
+      "start": 0,
+      "end": 10,
+      "title": "Introduction / مقدمة"
+    },
+    {
+      "start": 10,
+      "end": 45,
+      "title": "1. Products and application / المنتجات والتقديم"
+    },
+    {
+      "start": 45,
+      "end": 80,
+      "title": "2. Documents and recovery / المستندات والتعافي"
+    },
+    {
+      "start": 80,
+      "end": 115,
+      "title": "3. Tracking, notifications and print / المتابعة والإشعارات والطباعة"
+    },
+    {
+      "start": 115,
+      "end": 150,
+      "title": "4. Queue and assignment / قائمة الطلبات والإسناد"
+    },
+    {
+      "start": 150,
+      "end": 185,
+      "title": "5. Review and corrections / المراجعة والتصحيحات"
+    },
+    {
+      "start": 185,
+      "end": 220,
+      "title": "6. Decisions and repayment / القرارات والسداد"
+    },
+    {
+      "start": 220,
+      "end": 255,
+      "title": "7. Access, sessions and reset / الوصول والجلسات وإعادة الضبط"
+    },
+    {
+      "start": 255,
+      "end": 270,
+      "title": "Delivery links / روابط التسليم"
+    }
+  ],
+  "scenes": [
+    {
+      "start": 0,
+      "end": 10,
+      "ar": "رِفد: عرض خيالي محلي باللغتين",
+      "en": "RIFD: a fictional bilingual browser-local demo",
+      "label": ""
+    },
+    {
+      "start": 10,
+      "end": 16,
+      "ar": "قارن المنتجين وحدودهما قبل البدء",
+      "en": "Compare both fictional products and their limits",
+      "label": "زائر / Visitor · Products"
+    },
+    {
+      "start": 16,
+      "end": 21,
+      "ar": "استعد المسودة المحفوظة ومستنداتها",
+      "en": "Restore the saved draft and its four documents",
+      "label": "مريم / Mariam · RIFD-2026-001"
+    },
+    {
+      "start": 21,
+      "end": 27,
+      "ar": "التحقق يرفض التقديم ويحفظ المسودة",
+      "en": "Validation refuses submission and retains the draft",
+      "label": "مريم / Mariam · RIFD-2026-001"
+    },
+    {
+      "start": 27,
+      "end": 34,
+      "ar": "أكمل البيانات وراجع قبل التقديم",
+      "en": "Complete the fields and inspect the review step",
+      "label": "مريم / Mariam · RIFD-2026-001"
+    },
+    {
+      "start": 34,
+      "end": 45,
+      "ar": "تقديم فعلي مع مرجع وسجل عام",
+      "en": "Actual submission creates a reference and public history",
+      "label": "مريم / Mariam · RIFD-2026-001"
+    },
+    {
+      "start": 45,
+      "end": 51,
+      "ar": "الملف الفارغ لا يصبح جاهزا للحفظ",
+      "en": "An empty file fails before preparation",
+      "label": "مريم / Mariam · RIFD-2026-001"
+    },
+    {
+      "start": 51,
+      "end": 58,
+      "ar": "تجهيز الملف يختلف عن حفظه",
+      "en": "Prepared bytes are Ready to save, still unsaved",
+      "label": "مريم / Mariam · RIFD-2026-001"
+    },
+    {
+      "start": 58,
+      "end": 65,
+      "ar": "الحفظ ثم التحديث يعيدان الملف الحقيقي",
+      "en": "Save and reload restore the actual document",
+      "label": "مريم / Mariam · RIFD-2026-001"
+    },
+    {
+      "start": 65,
+      "end": 72,
+      "ar": "معاينة المستند المحفوظ",
+      "en": "Preview the saved evidence",
+      "label": "مريم / Mariam · RIFD-2026-001"
+    },
+    {
+      "start": 72,
+      "end": 80,
+      "ar": "فشل الاستبدال يبقي السابق ثم تنجح الإعادة",
+      "en": "Failed replacement preserves the saved file; explicit retry succeeds",
+      "label": "مريم / Mariam · RIFD-2026-001"
+    },
+    {
+      "start": 80,
+      "end": 86,
+      "ar": "الطلبات الخاصة بهذه الهوية فقط",
+      "en": "This identity sees only her own applications",
+      "label": "مريم / Mariam · 001,005"
+    },
+    {
+      "start": 86,
+      "end": 93,
+      "ar": "الحالة والخطوة التالية والمعلومات المقدمة",
+      "en": "Status, permitted next action and submitted information",
+      "label": "مريم / Mariam · RIFD-2026-001"
+    },
+    {
+      "start": 93,
+      "end": 100,
+      "ar": "سجل المتقدم لا يعرض ملاحظات الموظفين",
+      "en": "Public history excludes internal staff notes",
+      "label": "مريم / Mariam · RIFD-2026-001"
+    },
+    {
+      "start": 100,
+      "end": 107,
+      "ar": "إشعار محفوظ يفتح الحالة الحالية",
+      "en": "A saved notification opens the current permitted record",
+      "label": "مريم / Mariam · RIFD-2026-005"
+    },
+    {
+      "start": 107,
+      "end": 115,
+      "ar": "ملخص الطباعة يشترك في سياسة عرض المتقدم",
+      "en": "Both roles print the same applicant-visible summary",
+      "label": "مريم / Mariam · RIFD-2026-005"
+    },
+    {
+      "start": 115,
+      "end": 124,
+      "ar": "بحث وتصفيات وفرز محفوظ",
+      "en": "Search, filter and save the queue sort",
+      "label": "سلمى / Salma · Staff queue"
+    },
+    {
+      "start": 124,
+      "end": 130,
+      "ar": "الصفحات تعرض المجموعة نفسها",
+      "en": "Five rows per page with stable ordering",
+      "label": "سلمى / Salma · Staff queue"
+    },
+    {
+      "start": 130,
+      "end": 136,
+      "ar": "زيارة جديدة تستعيد الفرز المحفوظ",
+      "en": "A fresh queue visit restores the saved sort",
+      "label": "سلمى / Salma · Staff queue"
+    },
+    {
+      "start": 136,
+      "end": 143,
+      "ar": "الاستلام لا يبدأ المراجعة",
+      "en": "Claiming preserves Submitted status",
+      "label": "سلمى / Salma · RIFD-2026-001"
+    },
+    {
+      "start": 143,
+      "end": 150,
+      "ar": "بدء المراجعة فعل مستقل",
+      "en": "Start review is a separate explicit action",
+      "label": "سلمى / Salma · RIFD-2026-001"
+    },
+    {
+      "start": 150,
+      "end": 154,
+      "ar": "ملاحظات داخلية محفوظة لا تظهر للمتقدم",
+      "en": "Saved internal notes stay private to staff",
+      "label": "سلمى / Salma · RIFD-2026-007"
+    },
+    {
+      "start": 154,
+      "end": 159,
+      "ar": "هدف محدد وسبب مستقل قبل التأكيد",
+      "en": "Inspect a targeted correction and its individual reason",
+      "label": "سلمى / Salma · RIFD-2026-007"
+    },
+    {
+      "start": 159,
+      "end": 164,
+      "ar": "الاستجابة الخاصة بجانب مبلغ مقدم قدره 600000",
+      "en": "Private response stays beside the submitted 600,000 baseline",
+      "label": "هدى / Huda · RIFD-2026-004"
+    },
+    {
+      "start": 164,
+      "end": 171,
+      "ar": "نشر التغييرات المطلوبة معا",
+      "en": "Resubmission publishes all requested changes together",
+      "label": "هدى / Huda · RIFD-2026-004"
+    },
+    {
+      "start": 171,
+      "end": 179,
+      "ar": "تغير المبلغ والملف عن المرجع الثابت",
+      "en": "Changed amount and plan are compared with the fixed baseline",
+      "label": "سلمى / Salma · RIFD-2026-004"
+    },
+    {
+      "start": 179,
+      "end": 185,
+      "ar": "تحقق من التغييرات ثم أعد الفحوص التابعة",
+      "en": "Verify the changes, then repeat the affected checks",
+      "label": "سلمى / Salma · RIFD-2026-004"
+    },
+    {
+      "start": 185,
+      "end": 194,
+      "ar": "إسناد خارجي يرفض قرارا من عرض قديم",
+      "en": "Outside reassignment refuses the stale decision",
+      "label": "سلمى / Salma · RIFD-2026-001"
+    },
+    {
+      "start": 194,
+      "end": 201,
+      "ar": "تحميل الأحدث واسترداد مؤكد وفحص جديد",
+      "en": "Load latest, confirm reclaim, then inspect again",
+      "label": "سلمى / Salma · RIFD-2026-001"
+    },
+    {
+      "start": 201,
+      "end": 207,
+      "ar": "تأكيد جديد يحفظ الموافقة وشروطها",
+      "en": "Fresh confirmation commits approval and freezes its terms",
+      "label": "سلمى / Salma · RIFD-2026-001"
+    },
+    {
+      "start": 207,
+      "end": 214,
+      "ar": "رفض جديد بعد تقديم فعلي لنشاط عمره شهران",
+      "en": "New rejection after normal submission: two operating months",
+      "label": "سلمى / Salma · RIFD-2026-220f6d40-02bf-4d5e-8919-b21485f889d0"
+    },
+    {
+      "start": 214,
+      "end": 220,
+      "ar": "مثال تاريخي ثابت بقسطين مكتملين",
+      "en": "Historical frozen illustration with two completed entries",
+      "label": "سلمى / Salma · RIFD-2026-005"
+    },
+    {
+      "start": 220,
+      "end": 225,
+      "ar": "تبديل اللغة يحفظ السياق والاتجاه",
+      "en": "Explicit English switch preserves the current record",
+      "label": "سلمى / Salma · RIFD-2026-005"
+    },
+    {
+      "start": 225,
+      "end": 232,
+      "ar": "انتهاء الجلسة ثم استعادة الهوية نفسها",
+      "en": "Expiry covers protected content; same-identity sign-in recovers",
+      "label": "سلمى / Salma · RIFD-2026-005"
+    },
+    {
+      "start": 232,
+      "end": 237,
+      "ar": "الرابط غير المسموح لا يكشف تفاصيل الطلب",
+      "en": "Forbidden access reveals no application details",
+      "label": "مريم / Mariam · 004 forbidden"
+    },
+    {
+      "start": 237,
+      "end": 242,
+      "ar": "معرض المكونات المستخدمة في الرحلات",
+      "en": "Public gallery uses the production components",
+      "label": "مريم / Mariam · Components"
+    },
+    {
+      "start": 242,
+      "end": 250,
+      "ar": "تأكيد إعادة الضبط يستبدل بيانات هذا المتصفح",
+      "en": "Confirm browser-wide reset after reading the warning",
+      "label": "مريم / Mariam · Reset"
+    },
+    {
+      "start": 250,
+      "end": 255,
+      "ar": "عادت العربية والهويات والبيانات الأصلية",
+      "en": "Arabic, identities and the original dataset are restored",
+      "label": "زائر / Visitor · Canonical seeds"
+    },
+    {
+      "start": 255,
+      "end": 270,
+      "ar": "الدليل والأدلة ودراسة الحالة وروابط التجربة في المستودع",
+      "en": "Find the live demo, chapter guide, evidence and case study in the repository",
+      "label": ""
+    }
+  ],
+  "edits": [
+    {
+      "chapter": 1,
+      "key": "products",
+      "duration": 6,
+      "ar": "قارن المنتجين وحدودهما قبل البدء",
+      "en": "Compare both fictional products and their limits",
+      "identity": "زائر / Visitor",
+      "record": "Products",
+      "start": 3.624510981,
+      "end": 5.131164094000001,
+      "url": "https://rifd-portfolio-mdnb.web.app/products",
+      "videoOffset": -0.65
+    },
+    {
+      "chapter": 1,
+      "key": "draft",
+      "duration": 5,
+      "ar": "استعد المسودة المحفوظة ومستنداتها",
+      "en": "Restore the saved draft and its four documents",
+      "identity": "مريم / Mariam",
+      "record": "001",
+      "start": 7.80323786,
+      "end": 11.123232158999999,
+      "url": "https://rifd-portfolio-mdnb.web.app/applications/RIFD-2026-001/edit?step=financing",
+      "videoOffset": -0.65
+    },
+    {
+      "chapter": 1,
+      "key": "validation",
+      "duration": 6,
+      "ar": "التحقق يرفض التقديم ويحفظ المسودة",
+      "en": "Validation refuses submission and retains the draft",
+      "identity": "مريم / Mariam",
+      "record": "001",
+      "start": 11.123850382999999,
+      "end": 12.814211103,
+      "url": "https://rifd-portfolio-mdnb.web.app/applications/RIFD-2026-001/edit?step=review",
+      "videoOffset": -0.65
+    },
+    {
+      "chapter": 1,
+      "key": "complete",
+      "duration": 7,
+      "ar": "أكمل البيانات وراجع قبل التقديم",
+      "en": "Complete the fields and inspect the review step",
+      "identity": "مريم / Mariam",
+      "record": "001",
+      "start": 12.814769414,
+      "end": 15.48722224,
+      "url": "https://rifd-portfolio-mdnb.web.app/applications/RIFD-2026-001/edit?step=review",
+      "videoOffset": -0.65
+    },
+    {
+      "chapter": 1,
+      "key": "submitted",
+      "duration": 11,
+      "ar": "تقديم فعلي مع مرجع وسجل عام",
+      "en": "Actual submission creates a reference and public history",
+      "identity": "مريم / Mariam",
+      "record": "001",
+      "start": 32.569287497,
+      "end": 35.531717233,
+      "url": "https://rifd-portfolio-mdnb.web.app/applications/RIFD-2026-001",
+      "videoOffset": -0.65
+    },
+    {
+      "chapter": 2,
+      "key": "invalid-file",
+      "duration": 6,
+      "ar": "الملف الفارغ لا يصبح جاهزا للحفظ",
+      "en": "An empty file fails before preparation",
+      "identity": "مريم / Mariam",
+      "record": "001",
+      "start": 15.552690559999998,
+      "end": 17.179744934,
+      "url": "https://rifd-portfolio-mdnb.web.app/applications/RIFD-2026-001/edit?step=documents",
+      "videoOffset": -0.65
+    },
+    {
+      "chapter": 2,
+      "key": "prepared",
+      "duration": 7,
+      "ar": "تجهيز الملف يختلف عن حفظه",
+      "en": "Prepared bytes are Ready to save, still unsaved",
+      "identity": "مريم / Mariam",
+      "record": "001",
+      "start": 17.180112613000002,
+      "end": 20.207989837999996,
+      "url": "https://rifd-portfolio-mdnb.web.app/applications/RIFD-2026-001/edit?step=documents",
+      "videoOffset": -0.65
+    },
+    {
+      "chapter": 2,
+      "key": "saved",
+      "duration": 7,
+      "ar": "الحفظ ثم التحديث يعيدان الملف الحقيقي",
+      "en": "Save and reload restore the actual document",
+      "identity": "مريم / Mariam",
+      "record": "001",
+      "start": 20.20856556,
+      "end": 24.567532126,
+      "url": "https://rifd-portfolio-mdnb.web.app/applications/RIFD-2026-001/edit?step=documents",
+      "videoOffset": -0.65
+    },
+    {
+      "chapter": 2,
+      "key": "preview",
+      "duration": 7,
+      "ar": "معاينة المستند المحفوظ",
+      "en": "Preview the saved evidence",
+      "identity": "مريم / Mariam",
+      "record": "001",
+      "start": 24.568167702,
+      "end": 26.172510745,
+      "url": "https://rifd-portfolio-mdnb.web.app/applications/RIFD-2026-001/edit?step=documents",
+      "videoOffset": -0.65
+    },
+    {
+      "chapter": 2,
+      "key": "failed-save",
+      "duration": 8,
+      "ar": "فشل الاستبدال يبقي السابق ثم تنجح الإعادة",
+      "en": "Failed replacement preserves the saved file; explicit retry succeeds",
+      "identity": "مريم / Mariam",
+      "record": "001",
+      "start": 26.222067562,
+      "end": 32.568699337000005,
+      "url": "https://rifd-portfolio-mdnb.web.app/applications/RIFD-2026-001/edit?step=documents",
+      "videoOffset": -0.65
+    },
+    {
+      "chapter": 3,
+      "key": "applicant-list",
+      "duration": 6,
+      "ar": "الطلبات الخاصة بهذه الهوية فقط",
+      "en": "This identity sees only her own applications",
+      "identity": "مريم / Mariam",
+      "record": "001,005",
+      "start": 35.532470667,
+      "end": 38.767083509,
+      "url": "https://rifd-portfolio-mdnb.web.app/applications",
+      "videoOffset": -0.65
+    },
+    {
+      "chapter": 3,
+      "key": "detail",
+      "duration": 7,
+      "ar": "الحالة والخطوة التالية والمعلومات المقدمة",
+      "en": "Status, permitted next action and submitted information",
+      "identity": "مريم / Mariam",
+      "record": "001",
+      "start": 38.76771824,
+      "end": 42.012058788000004,
+      "url": "https://rifd-portfolio-mdnb.web.app/applications/RIFD-2026-001",
+      "videoOffset": -0.65
+    },
+    {
+      "chapter": 3,
+      "key": "history",
+      "duration": 7,
+      "ar": "سجل المتقدم لا يعرض ملاحظات الموظفين",
+      "en": "Public history excludes internal staff notes",
+      "identity": "مريم / Mariam",
+      "record": "001",
+      "start": 42.012705401000005,
+      "end": 45.242456117,
+      "url": "https://rifd-portfolio-mdnb.web.app/applications/RIFD-2026-001/history",
+      "videoOffset": -0.65
+    },
+    {
+      "chapter": 3,
+      "key": "notification",
+      "duration": 7,
+      "ar": "إشعار محفوظ يفتح الحالة الحالية",
+      "en": "A saved notification opens the current permitted record",
+      "identity": "مريم / Mariam",
+      "record": "005",
+      "start": 45.243110339000005,
+      "end": 48.08891768200001,
+      "url": "https://rifd-portfolio-mdnb.web.app/applications/RIFD-2026-005",
+      "videoOffset": -0.65
+    },
+    {
+      "chapter": 3,
+      "key": "print",
+      "duration": 8,
+      "ar": "ملخص الطباعة يشترك في سياسة عرض المتقدم",
+      "en": "Both roles print the same applicant-visible summary",
+      "identity": "مريم / Mariam",
+      "record": "005",
+      "start": 48.089407809,
+      "end": 50.41797134400001,
+      "url": "https://rifd-portfolio-mdnb.web.app/applications/RIFD-2026-005/print",
+      "videoOffset": -0.65
+    },
+    {
+      "chapter": 4,
+      "key": "queue-search",
+      "duration": 9,
+      "ar": "بحث وتصفيات وفرز محفوظ",
+      "en": "Search, filter and save the queue sort",
+      "identity": "سلمى / Salma",
+      "record": "Staff queue",
+      "start": 51.387227742,
+      "end": 54.584079001000006,
+      "url": "https://rifd-portfolio-mdnb.web.app/staff/applications?search=&status=submitted&product=all&assignment=all&sort=amountAsc&page=1",
+      "videoOffset": -0.65
+    },
+    {
+      "chapter": 4,
+      "key": "queue-page",
+      "duration": 6,
+      "ar": "الصفحات تعرض المجموعة نفسها",
+      "en": "Five rows per page with stable ordering",
+      "identity": "سلمى / Salma",
+      "record": "Staff queue",
+      "start": 54.584711215000006,
+      "end": 57.490351169,
+      "url": "https://rifd-portfolio-mdnb.web.app/staff/applications?search=&status=all&product=all&assignment=all&sort=amountAsc&page=2",
+      "videoOffset": -0.65
+    },
+    {
+      "chapter": 4,
+      "key": "queue-restored",
+      "duration": 6,
+      "ar": "زيارة جديدة تستعيد الفرز المحفوظ",
+      "en": "A fresh queue visit restores the saved sort",
+      "identity": "سلمى / Salma",
+      "record": "Staff queue",
+      "start": 57.49116758700001,
+      "end": 61.151166217000004,
+      "url": "https://rifd-portfolio-mdnb.web.app/staff/applications?search=&status=all&product=all&assignment=all&sort=amountAsc&page=1",
+      "videoOffset": -0.65
+    },
+    {
+      "chapter": 4,
+      "key": "claim",
+      "duration": 7,
+      "ar": "الاستلام لا يبدأ المراجعة",
+      "en": "Claiming preserves Submitted status",
+      "identity": "سلمى / Salma",
+      "record": "001",
+      "start": 61.152113259000004,
+      "end": 65.260583795,
+      "url": "https://rifd-portfolio-mdnb.web.app/staff/applications/RIFD-2026-001",
+      "videoOffset": -0.65
+    },
+    {
+      "chapter": 4,
+      "key": "start-review",
+      "duration": 7,
+      "ar": "بدء المراجعة فعل مستقل",
+      "en": "Start review is a separate explicit action",
+      "identity": "سلمى / Salma",
+      "record": "001",
+      "start": 65.26131578600001,
+      "end": 67.618467471,
+      "url": "https://rifd-portfolio-mdnb.web.app/staff/applications/RIFD-2026-001",
+      "videoOffset": -0.65
+    },
+    {
+      "chapter": 5,
+      "key": "internal-note",
+      "duration": 4,
+      "ar": "ملاحظات داخلية محفوظة لا تظهر للمتقدم",
+      "en": "Saved internal notes stay private to staff",
+      "identity": "سلمى / Salma",
+      "record": "007",
+      "start": 5.257969762,
+      "end": 7.297612856,
+      "raw": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/demo/24/final/page@e9c3e5c603fe2ffaa4b32bfce112f467.webm",
+      "url": "https://rifd-portfolio-mdnb.web.app/staff/applications/RIFD-2026-007",
+      "videoOffset": -0.35
+    },
+    {
+      "chapter": 5,
+      "key": "target-request",
+      "duration": 5,
+      "ar": "هدف محدد وسبب مستقل قبل التأكيد",
+      "en": "Inspect a targeted correction and its individual reason",
+      "identity": "سلمى / Salma",
+      "record": "007",
+      "start": 75.473216663,
+      "end": 78.93419915700001,
+      "url": "https://rifd-portfolio-mdnb.web.app/staff/applications/RIFD-2026-007/correction-request",
+      "videoOffset": -0.65
+    },
+    {
+      "chapter": 5,
+      "key": "private-response",
+      "duration": 5,
+      "ar": "الاستجابة الخاصة بجانب مبلغ مقدم قدره 600000",
+      "en": "Private response stays beside the submitted 600,000 baseline",
+      "identity": "هدى / Huda",
+      "record": "004",
+      "start": 83.391250856,
+      "end": 87.381768025,
+      "url": "https://rifd-portfolio-mdnb.web.app/applications/RIFD-2026-004/corrections/current",
+      "videoOffset": -0.65
+    },
+    {
+      "chapter": 5,
+      "key": "resubmit",
+      "duration": 7,
+      "ar": "نشر التغييرات المطلوبة معا",
+      "en": "Resubmission publishes all requested changes together",
+      "identity": "هدى / Huda",
+      "record": "004",
+      "start": 87.80108285600001,
+      "end": 90.73783029,
+      "url": "https://rifd-portfolio-mdnb.web.app/applications/RIFD-2026-004",
+      "videoOffset": -0.65,
+      "trimStart": 0.6
+    },
+    {
+      "chapter": 5,
+      "key": "changed-targets",
+      "duration": 8,
+      "ar": "تغير المبلغ والملف عن المرجع الثابت",
+      "en": "Changed amount and plan are compared with the fixed baseline",
+      "identity": "سلمى / Salma",
+      "record": "004",
+      "start": 91.63186149799999,
+      "end": 94.63343807800001,
+      "url": "https://rifd-portfolio-mdnb.web.app/staff/applications/RIFD-2026-004",
+      "videoOffset": -0.65
+    },
+    {
+      "chapter": 5,
+      "key": "rechecks",
+      "duration": 6,
+      "ar": "تحقق من التغييرات ثم أعد الفحوص التابعة",
+      "en": "Verify the changes, then repeat the affected checks",
+      "identity": "سلمى / Salma",
+      "record": "004",
+      "start": 22.462074423999997,
+      "end": 29.920139044000003,
+      "raw": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/demo/24/rechecks/page@ef9f5e329eade289cdcc6785047930fe.webm",
+      "videoOffset": 0,
+      "url": "https://rifd-portfolio-mdnb.web.app/staff/applications/RIFD-2026-004"
+    },
+    {
+      "chapter": 6,
+      "key": "stale-decision",
+      "duration": 9,
+      "ar": "إسناد خارجي يرفض قرارا من عرض قديم",
+      "en": "Outside reassignment refuses the stale decision",
+      "identity": "سلمى / Salma",
+      "record": "001",
+      "start": 99.097012199,
+      "end": 101.58827755,
+      "url": "https://rifd-portfolio-mdnb.web.app/staff/applications/RIFD-2026-001/decision",
+      "videoOffset": -0.65
+    },
+    {
+      "chapter": 6,
+      "key": "recovery",
+      "duration": 7,
+      "ar": "تحميل الأحدث واسترداد مؤكد وفحص جديد",
+      "en": "Load latest, confirm reclaim, then inspect again",
+      "identity": "سلمى / Salma",
+      "record": "001",
+      "start": 101.588892013,
+      "end": 105.749241757,
+      "url": "https://rifd-portfolio-mdnb.web.app/staff/applications/RIFD-2026-001/decision",
+      "videoOffset": -0.65
+    },
+    {
+      "chapter": 6,
+      "key": "approval",
+      "duration": 6,
+      "ar": "تأكيد جديد يحفظ الموافقة وشروطها",
+      "en": "Fresh confirmation commits approval and freezes its terms",
+      "identity": "سلمى / Salma",
+      "record": "001",
+      "start": 105.74997763500001,
+      "end": 108.09466686100001,
+      "url": "https://rifd-portfolio-mdnb.web.app/staff/applications/RIFD-2026-001/decision",
+      "videoOffset": -0.65
+    },
+    {
+      "chapter": 6,
+      "key": "new-rejection",
+      "duration": 7,
+      "ar": "رفض جديد بعد تقديم فعلي لنشاط عمره شهران",
+      "en": "New rejection after normal submission: two operating months",
+      "identity": "سلمى / Salma",
+      "record": "RIFD-2026-220f6d40-02bf-4d5e-8919-b21485f889d0",
+      "start": 25.356793095,
+      "end": 30.398549746,
+      "url": "https://rifd-portfolio-mdnb.web.app/staff/applications/RIFD-2026-220f6d40-02bf-4d5e-8919-b21485f889d0/decision",
+      "raw": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/demo/24/ending/page@b6a210e6f8e702e37ce3b0a54761f415.webm",
+      "videoOffset": -0.4
+    },
+    {
+      "chapter": 6,
+      "key": "repayment",
+      "duration": 6,
+      "ar": "مثال تاريخي ثابت بقسطين مكتملين",
+      "en": "Historical frozen illustration with two completed entries",
+      "identity": "سلمى / Salma",
+      "record": "005",
+      "start": 30.399211365,
+      "end": 33.738690563000006,
+      "url": "https://rifd-portfolio-mdnb.web.app/staff/applications/RIFD-2026-005/repayment",
+      "raw": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/demo/24/ending/page@b6a210e6f8e702e37ce3b0a54761f415.webm",
+      "videoOffset": -0.4
+    },
+    {
+      "chapter": 7,
+      "key": "english",
+      "duration": 5,
+      "ar": "تبديل اللغة يحفظ السياق والاتجاه",
+      "en": "Explicit English switch preserves the current record",
+      "identity": "سلمى / Salma",
+      "record": "005",
+      "start": 33.73937887,
+      "end": 37.173741255,
+      "url": "https://rifd-portfolio-mdnb.web.app/staff/applications/RIFD-2026-005/repayment",
+      "raw": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/demo/24/ending/page@b6a210e6f8e702e37ce3b0a54761f415.webm",
+      "videoOffset": -0.4
+    },
+    {
+      "chapter": 7,
+      "key": "expiry",
+      "duration": 7,
+      "ar": "انتهاء الجلسة ثم استعادة الهوية نفسها",
+      "en": "Expiry covers protected content; same-identity sign-in recovers",
+      "identity": "سلمى / Salma",
+      "record": "005",
+      "start": 37.174325098000004,
+      "end": 40.472081955,
+      "url": "https://rifd-portfolio-mdnb.web.app/staff/applications/RIFD-2026-005/repayment",
+      "raw": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/demo/24/ending/page@b6a210e6f8e702e37ce3b0a54761f415.webm",
+      "videoOffset": -0.4
+    },
+    {
+      "chapter": 7,
+      "key": "forbidden",
+      "duration": 5,
+      "ar": "الرابط غير المسموح لا يكشف تفاصيل الطلب",
+      "en": "Forbidden access reveals no application details",
+      "identity": "مريم / Mariam",
+      "record": "004 forbidden",
+      "start": 41.397668277,
+      "end": 44.314725092,
+      "url": "https://rifd-portfolio-mdnb.web.app/applications/RIFD-2026-004",
+      "raw": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/demo/24/ending/page@b6a210e6f8e702e37ce3b0a54761f415.webm",
+      "videoOffset": -0.4
+    },
+    {
+      "chapter": 7,
+      "key": "gallery",
+      "duration": 5,
+      "ar": "معرض المكونات المستخدمة في الرحلات",
+      "en": "Public gallery uses the production components",
+      "identity": "مريم / Mariam",
+      "record": "Components",
+      "start": 44.315192423,
+      "end": 47.046078858,
+      "url": "https://rifd-portfolio-mdnb.web.app/components",
+      "raw": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/demo/24/ending/page@b6a210e6f8e702e37ce3b0a54761f415.webm",
+      "videoOffset": -0.4
+    },
+    {
+      "chapter": 7,
+      "key": "reset",
+      "duration": 8,
+      "ar": "تأكيد إعادة الضبط يستبدل بيانات هذا المتصفح",
+      "en": "Confirm browser-wide reset after reading the warning",
+      "identity": "مريم / Mariam",
+      "record": "Reset",
+      "start": 47.046588243,
+      "end": 53.322552073000004,
+      "url": "https://rifd-portfolio-mdnb.web.app/sign-in",
+      "raw": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/demo/24/ending/page@b6a210e6f8e702e37ce3b0a54761f415.webm",
+      "videoOffset": -0.4
+    },
+    {
+      "chapter": 7,
+      "key": "restored",
+      "duration": 5,
+      "ar": "عادت العربية والهويات والبيانات الأصلية",
+      "en": "Arabic, identities and the original dataset are restored",
+      "identity": "زائر / Visitor",
+      "record": "Canonical seeds",
+      "start": 53.323105339,
+      "end": 54.797658774000006,
+      "url": "https://rifd-portfolio-mdnb.web.app/sign-in",
+      "raw": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/demo/24/ending/page@b6a210e6f8e702e37ce3b0a54761f415.webm",
+      "videoOffset": -0.4
+    }
+  ],
+  "supplementary": [
+    {
+      "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/demo/24/final/page@e9c3e5c603fe2ffaa4b32bfce112f467.webm",
+      "sha256": "a38bdcb5b667613e413a67a4d25da75df0311fff581b009789c124fd27adbb7f"
+    },
+    {
+      "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/demo/24/rechecks/page@ef9f5e329eade289cdcc6785047930fe.webm",
+      "sha256": "3fbd0908ceeafd98a89ecaca7375fb2debc6657109523d1d4304e6385680f3a7"
+    },
+    {
+      "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/demo/24/ending/page@b6a210e6f8e702e37ce3b0a54761f415.webm",
+      "sha256": "3980d39f9d056306c832dc8b7730a7ae1b92696f0de59a6cb4f1074a6c803f45"
+    }
+  ],
+  "probe": {
+    "streams": [
+      {
+        "index": 0,
+        "codec_name": "h264",
+        "codec_long_name": "H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10",
+        "profile": "High",
+        "codec_type": "video",
+        "codec_tag_string": "avc1",
+        "codec_tag": "0x31637661",
+        "mime_codec_string": "avc1.640028",
+        "width": 1440,
+        "height": 1080,
+        "coded_width": 1440,
+        "coded_height": 1080,
+        "has_b_frames": 2,
+        "pix_fmt": "yuv420p",
+        "level": 40,
+        "chroma_location": "left",
+        "field_order": "progressive",
+        "is_avc": "true",
+        "nal_length_size": "4",
+        "id": "0x1",
+        "r_frame_rate": "20/1",
+        "avg_frame_rate": "20/1",
+        "time_base": "1/10240",
+        "start_pts": 0,
+        "start_time": "0.000000",
+        "duration_ts": 2764800,
+        "duration": "270.000000",
+        "bit_rate": "116308",
+        "bits_per_raw_sample": "8",
+        "nb_frames": "5400",
+        "extradata_size": 45,
+        "disposition": {
+          "default": 1,
+          "dub": 0,
+          "original": 0,
+          "comment": 0,
+          "lyrics": 0,
+          "karaoke": 0,
+          "forced": 0,
+          "hearing_impaired": 0,
+          "visual_impaired": 0,
+          "clean_effects": 0,
+          "attached_pic": 0,
+          "timed_thumbnails": 0,
+          "non_diegetic": 0,
+          "captions": 0,
+          "descriptions": 0,
+          "metadata": 0,
+          "dependent": 0,
+          "still_image": 0,
+          "multilayer": 0
+        },
+        "tags": {
+          "language": "und",
+          "handler_name": "VideoHandler",
+          "encoder": "Lavc63.1.101 libx264"
+        }
+      },
+      {
+        "index": 1,
+        "codec_name": "bin_data",
+        "codec_long_name": "binary data",
+        "codec_type": "data",
+        "codec_tag_string": "text",
+        "codec_tag": "0x74786574",
+        "id": "0x2",
+        "r_frame_rate": "0/0",
+        "avg_frame_rate": "0/0",
+        "time_base": "1/1000",
+        "start_pts": 0,
+        "start_time": "0.000000",
+        "duration_ts": 270000,
+        "duration": "270.000000",
+        "bit_rate": "20",
+        "nb_frames": "9",
+        "extradata_size": 63,
+        "disposition": {
+          "default": 0,
+          "dub": 0,
+          "original": 0,
+          "comment": 0,
+          "lyrics": 0,
+          "karaoke": 0,
+          "forced": 0,
+          "hearing_impaired": 0,
+          "visual_impaired": 0,
+          "clean_effects": 0,
+          "attached_pic": 0,
+          "timed_thumbnails": 0,
+          "non_diegetic": 0,
+          "captions": 0,
+          "descriptions": 0,
+          "metadata": 0,
+          "dependent": 0,
+          "still_image": 0,
+          "multilayer": 0
+        },
+        "tags": {
+          "language": "eng",
+          "handler_name": "SubtitleHandler"
+        }
+      }
+    ],
+    "chapters": [
+      {
+        "id": 0,
+        "time_base": "1/1000",
+        "start": 0,
+        "start_time": "0.000000",
+        "end": 10000,
+        "end_time": "10.000000",
+        "tags": {
+          "title": "Introduction / مقدمة"
+        }
+      },
+      {
+        "id": 1,
+        "time_base": "1/1000",
+        "start": 10000,
+        "start_time": "10.000000",
+        "end": 45000,
+        "end_time": "45.000000",
+        "tags": {
+          "title": "1. Products and application / المنتجات والتقديم"
+        }
+      },
+      {
+        "id": 2,
+        "time_base": "1/1000",
+        "start": 45000,
+        "start_time": "45.000000",
+        "end": 80000,
+        "end_time": "80.000000",
+        "tags": {
+          "title": "2. Documents and recovery / المستندات والتعافي"
+        }
+      },
+      {
+        "id": 3,
+        "time_base": "1/1000",
+        "start": 80000,
+        "start_time": "80.000000",
+        "end": 115000,
+        "end_time": "115.000000",
+        "tags": {
+          "title": "3. Tracking, notifications and print / المتابعة والإشعارات والطباعة"
+        }
+      },
+      {
+        "id": 4,
+        "time_base": "1/1000",
+        "start": 115000,
+        "start_time": "115.000000",
+        "end": 150000,
+        "end_time": "150.000000",
+        "tags": {
+          "title": "4. Queue and assignment / قائمة الطلبات والإسناد"
+        }
+      },
+      {
+        "id": 5,
+        "time_base": "1/1000",
+        "start": 150000,
+        "start_time": "150.000000",
+        "end": 185000,
+        "end_time": "185.000000",
+        "tags": {
+          "title": "5. Review and corrections / المراجعة والتصحيحات"
+        }
+      },
+      {
+        "id": 6,
+        "time_base": "1/1000",
+        "start": 185000,
+        "start_time": "185.000000",
+        "end": 220000,
+        "end_time": "220.000000",
+        "tags": {
+          "title": "6. Decisions and repayment / القرارات والسداد"
+        }
+      },
+      {
+        "id": 7,
+        "time_base": "1/1000",
+        "start": 220000,
+        "start_time": "220.000000",
+        "end": 255000,
+        "end_time": "255.000000",
+        "tags": {
+          "title": "7. Access, sessions and reset / الوصول والجلسات وإعادة الضبط"
+        }
+      },
+      {
+        "id": 8,
+        "time_base": "1/1000",
+        "start": 255000,
+        "start_time": "255.000000",
+        "end": 270000,
+        "end_time": "270.000000",
+        "tags": {
+          "title": "Delivery links / روابط التسليم"
+        }
+      }
+    ],
+    "format": {
+      "filename": "/home/mdnb/Dev/Projects/project_impress_bank/docs/demo/rifd-demo.mp4",
+      "nb_streams": 2,
+      "nb_programs": 0,
+      "nb_stream_groups": 0,
+      "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
+      "format_long_name": "QuickTime / MOV",
+      "start_time": "0.000000",
+      "duration": "270.000000",
+      "size": "3993023",
+      "bit_rate": "118311",
+      "probe_score": 100,
+      "tags": {
+        "major_brand": "isom",
+        "minor_version": "512",
+        "compatible_brands": "isomiso2avc1mp41",
+        "title": "RIFD / رِفد",
+        "encoder": "Lavf63.1.101"
+      }
+    }
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "status": "passed",
+  "earlierExports": [
+    {
+      "outcome": "failed visual review",
+      "reason": "Source clock offset included following UI and a resize frame. Recut using screenshot-matched offsets."
+    },
+    {
+      "outcome": "failed final frame sweep",
+      "reason": "Two gray frames at 164.0 and 164.2 seconds. Trimmed the beginning of resubmission by 0.6 seconds."
+    }
+  ],
+  "inspected": [
+    "all 39 scene-end frames in a contact sheet",
+    "full-resolution intro, print, private response, new rejection, restored reset and closing",
+    "hosted applicant/staff case-study captures",
+    "both rendered pages of the actual hosted Arabic print PDF",
+    "amended resubmission and actual dependent-rechecks exported frames"
+  ],
+  "filmSha256": "d26286398d5cde66aae567aa9ba25dc2247b4cf91701cf60437093a9a1d11875",
+  "durationSeconds": 270,
+  "journeyChapterSeconds": [
+    35,
+    35,
+    35,
+    35,
+    35,
+    35,
+    35
+  ],
+  "actualDependentRechecks": "All four affected checks recorded Passed through actual UI after correction verification and replacement acceptance.",
+  "grayFrameSweep": {
+    "sampleRate": 5,
+    "blankGrayFrames": []
+  },
+  "printReview": {
+    "file": "approved-ar.pdf",
+    "pages": 2,
+    "renderDpi": 85,
+    "result": "Both Poppler-rendered pages inspected; readable Arabic, public history and no internal review content."
+  }
+}

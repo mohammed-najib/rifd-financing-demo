@@ -1,0 +1,73 @@
+{
+  "status": "passed after correcting the measurement boundary",
+  "originalRun": "2026-10-16T21-11-20.586Z",
+  "originalCases": [
+    {
+      "file": "performance.gates.spec.ts",
+      "line": 67,
+      "title": "en 390 correction samples keep their loading and recovery positions",
+      "suite": [
+        "performance.gates.spec.ts"
+      ],
+      "project": "chrome",
+      "status": "unexpected",
+      "expectedStatus": "passed",
+      "attempts": [
+        {
+          "status": "failed",
+          "duration": 7102,
+          "retry": 0,
+          "startTime": "2026-10-16T22:08:53.538Z"
+        }
+      ]
+    },
+    {
+      "file": "performance.gates.spec.ts",
+      "line": 67,
+      "title": "en 1440 correction samples keep their loading and recovery positions",
+      "suite": [
+        "performance.gates.spec.ts"
+      ],
+      "project": "chrome",
+      "status": "unexpected",
+      "expectedStatus": "passed",
+      "attempts": [
+        {
+          "status": "failed",
+          "duration": 7357,
+          "retry": 0,
+          "startTime": "2026-10-16T22:09:01.392Z"
+        }
+      ]
+    }
+  ],
+  "originalFailure": "English correction-sample recovery CLS exceeded 0.1 at both widths. The only reported shifted node was FOOTER. Actual picker height and button offset remained constant in all captured frames.",
+  "originalRecoveryCls": {
+    "390": 0.29578947368421055,
+    "1440": 0.16842105263157894
+  },
+  "sourceChanged": "Only the reviewed test measurement changed. Every application and build input remains exact.",
+  "rootCause": "The observer admitted a queued route/focus shift recorded before the first sample frame. See layout-diagnosis.json.",
+  "unchangedFocusedRecheckStats": {
+    "startTime": "2026-10-16T22:19:19.194Z",
+    "duration": 54184.738000000005,
+    "expected": 2,
+    "skipped": 0,
+    "unexpected": 4,
+    "flaky": 0
+  },
+  "command": "RIFD_HOSTING=1 RIFD_ACCEPTANCE_DIR=artifacts/acceptance/24/corrected-layout TMPDIR=/tmp/rifd24 pnpm exec playwright test tests/browser/performance.gates.spec.ts --config playwright.delivery.config.ts --project chrome --grep 'correction samples' --repeat-each=3 --workers=1 --timeout=180000",
+  "earlierSelectionAttempt": "An anchored CLI title filter selected no tests. Its failed log is retained separately; it supplies no passing coverage.",
+  "stats": {
+    "startTime": "2026-10-16T22:22:43.631Z",
+    "duration": 89872.518,
+    "expected": 12,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "reportSha256": "ebb91f24470475cb5d35b6d12ad63f8e60ab991c55973bf16080eb8320b3468c",
+  "measuredSourceSha256": "b40ed3702f8c955998aaf4b38246930469a1cdbd47bbec6ba68357c0d8e1f8fd",
+  "currentVerificationSourceSha256": "0236c5e5f6a48d3ff971c5143452e8b91c50daa79d96f102c88d498d620e67fe",
+  "acceptanceMethod": "Keep original failures and the reproduced unchanged failures. Associate the corrected measurement with all four language/width cases passing three times each. No uninterrupted full pass is claimed."
+}
