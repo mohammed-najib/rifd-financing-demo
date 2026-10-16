@@ -85,7 +85,7 @@ export function App() {
   const [list, setList] = useState<ApplicationSummary[] | null>(null)
   const [printSummary, setPrintSummary] = useState<PrintSummary | null>(null)
   const [view, setView] = useState<ApplicationView | null>(null)
-  const [loadedPath, setLoadedPath] = useState<string | null>(null)
+  const [loadedRead, setLoadedRead] = useState<string | null>(null)
   const [resolvedCorrectionId, setResolvedCorrectionId] = useState<string | null>(null)
   const [resolvedRepaymentId, setResolvedRepaymentId] = useState<string | null>(null)
   const [submittedId, setSubmittedId] = useState<string | null>(null)
@@ -118,7 +118,7 @@ export function App() {
     departure.current = null; staffWork.current = null; simulationWork.current = null; heldStaffView.current = null
     setLeaving(current => { current?.cancel?.(); return null })
     setError(null); setLanguageConflict(null); setView(null); setList(null); setPrintSummary(null); setSubmittedId(null); setResolvedCorrectionId(null); setResolvedRepaymentId(null)
-    loadedContext.current = ''; setLoadedPath(null); setResetOpen(false)
+    loadedContext.current = ''; setLoadedRead(null); setResetOpen(false)
   }
   const acceptContext = (next: Context) => {
     const previous = currentContext.current
@@ -214,13 +214,13 @@ export function App() {
     const readContext = `${path}/${identityId}/${sessionId}`
     if (loadedContext.current !== readContext) {
       loadedContext.current = readContext
-      setLoadedPath(null); setView(null); setList(null); setPrintSummary(null)
+      setLoadedRead(null); setView(null); setList(null); setPrintSummary(null)
     }
     if (!context || !identityId) return
     if (current.kind === 'home') { void navigate({ to: '/$', params: { _splat: identity?.role === 'reviewer' ? 'staff/applications' : 'applications' }, replace: true }); return }
     const staff = current.kind === 'staffList' || current.kind === 'staffDetail' || current.kind === 'staffRequest' || current.kind === 'staffDecision' || current.kind === 'staffPrint' || current.kind === 'staffRepayment'
     const applicant = current.kind === 'applicantList' || current.kind === 'applicantDetail' || current.kind === 'applicantPrint' || current.kind === 'notifications' || current.kind === 'newDraft' || current.kind === 'applicantRepayment'
-    if ((staff && identityId !== 'salma') || (applicant && identityId === 'salma')) { setError('unavailable'); setLoadedPath(path); return }
+    if ((staff && identityId !== 'salma') || (applicant && identityId === 'salma')) { setError('unavailable'); setLoadedRead(readContext); return }
     const retainedNew = current.kind === 'newDraft' && newDraftId.current ? draftBuffers.current.get(`${context.datasetId}/${identityId}/${newDraftId.current}`) : undefined
     if (retainedNew) {
       void demo.readApplication(retainedNew.baseline.id).then(result => {
@@ -232,24 +232,24 @@ export function App() {
             void navigate({ to: '/$', params: { _splat: `applications/${result.value.id}` }, search: {}, ignoreBlocker: true })
           }
         } else setError(result.error.kind)
-        setLoadedPath(path)
+        setLoadedRead(readContext)
       })
       return () => { active = false }
     }
-    if (current.kind === 'staffList') setLoadedPath(path)
+    if (current.kind === 'staffList') setLoadedRead(readContext)
     else if (current.kind === 'applicantList' || current.kind === 'newDraft') {
       void demo.listApplications().then(result => {
         if (!active) return
         if (result.ok) setList(result.value)
         else setError(result.error.kind)
-        setLoadedPath(path)
+        setLoadedRead(readContext)
       })
     } else if (current.kind === 'staffPrint' || current.kind === 'applicantPrint') {
       void demo.readPrintSummary(current.id).then(result => {
         if (!active) return
         if (result.ok) setPrintSummary(result.value)
         else setError(result.error.kind)
-        setLoadedPath(path)
+        setLoadedRead(readContext)
       })
     } else if (current.kind === 'staffDetail' || current.kind === 'staffRequest' || current.kind === 'staffDecision' || current.kind === 'applicantDetail' || current.kind === 'staffRepayment' || current.kind === 'applicantRepayment') {
       void demo.readApplication(current.id).then(result => {
@@ -279,14 +279,14 @@ export function App() {
           }
         }
         else setError(result.error.kind)
-        setLoadedPath(path)
+        setLoadedRead(readContext)
       })
-    } else setLoadedPath(path)
+    } else setLoadedRead(readContext)
     return () => { active = false }
     // Preferences do not change the record read or revoke the current identity.
   }, [path, search.round, sessionId, identityId, reload, demo, navigate])
 
-  const routeReady = !startupError && !!context && (screen.kind === 'chooser' || screen.kind === 'gallery' || screen.kind === 'products' || screen.kind === 'reset' || !identity || loadedPath === path)
+  const routeReady = !startupError && !!context && !identitySelection.current && (screen.kind === 'chooser' || screen.kind === 'gallery' || screen.kind === 'products' || screen.kind === 'reset' || !identity || loadedRead === `${path}/${identityId}/${sessionId}`)
   useEffect(() => {
     if (routeReady || startupError) document.querySelector<HTMLElement>('main h1')?.focus()
   }, [path, routeReady, sessionId, startupError])

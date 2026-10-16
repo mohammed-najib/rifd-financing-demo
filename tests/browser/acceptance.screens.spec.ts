@@ -124,3 +124,24 @@ for (const language of ['ar', 'en'] as const) test(`${language} real saved PDF J
   await page.getByRole('button', { name: ar ? 'معاينة إثبات النشاط التجاري' : 'Preview Business evidence', exact: true }).click()
   await expect(page.getByRole('dialog', { name: ar ? 'معاينة المستند' : 'Document preview', exact: true })).toHaveAccessibleDescription(ar ? 'إثبات النشاط التجاري' : 'Business evidence')
 })
+
+for (const language of ['ar', 'en'] as const) test(`${language} applicant-to-reviewer identity switch focuses the settled queue heading`, async ({ page }) => {
+  const ar = language === 'ar'
+  await page.setViewportSize({ width: 360, height: 950 })
+  await page.goto('/sign-in')
+  await expect(page.locator('[data-workspace-ready="true"]')).toBeVisible({ timeout: 60_000 })
+  if (!ar) {
+    await page.getByRole('button', { name: 'English', exact: true }).click()
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en')
+  }
+  await page.getByRole('button', { name: ar ? 'مريم سالم' : 'Mariam Salem', exact: true }).focus()
+  await page.keyboard.press('Enter')
+  await expect(page.getByRole('heading', { name: ar ? 'طلباتي' : 'My applications', exact: true })).toBeFocused()
+  await page.getByRole('button', { name: ar ? 'تغيير الهوية' : 'Switch identity', exact: true }).focus()
+  await page.keyboard.press('Enter')
+  await page.getByRole('button', { name: ar ? 'سلمى ناصر' : 'Salma Nasser', exact: true }).focus()
+  await page.keyboard.press('Enter')
+  await expect(page.locator('main [data-application]')).toHaveCount(5)
+  await expect.poll(() => new URL(page.url()).searchParams.get('page')).toBe('1')
+  await expect(page.getByRole('heading', { name: ar ? 'قائمة الطلبات' : 'Application queue', exact: true })).toBeFocused()
+})
