@@ -98,6 +98,11 @@ in slice 01. The [functional acceptance matrix](docs/implementation/20-evidence.
 links requirements to the tests and final run evidence. Manual accessibility,
 visual/print inspection, performance and hosted-release gates have their own tickets.
 
+Set `RIFD_ACCEPTANCE_SLICE=21` to retain a run under `artifacts/acceptance/21/`.
+The [bilingual and accessibility evidence](docs/implementation/21-evidence.md)
+records the pointer/focus fixes, layout and print checks, and the manual
+acceptance still open for ticket 21.
+
 Install Firebase CLI 15.30.0 to reproduce the Hosting checks:
 
 ```sh

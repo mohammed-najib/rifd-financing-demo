@@ -69,3 +69,26 @@ Review totals: Standards 0 outstanding; Spec 0 outstanding.
 All 22 unresolved implementation tickets link to the styling conventions. Form, print, queue, gallery, browser acceptance, visual acceptance, performance, Hosting release and repository-delivery tickets also carry specific checks. Their statuses, functional scope and dependency graph remain unchanged. Completed tickets and their historical evidence were not rewritten.
 
 These checks cover the current UI. They do not complete later feature journeys, screen-reader checks, actual print acceptance, 200% zoom acceptance, Lighthouse gates or Hosting release. Playwright WebKit and responsive viewport checks do not establish branded Safari or physical-device support. See [styling conventions](../../README.md#styling) before extending the UI.
+
+## Ticket 21 acceptance extension
+
+The [slice 21 evidence](21-evidence.md) extends this baseline to the implemented
+application, correction, review, decision, repayment, print and public gallery
+screens. Its production-screen checkpoints cover Arabic and English at
+360/390/768/1440px, plus 767/768 and 1199/1200 boundaries for gallery, queue,
+staff review and decision views. Captures and measured page/control bounds are
+retained with browser versions and the tested source manifest.
+
+The gallery includes the shared written statuses, long mixed-direction text,
+filenames, lists, controls, invalid fields, save/recovery states and dialog focus.
+The correction picker now reserves its existing flex layout while samples load;
+it keeps the same tokens, logical layout and spacing. Pointer regressions cover
+the resulting control stability. The compiled stylesheet hash remains
+`7cdf6b5894543437ca5c964660faa44fb8dff2359df2ac168ebcf40f66710345`.
+The production dialogs now share Tab containment while keeping their existing
+focus indicators, Escape handling and opener return.
+
+These additions are acceptance evidence for the current production components.
+The earlier pixel-comparison results remain historical. The open native zoom,
+screen-reader and full manual-journey checks are listed in slice 21; screenshots
+do not close them.

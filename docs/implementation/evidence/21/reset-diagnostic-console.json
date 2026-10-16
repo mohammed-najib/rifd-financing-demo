@@ -1,0 +1,7372 @@
+[
+  {
+    "run": "reset-probe3",
+    "trace": "artifacts/acceptance/21/reset-probe3-2026-10-16T01-22-21.791Z/screens/results/reset.screens-public-reset-75277--recovery-in-both-languages-chrome-repeat2/trace.zip",
+    "traceSha256": "2d48d3a2192b2ee6b408befd0ec47701a4ef3592bca61740decf5aa77eb1e460",
+    "events": [
+      {
+        "timeMs": 3107.545,
+        "text": "[DEBUG-rifd21] encode start 1 image/png"
+      },
+      {
+        "timeMs": 3130.129,
+        "text": "[DEBUG-rifd21] encode complete 1"
+      },
+      {
+        "timeMs": 3144.62,
+        "text": "[DEBUG-rifd21] encode start 2 image/png"
+      },
+      {
+        "timeMs": 3172.28,
+        "text": "[DEBUG-rifd21] encode complete 2"
+      },
+      {
+        "timeMs": 3307.632,
+        "text": "[DEBUG-rifd21] encode start 3 image/png"
+      },
+      {
+        "timeMs": 3324.139,
+        "text": "[DEBUG-rifd21] encode complete 3"
+      },
+      {
+        "timeMs": 3658.341,
+        "text": "[DEBUG-rifd21] encode start 4 image/png"
+      },
+      {
+        "timeMs": 3677.4,
+        "text": "[DEBUG-rifd21] encode complete 4"
+      },
+      {
+        "timeMs": 3773.328,
+        "text": "[DEBUG-rifd21] encode start 5 image/png"
+      },
+      {
+        "timeMs": 3785.544,
+        "text": "[DEBUG-rifd21] encode complete 5"
+      },
+      {
+        "timeMs": 4100.523,
+        "text": "[DEBUG-rifd21] encode start 6 image/jpeg"
+      },
+      {
+        "timeMs": 4115.609,
+        "text": "[DEBUG-rifd21] encode complete 6"
+      },
+      {
+        "timeMs": 4120.563,
+        "text": "[DEBUG-rifd21] encode start 7 image/png"
+      },
+      {
+        "timeMs": 4132.319,
+        "text": "[DEBUG-rifd21] encode complete 7"
+      },
+      {
+        "timeMs": 4141.748,
+        "text": "[DEBUG-rifd21] encode start 8 image/png"
+      },
+      {
+        "timeMs": 4160.926,
+        "text": "[DEBUG-rifd21] encode complete 8"
+      },
+      {
+        "timeMs": 4258.532,
+        "text": "[DEBUG-rifd21] encode start 9 image/png"
+      },
+      {
+        "timeMs": 4273.141,
+        "text": "[DEBUG-rifd21] encode complete 9"
+      },
+      {
+        "timeMs": 4542.634,
+        "text": "[DEBUG-rifd21] encode start 10 image/png"
+      },
+      {
+        "timeMs": 4556.187,
+        "text": "[DEBUG-rifd21] encode complete 10"
+      },
+      {
+        "timeMs": 4638.909,
+        "text": "[DEBUG-rifd21] encode start 11 image/png"
+      },
+      {
+        "timeMs": 4650.688,
+        "text": "[DEBUG-rifd21] encode complete 11"
+      },
+      {
+        "timeMs": 4927.425,
+        "text": "[DEBUG-rifd21] encode start 12 image/jpeg"
+      },
+      {
+        "timeMs": 4948.887,
+        "text": "[DEBUG-rifd21] encode complete 12"
+      },
+      {
+        "timeMs": 4957.419,
+        "text": "[DEBUG-rifd21] encode start 13 image/png"
+      },
+      {
+        "timeMs": 4973.436,
+        "text": "[DEBUG-rifd21] encode complete 13"
+      },
+      {
+        "timeMs": 4986.608,
+        "text": "[DEBUG-rifd21] encode start 14 image/png"
+      },
+      {
+        "timeMs": 5003.703,
+        "text": "[DEBUG-rifd21] encode complete 14"
+      },
+      {
+        "timeMs": 5127.34,
+        "text": "[DEBUG-rifd21] encode start 15 image/png"
+      },
+      {
+        "timeMs": 5139.932,
+        "text": "[DEBUG-rifd21] encode complete 15"
+      },
+      {
+        "timeMs": 5373.412,
+        "text": "[DEBUG-rifd21] encode start 16 image/png"
+      },
+      {
+        "timeMs": 5393.451,
+        "text": "[DEBUG-rifd21] encode complete 16"
+      },
+      {
+        "timeMs": 5473.307,
+        "text": "[DEBUG-rifd21] encode start 17 image/png"
+      },
+      {
+        "timeMs": 5486.299,
+        "text": "[DEBUG-rifd21] encode complete 17"
+      },
+      {
+        "timeMs": 5744.541,
+        "text": "[DEBUG-rifd21] encode start 18 image/png"
+      },
+      {
+        "timeMs": 5757.686,
+        "text": "[DEBUG-rifd21] encode complete 18"
+      },
+      {
+        "timeMs": 5834.214,
+        "text": "[DEBUG-rifd21] encode start 19 image/png"
+      },
+      {
+        "timeMs": 5843.389,
+        "text": "[DEBUG-rifd21] encode complete 19"
+      },
+      {
+        "timeMs": 6080.555,
+        "text": "[DEBUG-rifd21] encode start 20 image/jpeg"
+      },
+      {
+        "timeMs": 6097.976,
+        "text": "[DEBUG-rifd21] encode complete 20"
+      },
+      {
+        "timeMs": 6104.357,
+        "text": "[DEBUG-rifd21] encode start 21 image/png"
+      },
+      {
+        "timeMs": 6120.354,
+        "text": "[DEBUG-rifd21] encode complete 21"
+      },
+      {
+        "timeMs": 6135.118,
+        "text": "[DEBUG-rifd21] encode start 22 image/png"
+      },
+      {
+        "timeMs": 6154.471,
+        "text": "[DEBUG-rifd21] encode complete 22"
+      },
+      {
+        "timeMs": 6260.389,
+        "text": "[DEBUG-rifd21] encode start 23 image/png"
+      },
+      {
+        "timeMs": 6291.819,
+        "text": "[DEBUG-rifd21] encode complete 23"
+      },
+      {
+        "timeMs": 6534.829,
+        "text": "[DEBUG-rifd21] encode start 24 image/png"
+      },
+      {
+        "timeMs": 6547.866,
+        "text": "[DEBUG-rifd21] encode complete 24"
+      },
+      {
+        "timeMs": 6651.148,
+        "text": "[DEBUG-rifd21] encode start 25 image/png"
+      },
+      {
+        "timeMs": 6666.747,
+        "text": "[DEBUG-rifd21] encode complete 25"
+      },
+      {
+        "timeMs": 6913.921,
+        "text": "[DEBUG-rifd21] encode start 26 image/jpeg"
+      },
+      {
+        "timeMs": 6930.115,
+        "text": "[DEBUG-rifd21] encode complete 26"
+      },
+      {
+        "timeMs": 6936.233,
+        "text": "[DEBUG-rifd21] encode start 27 image/jpeg"
+      },
+      {
+        "timeMs": 6951.304,
+        "text": "[DEBUG-rifd21] encode complete 27"
+      },
+      {
+        "timeMs": 6958.658,
+        "text": "[DEBUG-rifd21] encode start 28 image/png"
+      },
+      {
+        "timeMs": 6971.215,
+        "text": "[DEBUG-rifd21] encode complete 28"
+      },
+      {
+        "timeMs": 6982.836,
+        "text": "[DEBUG-rifd21] encode start 29 image/png"
+      },
+      {
+        "timeMs": 6996.21,
+        "text": "[DEBUG-rifd21] encode complete 29"
+      },
+      {
+        "timeMs": 7115.325,
+        "text": "[DEBUG-rifd21] encode start 30 image/png"
+      },
+      {
+        "timeMs": 7125.407,
+        "text": "[DEBUG-rifd21] encode complete 30"
+      },
+      {
+        "timeMs": 7417.422,
+        "text": "[DEBUG-rifd21] encode start 31 image/png"
+      },
+      {
+        "timeMs": 7439.045,
+        "text": "[DEBUG-rifd21] encode complete 31"
+      },
+      {
+        "timeMs": 7512.729,
+        "text": "[DEBUG-rifd21] encode start 32 image/png"
+      },
+      {
+        "timeMs": 7523.916,
+        "text": "[DEBUG-rifd21] encode complete 32"
+      },
+      {
+        "timeMs": 7772.839,
+        "text": "[DEBUG-rifd21] encode start 33 image/jpeg"
+      },
+      {
+        "timeMs": 7793.635,
+        "text": "[DEBUG-rifd21] encode complete 33"
+      },
+      {
+        "timeMs": 7799.441,
+        "text": "[DEBUG-rifd21] encode start 34 image/png"
+      },
+      {
+        "timeMs": 7812.389,
+        "text": "[DEBUG-rifd21] encode complete 34"
+      },
+      {
+        "timeMs": 7819.563,
+        "text": "[DEBUG-rifd21] encode start 35 image/png"
+      },
+      {
+        "timeMs": 7830.289,
+        "text": "[DEBUG-rifd21] encode complete 35"
+      },
+      {
+        "timeMs": 7899.386,
+        "text": "[DEBUG-rifd21] encode start 36 image/png"
+      },
+      {
+        "timeMs": 7911.21,
+        "text": "[DEBUG-rifd21] encode complete 36"
+      },
+      {
+        "timeMs": 8142.587,
+        "text": "[DEBUG-rifd21] encode start 37 image/png"
+      },
+      {
+        "timeMs": 8159.897,
+        "text": "[DEBUG-rifd21] encode complete 37"
+      },
+      {
+        "timeMs": 8234.769,
+        "text": "[DEBUG-rifd21] encode start 38 image/png"
+      },
+      {
+        "timeMs": 8247.381,
+        "text": "[DEBUG-rifd21] encode complete 38"
+      },
+      {
+        "timeMs": 8496.858,
+        "text": "[DEBUG-rifd21] encode start 39 image/jpeg"
+      },
+      {
+        "timeMs": 8514.508,
+        "text": "[DEBUG-rifd21] encode complete 39"
+      },
+      {
+        "timeMs": 8521.898,
+        "text": "[DEBUG-rifd21] encode start 40 image/png"
+      },
+      {
+        "timeMs": 8540.116,
+        "text": "[DEBUG-rifd21] encode complete 40"
+      },
+      {
+        "timeMs": 8552.476,
+        "text": "[DEBUG-rifd21] encode start 41 image/png"
+      },
+      {
+        "timeMs": 8567.294,
+        "text": "[DEBUG-rifd21] encode complete 41"
+      },
+      {
+        "timeMs": 8637.978,
+        "text": "[DEBUG-rifd21] encode start 42 image/png"
+      },
+      {
+        "timeMs": 8648.348,
+        "text": "[DEBUG-rifd21] encode complete 42"
+      },
+      {
+        "timeMs": 8880.413,
+        "text": "[DEBUG-rifd21] encode start 43 image/png"
+      },
+      {
+        "timeMs": 8895.55,
+        "text": "[DEBUG-rifd21] encode complete 43"
+      },
+      {
+        "timeMs": 8973.335,
+        "text": "[DEBUG-rifd21] encode start 44 image/png"
+      },
+      {
+        "timeMs": 8987.19,
+        "text": "[DEBUG-rifd21] encode complete 44"
+      },
+      {
+        "timeMs": 9239.688,
+        "text": "[DEBUG-rifd21] encode start 45 image/jpeg"
+      },
+      {
+        "timeMs": 9257.661,
+        "text": "[DEBUG-rifd21] encode complete 45"
+      },
+      {
+        "timeMs": 9265.437,
+        "text": "[DEBUG-rifd21] encode start 46 image/png"
+      },
+      {
+        "timeMs": 9281.159,
+        "text": "[DEBUG-rifd21] encode complete 46"
+      },
+      {
+        "timeMs": 9293.544,
+        "text": "[DEBUG-rifd21] encode start 47 image/png"
+      },
+      {
+        "timeMs": 9308.397,
+        "text": "[DEBUG-rifd21] encode complete 47"
+      },
+      {
+        "timeMs": 9378.201,
+        "text": "[DEBUG-rifd21] encode start 48 image/png"
+      },
+      {
+        "timeMs": 9389.405,
+        "text": "[DEBUG-rifd21] encode complete 48"
+      },
+      {
+        "timeMs": 9624.295,
+        "text": "[DEBUG-rifd21] encode start 49 image/png"
+      },
+      {
+        "timeMs": 9639.842,
+        "text": "[DEBUG-rifd21] encode complete 49"
+      },
+      {
+        "timeMs": 9707.545,
+        "text": "[DEBUG-rifd21] encode start 50 image/png"
+      },
+      {
+        "timeMs": 9719.335,
+        "text": "[DEBUG-rifd21] encode complete 50"
+      },
+      {
+        "timeMs": 9951.848,
+        "text": "[DEBUG-rifd21] encode start 51 image/jpeg"
+      },
+      {
+        "timeMs": 9966.657,
+        "text": "[DEBUG-rifd21] encode complete 51"
+      },
+      {
+        "timeMs": 9970.946,
+        "text": "[DEBUG-rifd21] encode start 52 image/png"
+      },
+      {
+        "timeMs": 9982.737,
+        "text": "[DEBUG-rifd21] encode complete 52"
+      },
+      {
+        "timeMs": 9994.012,
+        "text": "[DEBUG-rifd21] encode start 53 image/png"
+      },
+      {
+        "timeMs": 10005.881,
+        "text": "[DEBUG-rifd21] encode complete 53"
+      },
+      {
+        "timeMs": 10072.909,
+        "text": "[DEBUG-rifd21] encode start 54 image/png"
+      },
+      {
+        "timeMs": 10084.193,
+        "text": "[DEBUG-rifd21] encode complete 54"
+      },
+      {
+        "timeMs": 10346.029,
+        "text": "[DEBUG-rifd21] encode start 55 image/png"
+      },
+      {
+        "timeMs": 10370.102,
+        "text": "[DEBUG-rifd21] encode complete 55"
+      },
+      {
+        "timeMs": 10439.164,
+        "text": "[DEBUG-rifd21] encode start 56 image/png"
+      },
+      {
+        "timeMs": 10452.243,
+        "text": "[DEBUG-rifd21] encode complete 56"
+      },
+      {
+        "timeMs": 10674.666,
+        "text": "[DEBUG-rifd21] encode start 57 image/jpeg"
+      },
+      {
+        "timeMs": 10686.578,
+        "text": "[DEBUG-rifd21] encode complete 57"
+      },
+      {
+        "timeMs": 10693.594,
+        "text": "[DEBUG-rifd21] encode start 58 image/png"
+      },
+      {
+        "timeMs": 10709.436,
+        "text": "[DEBUG-rifd21] encode complete 58"
+      },
+      {
+        "timeMs": 10719.89,
+        "text": "[DEBUG-rifd21] encode start 59 image/png"
+      },
+      {
+        "timeMs": 10747.367,
+        "text": "[DEBUG-rifd21] encode complete 59"
+      },
+      {
+        "timeMs": 10834.261,
+        "text": "[DEBUG-rifd21] encode start 60 image/png"
+      },
+      {
+        "timeMs": 10844.189,
+        "text": "[DEBUG-rifd21] encode complete 60"
+      },
+      {
+        "timeMs": 11065.786,
+        "text": "[DEBUG-rifd21] encode start 61 image/png"
+      },
+      {
+        "timeMs": 11089.308,
+        "text": "[DEBUG-rifd21] encode complete 61"
+      },
+      {
+        "timeMs": 11159.939,
+        "text": "[DEBUG-rifd21] encode start 62 image/png"
+      },
+      {
+        "timeMs": 11172.686,
+        "text": "[DEBUG-rifd21] encode complete 62"
+      },
+      {
+        "timeMs": 11393.68,
+        "text": "[DEBUG-rifd21] encode start 63 image/jpeg"
+      },
+      {
+        "timeMs": 11406.245,
+        "text": "[DEBUG-rifd21] encode complete 63"
+      },
+      {
+        "timeMs": 11411.288,
+        "text": "[DEBUG-rifd21] encode start 64 image/png"
+      },
+      {
+        "timeMs": 11432.816,
+        "text": "[DEBUG-rifd21] encode complete 64"
+      },
+      {
+        "timeMs": 11440.569,
+        "text": "[DEBUG-rifd21] encode start 65 image/png"
+      },
+      {
+        "timeMs": 11451.933,
+        "text": "[DEBUG-rifd21] encode complete 65"
+      },
+      {
+        "timeMs": 11524.944,
+        "text": "[DEBUG-rifd21] encode start 66 image/png"
+      },
+      {
+        "timeMs": 11535.477,
+        "text": "[DEBUG-rifd21] encode complete 66"
+      },
+      {
+        "timeMs": 11766.168,
+        "text": "[DEBUG-rifd21] encode start 67 image/png"
+      },
+      {
+        "timeMs": 11784.131,
+        "text": "[DEBUG-rifd21] encode complete 67"
+      },
+      {
+        "timeMs": 11858.061,
+        "text": "[DEBUG-rifd21] encode start 68 image/png"
+      },
+      {
+        "timeMs": 11870.19,
+        "text": "[DEBUG-rifd21] encode complete 68"
+      },
+      {
+        "timeMs": 12097.324,
+        "text": "[DEBUG-rifd21] encode start 69 image/jpeg"
+      },
+      {
+        "timeMs": 12124.563,
+        "text": "[DEBUG-rifd21] encode complete 69"
+      },
+      {
+        "timeMs": 12128.785,
+        "text": "[DEBUG-rifd21] encode start 70 image/png"
+      },
+      {
+        "timeMs": 12139.196,
+        "text": "[DEBUG-rifd21] encode complete 70"
+      },
+      {
+        "timeMs": 12149.261,
+        "text": "[DEBUG-rifd21] encode start 71 image/png"
+      },
+      {
+        "timeMs": 12160.651,
+        "text": "[DEBUG-rifd21] encode complete 71"
+      },
+      {
+        "timeMs": 12262.546,
+        "text": "[DEBUG-rifd21] encode start 72 image/png"
+      },
+      {
+        "timeMs": 12273.452,
+        "text": "[DEBUG-rifd21] encode complete 72"
+      },
+      {
+        "timeMs": 12510.039,
+        "text": "[DEBUG-rifd21] encode start 73 image/png"
+      },
+      {
+        "timeMs": 12522.467,
+        "text": "[DEBUG-rifd21] encode complete 73"
+      },
+      {
+        "timeMs": 12604.108,
+        "text": "[DEBUG-rifd21] encode start 74 image/png"
+      },
+      {
+        "timeMs": 12614.27,
+        "text": "[DEBUG-rifd21] encode complete 74"
+      },
+      {
+        "timeMs": 12844.518,
+        "text": "[DEBUG-rifd21] encode start 75 image/png"
+      },
+      {
+        "timeMs": 12861.35,
+        "text": "[DEBUG-rifd21] encode complete 75"
+      },
+      {
+        "timeMs": 12934.796,
+        "text": "[DEBUG-rifd21] encode start 76 image/png"
+      },
+      {
+        "timeMs": 12946.698,
+        "text": "[DEBUG-rifd21] encode complete 76"
+      },
+      {
+        "timeMs": 13179.15,
+        "text": "[DEBUG-rifd21] encode start 77 image/jpeg"
+      },
+      {
+        "timeMs": 13193.796,
+        "text": "[DEBUG-rifd21] encode complete 77"
+      },
+      {
+        "timeMs": 13200.612,
+        "text": "[DEBUG-rifd21] encode start 78 image/png"
+      },
+      {
+        "timeMs": 13224.761,
+        "text": "[DEBUG-rifd21] encode complete 78"
+      },
+      {
+        "timeMs": 13232.676,
+        "text": "[DEBUG-rifd21] encode start 79 image/png"
+      },
+      {
+        "timeMs": 13244.978,
+        "text": "[DEBUG-rifd21] encode complete 79"
+      },
+      {
+        "timeMs": 13312.705,
+        "text": "[DEBUG-rifd21] encode start 80 image/png"
+      },
+      {
+        "timeMs": 13323.707,
+        "text": "[DEBUG-rifd21] encode complete 80"
+      },
+      {
+        "timeMs": 13550.252,
+        "text": "[DEBUG-rifd21] encode start 81 image/png"
+      },
+      {
+        "timeMs": 13570.195,
+        "text": "[DEBUG-rifd21] encode complete 81"
+      },
+      {
+        "timeMs": 13671.763,
+        "text": "[DEBUG-rifd21] encode start 82 image/png"
+      },
+      {
+        "timeMs": 13683.035,
+        "text": "[DEBUG-rifd21] encode complete 82"
+      },
+      {
+        "timeMs": 13911.537,
+        "text": "[DEBUG-rifd21] encode start 83 image/jpeg"
+      },
+      {
+        "timeMs": 13925.121,
+        "text": "[DEBUG-rifd21] encode complete 83"
+      },
+      {
+        "timeMs": 13934.054,
+        "text": "[DEBUG-rifd21] encode start 84 image/jpeg"
+      },
+      {
+        "timeMs": 13953.331,
+        "text": "[DEBUG-rifd21] encode complete 84"
+      },
+      {
+        "timeMs": 16599.332,
+        "text": "[DEBUG-rifd21] before prepare"
+      },
+      {
+        "timeMs": 16599.481,
+        "text": "[DEBUG-rifd21] after prepare"
+      },
+      {
+        "timeMs": 16603.156,
+        "text": "[DEBUG-rifd21] before replay"
+      },
+      {
+        "timeMs": 16650.4,
+        "text": "[DEBUG-rifd21] after replay"
+      },
+      {
+        "timeMs": 17050.379,
+        "text": "[DEBUG-rifd21] fonts ready"
+      },
+      {
+        "timeMs": 17057.415,
+        "text": "[DEBUG-rifd21] encode start 1 image/png"
+      },
+      {
+        "timeMs": 17071.452,
+        "text": "[DEBUG-rifd21] encode complete 1"
+      },
+      {
+        "timeMs": 17082.275,
+        "text": "[DEBUG-rifd21] encode start 2 image/png"
+      },
+      {
+        "timeMs": 17095.915,
+        "text": "[DEBUG-rifd21] encode complete 2"
+      },
+      {
+        "timeMs": 17180.625,
+        "text": "[DEBUG-rifd21] encode start 3 image/png"
+      },
+      {
+        "timeMs": 17190.68,
+        "text": "[DEBUG-rifd21] encode complete 3"
+      },
+      {
+        "timeMs": 17433.348,
+        "text": "[DEBUG-rifd21] encode start 4 image/png"
+      },
+      {
+        "timeMs": 17464.669,
+        "text": "[DEBUG-rifd21] encode complete 4"
+      },
+      {
+        "timeMs": 17723.611,
+        "text": "[DEBUG-rifd21] encode start 5 image/png"
+      },
+      {
+        "timeMs": 17734.199,
+        "text": "[DEBUG-rifd21] encode complete 5"
+      },
+      {
+        "timeMs": 17962.314,
+        "text": "[DEBUG-rifd21] encode start 6 image/jpeg"
+      },
+      {
+        "timeMs": 17977.457,
+        "text": "[DEBUG-rifd21] encode complete 6"
+      },
+      {
+        "timeMs": 17982.773,
+        "text": "[DEBUG-rifd21] encode start 7 image/png"
+      },
+      {
+        "timeMs": 17994.861,
+        "text": "[DEBUG-rifd21] encode complete 7"
+      },
+      {
+        "timeMs": 18007.02,
+        "text": "[DEBUG-rifd21] encode start 8 image/png"
+      },
+      {
+        "timeMs": 18019.831,
+        "text": "[DEBUG-rifd21] encode complete 8"
+      },
+      {
+        "timeMs": 18080.767,
+        "text": "[DEBUG-rifd21] encode start 9 image/png"
+      },
+      {
+        "timeMs": 18091.458,
+        "text": "[DEBUG-rifd21] encode complete 9"
+      },
+      {
+        "timeMs": 18291.183,
+        "text": "[DEBUG-rifd21] encode start 10 image/png"
+      },
+      {
+        "timeMs": 18303.194,
+        "text": "[DEBUG-rifd21] encode complete 10"
+      },
+      {
+        "timeMs": 18371.471,
+        "text": "[DEBUG-rifd21] encode start 11 image/png"
+      },
+      {
+        "timeMs": 18383.675,
+        "text": "[DEBUG-rifd21] encode complete 11"
+      },
+      {
+        "timeMs": 18643.705,
+        "text": "[DEBUG-rifd21] encode start 12 image/jpeg"
+      },
+      {
+        "timeMs": 18671.063,
+        "text": "[DEBUG-rifd21] encode complete 12"
+      },
+      {
+        "timeMs": 18674.996,
+        "text": "[DEBUG-rifd21] encode start 13 image/png"
+      },
+      {
+        "timeMs": 18683.759,
+        "text": "[DEBUG-rifd21] encode complete 13"
+      },
+      {
+        "timeMs": 18690.833,
+        "text": "[DEBUG-rifd21] encode start 14 image/png"
+      },
+      {
+        "timeMs": 18701.368,
+        "text": "[DEBUG-rifd21] encode complete 14"
+      },
+      {
+        "timeMs": 18767.036,
+        "text": "[DEBUG-rifd21] encode start 15 image/png"
+      },
+      {
+        "timeMs": 18776.388,
+        "text": "[DEBUG-rifd21] encode complete 15"
+      },
+      {
+        "timeMs": 18979.488,
+        "text": "[DEBUG-rifd21] encode start 16 image/png"
+      },
+      {
+        "timeMs": 18991.911,
+        "text": "[DEBUG-rifd21] encode complete 16"
+      },
+      {
+        "timeMs": 19056.511,
+        "text": "[DEBUG-rifd21] encode start 17 image/png"
+      },
+      {
+        "timeMs": 19074.611,
+        "text": "[DEBUG-rifd21] encode complete 17"
+      },
+      {
+        "timeMs": 19301.848,
+        "text": "[DEBUG-rifd21] encode start 18 image/png"
+      },
+      {
+        "timeMs": 19318.28,
+        "text": "[DEBUG-rifd21] encode complete 18"
+      },
+      {
+        "timeMs": 19378.891,
+        "text": "[DEBUG-rifd21] encode start 19 image/png"
+      },
+      {
+        "timeMs": 19388.864,
+        "text": "[DEBUG-rifd21] encode complete 19"
+      },
+      {
+        "timeMs": 19613.791,
+        "text": "[DEBUG-rifd21] encode start 20 image/jpeg"
+      },
+      {
+        "timeMs": 19629.284,
+        "text": "[DEBUG-rifd21] encode complete 20"
+      },
+      {
+        "timeMs": 19632.966,
+        "text": "[DEBUG-rifd21] encode start 21 image/png"
+      },
+      {
+        "timeMs": 19642.35,
+        "text": "[DEBUG-rifd21] encode complete 21"
+      },
+      {
+        "timeMs": 19648.988,
+        "text": "[DEBUG-rifd21] encode start 22 image/png"
+      },
+      {
+        "timeMs": 19659.215,
+        "text": "[DEBUG-rifd21] encode complete 22"
+      },
+      {
+        "timeMs": 19722.921,
+        "text": "[DEBUG-rifd21] encode start 23 image/png"
+      },
+      {
+        "timeMs": 19732.862,
+        "text": "[DEBUG-rifd21] encode complete 23"
+      },
+      {
+        "timeMs": 19932.359,
+        "text": "[DEBUG-rifd21] encode start 24 image/png"
+      },
+      {
+        "timeMs": 19959.764,
+        "text": "[DEBUG-rifd21] encode complete 24"
+      },
+      {
+        "timeMs": 20023.811,
+        "text": "[DEBUG-rifd21] encode start 25 image/png"
+      },
+      {
+        "timeMs": 20034.088,
+        "text": "[DEBUG-rifd21] encode complete 25"
+      },
+      {
+        "timeMs": 20227.804,
+        "text": "[DEBUG-rifd21] encode start 26 image/jpeg"
+      },
+      {
+        "timeMs": 20238.991,
+        "text": "[DEBUG-rifd21] encode complete 26"
+      },
+      {
+        "timeMs": 20244.144,
+        "text": "[DEBUG-rifd21] encode start 27 image/jpeg"
+      },
+      {
+        "timeMs": 20255.368,
+        "text": "[DEBUG-rifd21] encode complete 27"
+      },
+      {
+        "timeMs": 20260.592,
+        "text": "[DEBUG-rifd21] encode start 28 image/png"
+      },
+      {
+        "timeMs": 20269.569,
+        "text": "[DEBUG-rifd21] encode complete 28"
+      },
+      {
+        "timeMs": 20278.299,
+        "text": "[DEBUG-rifd21] encode start 29 image/png"
+      },
+      {
+        "timeMs": 20300.462,
+        "text": "[DEBUG-rifd21] encode complete 29"
+      },
+      {
+        "timeMs": 20373.683,
+        "text": "[DEBUG-rifd21] encode start 30 image/png"
+      },
+      {
+        "timeMs": 20385.044,
+        "text": "[DEBUG-rifd21] encode complete 30"
+      },
+      {
+        "timeMs": 20585.338,
+        "text": "[DEBUG-rifd21] encode start 31 image/png"
+      },
+      {
+        "timeMs": 20609.828,
+        "text": "[DEBUG-rifd21] encode complete 31"
+      },
+      {
+        "timeMs": 20685.591,
+        "text": "[DEBUG-rifd21] encode start 32 image/png"
+      },
+      {
+        "timeMs": 20697.55,
+        "text": "[DEBUG-rifd21] encode complete 32"
+      },
+      {
+        "timeMs": 20931.026,
+        "text": "[DEBUG-rifd21] encode start 33 image/jpeg"
+      },
+      {
+        "timeMs": 20942.231,
+        "text": "[DEBUG-rifd21] encode complete 33"
+      },
+      {
+        "timeMs": 20945.883,
+        "text": "[DEBUG-rifd21] encode start 34 image/png"
+      },
+      {
+        "timeMs": 20966.724,
+        "text": "[DEBUG-rifd21] encode complete 34"
+      },
+      {
+        "timeMs": 20973.632,
+        "text": "[DEBUG-rifd21] encode start 35 image/png"
+      },
+      {
+        "timeMs": 20983.302,
+        "text": "[DEBUG-rifd21] encode complete 35"
+      },
+      {
+        "timeMs": 21045.217,
+        "text": "[DEBUG-rifd21] encode start 36 image/png"
+      },
+      {
+        "timeMs": 21054.436,
+        "text": "[DEBUG-rifd21] encode complete 36"
+      },
+      {
+        "timeMs": 21242.149,
+        "text": "[DEBUG-rifd21] encode start 37 image/png"
+      },
+      {
+        "timeMs": 21261.672,
+        "text": "[DEBUG-rifd21] encode complete 37"
+      },
+      {
+        "timeMs": 21322.478,
+        "text": "[DEBUG-rifd21] encode start 38 image/png"
+      },
+      {
+        "timeMs": 21333.114,
+        "text": "[DEBUG-rifd21] encode complete 38"
+      },
+      {
+        "timeMs": 21538.539,
+        "text": "[DEBUG-rifd21] encode start 39 image/jpeg"
+      },
+      {
+        "timeMs": 21549.917,
+        "text": "[DEBUG-rifd21] encode complete 39"
+      },
+      {
+        "timeMs": 21553.354,
+        "text": "[DEBUG-rifd21] encode start 40 image/png"
+      },
+      {
+        "timeMs": 21572.899,
+        "text": "[DEBUG-rifd21] encode complete 40"
+      },
+      {
+        "timeMs": 21579.713,
+        "text": "[DEBUG-rifd21] encode start 41 image/png"
+      },
+      {
+        "timeMs": 21590.489,
+        "text": "[DEBUG-rifd21] encode complete 41"
+      },
+      {
+        "timeMs": 21652.81,
+        "text": "[DEBUG-rifd21] encode start 42 image/png"
+      },
+      {
+        "timeMs": 21662.439,
+        "text": "[DEBUG-rifd21] encode complete 42"
+      },
+      {
+        "timeMs": 21863.891,
+        "text": "[DEBUG-rifd21] encode start 43 image/png"
+      },
+      {
+        "timeMs": 21885.558,
+        "text": "[DEBUG-rifd21] encode complete 43"
+      },
+      {
+        "timeMs": 21951.344,
+        "text": "[DEBUG-rifd21] encode start 44 image/png"
+      },
+      {
+        "timeMs": 21963.73,
+        "text": "[DEBUG-rifd21] encode complete 44"
+      },
+      {
+        "timeMs": 22161.972,
+        "text": "[DEBUG-rifd21] encode start 45 image/jpeg"
+      },
+      {
+        "timeMs": 22172.408,
+        "text": "[DEBUG-rifd21] encode complete 45"
+      },
+      {
+        "timeMs": 22176.835,
+        "text": "[DEBUG-rifd21] encode start 46 image/png"
+      },
+      {
+        "timeMs": 22196.065,
+        "text": "[DEBUG-rifd21] encode complete 46"
+      },
+      {
+        "timeMs": 22202.872,
+        "text": "[DEBUG-rifd21] encode start 47 image/png"
+      },
+      {
+        "timeMs": 22215.502,
+        "text": "[DEBUG-rifd21] encode complete 47"
+      },
+      {
+        "timeMs": 22275.28,
+        "text": "[DEBUG-rifd21] encode start 48 image/png"
+      },
+      {
+        "timeMs": 22285.172,
+        "text": "[DEBUG-rifd21] encode complete 48"
+      },
+      {
+        "timeMs": 22476.348,
+        "text": "[DEBUG-rifd21] encode start 49 image/png"
+      },
+      {
+        "timeMs": 22498.657,
+        "text": "[DEBUG-rifd21] encode complete 49"
+      },
+      {
+        "timeMs": 22560.905,
+        "text": "[DEBUG-rifd21] encode start 50 image/png"
+      },
+      {
+        "timeMs": 22570.931,
+        "text": "[DEBUG-rifd21] encode complete 50"
+      },
+      {
+        "timeMs": 22778.174,
+        "text": "[DEBUG-rifd21] encode start 51 image/jpeg"
+      },
+      {
+        "timeMs": 22789.431,
+        "text": "[DEBUG-rifd21] encode complete 51"
+      },
+      {
+        "timeMs": 22794.402,
+        "text": "[DEBUG-rifd21] encode start 52 image/png"
+      },
+      {
+        "timeMs": 22814.202,
+        "text": "[DEBUG-rifd21] encode complete 52"
+      },
+      {
+        "timeMs": 22820.811,
+        "text": "[DEBUG-rifd21] encode start 53 image/png"
+      },
+      {
+        "timeMs": 22833.556,
+        "text": "[DEBUG-rifd21] encode complete 53"
+      },
+      {
+        "timeMs": 22904.126,
+        "text": "[DEBUG-rifd21] encode start 54 image/png"
+      },
+      {
+        "timeMs": 22916.169,
+        "text": "[DEBUG-rifd21] encode complete 54"
+      },
+      {
+        "timeMs": 23143.195,
+        "text": "[DEBUG-rifd21] encode start 55 image/png"
+      },
+      {
+        "timeMs": 23172.493,
+        "text": "[DEBUG-rifd21] encode complete 55"
+      },
+      {
+        "timeMs": 23239.52,
+        "text": "[DEBUG-rifd21] encode start 56 image/png"
+      },
+      {
+        "timeMs": 23250.212,
+        "text": "[DEBUG-rifd21] encode complete 56"
+      },
+      {
+        "timeMs": 23441.587,
+        "text": "[DEBUG-rifd21] encode start 57 image/jpeg"
+      },
+      {
+        "timeMs": 23452.614,
+        "text": "[DEBUG-rifd21] encode complete 57"
+      },
+      {
+        "timeMs": 23456.227,
+        "text": "[DEBUG-rifd21] encode start 58 image/png"
+      },
+      {
+        "timeMs": 23475.38,
+        "text": "[DEBUG-rifd21] encode complete 58"
+      },
+      {
+        "timeMs": 23484.236,
+        "text": "[DEBUG-rifd21] encode start 59 image/png"
+      },
+      {
+        "timeMs": 23493.739,
+        "text": "[DEBUG-rifd21] encode complete 59"
+      },
+      {
+        "timeMs": 23554.842,
+        "text": "[DEBUG-rifd21] encode start 60 image/png"
+      },
+      {
+        "timeMs": 23564.694,
+        "text": "[DEBUG-rifd21] encode complete 60"
+      },
+      {
+        "timeMs": 23771.874,
+        "text": "[DEBUG-rifd21] encode start 61 image/png"
+      },
+      {
+        "timeMs": 23792.596,
+        "text": "[DEBUG-rifd21] encode complete 61"
+      },
+      {
+        "timeMs": 23854.751,
+        "text": "[DEBUG-rifd21] encode start 62 image/png"
+      },
+      {
+        "timeMs": 23866.264,
+        "text": "[DEBUG-rifd21] encode complete 62"
+      },
+      {
+        "timeMs": 24059.31,
+        "text": "[DEBUG-rifd21] encode start 63 image/jpeg"
+      },
+      {
+        "timeMs": 24070.217,
+        "text": "[DEBUG-rifd21] encode complete 63"
+      },
+      {
+        "timeMs": 24073.768,
+        "text": "[DEBUG-rifd21] encode start 64 image/png"
+      },
+      {
+        "timeMs": 24093.461,
+        "text": "[DEBUG-rifd21] encode complete 64"
+      },
+      {
+        "timeMs": 24100.319,
+        "text": "[DEBUG-rifd21] encode start 65 image/png"
+      },
+      {
+        "timeMs": 24110.43,
+        "text": "[DEBUG-rifd21] encode complete 65"
+      },
+      {
+        "timeMs": 24181.755,
+        "text": "[DEBUG-rifd21] encode start 66 image/png"
+      },
+      {
+        "timeMs": 24192.436,
+        "text": "[DEBUG-rifd21] encode complete 66"
+      },
+      {
+        "timeMs": 24393.21,
+        "text": "[DEBUG-rifd21] encode start 67 image/png"
+      },
+      {
+        "timeMs": 24414.342,
+        "text": "[DEBUG-rifd21] encode complete 67"
+      },
+      {
+        "timeMs": 24476.929,
+        "text": "[DEBUG-rifd21] encode start 68 image/png"
+      },
+      {
+        "timeMs": 24488.782,
+        "text": "[DEBUG-rifd21] encode complete 68"
+      },
+      {
+        "timeMs": 24679.955,
+        "text": "[DEBUG-rifd21] encode start 69 image/jpeg"
+      },
+      {
+        "timeMs": 24690.642,
+        "text": "[DEBUG-rifd21] encode complete 69"
+      },
+      {
+        "timeMs": 24694.304,
+        "text": "[DEBUG-rifd21] encode start 70 image/png"
+      },
+      {
+        "timeMs": 24714.549,
+        "text": "[DEBUG-rifd21] encode complete 70"
+      },
+      {
+        "timeMs": 24721.41,
+        "text": "[DEBUG-rifd21] encode start 71 image/png"
+      },
+      {
+        "timeMs": 24731.669,
+        "text": "[DEBUG-rifd21] encode complete 71"
+      },
+      {
+        "timeMs": 24791.566,
+        "text": "[DEBUG-rifd21] encode start 72 image/png"
+      },
+      {
+        "timeMs": 24800.679,
+        "text": "[DEBUG-rifd21] encode complete 72"
+      },
+      {
+        "timeMs": 24994.655,
+        "text": "[DEBUG-rifd21] encode start 73 image/png"
+      },
+      {
+        "timeMs": 25012.388,
+        "text": "[DEBUG-rifd21] encode complete 73"
+      },
+      {
+        "timeMs": 25072.655,
+        "text": "[DEBUG-rifd21] encode start 74 image/png"
+      },
+      {
+        "timeMs": 25081.698,
+        "text": "[DEBUG-rifd21] encode complete 74"
+      },
+      {
+        "timeMs": 25265.258,
+        "text": "[DEBUG-rifd21] encode start 75 image/png"
+      },
+      {
+        "timeMs": 25287.543,
+        "text": "[DEBUG-rifd21] encode complete 75"
+      },
+      {
+        "timeMs": 25348.337,
+        "text": "[DEBUG-rifd21] encode start 76 image/png"
+      },
+      {
+        "timeMs": 25358.355,
+        "text": "[DEBUG-rifd21] encode complete 76"
+      },
+      {
+        "timeMs": 25556.318,
+        "text": "[DEBUG-rifd21] encode start 77 image/jpeg"
+      },
+      {
+        "timeMs": 25574.719,
+        "text": "[DEBUG-rifd21] encode complete 77"
+      },
+      {
+        "timeMs": 25578.662,
+        "text": "[DEBUG-rifd21] encode start 78 image/png"
+      },
+      {
+        "timeMs": 25596.212,
+        "text": "[DEBUG-rifd21] encode complete 78"
+      },
+      {
+        "timeMs": 25602.84,
+        "text": "[DEBUG-rifd21] encode start 79 image/png"
+      },
+      {
+        "timeMs": 25612.37,
+        "text": "[DEBUG-rifd21] encode complete 79"
+      },
+      {
+        "timeMs": 25675.265,
+        "text": "[DEBUG-rifd21] encode start 80 image/png"
+      },
+      {
+        "timeMs": 25685.846,
+        "text": "[DEBUG-rifd21] encode complete 80"
+      },
+      {
+        "timeMs": 25884.872,
+        "text": "[DEBUG-rifd21] encode start 81 image/png"
+      },
+      {
+        "timeMs": 25909.993,
+        "text": "[DEBUG-rifd21] encode complete 81"
+      },
+      {
+        "timeMs": 25976.436,
+        "text": "[DEBUG-rifd21] encode start 82 image/png"
+      },
+      {
+        "timeMs": 25987.042,
+        "text": "[DEBUG-rifd21] encode complete 82"
+      },
+      {
+        "timeMs": 26177.813,
+        "text": "[DEBUG-rifd21] encode start 83 image/jpeg"
+      },
+      {
+        "timeMs": 26192.059,
+        "text": "[DEBUG-rifd21] encode complete 83"
+      },
+      {
+        "timeMs": 26195.981,
+        "text": "[DEBUG-rifd21] encode start 84 image/jpeg"
+      },
+      {
+        "timeMs": 26217.067,
+        "text": "[DEBUG-rifd21] encode complete 84"
+      },
+      {
+        "timeMs": 26236.049,
+        "text": "[DEBUG-rifd21] seed ready"
+      },
+      {
+        "timeMs": 26482.288,
+        "text": "[DEBUG-rifd21] replaced"
+      },
+      {
+        "timeMs": 26483.406,
+        "text": "[DEBUG-rifd21] after execute true"
+      }
+    ]
+  },
+  {
+    "run": "reset-probe3",
+    "trace": "artifacts/acceptance/21/reset-probe3-2026-10-16T01-22-21.791Z/screens/results/reset.screens-public-reset-75277--recovery-in-both-languages-chrome/trace.zip",
+    "traceSha256": "b22d3259ddeb8bf49d145dc59076e3f75eee0042d9614ba2e0d403431cb7b0a0",
+    "events": [
+      {
+        "timeMs": 3161.737,
+        "text": "[DEBUG-rifd21] encode start 1 image/png"
+      },
+      {
+        "timeMs": 3182.401,
+        "text": "[DEBUG-rifd21] encode complete 1"
+      },
+      {
+        "timeMs": 3195.822,
+        "text": "[DEBUG-rifd21] encode start 2 image/png"
+      },
+      {
+        "timeMs": 3218.645,
+        "text": "[DEBUG-rifd21] encode complete 2"
+      },
+      {
+        "timeMs": 3350.73,
+        "text": "[DEBUG-rifd21] encode start 3 image/png"
+      },
+      {
+        "timeMs": 3361.661,
+        "text": "[DEBUG-rifd21] encode complete 3"
+      },
+      {
+        "timeMs": 3713.623,
+        "text": "[DEBUG-rifd21] encode start 4 image/png"
+      },
+      {
+        "timeMs": 3734.442,
+        "text": "[DEBUG-rifd21] encode complete 4"
+      },
+      {
+        "timeMs": 3837.83,
+        "text": "[DEBUG-rifd21] encode start 5 image/png"
+      },
+      {
+        "timeMs": 3850.921,
+        "text": "[DEBUG-rifd21] encode complete 5"
+      },
+      {
+        "timeMs": 4165.768,
+        "text": "[DEBUG-rifd21] encode start 6 image/jpeg"
+      },
+      {
+        "timeMs": 4186.373,
+        "text": "[DEBUG-rifd21] encode complete 6"
+      },
+      {
+        "timeMs": 4192.367,
+        "text": "[DEBUG-rifd21] encode start 7 image/png"
+      },
+      {
+        "timeMs": 4207.851,
+        "text": "[DEBUG-rifd21] encode complete 7"
+      },
+      {
+        "timeMs": 4220.918,
+        "text": "[DEBUG-rifd21] encode start 8 image/png"
+      },
+      {
+        "timeMs": 4235.912,
+        "text": "[DEBUG-rifd21] encode complete 8"
+      },
+      {
+        "timeMs": 4310.564,
+        "text": "[DEBUG-rifd21] encode start 9 image/png"
+      },
+      {
+        "timeMs": 4323.2,
+        "text": "[DEBUG-rifd21] encode complete 9"
+      },
+      {
+        "timeMs": 4576.907,
+        "text": "[DEBUG-rifd21] encode start 10 image/png"
+      },
+      {
+        "timeMs": 4591.275,
+        "text": "[DEBUG-rifd21] encode complete 10"
+      },
+      {
+        "timeMs": 4668.551,
+        "text": "[DEBUG-rifd21] encode start 11 image/png"
+      },
+      {
+        "timeMs": 4683.74,
+        "text": "[DEBUG-rifd21] encode complete 11"
+      },
+      {
+        "timeMs": 4926.417,
+        "text": "[DEBUG-rifd21] encode start 12 image/jpeg"
+      },
+      {
+        "timeMs": 4943.327,
+        "text": "[DEBUG-rifd21] encode complete 12"
+      },
+      {
+        "timeMs": 4950.4,
+        "text": "[DEBUG-rifd21] encode start 13 image/png"
+      },
+      {
+        "timeMs": 4962.759,
+        "text": "[DEBUG-rifd21] encode complete 13"
+      },
+      {
+        "timeMs": 4974.52,
+        "text": "[DEBUG-rifd21] encode start 14 image/png"
+      },
+      {
+        "timeMs": 4987.779,
+        "text": "[DEBUG-rifd21] encode complete 14"
+      },
+      {
+        "timeMs": 5072.373,
+        "text": "[DEBUG-rifd21] encode start 15 image/png"
+      },
+      {
+        "timeMs": 5085.887,
+        "text": "[DEBUG-rifd21] encode complete 15"
+      },
+      {
+        "timeMs": 5341.728,
+        "text": "[DEBUG-rifd21] encode start 16 image/png"
+      },
+      {
+        "timeMs": 5355.205,
+        "text": "[DEBUG-rifd21] encode complete 16"
+      },
+      {
+        "timeMs": 5445.198,
+        "text": "[DEBUG-rifd21] encode start 17 image/png"
+      },
+      {
+        "timeMs": 5460.407,
+        "text": "[DEBUG-rifd21] encode complete 17"
+      },
+      {
+        "timeMs": 5698.234,
+        "text": "[DEBUG-rifd21] encode start 18 image/png"
+      },
+      {
+        "timeMs": 5711.494,
+        "text": "[DEBUG-rifd21] encode complete 18"
+      },
+      {
+        "timeMs": 5789.633,
+        "text": "[DEBUG-rifd21] encode start 19 image/png"
+      },
+      {
+        "timeMs": 5802.532,
+        "text": "[DEBUG-rifd21] encode complete 19"
+      },
+      {
+        "timeMs": 6092.362,
+        "text": "[DEBUG-rifd21] encode start 20 image/jpeg"
+      },
+      {
+        "timeMs": 6108.221,
+        "text": "[DEBUG-rifd21] encode complete 20"
+      },
+      {
+        "timeMs": 6113.047,
+        "text": "[DEBUG-rifd21] encode start 21 image/png"
+      },
+      {
+        "timeMs": 6123.667,
+        "text": "[DEBUG-rifd21] encode complete 21"
+      },
+      {
+        "timeMs": 6135.724,
+        "text": "[DEBUG-rifd21] encode start 22 image/png"
+      },
+      {
+        "timeMs": 6148.473,
+        "text": "[DEBUG-rifd21] encode complete 22"
+      },
+      {
+        "timeMs": 6234.208,
+        "text": "[DEBUG-rifd21] encode start 23 image/png"
+      },
+      {
+        "timeMs": 6263.481,
+        "text": "[DEBUG-rifd21] encode complete 23"
+      },
+      {
+        "timeMs": 6540.456,
+        "text": "[DEBUG-rifd21] encode start 24 image/png"
+      },
+      {
+        "timeMs": 6555.802,
+        "text": "[DEBUG-rifd21] encode complete 24"
+      },
+      {
+        "timeMs": 6649.413,
+        "text": "[DEBUG-rifd21] encode start 25 image/png"
+      },
+      {
+        "timeMs": 6665.026,
+        "text": "[DEBUG-rifd21] encode complete 25"
+      },
+      {
+        "timeMs": 6924.385,
+        "text": "[DEBUG-rifd21] encode start 26 image/jpeg"
+      },
+      {
+        "timeMs": 6939.593,
+        "text": "[DEBUG-rifd21] encode complete 26"
+      },
+      {
+        "timeMs": 6946.225,
+        "text": "[DEBUG-rifd21] encode start 27 image/jpeg"
+      },
+      {
+        "timeMs": 6961.505,
+        "text": "[DEBUG-rifd21] encode complete 27"
+      },
+      {
+        "timeMs": 6968.442,
+        "text": "[DEBUG-rifd21] encode start 28 image/png"
+      },
+      {
+        "timeMs": 6980.633,
+        "text": "[DEBUG-rifd21] encode complete 28"
+      },
+      {
+        "timeMs": 6992.385,
+        "text": "[DEBUG-rifd21] encode start 29 image/png"
+      },
+      {
+        "timeMs": 7008.726,
+        "text": "[DEBUG-rifd21] encode complete 29"
+      },
+      {
+        "timeMs": 7125.881,
+        "text": "[DEBUG-rifd21] encode start 30 image/png"
+      },
+      {
+        "timeMs": 7146.749,
+        "text": "[DEBUG-rifd21] encode complete 30"
+      },
+      {
+        "timeMs": 7394.033,
+        "text": "[DEBUG-rifd21] encode start 31 image/png"
+      },
+      {
+        "timeMs": 7416.018,
+        "text": "[DEBUG-rifd21] encode complete 31"
+      },
+      {
+        "timeMs": 7492.463,
+        "text": "[DEBUG-rifd21] encode start 32 image/png"
+      },
+      {
+        "timeMs": 7504.113,
+        "text": "[DEBUG-rifd21] encode complete 32"
+      },
+      {
+        "timeMs": 7737.353,
+        "text": "[DEBUG-rifd21] encode start 33 image/jpeg"
+      },
+      {
+        "timeMs": 7749.995,
+        "text": "[DEBUG-rifd21] encode complete 33"
+      },
+      {
+        "timeMs": 7757.697,
+        "text": "[DEBUG-rifd21] encode start 34 image/png"
+      },
+      {
+        "timeMs": 7773.475,
+        "text": "[DEBUG-rifd21] encode complete 34"
+      },
+      {
+        "timeMs": 7788.433,
+        "text": "[DEBUG-rifd21] encode start 35 image/png"
+      },
+      {
+        "timeMs": 7806.75,
+        "text": "[DEBUG-rifd21] encode complete 35"
+      },
+      {
+        "timeMs": 7894.089,
+        "text": "[DEBUG-rifd21] encode start 36 image/png"
+      },
+      {
+        "timeMs": 7904.472,
+        "text": "[DEBUG-rifd21] encode complete 36"
+      },
+      {
+        "timeMs": 8134.561,
+        "text": "[DEBUG-rifd21] encode start 37 image/png"
+      },
+      {
+        "timeMs": 8150.691,
+        "text": "[DEBUG-rifd21] encode complete 37"
+      },
+      {
+        "timeMs": 8224.889,
+        "text": "[DEBUG-rifd21] encode start 38 image/png"
+      },
+      {
+        "timeMs": 8236.723,
+        "text": "[DEBUG-rifd21] encode complete 38"
+      },
+      {
+        "timeMs": 8477.451,
+        "text": "[DEBUG-rifd21] encode start 39 image/jpeg"
+      },
+      {
+        "timeMs": 8498.211,
+        "text": "[DEBUG-rifd21] encode complete 39"
+      },
+      {
+        "timeMs": 8503.64,
+        "text": "[DEBUG-rifd21] encode start 40 image/png"
+      },
+      {
+        "timeMs": 8519.766,
+        "text": "[DEBUG-rifd21] encode complete 40"
+      },
+      {
+        "timeMs": 8532.627,
+        "text": "[DEBUG-rifd21] encode start 41 image/png"
+      },
+      {
+        "timeMs": 8547.483,
+        "text": "[DEBUG-rifd21] encode complete 41"
+      },
+      {
+        "timeMs": 8617.308,
+        "text": "[DEBUG-rifd21] encode start 42 image/png"
+      },
+      {
+        "timeMs": 8627.464,
+        "text": "[DEBUG-rifd21] encode complete 42"
+      },
+      {
+        "timeMs": 8865.705,
+        "text": "[DEBUG-rifd21] encode start 43 image/png"
+      },
+      {
+        "timeMs": 8881.733,
+        "text": "[DEBUG-rifd21] encode complete 43"
+      },
+      {
+        "timeMs": 8965.595,
+        "text": "[DEBUG-rifd21] encode start 44 image/png"
+      },
+      {
+        "timeMs": 8992.053,
+        "text": "[DEBUG-rifd21] encode complete 44"
+      },
+      {
+        "timeMs": 9223.615,
+        "text": "[DEBUG-rifd21] encode start 45 image/jpeg"
+      },
+      {
+        "timeMs": 9240.157,
+        "text": "[DEBUG-rifd21] encode complete 45"
+      },
+      {
+        "timeMs": 9245.239,
+        "text": "[DEBUG-rifd21] encode start 46 image/png"
+      },
+      {
+        "timeMs": 9261.561,
+        "text": "[DEBUG-rifd21] encode complete 46"
+      },
+      {
+        "timeMs": 9273.674,
+        "text": "[DEBUG-rifd21] encode start 47 image/png"
+      },
+      {
+        "timeMs": 9291.531,
+        "text": "[DEBUG-rifd21] encode complete 47"
+      },
+      {
+        "timeMs": 9368,
+        "text": "[DEBUG-rifd21] encode start 48 image/png"
+      },
+      {
+        "timeMs": 9378.433,
+        "text": "[DEBUG-rifd21] encode complete 48"
+      },
+      {
+        "timeMs": 9620.855,
+        "text": "[DEBUG-rifd21] encode start 49 image/png"
+      },
+      {
+        "timeMs": 9637.487,
+        "text": "[DEBUG-rifd21] encode complete 49"
+      },
+      {
+        "timeMs": 9705.325,
+        "text": "[DEBUG-rifd21] encode start 50 image/png"
+      },
+      {
+        "timeMs": 9717.269,
+        "text": "[DEBUG-rifd21] encode complete 50"
+      },
+      {
+        "timeMs": 9942.25,
+        "text": "[DEBUG-rifd21] encode start 51 image/jpeg"
+      },
+      {
+        "timeMs": 9956.576,
+        "text": "[DEBUG-rifd21] encode complete 51"
+      },
+      {
+        "timeMs": 9960.942,
+        "text": "[DEBUG-rifd21] encode start 52 image/png"
+      },
+      {
+        "timeMs": 9973.174,
+        "text": "[DEBUG-rifd21] encode complete 52"
+      },
+      {
+        "timeMs": 9989.583,
+        "text": "[DEBUG-rifd21] encode start 53 image/png"
+      },
+      {
+        "timeMs": 10007.041,
+        "text": "[DEBUG-rifd21] encode complete 53"
+      },
+      {
+        "timeMs": 10071.945,
+        "text": "[DEBUG-rifd21] encode start 54 image/png"
+      },
+      {
+        "timeMs": 10082.708,
+        "text": "[DEBUG-rifd21] encode complete 54"
+      },
+      {
+        "timeMs": 10343.038,
+        "text": "[DEBUG-rifd21] encode start 55 image/png"
+      },
+      {
+        "timeMs": 10364.777,
+        "text": "[DEBUG-rifd21] encode complete 55"
+      },
+      {
+        "timeMs": 10447.116,
+        "text": "[DEBUG-rifd21] encode start 56 image/png"
+      },
+      {
+        "timeMs": 10464.662,
+        "text": "[DEBUG-rifd21] encode complete 56"
+      },
+      {
+        "timeMs": 10693.022,
+        "text": "[DEBUG-rifd21] encode start 57 image/jpeg"
+      },
+      {
+        "timeMs": 10706.509,
+        "text": "[DEBUG-rifd21] encode complete 57"
+      },
+      {
+        "timeMs": 10712.325,
+        "text": "[DEBUG-rifd21] encode start 58 image/png"
+      },
+      {
+        "timeMs": 10725.985,
+        "text": "[DEBUG-rifd21] encode complete 58"
+      },
+      {
+        "timeMs": 10735.37,
+        "text": "[DEBUG-rifd21] encode start 59 image/png"
+      },
+      {
+        "timeMs": 10746.309,
+        "text": "[DEBUG-rifd21] encode complete 59"
+      },
+      {
+        "timeMs": 10813.125,
+        "text": "[DEBUG-rifd21] encode start 60 image/png"
+      },
+      {
+        "timeMs": 10832.817,
+        "text": "[DEBUG-rifd21] encode complete 60"
+      },
+      {
+        "timeMs": 11058.338,
+        "text": "[DEBUG-rifd21] encode start 61 image/png"
+      },
+      {
+        "timeMs": 11076.595,
+        "text": "[DEBUG-rifd21] encode complete 61"
+      },
+      {
+        "timeMs": 11167.947,
+        "text": "[DEBUG-rifd21] encode start 62 image/png"
+      },
+      {
+        "timeMs": 11184.274,
+        "text": "[DEBUG-rifd21] encode complete 62"
+      },
+      {
+        "timeMs": 11403.258,
+        "text": "[DEBUG-rifd21] encode start 63 image/jpeg"
+      },
+      {
+        "timeMs": 11418.325,
+        "text": "[DEBUG-rifd21] encode complete 63"
+      },
+      {
+        "timeMs": 11425.365,
+        "text": "[DEBUG-rifd21] encode start 64 image/png"
+      },
+      {
+        "timeMs": 11440.729,
+        "text": "[DEBUG-rifd21] encode complete 64"
+      },
+      {
+        "timeMs": 11451.548,
+        "text": "[DEBUG-rifd21] encode start 65 image/png"
+      },
+      {
+        "timeMs": 11469.94,
+        "text": "[DEBUG-rifd21] encode complete 65"
+      },
+      {
+        "timeMs": 11552.337,
+        "text": "[DEBUG-rifd21] encode start 66 image/png"
+      },
+      {
+        "timeMs": 11568.899,
+        "text": "[DEBUG-rifd21] encode complete 66"
+      },
+      {
+        "timeMs": 11795.94,
+        "text": "[DEBUG-rifd21] encode start 67 image/png"
+      },
+      {
+        "timeMs": 11810.499,
+        "text": "[DEBUG-rifd21] encode complete 67"
+      },
+      {
+        "timeMs": 11885.182,
+        "text": "[DEBUG-rifd21] encode start 68 image/png"
+      },
+      {
+        "timeMs": 11901.213,
+        "text": "[DEBUG-rifd21] encode complete 68"
+      },
+      {
+        "timeMs": 12126.985,
+        "text": "[DEBUG-rifd21] encode start 69 image/jpeg"
+      },
+      {
+        "timeMs": 12139.519,
+        "text": "[DEBUG-rifd21] encode complete 69"
+      },
+      {
+        "timeMs": 12144.923,
+        "text": "[DEBUG-rifd21] encode start 70 image/png"
+      },
+      {
+        "timeMs": 12156.149,
+        "text": "[DEBUG-rifd21] encode complete 70"
+      },
+      {
+        "timeMs": 12166.162,
+        "text": "[DEBUG-rifd21] encode start 71 image/png"
+      },
+      {
+        "timeMs": 12178.497,
+        "text": "[DEBUG-rifd21] encode complete 71"
+      },
+      {
+        "timeMs": 12280.207,
+        "text": "[DEBUG-rifd21] encode start 72 image/png"
+      },
+      {
+        "timeMs": 12298.32,
+        "text": "[DEBUG-rifd21] encode complete 72"
+      },
+      {
+        "timeMs": 12527.937,
+        "text": "[DEBUG-rifd21] encode start 73 image/png"
+      },
+      {
+        "timeMs": 12543.375,
+        "text": "[DEBUG-rifd21] encode complete 73"
+      },
+      {
+        "timeMs": 12627.627,
+        "text": "[DEBUG-rifd21] encode start 74 image/png"
+      },
+      {
+        "timeMs": 12641.327,
+        "text": "[DEBUG-rifd21] encode complete 74"
+      },
+      {
+        "timeMs": 12869.065,
+        "text": "[DEBUG-rifd21] encode start 75 image/png"
+      },
+      {
+        "timeMs": 12882.229,
+        "text": "[DEBUG-rifd21] encode complete 75"
+      },
+      {
+        "timeMs": 12954.53,
+        "text": "[DEBUG-rifd21] encode start 76 image/png"
+      },
+      {
+        "timeMs": 12965.845,
+        "text": "[DEBUG-rifd21] encode complete 76"
+      },
+      {
+        "timeMs": 13192.353,
+        "text": "[DEBUG-rifd21] encode start 77 image/jpeg"
+      },
+      {
+        "timeMs": 13212.574,
+        "text": "[DEBUG-rifd21] encode complete 77"
+      },
+      {
+        "timeMs": 13216.89,
+        "text": "[DEBUG-rifd21] encode start 78 image/png"
+      },
+      {
+        "timeMs": 13227.247,
+        "text": "[DEBUG-rifd21] encode complete 78"
+      },
+      {
+        "timeMs": 13235.291,
+        "text": "[DEBUG-rifd21] encode start 79 image/png"
+      },
+      {
+        "timeMs": 13247.317,
+        "text": "[DEBUG-rifd21] encode complete 79"
+      },
+      {
+        "timeMs": 13318.31,
+        "text": "[DEBUG-rifd21] encode start 80 image/png"
+      },
+      {
+        "timeMs": 13329.64,
+        "text": "[DEBUG-rifd21] encode complete 80"
+      },
+      {
+        "timeMs": 13558.636,
+        "text": "[DEBUG-rifd21] encode start 81 image/png"
+      },
+      {
+        "timeMs": 13582.907,
+        "text": "[DEBUG-rifd21] encode complete 81"
+      },
+      {
+        "timeMs": 13684.334,
+        "text": "[DEBUG-rifd21] encode start 82 image/png"
+      },
+      {
+        "timeMs": 13695.796,
+        "text": "[DEBUG-rifd21] encode complete 82"
+      },
+      {
+        "timeMs": 13919.767,
+        "text": "[DEBUG-rifd21] encode start 83 image/jpeg"
+      },
+      {
+        "timeMs": 13936.674,
+        "text": "[DEBUG-rifd21] encode complete 83"
+      },
+      {
+        "timeMs": 13942.306,
+        "text": "[DEBUG-rifd21] encode start 84 image/jpeg"
+      },
+      {
+        "timeMs": 13954.104,
+        "text": "[DEBUG-rifd21] encode complete 84"
+      },
+      {
+        "timeMs": 16630.417,
+        "text": "[DEBUG-rifd21] before prepare"
+      },
+      {
+        "timeMs": 16631.801,
+        "text": "[DEBUG-rifd21] after prepare"
+      },
+      {
+        "timeMs": 16634.403,
+        "text": "[DEBUG-rifd21] before replay"
+      },
+      {
+        "timeMs": 16684.3,
+        "text": "[DEBUG-rifd21] after replay"
+      },
+      {
+        "timeMs": 17084.55,
+        "text": "[DEBUG-rifd21] fonts ready"
+      },
+      {
+        "timeMs": 17091.705,
+        "text": "[DEBUG-rifd21] encode start 1 image/png"
+      },
+      {
+        "timeMs": 18104.564,
+        "text": "[DEBUG-rifd21] encode complete 1"
+      },
+      {
+        "timeMs": 18115.279,
+        "text": "[DEBUG-rifd21] encode start 2 image/png"
+      },
+      {
+        "timeMs": 19126.639,
+        "text": "[DEBUG-rifd21] encode complete 2"
+      },
+      {
+        "timeMs": 19210.486,
+        "text": "[DEBUG-rifd21] encode start 3 image/png"
+      },
+      {
+        "timeMs": 20221,
+        "text": "[DEBUG-rifd21] encode complete 3"
+      },
+      {
+        "timeMs": 20512.06,
+        "text": "[DEBUG-rifd21] encode start 4 image/png"
+      },
+      {
+        "timeMs": 21526.326,
+        "text": "[DEBUG-rifd21] encode complete 4"
+      },
+      {
+        "timeMs": 21597.6,
+        "text": "[DEBUG-rifd21] encode start 5 image/png"
+      },
+      {
+        "timeMs": 22607.588,
+        "text": "[DEBUG-rifd21] encode complete 5"
+      },
+      {
+        "timeMs": 22842.905,
+        "text": "[DEBUG-rifd21] encode start 6 image/jpeg"
+      },
+      {
+        "timeMs": 23855.796,
+        "text": "[DEBUG-rifd21] encode complete 6"
+      },
+      {
+        "timeMs": 23859.869,
+        "text": "[DEBUG-rifd21] encode start 7 image/png"
+      },
+      {
+        "timeMs": 24869.282,
+        "text": "[DEBUG-rifd21] encode complete 7"
+      },
+      {
+        "timeMs": 24876.301,
+        "text": "[DEBUG-rifd21] encode start 8 image/png"
+      },
+      {
+        "timeMs": 25890.864,
+        "text": "[DEBUG-rifd21] encode complete 8"
+      },
+      {
+        "timeMs": 25974.614,
+        "text": "[DEBUG-rifd21] encode start 9 image/png"
+      },
+      {
+        "timeMs": 26985.886,
+        "text": "[DEBUG-rifd21] encode complete 9"
+      },
+      {
+        "timeMs": 27182.682,
+        "text": "[DEBUG-rifd21] encode start 10 image/png"
+      },
+      {
+        "timeMs": 28193.852,
+        "text": "[DEBUG-rifd21] encode complete 10"
+      },
+      {
+        "timeMs": 28263.456,
+        "text": "[DEBUG-rifd21] encode start 11 image/png"
+      },
+      {
+        "timeMs": 29283.386,
+        "text": "[DEBUG-rifd21] encode complete 11"
+      },
+      {
+        "timeMs": 29481.514,
+        "text": "[DEBUG-rifd21] encode start 12 image/jpeg"
+      },
+      {
+        "timeMs": 30500.057,
+        "text": "[DEBUG-rifd21] encode complete 12"
+      },
+      {
+        "timeMs": 30507.726,
+        "text": "[DEBUG-rifd21] encode start 13 image/png"
+      },
+      {
+        "timeMs": 31520.019,
+        "text": "[DEBUG-rifd21] encode complete 13"
+      },
+      {
+        "timeMs": 31526.327,
+        "text": "[DEBUG-rifd21] encode start 14 image/png"
+      },
+      {
+        "timeMs": 32539.464,
+        "text": "[DEBUG-rifd21] encode complete 14"
+      },
+      {
+        "timeMs": 32600.443,
+        "text": "[DEBUG-rifd21] encode start 15 image/png"
+      },
+      {
+        "timeMs": 33609.768,
+        "text": "[DEBUG-rifd21] encode complete 15"
+      },
+      {
+        "timeMs": 33800.43,
+        "text": "[DEBUG-rifd21] encode start 16 image/png"
+      },
+      {
+        "timeMs": 34814.522,
+        "text": "[DEBUG-rifd21] encode complete 16"
+      },
+      {
+        "timeMs": 34872.435,
+        "text": "[DEBUG-rifd21] encode start 17 image/png"
+      },
+      {
+        "timeMs": 35883.211,
+        "text": "[DEBUG-rifd21] encode complete 17"
+      },
+      {
+        "timeMs": 36087.145,
+        "text": "[DEBUG-rifd21] encode start 18 image/png"
+      },
+      {
+        "timeMs": 37102.458,
+        "text": "[DEBUG-rifd21] encode complete 18"
+      },
+      {
+        "timeMs": 37163.342,
+        "text": "[DEBUG-rifd21] encode start 19 image/png"
+      },
+      {
+        "timeMs": 38174.963,
+        "text": "[DEBUG-rifd21] encode complete 19"
+      },
+      {
+        "timeMs": 38376.693,
+        "text": "[DEBUG-rifd21] encode start 20 image/jpeg"
+      },
+      {
+        "timeMs": 39388.984,
+        "text": "[DEBUG-rifd21] encode complete 20"
+      },
+      {
+        "timeMs": 39392.623,
+        "text": "[DEBUG-rifd21] encode start 21 image/png"
+      },
+      {
+        "timeMs": 40401.514,
+        "text": "[DEBUG-rifd21] encode complete 21"
+      },
+      {
+        "timeMs": 40409.145,
+        "text": "[DEBUG-rifd21] encode start 22 image/png"
+      },
+      {
+        "timeMs": 41418.453,
+        "text": "[DEBUG-rifd21] encode complete 22"
+      },
+      {
+        "timeMs": 41511.935,
+        "text": "[DEBUG-rifd21] encode start 23 image/png"
+      },
+      {
+        "timeMs": 42521.215,
+        "text": "[DEBUG-rifd21] encode complete 23"
+      },
+      {
+        "timeMs": 42714.026,
+        "text": "[DEBUG-rifd21] encode start 24 image/png"
+      },
+      {
+        "timeMs": 43726.243,
+        "text": "[DEBUG-rifd21] encode complete 24"
+      },
+      {
+        "timeMs": 43792.351,
+        "text": "[DEBUG-rifd21] encode start 25 image/png"
+      },
+      {
+        "timeMs": 44804.454,
+        "text": "[DEBUG-rifd21] encode complete 25"
+      },
+      {
+        "timeMs": 44992.04,
+        "text": "[DEBUG-rifd21] encode start 26 image/jpeg"
+      },
+      {
+        "timeMs": 46004.349,
+        "text": "[DEBUG-rifd21] encode complete 26"
+      },
+      {
+        "timeMs": 46007.805,
+        "text": "[DEBUG-rifd21] encode start 27 image/jpeg"
+      },
+      {
+        "timeMs": 46669.341,
+        "text": "[DEBUG-rifd21] encode complete 27"
+      },
+      {
+        "timeMs": 46703.308,
+        "text": "[DEBUG-rifd21] encode start 28 image/png"
+      },
+      {
+        "timeMs": 46704.883,
+        "text": "[DEBUG-rifd21] encode complete 28"
+      },
+      {
+        "timeMs": 46705.005,
+        "text": "[DEBUG-rifd21] encode start 29 image/png"
+      }
+    ]
+  },
+  {
+    "run": "reset-probe3",
+    "trace": "artifacts/acceptance/21/reset-probe3-2026-10-16T01-22-21.791Z/screens/results/reset.screens-public-reset-75277--recovery-in-both-languages-chrome-repeat1/trace.zip",
+    "traceSha256": "d2d7412d5971f909d2e4ac08b210655ef62693809bdb56d41d191275afb4869e",
+    "events": [
+      {
+        "timeMs": 3184.928,
+        "text": "[DEBUG-rifd21] encode start 1 image/png"
+      },
+      {
+        "timeMs": 3203.518,
+        "text": "[DEBUG-rifd21] encode complete 1"
+      },
+      {
+        "timeMs": 3221.286,
+        "text": "[DEBUG-rifd21] encode start 2 image/png"
+      },
+      {
+        "timeMs": 3247.268,
+        "text": "[DEBUG-rifd21] encode complete 2"
+      },
+      {
+        "timeMs": 3350.643,
+        "text": "[DEBUG-rifd21] encode start 3 image/png"
+      },
+      {
+        "timeMs": 3361.664,
+        "text": "[DEBUG-rifd21] encode complete 3"
+      },
+      {
+        "timeMs": 3715.683,
+        "text": "[DEBUG-rifd21] encode start 4 image/png"
+      },
+      {
+        "timeMs": 3736.017,
+        "text": "[DEBUG-rifd21] encode complete 4"
+      },
+      {
+        "timeMs": 3823.991,
+        "text": "[DEBUG-rifd21] encode start 5 image/png"
+      },
+      {
+        "timeMs": 3834.703,
+        "text": "[DEBUG-rifd21] encode complete 5"
+      },
+      {
+        "timeMs": 4144.182,
+        "text": "[DEBUG-rifd21] encode start 6 image/jpeg"
+      },
+      {
+        "timeMs": 4165.149,
+        "text": "[DEBUG-rifd21] encode complete 6"
+      },
+      {
+        "timeMs": 4170.827,
+        "text": "[DEBUG-rifd21] encode start 7 image/png"
+      },
+      {
+        "timeMs": 4181.559,
+        "text": "[DEBUG-rifd21] encode complete 7"
+      },
+      {
+        "timeMs": 4192.366,
+        "text": "[DEBUG-rifd21] encode start 8 image/png"
+      },
+      {
+        "timeMs": 4212.509,
+        "text": "[DEBUG-rifd21] encode complete 8"
+      },
+      {
+        "timeMs": 4503.904,
+        "text": "[DEBUG-rifd21] encode start 9 image/png"
+      },
+      {
+        "timeMs": 4517.062,
+        "text": "[DEBUG-rifd21] encode complete 9"
+      },
+      {
+        "timeMs": 4815.042,
+        "text": "[DEBUG-rifd21] encode start 10 image/png"
+      },
+      {
+        "timeMs": 4828.245,
+        "text": "[DEBUG-rifd21] encode complete 10"
+      },
+      {
+        "timeMs": 4914.754,
+        "text": "[DEBUG-rifd21] encode start 11 image/png"
+      },
+      {
+        "timeMs": 4927.435,
+        "text": "[DEBUG-rifd21] encode complete 11"
+      },
+      {
+        "timeMs": 5240.724,
+        "text": "[DEBUG-rifd21] encode start 12 image/jpeg"
+      },
+      {
+        "timeMs": 5255.45,
+        "text": "[DEBUG-rifd21] encode complete 12"
+      },
+      {
+        "timeMs": 5260.809,
+        "text": "[DEBUG-rifd21] encode start 13 image/png"
+      },
+      {
+        "timeMs": 5272.466,
+        "text": "[DEBUG-rifd21] encode complete 13"
+      },
+      {
+        "timeMs": 5282.668,
+        "text": "[DEBUG-rifd21] encode start 14 image/png"
+      },
+      {
+        "timeMs": 5293.836,
+        "text": "[DEBUG-rifd21] encode complete 14"
+      },
+      {
+        "timeMs": 5372.034,
+        "text": "[DEBUG-rifd21] encode start 15 image/png"
+      },
+      {
+        "timeMs": 5384.94,
+        "text": "[DEBUG-rifd21] encode complete 15"
+      },
+      {
+        "timeMs": 5618.314,
+        "text": "[DEBUG-rifd21] encode start 16 image/png"
+      },
+      {
+        "timeMs": 5632.008,
+        "text": "[DEBUG-rifd21] encode complete 16"
+      },
+      {
+        "timeMs": 5708.249,
+        "text": "[DEBUG-rifd21] encode start 17 image/png"
+      },
+      {
+        "timeMs": 5720.517,
+        "text": "[DEBUG-rifd21] encode complete 17"
+      },
+      {
+        "timeMs": 6018.244,
+        "text": "[DEBUG-rifd21] encode start 18 image/png"
+      },
+      {
+        "timeMs": 6033.238,
+        "text": "[DEBUG-rifd21] encode complete 18"
+      },
+      {
+        "timeMs": 6113.971,
+        "text": "[DEBUG-rifd21] encode start 19 image/png"
+      },
+      {
+        "timeMs": 6132.765,
+        "text": "[DEBUG-rifd21] encode complete 19"
+      },
+      {
+        "timeMs": 6430.69,
+        "text": "[DEBUG-rifd21] encode start 20 image/jpeg"
+      },
+      {
+        "timeMs": 6442.594,
+        "text": "[DEBUG-rifd21] encode complete 20"
+      },
+      {
+        "timeMs": 6449.512,
+        "text": "[DEBUG-rifd21] encode start 21 image/png"
+      },
+      {
+        "timeMs": 6459.064,
+        "text": "[DEBUG-rifd21] encode complete 21"
+      },
+      {
+        "timeMs": 6470.798,
+        "text": "[DEBUG-rifd21] encode start 22 image/png"
+      },
+      {
+        "timeMs": 6482.728,
+        "text": "[DEBUG-rifd21] encode complete 22"
+      },
+      {
+        "timeMs": 6561.275,
+        "text": "[DEBUG-rifd21] encode start 23 image/png"
+      },
+      {
+        "timeMs": 6592.265,
+        "text": "[DEBUG-rifd21] encode complete 23"
+      },
+      {
+        "timeMs": 6846.748,
+        "text": "[DEBUG-rifd21] encode start 24 image/png"
+      },
+      {
+        "timeMs": 6860.13,
+        "text": "[DEBUG-rifd21] encode complete 24"
+      },
+      {
+        "timeMs": 6952.956,
+        "text": "[DEBUG-rifd21] encode start 25 image/png"
+      },
+      {
+        "timeMs": 6969.422,
+        "text": "[DEBUG-rifd21] encode complete 25"
+      },
+      {
+        "timeMs": 7235.044,
+        "text": "[DEBUG-rifd21] encode start 26 image/jpeg"
+      },
+      {
+        "timeMs": 7250.338,
+        "text": "[DEBUG-rifd21] encode complete 26"
+      },
+      {
+        "timeMs": 7253.84,
+        "text": "[DEBUG-rifd21] encode start 27 image/jpeg"
+      },
+      {
+        "timeMs": 7266.621,
+        "text": "[DEBUG-rifd21] encode complete 27"
+      },
+      {
+        "timeMs": 7272.88,
+        "text": "[DEBUG-rifd21] encode start 28 image/png"
+      },
+      {
+        "timeMs": 7283.916,
+        "text": "[DEBUG-rifd21] encode complete 28"
+      },
+      {
+        "timeMs": 7294.1,
+        "text": "[DEBUG-rifd21] encode start 29 image/png"
+      },
+      {
+        "timeMs": 7312.834,
+        "text": "[DEBUG-rifd21] encode complete 29"
+      },
+      {
+        "timeMs": 7447.631,
+        "text": "[DEBUG-rifd21] encode start 30 image/png"
+      },
+      {
+        "timeMs": 7468.11,
+        "text": "[DEBUG-rifd21] encode complete 30"
+      },
+      {
+        "timeMs": 7688.665,
+        "text": "[DEBUG-rifd21] encode start 31 image/png"
+      },
+      {
+        "timeMs": 7701.778,
+        "text": "[DEBUG-rifd21] encode complete 31"
+      },
+      {
+        "timeMs": 7776.506,
+        "text": "[DEBUG-rifd21] encode start 32 image/png"
+      },
+      {
+        "timeMs": 7794.423,
+        "text": "[DEBUG-rifd21] encode complete 32"
+      },
+      {
+        "timeMs": 8045.578,
+        "text": "[DEBUG-rifd21] encode start 33 image/jpeg"
+      },
+      {
+        "timeMs": 8057.425,
+        "text": "[DEBUG-rifd21] encode complete 33"
+      },
+      {
+        "timeMs": 8063.559,
+        "text": "[DEBUG-rifd21] encode start 34 image/png"
+      },
+      {
+        "timeMs": 8073.965,
+        "text": "[DEBUG-rifd21] encode complete 34"
+      },
+      {
+        "timeMs": 8086.02,
+        "text": "[DEBUG-rifd21] encode start 35 image/png"
+      },
+      {
+        "timeMs": 8103.547,
+        "text": "[DEBUG-rifd21] encode complete 35"
+      },
+      {
+        "timeMs": 8178.895,
+        "text": "[DEBUG-rifd21] encode start 36 image/png"
+      },
+      {
+        "timeMs": 8188.887,
+        "text": "[DEBUG-rifd21] encode complete 36"
+      },
+      {
+        "timeMs": 8422.225,
+        "text": "[DEBUG-rifd21] encode start 37 image/png"
+      },
+      {
+        "timeMs": 8437.735,
+        "text": "[DEBUG-rifd21] encode complete 37"
+      },
+      {
+        "timeMs": 8516.555,
+        "text": "[DEBUG-rifd21] encode start 38 image/png"
+      },
+      {
+        "timeMs": 8530.086,
+        "text": "[DEBUG-rifd21] encode complete 38"
+      },
+      {
+        "timeMs": 8775.438,
+        "text": "[DEBUG-rifd21] encode start 39 image/jpeg"
+      },
+      {
+        "timeMs": 8794.066,
+        "text": "[DEBUG-rifd21] encode complete 39"
+      },
+      {
+        "timeMs": 8798.38,
+        "text": "[DEBUG-rifd21] encode start 40 image/png"
+      },
+      {
+        "timeMs": 8808.339,
+        "text": "[DEBUG-rifd21] encode complete 40"
+      },
+      {
+        "timeMs": 8816.388,
+        "text": "[DEBUG-rifd21] encode start 41 image/png"
+      },
+      {
+        "timeMs": 8827.232,
+        "text": "[DEBUG-rifd21] encode complete 41"
+      },
+      {
+        "timeMs": 8918.299,
+        "text": "[DEBUG-rifd21] encode start 42 image/png"
+      },
+      {
+        "timeMs": 8928.339,
+        "text": "[DEBUG-rifd21] encode complete 42"
+      },
+      {
+        "timeMs": 9154.81,
+        "text": "[DEBUG-rifd21] encode start 43 image/png"
+      },
+      {
+        "timeMs": 9172.595,
+        "text": "[DEBUG-rifd21] encode complete 43"
+      },
+      {
+        "timeMs": 9248.055,
+        "text": "[DEBUG-rifd21] encode start 44 image/png"
+      },
+      {
+        "timeMs": 9260.716,
+        "text": "[DEBUG-rifd21] encode complete 44"
+      },
+      {
+        "timeMs": 9494.808,
+        "text": "[DEBUG-rifd21] encode start 45 image/jpeg"
+      },
+      {
+        "timeMs": 9506.406,
+        "text": "[DEBUG-rifd21] encode complete 45"
+      },
+      {
+        "timeMs": 9511.321,
+        "text": "[DEBUG-rifd21] encode start 46 image/png"
+      },
+      {
+        "timeMs": 9521.28,
+        "text": "[DEBUG-rifd21] encode complete 46"
+      },
+      {
+        "timeMs": 9531.412,
+        "text": "[DEBUG-rifd21] encode start 47 image/png"
+      },
+      {
+        "timeMs": 9556.022,
+        "text": "[DEBUG-rifd21] encode complete 47"
+      },
+      {
+        "timeMs": 9632.431,
+        "text": "[DEBUG-rifd21] encode start 48 image/png"
+      },
+      {
+        "timeMs": 9644.099,
+        "text": "[DEBUG-rifd21] encode complete 48"
+      },
+      {
+        "timeMs": 9859.621,
+        "text": "[DEBUG-rifd21] encode start 49 image/png"
+      },
+      {
+        "timeMs": 9882.443,
+        "text": "[DEBUG-rifd21] encode complete 49"
+      },
+      {
+        "timeMs": 9961.044,
+        "text": "[DEBUG-rifd21] encode start 50 image/png"
+      },
+      {
+        "timeMs": 9974.651,
+        "text": "[DEBUG-rifd21] encode complete 50"
+      },
+      {
+        "timeMs": 10202.399,
+        "text": "[DEBUG-rifd21] encode start 51 image/jpeg"
+      },
+      {
+        "timeMs": 10214.738,
+        "text": "[DEBUG-rifd21] encode complete 51"
+      },
+      {
+        "timeMs": 10219.784,
+        "text": "[DEBUG-rifd21] encode start 52 image/png"
+      },
+      {
+        "timeMs": 10241.198,
+        "text": "[DEBUG-rifd21] encode complete 52"
+      },
+      {
+        "timeMs": 10250.905,
+        "text": "[DEBUG-rifd21] encode start 53 image/png"
+      },
+      {
+        "timeMs": 10261.678,
+        "text": "[DEBUG-rifd21] encode complete 53"
+      },
+      {
+        "timeMs": 10390.636,
+        "text": "[DEBUG-rifd21] encode start 54 image/png"
+      },
+      {
+        "timeMs": 10403.478,
+        "text": "[DEBUG-rifd21] encode complete 54"
+      },
+      {
+        "timeMs": 10621.88,
+        "text": "[DEBUG-rifd21] encode start 55 image/png"
+      },
+      {
+        "timeMs": 10641.809,
+        "text": "[DEBUG-rifd21] encode complete 55"
+      },
+      {
+        "timeMs": 10716.286,
+        "text": "[DEBUG-rifd21] encode start 56 image/png"
+      },
+      {
+        "timeMs": 10735.348,
+        "text": "[DEBUG-rifd21] encode complete 56"
+      },
+      {
+        "timeMs": 10982.235,
+        "text": "[DEBUG-rifd21] encode start 57 image/jpeg"
+      },
+      {
+        "timeMs": 10995.571,
+        "text": "[DEBUG-rifd21] encode complete 57"
+      },
+      {
+        "timeMs": 10998.989,
+        "text": "[DEBUG-rifd21] encode start 58 image/png"
+      },
+      {
+        "timeMs": 11018.567,
+        "text": "[DEBUG-rifd21] encode complete 58"
+      },
+      {
+        "timeMs": 11028.167,
+        "text": "[DEBUG-rifd21] encode start 59 image/png"
+      },
+      {
+        "timeMs": 11038.747,
+        "text": "[DEBUG-rifd21] encode complete 59"
+      },
+      {
+        "timeMs": 11132.382,
+        "text": "[DEBUG-rifd21] encode start 60 image/png"
+      },
+      {
+        "timeMs": 11145.54,
+        "text": "[DEBUG-rifd21] encode complete 60"
+      },
+      {
+        "timeMs": 11364.509,
+        "text": "[DEBUG-rifd21] encode start 61 image/png"
+      },
+      {
+        "timeMs": 11380.609,
+        "text": "[DEBUG-rifd21] encode complete 61"
+      },
+      {
+        "timeMs": 11482.428,
+        "text": "[DEBUG-rifd21] encode start 62 image/png"
+      },
+      {
+        "timeMs": 11497.369,
+        "text": "[DEBUG-rifd21] encode complete 62"
+      },
+      {
+        "timeMs": 11726.384,
+        "text": "[DEBUG-rifd21] encode start 63 image/jpeg"
+      },
+      {
+        "timeMs": 11745.884,
+        "text": "[DEBUG-rifd21] encode complete 63"
+      },
+      {
+        "timeMs": 11749.705,
+        "text": "[DEBUG-rifd21] encode start 64 image/png"
+      },
+      {
+        "timeMs": 11759.946,
+        "text": "[DEBUG-rifd21] encode complete 64"
+      },
+      {
+        "timeMs": 11768.13,
+        "text": "[DEBUG-rifd21] encode start 65 image/png"
+      },
+      {
+        "timeMs": 11780.399,
+        "text": "[DEBUG-rifd21] encode complete 65"
+      },
+      {
+        "timeMs": 11854.233,
+        "text": "[DEBUG-rifd21] encode start 66 image/png"
+      },
+      {
+        "timeMs": 11864.701,
+        "text": "[DEBUG-rifd21] encode complete 66"
+      },
+      {
+        "timeMs": 12088.149,
+        "text": "[DEBUG-rifd21] encode start 67 image/png"
+      },
+      {
+        "timeMs": 12108.854,
+        "text": "[DEBUG-rifd21] encode complete 67"
+      },
+      {
+        "timeMs": 12193.481,
+        "text": "[DEBUG-rifd21] encode start 68 image/png"
+      },
+      {
+        "timeMs": 12204.978,
+        "text": "[DEBUG-rifd21] encode complete 68"
+      },
+      {
+        "timeMs": 12432.434,
+        "text": "[DEBUG-rifd21] encode start 69 image/jpeg"
+      },
+      {
+        "timeMs": 12455.504,
+        "text": "[DEBUG-rifd21] encode complete 69"
+      },
+      {
+        "timeMs": 12460.103,
+        "text": "[DEBUG-rifd21] encode start 70 image/png"
+      },
+      {
+        "timeMs": 12470.438,
+        "text": "[DEBUG-rifd21] encode complete 70"
+      },
+      {
+        "timeMs": 12477.459,
+        "text": "[DEBUG-rifd21] encode start 71 image/png"
+      },
+      {
+        "timeMs": 12488.564,
+        "text": "[DEBUG-rifd21] encode complete 71"
+      },
+      {
+        "timeMs": 12560.635,
+        "text": "[DEBUG-rifd21] encode start 72 image/png"
+      },
+      {
+        "timeMs": 12570.544,
+        "text": "[DEBUG-rifd21] encode complete 72"
+      },
+      {
+        "timeMs": 12807.503,
+        "text": "[DEBUG-rifd21] encode start 73 image/png"
+      },
+      {
+        "timeMs": 12822.011,
+        "text": "[DEBUG-rifd21] encode complete 73"
+      },
+      {
+        "timeMs": 12893.4,
+        "text": "[DEBUG-rifd21] encode start 74 image/png"
+      },
+      {
+        "timeMs": 12901.427,
+        "text": "[DEBUG-rifd21] encode complete 74"
+      },
+      {
+        "timeMs": 13118.493,
+        "text": "[DEBUG-rifd21] encode start 75 image/png"
+      },
+      {
+        "timeMs": 13144.386,
+        "text": "[DEBUG-rifd21] encode complete 75"
+      },
+      {
+        "timeMs": 13226.057,
+        "text": "[DEBUG-rifd21] encode start 76 image/png"
+      },
+      {
+        "timeMs": 13238.911,
+        "text": "[DEBUG-rifd21] encode complete 76"
+      },
+      {
+        "timeMs": 13460.271,
+        "text": "[DEBUG-rifd21] encode start 77 image/jpeg"
+      },
+      {
+        "timeMs": 13472.154,
+        "text": "[DEBUG-rifd21] encode complete 77"
+      },
+      {
+        "timeMs": 13481.348,
+        "text": "[DEBUG-rifd21] encode start 78 image/png"
+      },
+      {
+        "timeMs": 13496.565,
+        "text": "[DEBUG-rifd21] encode complete 78"
+      },
+      {
+        "timeMs": 13505.992,
+        "text": "[DEBUG-rifd21] encode start 79 image/png"
+      },
+      {
+        "timeMs": 13516.872,
+        "text": "[DEBUG-rifd21] encode complete 79"
+      },
+      {
+        "timeMs": 13596.552,
+        "text": "[DEBUG-rifd21] encode start 80 image/png"
+      },
+      {
+        "timeMs": 13606.569,
+        "text": "[DEBUG-rifd21] encode complete 80"
+      },
+      {
+        "timeMs": 13824.439,
+        "text": "[DEBUG-rifd21] encode start 81 image/png"
+      },
+      {
+        "timeMs": 13845.993,
+        "text": "[DEBUG-rifd21] encode complete 81"
+      },
+      {
+        "timeMs": 13914.804,
+        "text": "[DEBUG-rifd21] encode start 82 image/png"
+      },
+      {
+        "timeMs": 13928.248,
+        "text": "[DEBUG-rifd21] encode complete 82"
+      },
+      {
+        "timeMs": 14167.049,
+        "text": "[DEBUG-rifd21] encode start 83 image/jpeg"
+      },
+      {
+        "timeMs": 14192.369,
+        "text": "[DEBUG-rifd21] encode complete 83"
+      },
+      {
+        "timeMs": 14197.386,
+        "text": "[DEBUG-rifd21] encode start 84 image/jpeg"
+      },
+      {
+        "timeMs": 14213.381,
+        "text": "[DEBUG-rifd21] encode complete 84"
+      },
+      {
+        "timeMs": 17012.285,
+        "text": "[DEBUG-rifd21] before prepare"
+      },
+      {
+        "timeMs": 17013.279,
+        "text": "[DEBUG-rifd21] after prepare"
+      },
+      {
+        "timeMs": 17015.402,
+        "text": "[DEBUG-rifd21] before replay"
+      },
+      {
+        "timeMs": 17067.775,
+        "text": "[DEBUG-rifd21] after replay"
+      },
+      {
+        "timeMs": 17468.257,
+        "text": "[DEBUG-rifd21] fonts ready"
+      },
+      {
+        "timeMs": 17473.897,
+        "text": "[DEBUG-rifd21] encode start 1 image/png"
+      },
+      {
+        "timeMs": 18491.546,
+        "text": "[DEBUG-rifd21] encode complete 1"
+      },
+      {
+        "timeMs": 18504.029,
+        "text": "[DEBUG-rifd21] encode start 2 image/png"
+      },
+      {
+        "timeMs": 19518.404,
+        "text": "[DEBUG-rifd21] encode complete 2"
+      },
+      {
+        "timeMs": 19611.352,
+        "text": "[DEBUG-rifd21] encode start 3 image/png"
+      },
+      {
+        "timeMs": 20621.847,
+        "text": "[DEBUG-rifd21] encode complete 3"
+      },
+      {
+        "timeMs": 20907.247,
+        "text": "[DEBUG-rifd21] encode start 4 image/png"
+      },
+      {
+        "timeMs": 21922.795,
+        "text": "[DEBUG-rifd21] encode complete 4"
+      },
+      {
+        "timeMs": 21988.703,
+        "text": "[DEBUG-rifd21] encode start 5 image/png"
+      },
+      {
+        "timeMs": 23001.241,
+        "text": "[DEBUG-rifd21] encode complete 5"
+      },
+      {
+        "timeMs": 23232.869,
+        "text": "[DEBUG-rifd21] encode start 6 image/jpeg"
+      },
+      {
+        "timeMs": 24245.726,
+        "text": "[DEBUG-rifd21] encode complete 6"
+      },
+      {
+        "timeMs": 24249.174,
+        "text": "[DEBUG-rifd21] encode start 7 image/png"
+      },
+      {
+        "timeMs": 25258.364,
+        "text": "[DEBUG-rifd21] encode complete 7"
+      },
+      {
+        "timeMs": 25267.155,
+        "text": "[DEBUG-rifd21] encode start 8 image/png"
+      },
+      {
+        "timeMs": 26278.399,
+        "text": "[DEBUG-rifd21] encode complete 8"
+      },
+      {
+        "timeMs": 26363.589,
+        "text": "[DEBUG-rifd21] encode start 9 image/png"
+      },
+      {
+        "timeMs": 27378.24,
+        "text": "[DEBUG-rifd21] encode complete 9"
+      },
+      {
+        "timeMs": 27631.453,
+        "text": "[DEBUG-rifd21] encode start 10 image/png"
+      },
+      {
+        "timeMs": 28642.576,
+        "text": "[DEBUG-rifd21] encode complete 10"
+      },
+      {
+        "timeMs": 28703.101,
+        "text": "[DEBUG-rifd21] encode start 11 image/png"
+      },
+      {
+        "timeMs": 29715.798,
+        "text": "[DEBUG-rifd21] encode complete 11"
+      },
+      {
+        "timeMs": 29975.313,
+        "text": "[DEBUG-rifd21] encode start 12 image/jpeg"
+      },
+      {
+        "timeMs": 30985.563,
+        "text": "[DEBUG-rifd21] encode complete 12"
+      },
+      {
+        "timeMs": 30989.13,
+        "text": "[DEBUG-rifd21] encode start 13 image/png"
+      },
+      {
+        "timeMs": 31998.637,
+        "text": "[DEBUG-rifd21] encode complete 13"
+      },
+      {
+        "timeMs": 32005.798,
+        "text": "[DEBUG-rifd21] encode start 14 image/png"
+      },
+      {
+        "timeMs": 33015.203,
+        "text": "[DEBUG-rifd21] encode complete 14"
+      },
+      {
+        "timeMs": 33085.892,
+        "text": "[DEBUG-rifd21] encode start 15 image/png"
+      },
+      {
+        "timeMs": 34096.166,
+        "text": "[DEBUG-rifd21] encode complete 15"
+      },
+      {
+        "timeMs": 34298.463,
+        "text": "[DEBUG-rifd21] encode start 16 image/png"
+      },
+      {
+        "timeMs": 35316.941,
+        "text": "[DEBUG-rifd21] encode complete 16"
+      },
+      {
+        "timeMs": 35391.348,
+        "text": "[DEBUG-rifd21] encode start 17 image/png"
+      },
+      {
+        "timeMs": 36402.537,
+        "text": "[DEBUG-rifd21] encode complete 17"
+      },
+      {
+        "timeMs": 36604.882,
+        "text": "[DEBUG-rifd21] encode start 18 image/png"
+      },
+      {
+        "timeMs": 37618.237,
+        "text": "[DEBUG-rifd21] encode complete 18"
+      },
+      {
+        "timeMs": 37678.661,
+        "text": "[DEBUG-rifd21] encode start 19 image/png"
+      },
+      {
+        "timeMs": 38689.535,
+        "text": "[DEBUG-rifd21] encode complete 19"
+      },
+      {
+        "timeMs": 38889.959,
+        "text": "[DEBUG-rifd21] encode start 20 image/jpeg"
+      },
+      {
+        "timeMs": 39903.501,
+        "text": "[DEBUG-rifd21] encode complete 20"
+      },
+      {
+        "timeMs": 39907.047,
+        "text": "[DEBUG-rifd21] encode start 21 image/png"
+      },
+      {
+        "timeMs": 40917.853,
+        "text": "[DEBUG-rifd21] encode complete 21"
+      },
+      {
+        "timeMs": 40924.863,
+        "text": "[DEBUG-rifd21] encode start 22 image/png"
+      },
+      {
+        "timeMs": 41934.582,
+        "text": "[DEBUG-rifd21] encode complete 22"
+      },
+      {
+        "timeMs": 42026.977,
+        "text": "[DEBUG-rifd21] encode start 23 image/png"
+      },
+      {
+        "timeMs": 43037.8,
+        "text": "[DEBUG-rifd21] encode complete 23"
+      },
+      {
+        "timeMs": 43246.407,
+        "text": "[DEBUG-rifd21] encode start 24 image/png"
+      },
+      {
+        "timeMs": 44258.789,
+        "text": "[DEBUG-rifd21] encode complete 24"
+      },
+      {
+        "timeMs": 44329.004,
+        "text": "[DEBUG-rifd21] encode start 25 image/png"
+      },
+      {
+        "timeMs": 45339.354,
+        "text": "[DEBUG-rifd21] encode complete 25"
+      },
+      {
+        "timeMs": 45526.382,
+        "text": "[DEBUG-rifd21] encode start 26 image/jpeg"
+      },
+      {
+        "timeMs": 46536.778,
+        "text": "[DEBUG-rifd21] encode complete 26"
+      },
+      {
+        "timeMs": 46540.591,
+        "text": "[DEBUG-rifd21] encode start 27 image/jpeg"
+      }
+    ]
+  },
+  {
+    "run": "reset-focus-probe",
+    "trace": "artifacts/acceptance/21/reset-focus-probe-2026-10-16T01-24-24.334Z/screens/results/reset.screens-public-reset-75277--recovery-in-both-languages-chrome/trace.zip",
+    "traceSha256": "74f6fd891ed8fce081cfe44339a7476373dd1310d212d8827d5afbebed9b5c29",
+    "events": [
+      {
+        "timeMs": 3092.71,
+        "text": "[DEBUG-rifd21] encode start 1 image/png"
+      },
+      {
+        "timeMs": 3110.141,
+        "text": "[DEBUG-rifd21] encode complete 1"
+      },
+      {
+        "timeMs": 3124.884,
+        "text": "[DEBUG-rifd21] encode start 2 image/png"
+      },
+      {
+        "timeMs": 3150.774,
+        "text": "[DEBUG-rifd21] encode complete 2"
+      },
+      {
+        "timeMs": 3308.974,
+        "text": "[DEBUG-rifd21] encode start 3 image/png"
+      },
+      {
+        "timeMs": 3324.163,
+        "text": "[DEBUG-rifd21] encode complete 3"
+      },
+      {
+        "timeMs": 3623.976,
+        "text": "[DEBUG-rifd21] encode start 4 image/png"
+      },
+      {
+        "timeMs": 3642.527,
+        "text": "[DEBUG-rifd21] encode complete 4"
+      },
+      {
+        "timeMs": 3735.385,
+        "text": "[DEBUG-rifd21] encode start 5 image/png"
+      },
+      {
+        "timeMs": 3747.633,
+        "text": "[DEBUG-rifd21] encode complete 5"
+      },
+      {
+        "timeMs": 4022.265,
+        "text": "[DEBUG-rifd21] encode start 6 image/jpeg"
+      },
+      {
+        "timeMs": 4036.296,
+        "text": "[DEBUG-rifd21] encode complete 6"
+      },
+      {
+        "timeMs": 4040.276,
+        "text": "[DEBUG-rifd21] encode start 7 image/png"
+      },
+      {
+        "timeMs": 4050.633,
+        "text": "[DEBUG-rifd21] encode complete 7"
+      },
+      {
+        "timeMs": 4057.815,
+        "text": "[DEBUG-rifd21] encode start 8 image/png"
+      },
+      {
+        "timeMs": 4071.459,
+        "text": "[DEBUG-rifd21] encode complete 8"
+      },
+      {
+        "timeMs": 4135.498,
+        "text": "[DEBUG-rifd21] encode start 9 image/png"
+      },
+      {
+        "timeMs": 4148.955,
+        "text": "[DEBUG-rifd21] encode complete 9"
+      },
+      {
+        "timeMs": 4390.77,
+        "text": "[DEBUG-rifd21] encode start 10 image/png"
+      },
+      {
+        "timeMs": 4405.388,
+        "text": "[DEBUG-rifd21] encode complete 10"
+      },
+      {
+        "timeMs": 4473.083,
+        "text": "[DEBUG-rifd21] encode start 11 image/png"
+      },
+      {
+        "timeMs": 4485.823,
+        "text": "[DEBUG-rifd21] encode complete 11"
+      },
+      {
+        "timeMs": 4708.473,
+        "text": "[DEBUG-rifd21] encode start 12 image/jpeg"
+      },
+      {
+        "timeMs": 4721.305,
+        "text": "[DEBUG-rifd21] encode complete 12"
+      },
+      {
+        "timeMs": 4726.364,
+        "text": "[DEBUG-rifd21] encode start 13 image/png"
+      },
+      {
+        "timeMs": 4738.108,
+        "text": "[DEBUG-rifd21] encode complete 13"
+      },
+      {
+        "timeMs": 4747.341,
+        "text": "[DEBUG-rifd21] encode start 14 image/png"
+      },
+      {
+        "timeMs": 4759.231,
+        "text": "[DEBUG-rifd21] encode complete 14"
+      },
+      {
+        "timeMs": 4833.265,
+        "text": "[DEBUG-rifd21] encode start 15 image/png"
+      },
+      {
+        "timeMs": 4844.266,
+        "text": "[DEBUG-rifd21] encode complete 15"
+      },
+      {
+        "timeMs": 5067.543,
+        "text": "[DEBUG-rifd21] encode start 16 image/png"
+      },
+      {
+        "timeMs": 5083.871,
+        "text": "[DEBUG-rifd21] encode complete 16"
+      },
+      {
+        "timeMs": 5156.296,
+        "text": "[DEBUG-rifd21] encode start 17 image/png"
+      },
+      {
+        "timeMs": 5167.167,
+        "text": "[DEBUG-rifd21] encode complete 17"
+      },
+      {
+        "timeMs": 5404.384,
+        "text": "[DEBUG-rifd21] encode start 18 image/png"
+      },
+      {
+        "timeMs": 5417.623,
+        "text": "[DEBUG-rifd21] encode complete 18"
+      },
+      {
+        "timeMs": 5539.974,
+        "text": "[DEBUG-rifd21] encode start 19 image/png"
+      },
+      {
+        "timeMs": 5573.462,
+        "text": "[DEBUG-rifd21] encode complete 19"
+      },
+      {
+        "timeMs": 5852.272,
+        "text": "[DEBUG-rifd21] encode start 20 image/jpeg"
+      },
+      {
+        "timeMs": 5866.931,
+        "text": "[DEBUG-rifd21] encode complete 20"
+      },
+      {
+        "timeMs": 5871.319,
+        "text": "[DEBUG-rifd21] encode start 21 image/png"
+      },
+      {
+        "timeMs": 5881.023,
+        "text": "[DEBUG-rifd21] encode complete 21"
+      },
+      {
+        "timeMs": 5891.186,
+        "text": "[DEBUG-rifd21] encode start 22 image/png"
+      },
+      {
+        "timeMs": 5908.879,
+        "text": "[DEBUG-rifd21] encode complete 22"
+      },
+      {
+        "timeMs": 5989.281,
+        "text": "[DEBUG-rifd21] encode start 23 image/png"
+      },
+      {
+        "timeMs": 6000.898,
+        "text": "[DEBUG-rifd21] encode complete 23"
+      },
+      {
+        "timeMs": 6268.464,
+        "text": "[DEBUG-rifd21] encode start 24 image/png"
+      },
+      {
+        "timeMs": 6281.845,
+        "text": "[DEBUG-rifd21] encode complete 24"
+      },
+      {
+        "timeMs": 6367.382,
+        "text": "[DEBUG-rifd21] encode start 25 image/png"
+      },
+      {
+        "timeMs": 6380.546,
+        "text": "[DEBUG-rifd21] encode complete 25"
+      },
+      {
+        "timeMs": 6608.221,
+        "text": "[DEBUG-rifd21] encode start 26 image/jpeg"
+      },
+      {
+        "timeMs": 6620.535,
+        "text": "[DEBUG-rifd21] encode complete 26"
+      },
+      {
+        "timeMs": 6625.726,
+        "text": "[DEBUG-rifd21] encode start 27 image/jpeg"
+      },
+      {
+        "timeMs": 6637.284,
+        "text": "[DEBUG-rifd21] encode complete 27"
+      },
+      {
+        "timeMs": 6642.589,
+        "text": "[DEBUG-rifd21] encode start 28 image/png"
+      },
+      {
+        "timeMs": 6653.148,
+        "text": "[DEBUG-rifd21] encode complete 28"
+      },
+      {
+        "timeMs": 6663.458,
+        "text": "[DEBUG-rifd21] encode start 29 image/png"
+      },
+      {
+        "timeMs": 6674.691,
+        "text": "[DEBUG-rifd21] encode complete 29"
+      },
+      {
+        "timeMs": 6749.859,
+        "text": "[DEBUG-rifd21] encode start 30 image/png"
+      },
+      {
+        "timeMs": 6761.674,
+        "text": "[DEBUG-rifd21] encode complete 30"
+      },
+      {
+        "timeMs": 7001.054,
+        "text": "[DEBUG-rifd21] encode start 31 image/png"
+      },
+      {
+        "timeMs": 7018.864,
+        "text": "[DEBUG-rifd21] encode complete 31"
+      },
+      {
+        "timeMs": 7100.004,
+        "text": "[DEBUG-rifd21] encode start 32 image/png"
+      },
+      {
+        "timeMs": 7112.24,
+        "text": "[DEBUG-rifd21] encode complete 32"
+      },
+      {
+        "timeMs": 7346.132,
+        "text": "[DEBUG-rifd21] encode start 33 image/jpeg"
+      },
+      {
+        "timeMs": 7359.823,
+        "text": "[DEBUG-rifd21] encode complete 33"
+      },
+      {
+        "timeMs": 7364.349,
+        "text": "[DEBUG-rifd21] encode start 34 image/png"
+      },
+      {
+        "timeMs": 7374.91,
+        "text": "[DEBUG-rifd21] encode complete 34"
+      },
+      {
+        "timeMs": 7382.517,
+        "text": "[DEBUG-rifd21] encode start 35 image/png"
+      },
+      {
+        "timeMs": 7394.299,
+        "text": "[DEBUG-rifd21] encode complete 35"
+      },
+      {
+        "timeMs": 7462.867,
+        "text": "[DEBUG-rifd21] encode start 36 image/png"
+      },
+      {
+        "timeMs": 7473.314,
+        "text": "[DEBUG-rifd21] encode complete 36"
+      },
+      {
+        "timeMs": 7696.757,
+        "text": "[DEBUG-rifd21] encode start 37 image/png"
+      },
+      {
+        "timeMs": 7712.669,
+        "text": "[DEBUG-rifd21] encode complete 37"
+      },
+      {
+        "timeMs": 7782.246,
+        "text": "[DEBUG-rifd21] encode start 38 image/png"
+      },
+      {
+        "timeMs": 7794.966,
+        "text": "[DEBUG-rifd21] encode complete 38"
+      },
+      {
+        "timeMs": 8034.332,
+        "text": "[DEBUG-rifd21] encode start 39 image/jpeg"
+      },
+      {
+        "timeMs": 8046.954,
+        "text": "[DEBUG-rifd21] encode complete 39"
+      },
+      {
+        "timeMs": 8050.934,
+        "text": "[DEBUG-rifd21] encode start 40 image/png"
+      },
+      {
+        "timeMs": 8060.703,
+        "text": "[DEBUG-rifd21] encode complete 40"
+      },
+      {
+        "timeMs": 8068.866,
+        "text": "[DEBUG-rifd21] encode start 41 image/png"
+      },
+      {
+        "timeMs": 8079.333,
+        "text": "[DEBUG-rifd21] encode complete 41"
+      },
+      {
+        "timeMs": 8149.277,
+        "text": "[DEBUG-rifd21] encode start 42 image/png"
+      },
+      {
+        "timeMs": 8164.409,
+        "text": "[DEBUG-rifd21] encode complete 42"
+      },
+      {
+        "timeMs": 8417.9,
+        "text": "[DEBUG-rifd21] encode start 43 image/png"
+      },
+      {
+        "timeMs": 8438.037,
+        "text": "[DEBUG-rifd21] encode complete 43"
+      },
+      {
+        "timeMs": 8505.727,
+        "text": "[DEBUG-rifd21] encode start 44 image/png"
+      },
+      {
+        "timeMs": 8517.29,
+        "text": "[DEBUG-rifd21] encode complete 44"
+      },
+      {
+        "timeMs": 8798.854,
+        "text": "[DEBUG-rifd21] encode start 45 image/jpeg"
+      },
+      {
+        "timeMs": 8809.568,
+        "text": "[DEBUG-rifd21] encode complete 45"
+      },
+      {
+        "timeMs": 8813.606,
+        "text": "[DEBUG-rifd21] encode start 46 image/png"
+      },
+      {
+        "timeMs": 8823.596,
+        "text": "[DEBUG-rifd21] encode complete 46"
+      },
+      {
+        "timeMs": 8832.679,
+        "text": "[DEBUG-rifd21] encode start 47 image/png"
+      },
+      {
+        "timeMs": 8843.334,
+        "text": "[DEBUG-rifd21] encode complete 47"
+      },
+      {
+        "timeMs": 8915.819,
+        "text": "[DEBUG-rifd21] encode start 48 image/png"
+      },
+      {
+        "timeMs": 8934.004,
+        "text": "[DEBUG-rifd21] encode complete 48"
+      },
+      {
+        "timeMs": 9148.409,
+        "text": "[DEBUG-rifd21] encode start 49 image/png"
+      },
+      {
+        "timeMs": 9162.029,
+        "text": "[DEBUG-rifd21] encode complete 49"
+      },
+      {
+        "timeMs": 9234.747,
+        "text": "[DEBUG-rifd21] encode start 50 image/png"
+      },
+      {
+        "timeMs": 9247.314,
+        "text": "[DEBUG-rifd21] encode complete 50"
+      },
+      {
+        "timeMs": 9465.056,
+        "text": "[DEBUG-rifd21] encode start 51 image/jpeg"
+      },
+      {
+        "timeMs": 9483.597,
+        "text": "[DEBUG-rifd21] encode complete 51"
+      },
+      {
+        "timeMs": 9487.895,
+        "text": "[DEBUG-rifd21] encode start 52 image/png"
+      },
+      {
+        "timeMs": 9499.165,
+        "text": "[DEBUG-rifd21] encode complete 52"
+      },
+      {
+        "timeMs": 9506.511,
+        "text": "[DEBUG-rifd21] encode start 53 image/png"
+      },
+      {
+        "timeMs": 9517.702,
+        "text": "[DEBUG-rifd21] encode complete 53"
+      },
+      {
+        "timeMs": 9587.886,
+        "text": "[DEBUG-rifd21] encode start 54 image/png"
+      },
+      {
+        "timeMs": 9601.298,
+        "text": "[DEBUG-rifd21] encode complete 54"
+      },
+      {
+        "timeMs": 9815.246,
+        "text": "[DEBUG-rifd21] encode start 55 image/png"
+      },
+      {
+        "timeMs": 9832.513,
+        "text": "[DEBUG-rifd21] encode complete 55"
+      },
+      {
+        "timeMs": 9902.613,
+        "text": "[DEBUG-rifd21] encode start 56 image/png"
+      },
+      {
+        "timeMs": 9924.127,
+        "text": "[DEBUG-rifd21] encode complete 56"
+      },
+      {
+        "timeMs": 10148.485,
+        "text": "[DEBUG-rifd21] encode start 57 image/jpeg"
+      },
+      {
+        "timeMs": 10159.95,
+        "text": "[DEBUG-rifd21] encode complete 57"
+      },
+      {
+        "timeMs": 10164.064,
+        "text": "[DEBUG-rifd21] encode start 58 image/png"
+      },
+      {
+        "timeMs": 10174.625,
+        "text": "[DEBUG-rifd21] encode complete 58"
+      },
+      {
+        "timeMs": 10182.282,
+        "text": "[DEBUG-rifd21] encode start 59 image/png"
+      },
+      {
+        "timeMs": 10192.55,
+        "text": "[DEBUG-rifd21] encode complete 59"
+      },
+      {
+        "timeMs": 10264.651,
+        "text": "[DEBUG-rifd21] encode start 60 image/png"
+      },
+      {
+        "timeMs": 10282.511,
+        "text": "[DEBUG-rifd21] encode complete 60"
+      },
+      {
+        "timeMs": 10499.48,
+        "text": "[DEBUG-rifd21] encode start 61 image/png"
+      },
+      {
+        "timeMs": 10515.06,
+        "text": "[DEBUG-rifd21] encode complete 61"
+      },
+      {
+        "timeMs": 10586.209,
+        "text": "[DEBUG-rifd21] encode start 62 image/png"
+      },
+      {
+        "timeMs": 10598.76,
+        "text": "[DEBUG-rifd21] encode complete 62"
+      },
+      {
+        "timeMs": 10862.309,
+        "text": "[DEBUG-rifd21] encode start 63 image/jpeg"
+      },
+      {
+        "timeMs": 10882.661,
+        "text": "[DEBUG-rifd21] encode complete 63"
+      },
+      {
+        "timeMs": 10886.882,
+        "text": "[DEBUG-rifd21] encode start 64 image/png"
+      },
+      {
+        "timeMs": 10897.126,
+        "text": "[DEBUG-rifd21] encode complete 64"
+      },
+      {
+        "timeMs": 10906.272,
+        "text": "[DEBUG-rifd21] encode start 65 image/png"
+      },
+      {
+        "timeMs": 10918.3,
+        "text": "[DEBUG-rifd21] encode complete 65"
+      },
+      {
+        "timeMs": 10992.559,
+        "text": "[DEBUG-rifd21] encode start 66 image/png"
+      },
+      {
+        "timeMs": 11003.699,
+        "text": "[DEBUG-rifd21] encode complete 66"
+      },
+      {
+        "timeMs": 11237.253,
+        "text": "[DEBUG-rifd21] encode start 67 image/png"
+      },
+      {
+        "timeMs": 11260.081,
+        "text": "[DEBUG-rifd21] encode complete 67"
+      },
+      {
+        "timeMs": 11331.621,
+        "text": "[DEBUG-rifd21] encode start 68 image/png"
+      },
+      {
+        "timeMs": 11342.951,
+        "text": "[DEBUG-rifd21] encode complete 68"
+      },
+      {
+        "timeMs": 11602.885,
+        "text": "[DEBUG-rifd21] encode start 69 image/jpeg"
+      },
+      {
+        "timeMs": 11614.687,
+        "text": "[DEBUG-rifd21] encode complete 69"
+      },
+      {
+        "timeMs": 11618.628,
+        "text": "[DEBUG-rifd21] encode start 70 image/png"
+      },
+      {
+        "timeMs": 11631.026,
+        "text": "[DEBUG-rifd21] encode complete 70"
+      },
+      {
+        "timeMs": 11640.553,
+        "text": "[DEBUG-rifd21] encode start 71 image/png"
+      },
+      {
+        "timeMs": 11651.429,
+        "text": "[DEBUG-rifd21] encode complete 71"
+      },
+      {
+        "timeMs": 11736.565,
+        "text": "[DEBUG-rifd21] encode start 72 image/png"
+      },
+      {
+        "timeMs": 11758.089,
+        "text": "[DEBUG-rifd21] encode complete 72"
+      },
+      {
+        "timeMs": 12007.878,
+        "text": "[DEBUG-rifd21] encode start 73 image/png"
+      },
+      {
+        "timeMs": 12019.206,
+        "text": "[DEBUG-rifd21] encode complete 73"
+      },
+      {
+        "timeMs": 12088.917,
+        "text": "[DEBUG-rifd21] encode start 74 image/png"
+      },
+      {
+        "timeMs": 12102.02,
+        "text": "[DEBUG-rifd21] encode complete 74"
+      },
+      {
+        "timeMs": 12317.988,
+        "text": "[DEBUG-rifd21] encode start 75 image/png"
+      },
+      {
+        "timeMs": 12330.651,
+        "text": "[DEBUG-rifd21] encode complete 75"
+      },
+      {
+        "timeMs": 12400.129,
+        "text": "[DEBUG-rifd21] encode start 76 image/png"
+      },
+      {
+        "timeMs": 12411.034,
+        "text": "[DEBUG-rifd21] encode complete 76"
+      },
+      {
+        "timeMs": 12643.703,
+        "text": "[DEBUG-rifd21] encode start 77 image/jpeg"
+      },
+      {
+        "timeMs": 12658.397,
+        "text": "[DEBUG-rifd21] encode complete 77"
+      },
+      {
+        "timeMs": 12661.478,
+        "text": "[DEBUG-rifd21] encode start 78 image/png"
+      },
+      {
+        "timeMs": 12671.205,
+        "text": "[DEBUG-rifd21] encode complete 78"
+      },
+      {
+        "timeMs": 12679.181,
+        "text": "[DEBUG-rifd21] encode start 79 image/png"
+      },
+      {
+        "timeMs": 12692.491,
+        "text": "[DEBUG-rifd21] encode complete 79"
+      },
+      {
+        "timeMs": 12764.968,
+        "text": "[DEBUG-rifd21] encode start 80 image/png"
+      },
+      {
+        "timeMs": 12776.674,
+        "text": "[DEBUG-rifd21] encode complete 80"
+      },
+      {
+        "timeMs": 13005.497,
+        "text": "[DEBUG-rifd21] encode start 81 image/png"
+      },
+      {
+        "timeMs": 13032.419,
+        "text": "[DEBUG-rifd21] encode complete 81"
+      },
+      {
+        "timeMs": 13100.705,
+        "text": "[DEBUG-rifd21] encode start 82 image/png"
+      },
+      {
+        "timeMs": 13112.397,
+        "text": "[DEBUG-rifd21] encode complete 82"
+      },
+      {
+        "timeMs": 13344.43,
+        "text": "[DEBUG-rifd21] encode start 83 image/jpeg"
+      },
+      {
+        "timeMs": 13358.236,
+        "text": "[DEBUG-rifd21] encode complete 83"
+      },
+      {
+        "timeMs": 13362.654,
+        "text": "[DEBUG-rifd21] encode start 84 image/jpeg"
+      },
+      {
+        "timeMs": 13374.255,
+        "text": "[DEBUG-rifd21] encode complete 84"
+      },
+      {
+        "timeMs": 16086.558,
+        "text": "[DEBUG-rifd21] before prepare visible true"
+      },
+      {
+        "timeMs": 16087.977,
+        "text": "[DEBUG-rifd21] after prepare"
+      },
+      {
+        "timeMs": 16090.301,
+        "text": "[DEBUG-rifd21] before replay"
+      },
+      {
+        "timeMs": 16140.332,
+        "text": "[DEBUG-rifd21] after replay"
+      },
+      {
+        "timeMs": 16540.668,
+        "text": "[DEBUG-rifd21] fonts ready"
+      },
+      {
+        "timeMs": 16546.118,
+        "text": "[DEBUG-rifd21] encode start 1 image/png"
+      },
+      {
+        "timeMs": 16563.601,
+        "text": "[DEBUG-rifd21] encode complete 1"
+      },
+      {
+        "timeMs": 16572.177,
+        "text": "[DEBUG-rifd21] encode start 2 image/png"
+      },
+      {
+        "timeMs": 16588.167,
+        "text": "[DEBUG-rifd21] encode complete 2"
+      },
+      {
+        "timeMs": 16697.184,
+        "text": "[DEBUG-rifd21] encode start 3 image/png"
+      },
+      {
+        "timeMs": 16711.836,
+        "text": "[DEBUG-rifd21] encode complete 3"
+      },
+      {
+        "timeMs": 17033.447,
+        "text": "[DEBUG-rifd21] encode start 4 image/png"
+      },
+      {
+        "timeMs": 17075.719,
+        "text": "[DEBUG-rifd21] encode complete 4"
+      },
+      {
+        "timeMs": 17405.34,
+        "text": "[DEBUG-rifd21] encode start 5 image/png"
+      },
+      {
+        "timeMs": 17417.288,
+        "text": "[DEBUG-rifd21] encode complete 5"
+      },
+      {
+        "timeMs": 17698.687,
+        "text": "[DEBUG-rifd21] encode start 6 image/jpeg"
+      },
+      {
+        "timeMs": 17714.817,
+        "text": "[DEBUG-rifd21] encode complete 6"
+      },
+      {
+        "timeMs": 17717.848,
+        "text": "[DEBUG-rifd21] encode start 7 image/png"
+      },
+      {
+        "timeMs": 17727.671,
+        "text": "[DEBUG-rifd21] encode complete 7"
+      },
+      {
+        "timeMs": 17734.453,
+        "text": "[DEBUG-rifd21] encode start 8 image/png"
+      },
+      {
+        "timeMs": 17745.355,
+        "text": "[DEBUG-rifd21] encode complete 8"
+      },
+      {
+        "timeMs": 17856.841,
+        "text": "[DEBUG-rifd21] encode start 9 image/png"
+      },
+      {
+        "timeMs": 17866.911,
+        "text": "[DEBUG-rifd21] encode complete 9"
+      },
+      {
+        "timeMs": 18132.469,
+        "text": "[DEBUG-rifd21] encode start 10 image/png"
+      },
+      {
+        "timeMs": 18151.239,
+        "text": "[DEBUG-rifd21] encode complete 10"
+      },
+      {
+        "timeMs": 18218.772,
+        "text": "[DEBUG-rifd21] encode start 11 image/png"
+      },
+      {
+        "timeMs": 18233.285,
+        "text": "[DEBUG-rifd21] encode complete 11"
+      },
+      {
+        "timeMs": 18493.836,
+        "text": "[DEBUG-rifd21] encode start 12 image/jpeg"
+      },
+      {
+        "timeMs": 18506.384,
+        "text": "[DEBUG-rifd21] encode complete 12"
+      },
+      {
+        "timeMs": 18512.982,
+        "text": "[DEBUG-rifd21] encode start 13 image/png"
+      },
+      {
+        "timeMs": 18523.211,
+        "text": "[DEBUG-rifd21] encode complete 13"
+      },
+      {
+        "timeMs": 18533.581,
+        "text": "[DEBUG-rifd21] encode start 14 image/png"
+      },
+      {
+        "timeMs": 18544.614,
+        "text": "[DEBUG-rifd21] encode complete 14"
+      },
+      {
+        "timeMs": 18613.623,
+        "text": "[DEBUG-rifd21] encode start 15 image/png"
+      },
+      {
+        "timeMs": 18633.874,
+        "text": "[DEBUG-rifd21] encode complete 15"
+      },
+      {
+        "timeMs": 18868.832,
+        "text": "[DEBUG-rifd21] encode start 16 image/png"
+      },
+      {
+        "timeMs": 18886.361,
+        "text": "[DEBUG-rifd21] encode complete 16"
+      },
+      {
+        "timeMs": 18952.474,
+        "text": "[DEBUG-rifd21] encode start 17 image/png"
+      },
+      {
+        "timeMs": 18968.398,
+        "text": "[DEBUG-rifd21] encode complete 17"
+      },
+      {
+        "timeMs": 19193.817,
+        "text": "[DEBUG-rifd21] encode start 18 image/png"
+      },
+      {
+        "timeMs": 19209.945,
+        "text": "[DEBUG-rifd21] encode complete 18"
+      },
+      {
+        "timeMs": 19277.139,
+        "text": "[DEBUG-rifd21] encode start 19 image/png"
+      },
+      {
+        "timeMs": 19297.526,
+        "text": "[DEBUG-rifd21] encode complete 19"
+      },
+      {
+        "timeMs": 19545.347,
+        "text": "[DEBUG-rifd21] encode start 20 image/jpeg"
+      },
+      {
+        "timeMs": 19563.317,
+        "text": "[DEBUG-rifd21] encode complete 20"
+      },
+      {
+        "timeMs": 19567.29,
+        "text": "[DEBUG-rifd21] encode start 21 image/png"
+      },
+      {
+        "timeMs": 19580.214,
+        "text": "[DEBUG-rifd21] encode complete 21"
+      },
+      {
+        "timeMs": 19588.585,
+        "text": "[DEBUG-rifd21] encode start 22 image/png"
+      },
+      {
+        "timeMs": 19605.533,
+        "text": "[DEBUG-rifd21] encode complete 22"
+      },
+      {
+        "timeMs": 19678.552,
+        "text": "[DEBUG-rifd21] encode start 23 image/png"
+      },
+      {
+        "timeMs": 19694.612,
+        "text": "[DEBUG-rifd21] encode complete 23"
+      },
+      {
+        "timeMs": 19921.823,
+        "text": "[DEBUG-rifd21] encode start 24 image/png"
+      },
+      {
+        "timeMs": 19935.436,
+        "text": "[DEBUG-rifd21] encode complete 24"
+      },
+      {
+        "timeMs": 20009.297,
+        "text": "[DEBUG-rifd21] encode start 25 image/png"
+      },
+      {
+        "timeMs": 20026.53,
+        "text": "[DEBUG-rifd21] encode complete 25"
+      },
+      {
+        "timeMs": 20263.787,
+        "text": "[DEBUG-rifd21] encode start 26 image/jpeg"
+      },
+      {
+        "timeMs": 20279.973,
+        "text": "[DEBUG-rifd21] encode complete 26"
+      },
+      {
+        "timeMs": 20284.17,
+        "text": "[DEBUG-rifd21] encode start 27 image/jpeg"
+      },
+      {
+        "timeMs": 20300.538,
+        "text": "[DEBUG-rifd21] encode complete 27"
+      },
+      {
+        "timeMs": 20304.868,
+        "text": "[DEBUG-rifd21] encode start 28 image/png"
+      },
+      {
+        "timeMs": 20314.465,
+        "text": "[DEBUG-rifd21] encode complete 28"
+      },
+      {
+        "timeMs": 20321.605,
+        "text": "[DEBUG-rifd21] encode start 29 image/png"
+      },
+      {
+        "timeMs": 20343.196,
+        "text": "[DEBUG-rifd21] encode complete 29"
+      },
+      {
+        "timeMs": 20410.354,
+        "text": "[DEBUG-rifd21] encode start 30 image/png"
+      },
+      {
+        "timeMs": 20421.581,
+        "text": "[DEBUG-rifd21] encode complete 30"
+      },
+      {
+        "timeMs": 20644.713,
+        "text": "[DEBUG-rifd21] encode start 31 image/png"
+      },
+      {
+        "timeMs": 20667.42,
+        "text": "[DEBUG-rifd21] encode complete 31"
+      },
+      {
+        "timeMs": 20755.41,
+        "text": "[DEBUG-rifd21] encode start 32 image/png"
+      },
+      {
+        "timeMs": 20767.213,
+        "text": "[DEBUG-rifd21] encode complete 32"
+      },
+      {
+        "timeMs": 20995.501,
+        "text": "[DEBUG-rifd21] encode start 33 image/jpeg"
+      },
+      {
+        "timeMs": 21011.228,
+        "text": "[DEBUG-rifd21] encode complete 33"
+      },
+      {
+        "timeMs": 21014.456,
+        "text": "[DEBUG-rifd21] encode start 34 image/png"
+      },
+      {
+        "timeMs": 21037.637,
+        "text": "[DEBUG-rifd21] encode complete 34"
+      },
+      {
+        "timeMs": 21044.903,
+        "text": "[DEBUG-rifd21] encode start 35 image/png"
+      },
+      {
+        "timeMs": 21054.931,
+        "text": "[DEBUG-rifd21] encode complete 35"
+      },
+      {
+        "timeMs": 21130.79,
+        "text": "[DEBUG-rifd21] encode start 36 image/png"
+      },
+      {
+        "timeMs": 21146.345,
+        "text": "[DEBUG-rifd21] encode complete 36"
+      },
+      {
+        "timeMs": 21368.875,
+        "text": "[DEBUG-rifd21] encode start 37 image/png"
+      },
+      {
+        "timeMs": 21389.342,
+        "text": "[DEBUG-rifd21] encode complete 37"
+      },
+      {
+        "timeMs": 21480.239,
+        "text": "[DEBUG-rifd21] encode start 38 image/png"
+      },
+      {
+        "timeMs": 21492.01,
+        "text": "[DEBUG-rifd21] encode complete 38"
+      },
+      {
+        "timeMs": 21721.666,
+        "text": "[DEBUG-rifd21] encode start 39 image/jpeg"
+      },
+      {
+        "timeMs": 21738.018,
+        "text": "[DEBUG-rifd21] encode complete 39"
+      },
+      {
+        "timeMs": 21741.255,
+        "text": "[DEBUG-rifd21] encode start 40 image/png"
+      },
+      {
+        "timeMs": 21762.775,
+        "text": "[DEBUG-rifd21] encode complete 40"
+      },
+      {
+        "timeMs": 21770.058,
+        "text": "[DEBUG-rifd21] encode start 41 image/png"
+      },
+      {
+        "timeMs": 21782.455,
+        "text": "[DEBUG-rifd21] encode complete 41"
+      },
+      {
+        "timeMs": 21866.732,
+        "text": "[DEBUG-rifd21] encode start 42 image/png"
+      },
+      {
+        "timeMs": 21876.94,
+        "text": "[DEBUG-rifd21] encode complete 42"
+      },
+      {
+        "timeMs": 22106.083,
+        "text": "[DEBUG-rifd21] encode start 43 image/png"
+      },
+      {
+        "timeMs": 22131.148,
+        "text": "[DEBUG-rifd21] encode complete 43"
+      },
+      {
+        "timeMs": 22202.79,
+        "text": "[DEBUG-rifd21] encode start 44 image/png"
+      },
+      {
+        "timeMs": 22216.707,
+        "text": "[DEBUG-rifd21] encode complete 44"
+      },
+      {
+        "timeMs": 22442.047,
+        "text": "[DEBUG-rifd21] encode start 45 image/jpeg"
+      },
+      {
+        "timeMs": 22457.825,
+        "text": "[DEBUG-rifd21] encode complete 45"
+      },
+      {
+        "timeMs": 22461.585,
+        "text": "[DEBUG-rifd21] encode start 46 image/png"
+      },
+      {
+        "timeMs": 22486.192,
+        "text": "[DEBUG-rifd21] encode complete 46"
+      },
+      {
+        "timeMs": 22493.459,
+        "text": "[DEBUG-rifd21] encode start 47 image/png"
+      },
+      {
+        "timeMs": 22504.195,
+        "text": "[DEBUG-rifd21] encode complete 47"
+      },
+      {
+        "timeMs": 22602.526,
+        "text": "[DEBUG-rifd21] encode start 48 image/png"
+      },
+      {
+        "timeMs": 22613.251,
+        "text": "[DEBUG-rifd21] encode complete 48"
+      },
+      {
+        "timeMs": 22832.29,
+        "text": "[DEBUG-rifd21] encode start 49 image/png"
+      },
+      {
+        "timeMs": 22852.121,
+        "text": "[DEBUG-rifd21] encode complete 49"
+      },
+      {
+        "timeMs": 22921.345,
+        "text": "[DEBUG-rifd21] encode start 50 image/png"
+      },
+      {
+        "timeMs": 22933.834,
+        "text": "[DEBUG-rifd21] encode complete 50"
+      },
+      {
+        "timeMs": 23158.776,
+        "text": "[DEBUG-rifd21] encode start 51 image/jpeg"
+      },
+      {
+        "timeMs": 23174.947,
+        "text": "[DEBUG-rifd21] encode complete 51"
+      },
+      {
+        "timeMs": 23178.427,
+        "text": "[DEBUG-rifd21] encode start 52 image/png"
+      },
+      {
+        "timeMs": 23199.507,
+        "text": "[DEBUG-rifd21] encode complete 52"
+      },
+      {
+        "timeMs": 23206.625,
+        "text": "[DEBUG-rifd21] encode start 53 image/png"
+      },
+      {
+        "timeMs": 23218.386,
+        "text": "[DEBUG-rifd21] encode complete 53"
+      },
+      {
+        "timeMs": 23289.457,
+        "text": "[DEBUG-rifd21] encode start 54 image/png"
+      },
+      {
+        "timeMs": 23302.404,
+        "text": "[DEBUG-rifd21] encode complete 54"
+      },
+      {
+        "timeMs": 23522.734,
+        "text": "[DEBUG-rifd21] encode start 55 image/png"
+      },
+      {
+        "timeMs": 23546.945,
+        "text": "[DEBUG-rifd21] encode complete 55"
+      },
+      {
+        "timeMs": 23621.098,
+        "text": "[DEBUG-rifd21] encode start 56 image/png"
+      },
+      {
+        "timeMs": 23634.488,
+        "text": "[DEBUG-rifd21] encode complete 56"
+      },
+      {
+        "timeMs": 23854.296,
+        "text": "[DEBUG-rifd21] encode start 57 image/jpeg"
+      },
+      {
+        "timeMs": 23871.701,
+        "text": "[DEBUG-rifd21] encode complete 57"
+      },
+      {
+        "timeMs": 23875.195,
+        "text": "[DEBUG-rifd21] encode start 58 image/png"
+      },
+      {
+        "timeMs": 23896.131,
+        "text": "[DEBUG-rifd21] encode complete 58"
+      },
+      {
+        "timeMs": 23903.96,
+        "text": "[DEBUG-rifd21] encode start 59 image/png"
+      },
+      {
+        "timeMs": 23914.602,
+        "text": "[DEBUG-rifd21] encode complete 59"
+      },
+      {
+        "timeMs": 23989.242,
+        "text": "[DEBUG-rifd21] encode start 60 image/png"
+      },
+      {
+        "timeMs": 24003.026,
+        "text": "[DEBUG-rifd21] encode complete 60"
+      },
+      {
+        "timeMs": 24246.906,
+        "text": "[DEBUG-rifd21] encode start 61 image/png"
+      },
+      {
+        "timeMs": 24265.165,
+        "text": "[DEBUG-rifd21] encode complete 61"
+      },
+      {
+        "timeMs": 24369.385,
+        "text": "[DEBUG-rifd21] encode start 62 image/png"
+      },
+      {
+        "timeMs": 24381.796,
+        "text": "[DEBUG-rifd21] encode complete 62"
+      },
+      {
+        "timeMs": 24596.672,
+        "text": "[DEBUG-rifd21] encode start 63 image/jpeg"
+      },
+      {
+        "timeMs": 24610.532,
+        "text": "[DEBUG-rifd21] encode complete 63"
+      },
+      {
+        "timeMs": 24614.412,
+        "text": "[DEBUG-rifd21] encode start 64 image/png"
+      },
+      {
+        "timeMs": 24634.996,
+        "text": "[DEBUG-rifd21] encode complete 64"
+      },
+      {
+        "timeMs": 24642.211,
+        "text": "[DEBUG-rifd21] encode start 65 image/png"
+      },
+      {
+        "timeMs": 24652.536,
+        "text": "[DEBUG-rifd21] encode complete 65"
+      },
+      {
+        "timeMs": 24723.879,
+        "text": "[DEBUG-rifd21] encode start 66 image/png"
+      },
+      {
+        "timeMs": 24736.523,
+        "text": "[DEBUG-rifd21] encode complete 66"
+      },
+      {
+        "timeMs": 24959.369,
+        "text": "[DEBUG-rifd21] encode start 67 image/png"
+      },
+      {
+        "timeMs": 24981.874,
+        "text": "[DEBUG-rifd21] encode complete 67"
+      },
+      {
+        "timeMs": 25051.107,
+        "text": "[DEBUG-rifd21] encode start 68 image/png"
+      },
+      {
+        "timeMs": 25062.709,
+        "text": "[DEBUG-rifd21] encode complete 68"
+      },
+      {
+        "timeMs": 25270.394,
+        "text": "[DEBUG-rifd21] encode start 69 image/jpeg"
+      },
+      {
+        "timeMs": 25287.266,
+        "text": "[DEBUG-rifd21] encode complete 69"
+      },
+      {
+        "timeMs": 25290.608,
+        "text": "[DEBUG-rifd21] encode start 70 image/png"
+      },
+      {
+        "timeMs": 25310.678,
+        "text": "[DEBUG-rifd21] encode complete 70"
+      },
+      {
+        "timeMs": 25318.253,
+        "text": "[DEBUG-rifd21] encode start 71 image/png"
+      },
+      {
+        "timeMs": 25329.241,
+        "text": "[DEBUG-rifd21] encode complete 71"
+      },
+      {
+        "timeMs": 25397.529,
+        "text": "[DEBUG-rifd21] encode start 72 image/png"
+      },
+      {
+        "timeMs": 25407.483,
+        "text": "[DEBUG-rifd21] encode complete 72"
+      },
+      {
+        "timeMs": 25624.115,
+        "text": "[DEBUG-rifd21] encode start 73 image/png"
+      },
+      {
+        "timeMs": 25638.135,
+        "text": "[DEBUG-rifd21] encode complete 73"
+      },
+      {
+        "timeMs": 25737.17,
+        "text": "[DEBUG-rifd21] encode start 74 image/png"
+      },
+      {
+        "timeMs": 25744.225,
+        "text": "[DEBUG-rifd21] encode complete 74"
+      },
+      {
+        "timeMs": 25959.071,
+        "text": "[DEBUG-rifd21] encode start 75 image/png"
+      },
+      {
+        "timeMs": 25984.411,
+        "text": "[DEBUG-rifd21] encode complete 75"
+      },
+      {
+        "timeMs": 26050.886,
+        "text": "[DEBUG-rifd21] encode start 76 image/png"
+      },
+      {
+        "timeMs": 26063.927,
+        "text": "[DEBUG-rifd21] encode complete 76"
+      },
+      {
+        "timeMs": 26299.374,
+        "text": "[DEBUG-rifd21] encode start 77 image/jpeg"
+      },
+      {
+        "timeMs": 26311.173,
+        "text": "[DEBUG-rifd21] encode complete 77"
+      },
+      {
+        "timeMs": 26314.788,
+        "text": "[DEBUG-rifd21] encode start 78 image/png"
+      },
+      {
+        "timeMs": 26334.076,
+        "text": "[DEBUG-rifd21] encode complete 78"
+      },
+      {
+        "timeMs": 26341.133,
+        "text": "[DEBUG-rifd21] encode start 79 image/png"
+      },
+      {
+        "timeMs": 26352.54,
+        "text": "[DEBUG-rifd21] encode complete 79"
+      },
+      {
+        "timeMs": 26431.294,
+        "text": "[DEBUG-rifd21] encode start 80 image/png"
+      },
+      {
+        "timeMs": 26447.088,
+        "text": "[DEBUG-rifd21] encode complete 80"
+      },
+      {
+        "timeMs": 26695.051,
+        "text": "[DEBUG-rifd21] encode start 81 image/png"
+      },
+      {
+        "timeMs": 26715.802,
+        "text": "[DEBUG-rifd21] encode complete 81"
+      },
+      {
+        "timeMs": 26799.776,
+        "text": "[DEBUG-rifd21] encode start 82 image/png"
+      },
+      {
+        "timeMs": 26810.955,
+        "text": "[DEBUG-rifd21] encode complete 82"
+      },
+      {
+        "timeMs": 27046.8,
+        "text": "[DEBUG-rifd21] encode start 83 image/jpeg"
+      },
+      {
+        "timeMs": 27057.987,
+        "text": "[DEBUG-rifd21] encode complete 83"
+      },
+      {
+        "timeMs": 27063.395,
+        "text": "[DEBUG-rifd21] encode start 84 image/jpeg"
+      },
+      {
+        "timeMs": 27086.206,
+        "text": "[DEBUG-rifd21] encode complete 84"
+      },
+      {
+        "timeMs": 27106.624,
+        "text": "[DEBUG-rifd21] seed ready"
+      },
+      {
+        "timeMs": 27399.267,
+        "text": "[DEBUG-rifd21] replaced"
+      },
+      {
+        "timeMs": 27400.044,
+        "text": "[DEBUG-rifd21] after execute true"
+      }
+    ]
+  },
+  {
+    "run": "reset-focus-probe",
+    "trace": "artifacts/acceptance/21/reset-focus-probe-2026-10-16T01-24-24.334Z/screens/results/reset.screens-public-reset-75277--recovery-in-both-languages-chrome-repeat1/trace.zip",
+    "traceSha256": "548ca9feee16998a78b77cb9b3a958c3fe553aa2aa3a6687aa3b2f0041b03110",
+    "events": [
+      {
+        "timeMs": 3168.898,
+        "text": "[DEBUG-rifd21] encode start 1 image/png"
+      },
+      {
+        "timeMs": 3192.235,
+        "text": "[DEBUG-rifd21] encode complete 1"
+      },
+      {
+        "timeMs": 3204.2,
+        "text": "[DEBUG-rifd21] encode start 2 image/png"
+      },
+      {
+        "timeMs": 3224.245,
+        "text": "[DEBUG-rifd21] encode complete 2"
+      },
+      {
+        "timeMs": 3319.863,
+        "text": "[DEBUG-rifd21] encode start 3 image/png"
+      },
+      {
+        "timeMs": 3331.445,
+        "text": "[DEBUG-rifd21] encode complete 3"
+      },
+      {
+        "timeMs": 3615.397,
+        "text": "[DEBUG-rifd21] encode start 4 image/png"
+      },
+      {
+        "timeMs": 3634.69,
+        "text": "[DEBUG-rifd21] encode complete 4"
+      },
+      {
+        "timeMs": 3715.231,
+        "text": "[DEBUG-rifd21] encode start 5 image/png"
+      },
+      {
+        "timeMs": 3731.234,
+        "text": "[DEBUG-rifd21] encode complete 5"
+      },
+      {
+        "timeMs": 3995.789,
+        "text": "[DEBUG-rifd21] encode start 6 image/jpeg"
+      },
+      {
+        "timeMs": 4011.327,
+        "text": "[DEBUG-rifd21] encode complete 6"
+      },
+      {
+        "timeMs": 4017.324,
+        "text": "[DEBUG-rifd21] encode start 7 image/png"
+      },
+      {
+        "timeMs": 4033.505,
+        "text": "[DEBUG-rifd21] encode complete 7"
+      },
+      {
+        "timeMs": 4043.422,
+        "text": "[DEBUG-rifd21] encode start 8 image/png"
+      },
+      {
+        "timeMs": 4061.719,
+        "text": "[DEBUG-rifd21] encode complete 8"
+      },
+      {
+        "timeMs": 4127.6,
+        "text": "[DEBUG-rifd21] encode start 9 image/png"
+      },
+      {
+        "timeMs": 4138.864,
+        "text": "[DEBUG-rifd21] encode complete 9"
+      },
+      {
+        "timeMs": 4381.507,
+        "text": "[DEBUG-rifd21] encode start 10 image/png"
+      },
+      {
+        "timeMs": 4396.46,
+        "text": "[DEBUG-rifd21] encode complete 10"
+      },
+      {
+        "timeMs": 4463.767,
+        "text": "[DEBUG-rifd21] encode start 11 image/png"
+      },
+      {
+        "timeMs": 4476.16,
+        "text": "[DEBUG-rifd21] encode complete 11"
+      },
+      {
+        "timeMs": 4697.898,
+        "text": "[DEBUG-rifd21] encode start 12 image/jpeg"
+      },
+      {
+        "timeMs": 4709.968,
+        "text": "[DEBUG-rifd21] encode complete 12"
+      },
+      {
+        "timeMs": 4714.519,
+        "text": "[DEBUG-rifd21] encode start 13 image/png"
+      },
+      {
+        "timeMs": 4725.644,
+        "text": "[DEBUG-rifd21] encode complete 13"
+      },
+      {
+        "timeMs": 4734.197,
+        "text": "[DEBUG-rifd21] encode start 14 image/png"
+      },
+      {
+        "timeMs": 4746.776,
+        "text": "[DEBUG-rifd21] encode complete 14"
+      },
+      {
+        "timeMs": 4838.144,
+        "text": "[DEBUG-rifd21] encode start 15 image/png"
+      },
+      {
+        "timeMs": 4849.404,
+        "text": "[DEBUG-rifd21] encode complete 15"
+      },
+      {
+        "timeMs": 5076.417,
+        "text": "[DEBUG-rifd21] encode start 16 image/png"
+      },
+      {
+        "timeMs": 5093.27,
+        "text": "[DEBUG-rifd21] encode complete 16"
+      },
+      {
+        "timeMs": 5177.224,
+        "text": "[DEBUG-rifd21] encode start 17 image/png"
+      },
+      {
+        "timeMs": 5188.989,
+        "text": "[DEBUG-rifd21] encode complete 17"
+      },
+      {
+        "timeMs": 5413.089,
+        "text": "[DEBUG-rifd21] encode start 18 image/png"
+      },
+      {
+        "timeMs": 5427.578,
+        "text": "[DEBUG-rifd21] encode complete 18"
+      },
+      {
+        "timeMs": 5509.249,
+        "text": "[DEBUG-rifd21] encode start 19 image/png"
+      },
+      {
+        "timeMs": 5532.955,
+        "text": "[DEBUG-rifd21] encode complete 19"
+      },
+      {
+        "timeMs": 5805.004,
+        "text": "[DEBUG-rifd21] encode start 20 image/jpeg"
+      },
+      {
+        "timeMs": 5819.225,
+        "text": "[DEBUG-rifd21] encode complete 20"
+      },
+      {
+        "timeMs": 5822.91,
+        "text": "[DEBUG-rifd21] encode start 21 image/png"
+      },
+      {
+        "timeMs": 5832.488,
+        "text": "[DEBUG-rifd21] encode complete 21"
+      },
+      {
+        "timeMs": 5840.351,
+        "text": "[DEBUG-rifd21] encode start 22 image/png"
+      },
+      {
+        "timeMs": 5852.258,
+        "text": "[DEBUG-rifd21] encode complete 22"
+      },
+      {
+        "timeMs": 5935.958,
+        "text": "[DEBUG-rifd21] encode start 23 image/png"
+      },
+      {
+        "timeMs": 5945.716,
+        "text": "[DEBUG-rifd21] encode complete 23"
+      },
+      {
+        "timeMs": 6191.604,
+        "text": "[DEBUG-rifd21] encode start 24 image/png"
+      },
+      {
+        "timeMs": 6205.657,
+        "text": "[DEBUG-rifd21] encode complete 24"
+      },
+      {
+        "timeMs": 6347.343,
+        "text": "[DEBUG-rifd21] encode start 25 image/png"
+      },
+      {
+        "timeMs": 6365.72,
+        "text": "[DEBUG-rifd21] encode complete 25"
+      },
+      {
+        "timeMs": 6599.632,
+        "text": "[DEBUG-rifd21] encode start 26 image/jpeg"
+      },
+      {
+        "timeMs": 6611.065,
+        "text": "[DEBUG-rifd21] encode complete 26"
+      },
+      {
+        "timeMs": 6616.187,
+        "text": "[DEBUG-rifd21] encode start 27 image/jpeg"
+      },
+      {
+        "timeMs": 6627.612,
+        "text": "[DEBUG-rifd21] encode complete 27"
+      },
+      {
+        "timeMs": 6635.429,
+        "text": "[DEBUG-rifd21] encode start 28 image/png"
+      },
+      {
+        "timeMs": 6646.036,
+        "text": "[DEBUG-rifd21] encode complete 28"
+      },
+      {
+        "timeMs": 6655.788,
+        "text": "[DEBUG-rifd21] encode start 29 image/png"
+      },
+      {
+        "timeMs": 6666.872,
+        "text": "[DEBUG-rifd21] encode complete 29"
+      },
+      {
+        "timeMs": 6747.238,
+        "text": "[DEBUG-rifd21] encode start 30 image/png"
+      },
+      {
+        "timeMs": 6758.045,
+        "text": "[DEBUG-rifd21] encode complete 30"
+      },
+      {
+        "timeMs": 6998.491,
+        "text": "[DEBUG-rifd21] encode start 31 image/png"
+      },
+      {
+        "timeMs": 7020.525,
+        "text": "[DEBUG-rifd21] encode complete 31"
+      },
+      {
+        "timeMs": 7085.301,
+        "text": "[DEBUG-rifd21] encode start 32 image/png"
+      },
+      {
+        "timeMs": 7096.501,
+        "text": "[DEBUG-rifd21] encode complete 32"
+      },
+      {
+        "timeMs": 7317.002,
+        "text": "[DEBUG-rifd21] encode start 33 image/jpeg"
+      },
+      {
+        "timeMs": 7328.457,
+        "text": "[DEBUG-rifd21] encode complete 33"
+      },
+      {
+        "timeMs": 7332.896,
+        "text": "[DEBUG-rifd21] encode start 34 image/png"
+      },
+      {
+        "timeMs": 7343.84,
+        "text": "[DEBUG-rifd21] encode complete 34"
+      },
+      {
+        "timeMs": 7357.365,
+        "text": "[DEBUG-rifd21] encode start 35 image/png"
+      },
+      {
+        "timeMs": 7384.636,
+        "text": "[DEBUG-rifd21] encode complete 35"
+      },
+      {
+        "timeMs": 7451.842,
+        "text": "[DEBUG-rifd21] encode start 36 image/png"
+      },
+      {
+        "timeMs": 7462.468,
+        "text": "[DEBUG-rifd21] encode complete 36"
+      },
+      {
+        "timeMs": 7684.324,
+        "text": "[DEBUG-rifd21] encode start 37 image/png"
+      },
+      {
+        "timeMs": 7702.986,
+        "text": "[DEBUG-rifd21] encode complete 37"
+      },
+      {
+        "timeMs": 7773.281,
+        "text": "[DEBUG-rifd21] encode start 38 image/png"
+      },
+      {
+        "timeMs": 7784.688,
+        "text": "[DEBUG-rifd21] encode complete 38"
+      },
+      {
+        "timeMs": 8018.656,
+        "text": "[DEBUG-rifd21] encode start 39 image/jpeg"
+      },
+      {
+        "timeMs": 8030.786,
+        "text": "[DEBUG-rifd21] encode complete 39"
+      },
+      {
+        "timeMs": 8035.179,
+        "text": "[DEBUG-rifd21] encode start 40 image/png"
+      },
+      {
+        "timeMs": 8045.508,
+        "text": "[DEBUG-rifd21] encode complete 40"
+      },
+      {
+        "timeMs": 8053.323,
+        "text": "[DEBUG-rifd21] encode start 41 image/png"
+      },
+      {
+        "timeMs": 8064.932,
+        "text": "[DEBUG-rifd21] encode complete 41"
+      },
+      {
+        "timeMs": 8131.446,
+        "text": "[DEBUG-rifd21] encode start 42 image/png"
+      },
+      {
+        "timeMs": 8141.718,
+        "text": "[DEBUG-rifd21] encode complete 42"
+      },
+      {
+        "timeMs": 8374.283,
+        "text": "[DEBUG-rifd21] encode start 43 image/png"
+      },
+      {
+        "timeMs": 8396.644,
+        "text": "[DEBUG-rifd21] encode complete 43"
+      },
+      {
+        "timeMs": 8469.12,
+        "text": "[DEBUG-rifd21] encode start 44 image/png"
+      },
+      {
+        "timeMs": 8480.276,
+        "text": "[DEBUG-rifd21] encode complete 44"
+      },
+      {
+        "timeMs": 8713.527,
+        "text": "[DEBUG-rifd21] encode start 45 image/jpeg"
+      },
+      {
+        "timeMs": 8725.214,
+        "text": "[DEBUG-rifd21] encode complete 45"
+      },
+      {
+        "timeMs": 8729.838,
+        "text": "[DEBUG-rifd21] encode start 46 image/png"
+      },
+      {
+        "timeMs": 8742.956,
+        "text": "[DEBUG-rifd21] encode complete 46"
+      },
+      {
+        "timeMs": 8751.703,
+        "text": "[DEBUG-rifd21] encode start 47 image/png"
+      },
+      {
+        "timeMs": 8766.076,
+        "text": "[DEBUG-rifd21] encode complete 47"
+      },
+      {
+        "timeMs": 8847.753,
+        "text": "[DEBUG-rifd21] encode start 48 image/png"
+      },
+      {
+        "timeMs": 8859.062,
+        "text": "[DEBUG-rifd21] encode complete 48"
+      },
+      {
+        "timeMs": 9114.89,
+        "text": "[DEBUG-rifd21] encode start 49 image/png"
+      },
+      {
+        "timeMs": 9131.849,
+        "text": "[DEBUG-rifd21] encode complete 49"
+      },
+      {
+        "timeMs": 9198.783,
+        "text": "[DEBUG-rifd21] encode start 50 image/png"
+      },
+      {
+        "timeMs": 9210.464,
+        "text": "[DEBUG-rifd21] encode complete 50"
+      },
+      {
+        "timeMs": 9477.878,
+        "text": "[DEBUG-rifd21] encode start 51 image/jpeg"
+      },
+      {
+        "timeMs": 9490.626,
+        "text": "[DEBUG-rifd21] encode complete 51"
+      },
+      {
+        "timeMs": 9494.696,
+        "text": "[DEBUG-rifd21] encode start 52 image/png"
+      },
+      {
+        "timeMs": 9506.074,
+        "text": "[DEBUG-rifd21] encode complete 52"
+      },
+      {
+        "timeMs": 9513.232,
+        "text": "[DEBUG-rifd21] encode start 53 image/png"
+      },
+      {
+        "timeMs": 9526.201,
+        "text": "[DEBUG-rifd21] encode complete 53"
+      },
+      {
+        "timeMs": 9597.156,
+        "text": "[DEBUG-rifd21] encode start 54 image/png"
+      },
+      {
+        "timeMs": 9614.85,
+        "text": "[DEBUG-rifd21] encode complete 54"
+      },
+      {
+        "timeMs": 9830.922,
+        "text": "[DEBUG-rifd21] encode start 55 image/png"
+      },
+      {
+        "timeMs": 9846.643,
+        "text": "[DEBUG-rifd21] encode complete 55"
+      },
+      {
+        "timeMs": 9917.011,
+        "text": "[DEBUG-rifd21] encode start 56 image/png"
+      },
+      {
+        "timeMs": 9938.171,
+        "text": "[DEBUG-rifd21] encode complete 56"
+      },
+      {
+        "timeMs": 10166.067,
+        "text": "[DEBUG-rifd21] encode start 57 image/jpeg"
+      },
+      {
+        "timeMs": 10179.583,
+        "text": "[DEBUG-rifd21] encode complete 57"
+      },
+      {
+        "timeMs": 10183.686,
+        "text": "[DEBUG-rifd21] encode start 58 image/png"
+      },
+      {
+        "timeMs": 10193.774,
+        "text": "[DEBUG-rifd21] encode complete 58"
+      },
+      {
+        "timeMs": 10200.666,
+        "text": "[DEBUG-rifd21] encode start 59 image/png"
+      },
+      {
+        "timeMs": 10211.055,
+        "text": "[DEBUG-rifd21] encode complete 59"
+      },
+      {
+        "timeMs": 10288.257,
+        "text": "[DEBUG-rifd21] encode start 60 image/png"
+      },
+      {
+        "timeMs": 10304.483,
+        "text": "[DEBUG-rifd21] encode complete 60"
+      },
+      {
+        "timeMs": 10524.306,
+        "text": "[DEBUG-rifd21] encode start 61 image/png"
+      },
+      {
+        "timeMs": 10538.593,
+        "text": "[DEBUG-rifd21] encode complete 61"
+      },
+      {
+        "timeMs": 10611.167,
+        "text": "[DEBUG-rifd21] encode start 62 image/png"
+      },
+      {
+        "timeMs": 10627.853,
+        "text": "[DEBUG-rifd21] encode complete 62"
+      },
+      {
+        "timeMs": 10849.683,
+        "text": "[DEBUG-rifd21] encode start 63 image/jpeg"
+      },
+      {
+        "timeMs": 10862.295,
+        "text": "[DEBUG-rifd21] encode complete 63"
+      },
+      {
+        "timeMs": 10867.563,
+        "text": "[DEBUG-rifd21] encode start 64 image/png"
+      },
+      {
+        "timeMs": 10882.696,
+        "text": "[DEBUG-rifd21] encode complete 64"
+      },
+      {
+        "timeMs": 10890.339,
+        "text": "[DEBUG-rifd21] encode start 65 image/png"
+      },
+      {
+        "timeMs": 10902.878,
+        "text": "[DEBUG-rifd21] encode complete 65"
+      },
+      {
+        "timeMs": 10973.18,
+        "text": "[DEBUG-rifd21] encode start 66 image/png"
+      },
+      {
+        "timeMs": 10988.94,
+        "text": "[DEBUG-rifd21] encode complete 66"
+      },
+      {
+        "timeMs": 11208.495,
+        "text": "[DEBUG-rifd21] encode start 67 image/png"
+      },
+      {
+        "timeMs": 11223.045,
+        "text": "[DEBUG-rifd21] encode complete 67"
+      },
+      {
+        "timeMs": 11301.33,
+        "text": "[DEBUG-rifd21] encode start 68 image/png"
+      },
+      {
+        "timeMs": 11320.576,
+        "text": "[DEBUG-rifd21] encode complete 68"
+      },
+      {
+        "timeMs": 11541.721,
+        "text": "[DEBUG-rifd21] encode start 69 image/jpeg"
+      },
+      {
+        "timeMs": 11554.01,
+        "text": "[DEBUG-rifd21] encode complete 69"
+      },
+      {
+        "timeMs": 11558.024,
+        "text": "[DEBUG-rifd21] encode start 70 image/png"
+      },
+      {
+        "timeMs": 11568.353,
+        "text": "[DEBUG-rifd21] encode complete 70"
+      },
+      {
+        "timeMs": 11575.323,
+        "text": "[DEBUG-rifd21] encode start 71 image/png"
+      },
+      {
+        "timeMs": 11586.744,
+        "text": "[DEBUG-rifd21] encode complete 71"
+      },
+      {
+        "timeMs": 11664.419,
+        "text": "[DEBUG-rifd21] encode start 72 image/png"
+      },
+      {
+        "timeMs": 11679.239,
+        "text": "[DEBUG-rifd21] encode complete 72"
+      },
+      {
+        "timeMs": 11948.48,
+        "text": "[DEBUG-rifd21] encode start 73 image/png"
+      },
+      {
+        "timeMs": 11960.549,
+        "text": "[DEBUG-rifd21] encode complete 73"
+      },
+      {
+        "timeMs": 12029.391,
+        "text": "[DEBUG-rifd21] encode start 74 image/png"
+      },
+      {
+        "timeMs": 12041.473,
+        "text": "[DEBUG-rifd21] encode complete 74"
+      },
+      {
+        "timeMs": 12255.446,
+        "text": "[DEBUG-rifd21] encode start 75 image/png"
+      },
+      {
+        "timeMs": 12268.965,
+        "text": "[DEBUG-rifd21] encode complete 75"
+      },
+      {
+        "timeMs": 12340.366,
+        "text": "[DEBUG-rifd21] encode start 76 image/png"
+      },
+      {
+        "timeMs": 12355.457,
+        "text": "[DEBUG-rifd21] encode complete 76"
+      },
+      {
+        "timeMs": 12581.388,
+        "text": "[DEBUG-rifd21] encode start 77 image/jpeg"
+      },
+      {
+        "timeMs": 12594.953,
+        "text": "[DEBUG-rifd21] encode complete 77"
+      },
+      {
+        "timeMs": 12598.304,
+        "text": "[DEBUG-rifd21] encode start 78 image/png"
+      },
+      {
+        "timeMs": 12608.685,
+        "text": "[DEBUG-rifd21] encode complete 78"
+      },
+      {
+        "timeMs": 12617.248,
+        "text": "[DEBUG-rifd21] encode start 79 image/png"
+      },
+      {
+        "timeMs": 12632.516,
+        "text": "[DEBUG-rifd21] encode complete 79"
+      },
+      {
+        "timeMs": 12721.868,
+        "text": "[DEBUG-rifd21] encode start 80 image/png"
+      },
+      {
+        "timeMs": 12738.391,
+        "text": "[DEBUG-rifd21] encode complete 80"
+      },
+      {
+        "timeMs": 12956.852,
+        "text": "[DEBUG-rifd21] encode start 81 image/png"
+      },
+      {
+        "timeMs": 12971.794,
+        "text": "[DEBUG-rifd21] encode complete 81"
+      },
+      {
+        "timeMs": 13050.621,
+        "text": "[DEBUG-rifd21] encode start 82 image/png"
+      },
+      {
+        "timeMs": 13066.262,
+        "text": "[DEBUG-rifd21] encode complete 82"
+      },
+      {
+        "timeMs": 13286.031,
+        "text": "[DEBUG-rifd21] encode start 83 image/jpeg"
+      },
+      {
+        "timeMs": 13299.257,
+        "text": "[DEBUG-rifd21] encode complete 83"
+      },
+      {
+        "timeMs": 13302.383,
+        "text": "[DEBUG-rifd21] encode start 84 image/jpeg"
+      },
+      {
+        "timeMs": 13312.733,
+        "text": "[DEBUG-rifd21] encode complete 84"
+      },
+      {
+        "timeMs": 16053.326,
+        "text": "[DEBUG-rifd21] before prepare visible true"
+      },
+      {
+        "timeMs": 16054.722,
+        "text": "[DEBUG-rifd21] after prepare"
+      },
+      {
+        "timeMs": 16057.766,
+        "text": "[DEBUG-rifd21] before replay"
+      },
+      {
+        "timeMs": 16109.159,
+        "text": "[DEBUG-rifd21] after replay"
+      },
+      {
+        "timeMs": 16509.015,
+        "text": "[DEBUG-rifd21] fonts ready"
+      },
+      {
+        "timeMs": 16514.533,
+        "text": "[DEBUG-rifd21] encode start 1 image/png"
+      },
+      {
+        "timeMs": 16528.829,
+        "text": "[DEBUG-rifd21] encode complete 1"
+      },
+      {
+        "timeMs": 16537.024,
+        "text": "[DEBUG-rifd21] encode start 2 image/png"
+      },
+      {
+        "timeMs": 16550.341,
+        "text": "[DEBUG-rifd21] encode complete 2"
+      },
+      {
+        "timeMs": 16674.282,
+        "text": "[DEBUG-rifd21] encode start 3 image/png"
+      },
+      {
+        "timeMs": 16685.349,
+        "text": "[DEBUG-rifd21] encode complete 3"
+      },
+      {
+        "timeMs": 16991.894,
+        "text": "[DEBUG-rifd21] encode start 4 image/png"
+      },
+      {
+        "timeMs": 17031.945,
+        "text": "[DEBUG-rifd21] encode complete 4"
+      },
+      {
+        "timeMs": 17316.537,
+        "text": "[DEBUG-rifd21] encode start 5 image/png"
+      },
+      {
+        "timeMs": 17327.779,
+        "text": "[DEBUG-rifd21] encode complete 5"
+      },
+      {
+        "timeMs": 17586.013,
+        "text": "[DEBUG-rifd21] encode start 6 image/jpeg"
+      },
+      {
+        "timeMs": 17602.164,
+        "text": "[DEBUG-rifd21] encode complete 6"
+      },
+      {
+        "timeMs": 17606.335,
+        "text": "[DEBUG-rifd21] encode start 7 image/png"
+      },
+      {
+        "timeMs": 17616.368,
+        "text": "[DEBUG-rifd21] encode complete 7"
+      },
+      {
+        "timeMs": 17624.728,
+        "text": "[DEBUG-rifd21] encode start 8 image/png"
+      },
+      {
+        "timeMs": 17636.186,
+        "text": "[DEBUG-rifd21] encode complete 8"
+      },
+      {
+        "timeMs": 17698.695,
+        "text": "[DEBUG-rifd21] encode start 9 image/png"
+      },
+      {
+        "timeMs": 17709.346,
+        "text": "[DEBUG-rifd21] encode complete 9"
+      },
+      {
+        "timeMs": 17930.685,
+        "text": "[DEBUG-rifd21] encode start 10 image/png"
+      },
+      {
+        "timeMs": 17950.728,
+        "text": "[DEBUG-rifd21] encode complete 10"
+      },
+      {
+        "timeMs": 18030.876,
+        "text": "[DEBUG-rifd21] encode start 11 image/png"
+      },
+      {
+        "timeMs": 18043.985,
+        "text": "[DEBUG-rifd21] encode complete 11"
+      },
+      {
+        "timeMs": 18308.731,
+        "text": "[DEBUG-rifd21] encode start 12 image/jpeg"
+      },
+      {
+        "timeMs": 18337.335,
+        "text": "[DEBUG-rifd21] encode complete 12"
+      },
+      {
+        "timeMs": 18341.433,
+        "text": "[DEBUG-rifd21] encode start 13 image/png"
+      },
+      {
+        "timeMs": 18351.118,
+        "text": "[DEBUG-rifd21] encode complete 13"
+      },
+      {
+        "timeMs": 18358.22,
+        "text": "[DEBUG-rifd21] encode start 14 image/png"
+      },
+      {
+        "timeMs": 18368.941,
+        "text": "[DEBUG-rifd21] encode complete 14"
+      },
+      {
+        "timeMs": 18456.154,
+        "text": "[DEBUG-rifd21] encode start 15 image/png"
+      },
+      {
+        "timeMs": 18471.034,
+        "text": "[DEBUG-rifd21] encode complete 15"
+      },
+      {
+        "timeMs": 18707.33,
+        "text": "[DEBUG-rifd21] encode start 16 image/png"
+      },
+      {
+        "timeMs": 18720.818,
+        "text": "[DEBUG-rifd21] encode complete 16"
+      },
+      {
+        "timeMs": 18793.189,
+        "text": "[DEBUG-rifd21] encode start 17 image/png"
+      },
+      {
+        "timeMs": 18810.977,
+        "text": "[DEBUG-rifd21] encode complete 17"
+      },
+      {
+        "timeMs": 19040.499,
+        "text": "[DEBUG-rifd21] encode start 18 image/png"
+      },
+      {
+        "timeMs": 19056.872,
+        "text": "[DEBUG-rifd21] encode complete 18"
+      },
+      {
+        "timeMs": 19124.186,
+        "text": "[DEBUG-rifd21] encode start 19 image/png"
+      },
+      {
+        "timeMs": 19146.946,
+        "text": "[DEBUG-rifd21] encode complete 19"
+      },
+      {
+        "timeMs": 19382.574,
+        "text": "[DEBUG-rifd21] encode start 20 image/jpeg"
+      },
+      {
+        "timeMs": 19395.457,
+        "text": "[DEBUG-rifd21] encode complete 20"
+      },
+      {
+        "timeMs": 19399.409,
+        "text": "[DEBUG-rifd21] encode start 21 image/png"
+      },
+      {
+        "timeMs": 19409.416,
+        "text": "[DEBUG-rifd21] encode complete 21"
+      },
+      {
+        "timeMs": 19417.684,
+        "text": "[DEBUG-rifd21] encode start 22 image/png"
+      },
+      {
+        "timeMs": 19429.637,
+        "text": "[DEBUG-rifd21] encode complete 22"
+      },
+      {
+        "timeMs": 19506.14,
+        "text": "[DEBUG-rifd21] encode start 23 image/png"
+      },
+      {
+        "timeMs": 19532.332,
+        "text": "[DEBUG-rifd21] encode complete 23"
+      },
+      {
+        "timeMs": 19793.267,
+        "text": "[DEBUG-rifd21] encode start 24 image/png"
+      },
+      {
+        "timeMs": 19810.21,
+        "text": "[DEBUG-rifd21] encode complete 24"
+      },
+      {
+        "timeMs": 19884.432,
+        "text": "[DEBUG-rifd21] encode start 25 image/png"
+      },
+      {
+        "timeMs": 19909.005,
+        "text": "[DEBUG-rifd21] encode complete 25"
+      },
+      {
+        "timeMs": 20135.427,
+        "text": "[DEBUG-rifd21] encode start 26 image/jpeg"
+      },
+      {
+        "timeMs": 20148.212,
+        "text": "[DEBUG-rifd21] encode complete 26"
+      },
+      {
+        "timeMs": 20151.971,
+        "text": "[DEBUG-rifd21] encode start 27 image/jpeg"
+      },
+      {
+        "timeMs": 20162.513,
+        "text": "[DEBUG-rifd21] encode complete 27"
+      },
+      {
+        "timeMs": 20166.515,
+        "text": "[DEBUG-rifd21] encode start 28 image/png"
+      },
+      {
+        "timeMs": 20175.986,
+        "text": "[DEBUG-rifd21] encode complete 28"
+      },
+      {
+        "timeMs": 20183.443,
+        "text": "[DEBUG-rifd21] encode start 29 image/png"
+      },
+      {
+        "timeMs": 20205.306,
+        "text": "[DEBUG-rifd21] encode complete 29"
+      },
+      {
+        "timeMs": 20288.649,
+        "text": "[DEBUG-rifd21] encode start 30 image/png"
+      },
+      {
+        "timeMs": 20303.082,
+        "text": "[DEBUG-rifd21] encode complete 30"
+      },
+      {
+        "timeMs": 20546.636,
+        "text": "[DEBUG-rifd21] encode start 31 image/png"
+      },
+      {
+        "timeMs": 20567.078,
+        "text": "[DEBUG-rifd21] encode complete 31"
+      },
+      {
+        "timeMs": 20653.535,
+        "text": "[DEBUG-rifd21] encode start 32 image/png"
+      },
+      {
+        "timeMs": 20664.242,
+        "text": "[DEBUG-rifd21] encode complete 32"
+      },
+      {
+        "timeMs": 20886.177,
+        "text": "[DEBUG-rifd21] encode start 33 image/jpeg"
+      },
+      {
+        "timeMs": 20899.646,
+        "text": "[DEBUG-rifd21] encode complete 33"
+      },
+      {
+        "timeMs": 20903.55,
+        "text": "[DEBUG-rifd21] encode start 34 image/png"
+      },
+      {
+        "timeMs": 20923.7,
+        "text": "[DEBUG-rifd21] encode complete 34"
+      },
+      {
+        "timeMs": 20931.733,
+        "text": "[DEBUG-rifd21] encode start 35 image/png"
+      },
+      {
+        "timeMs": 20944.054,
+        "text": "[DEBUG-rifd21] encode complete 35"
+      },
+      {
+        "timeMs": 21020.232,
+        "text": "[DEBUG-rifd21] encode start 36 image/png"
+      },
+      {
+        "timeMs": 21032.086,
+        "text": "[DEBUG-rifd21] encode complete 36"
+      },
+      {
+        "timeMs": 21270.178,
+        "text": "[DEBUG-rifd21] encode start 37 image/png"
+      },
+      {
+        "timeMs": 21292.827,
+        "text": "[DEBUG-rifd21] encode complete 37"
+      },
+      {
+        "timeMs": 21367.411,
+        "text": "[DEBUG-rifd21] encode start 38 image/png"
+      },
+      {
+        "timeMs": 21379.195,
+        "text": "[DEBUG-rifd21] encode complete 38"
+      },
+      {
+        "timeMs": 21603.2,
+        "text": "[DEBUG-rifd21] encode start 39 image/jpeg"
+      },
+      {
+        "timeMs": 21614.983,
+        "text": "[DEBUG-rifd21] encode complete 39"
+      },
+      {
+        "timeMs": 21619.639,
+        "text": "[DEBUG-rifd21] encode start 40 image/png"
+      },
+      {
+        "timeMs": 21643.047,
+        "text": "[DEBUG-rifd21] encode complete 40"
+      },
+      {
+        "timeMs": 21651.965,
+        "text": "[DEBUG-rifd21] encode start 41 image/png"
+      },
+      {
+        "timeMs": 21663.912,
+        "text": "[DEBUG-rifd21] encode complete 41"
+      },
+      {
+        "timeMs": 21732.599,
+        "text": "[DEBUG-rifd21] encode start 42 image/png"
+      },
+      {
+        "timeMs": 21750.51,
+        "text": "[DEBUG-rifd21] encode complete 42"
+      },
+      {
+        "timeMs": 21993.359,
+        "text": "[DEBUG-rifd21] encode start 43 image/png"
+      },
+      {
+        "timeMs": 22019.386,
+        "text": "[DEBUG-rifd21] encode complete 43"
+      },
+      {
+        "timeMs": 22090.95,
+        "text": "[DEBUG-rifd21] encode start 44 image/png"
+      },
+      {
+        "timeMs": 22112.031,
+        "text": "[DEBUG-rifd21] encode complete 44"
+      },
+      {
+        "timeMs": 22342.439,
+        "text": "[DEBUG-rifd21] encode start 45 image/jpeg"
+      },
+      {
+        "timeMs": 22354.228,
+        "text": "[DEBUG-rifd21] encode complete 45"
+      },
+      {
+        "timeMs": 22358.245,
+        "text": "[DEBUG-rifd21] encode start 46 image/png"
+      },
+      {
+        "timeMs": 22379.351,
+        "text": "[DEBUG-rifd21] encode complete 46"
+      },
+      {
+        "timeMs": 22386.527,
+        "text": "[DEBUG-rifd21] encode start 47 image/png"
+      },
+      {
+        "timeMs": 22397.289,
+        "text": "[DEBUG-rifd21] encode complete 47"
+      },
+      {
+        "timeMs": 22469.53,
+        "text": "[DEBUG-rifd21] encode start 48 image/png"
+      },
+      {
+        "timeMs": 22480.473,
+        "text": "[DEBUG-rifd21] encode complete 48"
+      },
+      {
+        "timeMs": 22697.272,
+        "text": "[DEBUG-rifd21] encode start 49 image/png"
+      },
+      {
+        "timeMs": 22718.801,
+        "text": "[DEBUG-rifd21] encode complete 49"
+      },
+      {
+        "timeMs": 22786.77,
+        "text": "[DEBUG-rifd21] encode start 50 image/png"
+      },
+      {
+        "timeMs": 22797.996,
+        "text": "[DEBUG-rifd21] encode complete 50"
+      },
+      {
+        "timeMs": 23022.287,
+        "text": "[DEBUG-rifd21] encode start 51 image/jpeg"
+      },
+      {
+        "timeMs": 23034.402,
+        "text": "[DEBUG-rifd21] encode complete 51"
+      },
+      {
+        "timeMs": 23038.453,
+        "text": "[DEBUG-rifd21] encode start 52 image/png"
+      },
+      {
+        "timeMs": 23058.748,
+        "text": "[DEBUG-rifd21] encode complete 52"
+      },
+      {
+        "timeMs": 23066.478,
+        "text": "[DEBUG-rifd21] encode start 53 image/png"
+      },
+      {
+        "timeMs": 23077.288,
+        "text": "[DEBUG-rifd21] encode complete 53"
+      },
+      {
+        "timeMs": 23144.005,
+        "text": "[DEBUG-rifd21] encode start 54 image/png"
+      },
+      {
+        "timeMs": 23155.758,
+        "text": "[DEBUG-rifd21] encode complete 54"
+      },
+      {
+        "timeMs": 23389.61,
+        "text": "[DEBUG-rifd21] encode start 55 image/png"
+      },
+      {
+        "timeMs": 23411.128,
+        "text": "[DEBUG-rifd21] encode complete 55"
+      },
+      {
+        "timeMs": 23480.33,
+        "text": "[DEBUG-rifd21] encode start 56 image/png"
+      },
+      {
+        "timeMs": 23491.355,
+        "text": "[DEBUG-rifd21] encode complete 56"
+      },
+      {
+        "timeMs": 23729.525,
+        "text": "[DEBUG-rifd21] encode start 57 image/jpeg"
+      },
+      {
+        "timeMs": 23740.985,
+        "text": "[DEBUG-rifd21] encode complete 57"
+      },
+      {
+        "timeMs": 23744.874,
+        "text": "[DEBUG-rifd21] encode start 58 image/png"
+      },
+      {
+        "timeMs": 23765.971,
+        "text": "[DEBUG-rifd21] encode complete 58"
+      },
+      {
+        "timeMs": 23773.336,
+        "text": "[DEBUG-rifd21] encode start 59 image/png"
+      },
+      {
+        "timeMs": 23786.079,
+        "text": "[DEBUG-rifd21] encode complete 59"
+      },
+      {
+        "timeMs": 23853.351,
+        "text": "[DEBUG-rifd21] encode start 60 image/png"
+      },
+      {
+        "timeMs": 23865.326,
+        "text": "[DEBUG-rifd21] encode complete 60"
+      },
+      {
+        "timeMs": 24091.278,
+        "text": "[DEBUG-rifd21] encode start 61 image/png"
+      },
+      {
+        "timeMs": 24112.848,
+        "text": "[DEBUG-rifd21] encode complete 61"
+      },
+      {
+        "timeMs": 24179.943,
+        "text": "[DEBUG-rifd21] encode start 62 image/png"
+      },
+      {
+        "timeMs": 24190.265,
+        "text": "[DEBUG-rifd21] encode complete 62"
+      },
+      {
+        "timeMs": 24413.49,
+        "text": "[DEBUG-rifd21] encode start 63 image/jpeg"
+      },
+      {
+        "timeMs": 24424.71,
+        "text": "[DEBUG-rifd21] encode complete 63"
+      },
+      {
+        "timeMs": 24428.393,
+        "text": "[DEBUG-rifd21] encode start 64 image/png"
+      },
+      {
+        "timeMs": 24447.843,
+        "text": "[DEBUG-rifd21] encode complete 64"
+      },
+      {
+        "timeMs": 24454.86,
+        "text": "[DEBUG-rifd21] encode start 65 image/png"
+      },
+      {
+        "timeMs": 24464.846,
+        "text": "[DEBUG-rifd21] encode complete 65"
+      },
+      {
+        "timeMs": 24529.12,
+        "text": "[DEBUG-rifd21] encode start 66 image/png"
+      },
+      {
+        "timeMs": 24541.011,
+        "text": "[DEBUG-rifd21] encode complete 66"
+      },
+      {
+        "timeMs": 24762.991,
+        "text": "[DEBUG-rifd21] encode start 67 image/png"
+      },
+      {
+        "timeMs": 24786.114,
+        "text": "[DEBUG-rifd21] encode complete 67"
+      },
+      {
+        "timeMs": 24853.118,
+        "text": "[DEBUG-rifd21] encode start 68 image/png"
+      },
+      {
+        "timeMs": 24864.868,
+        "text": "[DEBUG-rifd21] encode complete 68"
+      },
+      {
+        "timeMs": 25090.351,
+        "text": "[DEBUG-rifd21] encode start 69 image/jpeg"
+      },
+      {
+        "timeMs": 25103.032,
+        "text": "[DEBUG-rifd21] encode complete 69"
+      },
+      {
+        "timeMs": 25106.675,
+        "text": "[DEBUG-rifd21] encode start 70 image/png"
+      },
+      {
+        "timeMs": 25130.797,
+        "text": "[DEBUG-rifd21] encode complete 70"
+      },
+      {
+        "timeMs": 25139.023,
+        "text": "[DEBUG-rifd21] encode start 71 image/png"
+      },
+      {
+        "timeMs": 25152.768,
+        "text": "[DEBUG-rifd21] encode complete 71"
+      },
+      {
+        "timeMs": 25246.637,
+        "text": "[DEBUG-rifd21] encode start 72 image/png"
+      },
+      {
+        "timeMs": 25256.943,
+        "text": "[DEBUG-rifd21] encode complete 72"
+      },
+      {
+        "timeMs": 25477.955,
+        "text": "[DEBUG-rifd21] encode start 73 image/png"
+      },
+      {
+        "timeMs": 25495.859,
+        "text": "[DEBUG-rifd21] encode complete 73"
+      },
+      {
+        "timeMs": 25560.067,
+        "text": "[DEBUG-rifd21] encode start 74 image/png"
+      },
+      {
+        "timeMs": 25568.331,
+        "text": "[DEBUG-rifd21] encode complete 74"
+      },
+      {
+        "timeMs": 25850.185,
+        "text": "[DEBUG-rifd21] encode start 75 image/png"
+      },
+      {
+        "timeMs": 25872.853,
+        "text": "[DEBUG-rifd21] encode complete 75"
+      },
+      {
+        "timeMs": 25969.564,
+        "text": "[DEBUG-rifd21] encode start 76 image/png"
+      },
+      {
+        "timeMs": 25982.361,
+        "text": "[DEBUG-rifd21] encode complete 76"
+      },
+      {
+        "timeMs": 26223.389,
+        "text": "[DEBUG-rifd21] encode start 77 image/jpeg"
+      },
+      {
+        "timeMs": 26238.115,
+        "text": "[DEBUG-rifd21] encode complete 77"
+      },
+      {
+        "timeMs": 26241.302,
+        "text": "[DEBUG-rifd21] encode start 78 image/png"
+      },
+      {
+        "timeMs": 26262.812,
+        "text": "[DEBUG-rifd21] encode complete 78"
+      },
+      {
+        "timeMs": 26270.163,
+        "text": "[DEBUG-rifd21] encode start 79 image/png"
+      },
+      {
+        "timeMs": 26281.665,
+        "text": "[DEBUG-rifd21] encode complete 79"
+      },
+      {
+        "timeMs": 26351.867,
+        "text": "[DEBUG-rifd21] encode start 80 image/png"
+      },
+      {
+        "timeMs": 26363.847,
+        "text": "[DEBUG-rifd21] encode complete 80"
+      },
+      {
+        "timeMs": 26578.436,
+        "text": "[DEBUG-rifd21] encode start 81 image/png"
+      },
+      {
+        "timeMs": 26597.059,
+        "text": "[DEBUG-rifd21] encode complete 81"
+      },
+      {
+        "timeMs": 26661.916,
+        "text": "[DEBUG-rifd21] encode start 82 image/png"
+      },
+      {
+        "timeMs": 26672.71,
+        "text": "[DEBUG-rifd21] encode complete 82"
+      },
+      {
+        "timeMs": 26920.859,
+        "text": "[DEBUG-rifd21] encode start 83 image/jpeg"
+      },
+      {
+        "timeMs": 26935.816,
+        "text": "[DEBUG-rifd21] encode complete 83"
+      },
+      {
+        "timeMs": 26939.165,
+        "text": "[DEBUG-rifd21] encode start 84 image/jpeg"
+      },
+      {
+        "timeMs": 26961.375,
+        "text": "[DEBUG-rifd21] encode complete 84"
+      },
+      {
+        "timeMs": 26981.969,
+        "text": "[DEBUG-rifd21] seed ready"
+      },
+      {
+        "timeMs": 27272.233,
+        "text": "[DEBUG-rifd21] replaced"
+      },
+      {
+        "timeMs": 27273.216,
+        "text": "[DEBUG-rifd21] after execute true"
+      }
+    ]
+  },
+  {
+    "run": "reset-focus-probe",
+    "trace": "artifacts/acceptance/21/reset-focus-probe-2026-10-16T01-24-24.334Z/screens/results/reset.screens-public-reset-75277--recovery-in-both-languages-chrome-repeat2/trace.zip",
+    "traceSha256": "551946291423e58509883e888aae8d6d959ad3656ddcd476eb2284cc4ad169dd",
+    "events": [
+      {
+        "timeMs": 3124.916,
+        "text": "[DEBUG-rifd21] encode start 1 image/png"
+      },
+      {
+        "timeMs": 3148.145,
+        "text": "[DEBUG-rifd21] encode complete 1"
+      },
+      {
+        "timeMs": 3161.723,
+        "text": "[DEBUG-rifd21] encode start 2 image/png"
+      },
+      {
+        "timeMs": 3186.99,
+        "text": "[DEBUG-rifd21] encode complete 2"
+      },
+      {
+        "timeMs": 3335.976,
+        "text": "[DEBUG-rifd21] encode start 3 image/png"
+      },
+      {
+        "timeMs": 3346.021,
+        "text": "[DEBUG-rifd21] encode complete 3"
+      },
+      {
+        "timeMs": 3634.131,
+        "text": "[DEBUG-rifd21] encode start 4 image/png"
+      },
+      {
+        "timeMs": 3651.718,
+        "text": "[DEBUG-rifd21] encode complete 4"
+      },
+      {
+        "timeMs": 3745.815,
+        "text": "[DEBUG-rifd21] encode start 5 image/png"
+      },
+      {
+        "timeMs": 3760.185,
+        "text": "[DEBUG-rifd21] encode complete 5"
+      },
+      {
+        "timeMs": 4007.966,
+        "text": "[DEBUG-rifd21] encode start 6 image/jpeg"
+      },
+      {
+        "timeMs": 4027.648,
+        "text": "[DEBUG-rifd21] encode complete 6"
+      },
+      {
+        "timeMs": 4032.537,
+        "text": "[DEBUG-rifd21] encode start 7 image/png"
+      },
+      {
+        "timeMs": 4049.454,
+        "text": "[DEBUG-rifd21] encode complete 7"
+      },
+      {
+        "timeMs": 4059.24,
+        "text": "[DEBUG-rifd21] encode start 8 image/png"
+      },
+      {
+        "timeMs": 4071.721,
+        "text": "[DEBUG-rifd21] encode complete 8"
+      },
+      {
+        "timeMs": 4136.841,
+        "text": "[DEBUG-rifd21] encode start 9 image/png"
+      },
+      {
+        "timeMs": 4150.809,
+        "text": "[DEBUG-rifd21] encode complete 9"
+      },
+      {
+        "timeMs": 4384.825,
+        "text": "[DEBUG-rifd21] encode start 10 image/png"
+      },
+      {
+        "timeMs": 4400.611,
+        "text": "[DEBUG-rifd21] encode complete 10"
+      },
+      {
+        "timeMs": 4468.641,
+        "text": "[DEBUG-rifd21] encode start 11 image/png"
+      },
+      {
+        "timeMs": 4480.417,
+        "text": "[DEBUG-rifd21] encode complete 11"
+      },
+      {
+        "timeMs": 4712.966,
+        "text": "[DEBUG-rifd21] encode start 12 image/jpeg"
+      },
+      {
+        "timeMs": 4726.434,
+        "text": "[DEBUG-rifd21] encode complete 12"
+      },
+      {
+        "timeMs": 4731.337,
+        "text": "[DEBUG-rifd21] encode start 13 image/png"
+      },
+      {
+        "timeMs": 4743.604,
+        "text": "[DEBUG-rifd21] encode complete 13"
+      },
+      {
+        "timeMs": 4753.021,
+        "text": "[DEBUG-rifd21] encode start 14 image/png"
+      },
+      {
+        "timeMs": 4767.484,
+        "text": "[DEBUG-rifd21] encode complete 14"
+      },
+      {
+        "timeMs": 4841.463,
+        "text": "[DEBUG-rifd21] encode start 15 image/png"
+      },
+      {
+        "timeMs": 4853.888,
+        "text": "[DEBUG-rifd21] encode complete 15"
+      },
+      {
+        "timeMs": 5072.979,
+        "text": "[DEBUG-rifd21] encode start 16 image/png"
+      },
+      {
+        "timeMs": 5089.669,
+        "text": "[DEBUG-rifd21] encode complete 16"
+      },
+      {
+        "timeMs": 5173.237,
+        "text": "[DEBUG-rifd21] encode start 17 image/png"
+      },
+      {
+        "timeMs": 5185.433,
+        "text": "[DEBUG-rifd21] encode complete 17"
+      },
+      {
+        "timeMs": 5420.382,
+        "text": "[DEBUG-rifd21] encode start 18 image/png"
+      },
+      {
+        "timeMs": 5440.59,
+        "text": "[DEBUG-rifd21] encode complete 18"
+      },
+      {
+        "timeMs": 5576.422,
+        "text": "[DEBUG-rifd21] encode start 19 image/png"
+      },
+      {
+        "timeMs": 5594.726,
+        "text": "[DEBUG-rifd21] encode complete 19"
+      },
+      {
+        "timeMs": 5853.824,
+        "text": "[DEBUG-rifd21] encode start 20 image/jpeg"
+      },
+      {
+        "timeMs": 5868.332,
+        "text": "[DEBUG-rifd21] encode complete 20"
+      },
+      {
+        "timeMs": 5873.163,
+        "text": "[DEBUG-rifd21] encode start 21 image/png"
+      },
+      {
+        "timeMs": 5885.007,
+        "text": "[DEBUG-rifd21] encode complete 21"
+      },
+      {
+        "timeMs": 5896.748,
+        "text": "[DEBUG-rifd21] encode start 22 image/png"
+      },
+      {
+        "timeMs": 5912.665,
+        "text": "[DEBUG-rifd21] encode complete 22"
+      },
+      {
+        "timeMs": 5990.769,
+        "text": "[DEBUG-rifd21] encode start 23 image/png"
+      },
+      {
+        "timeMs": 6017.536,
+        "text": "[DEBUG-rifd21] encode complete 23"
+      },
+      {
+        "timeMs": 6326.314,
+        "text": "[DEBUG-rifd21] encode start 24 image/png"
+      },
+      {
+        "timeMs": 6345.949,
+        "text": "[DEBUG-rifd21] encode complete 24"
+      },
+      {
+        "timeMs": 6441.777,
+        "text": "[DEBUG-rifd21] encode start 25 image/png"
+      },
+      {
+        "timeMs": 6456.589,
+        "text": "[DEBUG-rifd21] encode complete 25"
+      },
+      {
+        "timeMs": 6689.589,
+        "text": "[DEBUG-rifd21] encode start 26 image/jpeg"
+      },
+      {
+        "timeMs": 6701.939,
+        "text": "[DEBUG-rifd21] encode complete 26"
+      },
+      {
+        "timeMs": 6707.084,
+        "text": "[DEBUG-rifd21] encode start 27 image/jpeg"
+      },
+      {
+        "timeMs": 6717.866,
+        "text": "[DEBUG-rifd21] encode complete 27"
+      },
+      {
+        "timeMs": 6724.347,
+        "text": "[DEBUG-rifd21] encode start 28 image/png"
+      },
+      {
+        "timeMs": 6738.43,
+        "text": "[DEBUG-rifd21] encode complete 28"
+      },
+      {
+        "timeMs": 6747.82,
+        "text": "[DEBUG-rifd21] encode start 29 image/png"
+      },
+      {
+        "timeMs": 6759.059,
+        "text": "[DEBUG-rifd21] encode complete 29"
+      },
+      {
+        "timeMs": 6852.476,
+        "text": "[DEBUG-rifd21] encode start 30 image/png"
+      },
+      {
+        "timeMs": 6863.436,
+        "text": "[DEBUG-rifd21] encode complete 30"
+      },
+      {
+        "timeMs": 7105.676,
+        "text": "[DEBUG-rifd21] encode start 31 image/png"
+      },
+      {
+        "timeMs": 7121.123,
+        "text": "[DEBUG-rifd21] encode complete 31"
+      },
+      {
+        "timeMs": 7201.423,
+        "text": "[DEBUG-rifd21] encode start 32 image/png"
+      },
+      {
+        "timeMs": 7213.476,
+        "text": "[DEBUG-rifd21] encode complete 32"
+      },
+      {
+        "timeMs": 7448.508,
+        "text": "[DEBUG-rifd21] encode start 33 image/jpeg"
+      },
+      {
+        "timeMs": 7460.232,
+        "text": "[DEBUG-rifd21] encode complete 33"
+      },
+      {
+        "timeMs": 7464.806,
+        "text": "[DEBUG-rifd21] encode start 34 image/png"
+      },
+      {
+        "timeMs": 7474.814,
+        "text": "[DEBUG-rifd21] encode complete 34"
+      },
+      {
+        "timeMs": 7481.93,
+        "text": "[DEBUG-rifd21] encode start 35 image/png"
+      },
+      {
+        "timeMs": 7492.309,
+        "text": "[DEBUG-rifd21] encode complete 35"
+      },
+      {
+        "timeMs": 7562.467,
+        "text": "[DEBUG-rifd21] encode start 36 image/png"
+      },
+      {
+        "timeMs": 7572.46,
+        "text": "[DEBUG-rifd21] encode complete 36"
+      },
+      {
+        "timeMs": 7790.989,
+        "text": "[DEBUG-rifd21] encode start 37 image/png"
+      },
+      {
+        "timeMs": 7807.729,
+        "text": "[DEBUG-rifd21] encode complete 37"
+      },
+      {
+        "timeMs": 7885.395,
+        "text": "[DEBUG-rifd21] encode start 38 image/png"
+      },
+      {
+        "timeMs": 7910.42,
+        "text": "[DEBUG-rifd21] encode complete 38"
+      },
+      {
+        "timeMs": 8131.787,
+        "text": "[DEBUG-rifd21] encode start 39 image/jpeg"
+      },
+      {
+        "timeMs": 8143.718,
+        "text": "[DEBUG-rifd21] encode complete 39"
+      },
+      {
+        "timeMs": 8148.601,
+        "text": "[DEBUG-rifd21] encode start 40 image/png"
+      },
+      {
+        "timeMs": 8158.397,
+        "text": "[DEBUG-rifd21] encode complete 40"
+      },
+      {
+        "timeMs": 8168.47,
+        "text": "[DEBUG-rifd21] encode start 41 image/png"
+      },
+      {
+        "timeMs": 8178.892,
+        "text": "[DEBUG-rifd21] encode complete 41"
+      },
+      {
+        "timeMs": 8275.494,
+        "text": "[DEBUG-rifd21] encode start 42 image/png"
+      },
+      {
+        "timeMs": 8285.827,
+        "text": "[DEBUG-rifd21] encode complete 42"
+      },
+      {
+        "timeMs": 8504.231,
+        "text": "[DEBUG-rifd21] encode start 43 image/png"
+      },
+      {
+        "timeMs": 8521.494,
+        "text": "[DEBUG-rifd21] encode complete 43"
+      },
+      {
+        "timeMs": 8591.907,
+        "text": "[DEBUG-rifd21] encode start 44 image/png"
+      },
+      {
+        "timeMs": 8612.343,
+        "text": "[DEBUG-rifd21] encode complete 44"
+      },
+      {
+        "timeMs": 8835.954,
+        "text": "[DEBUG-rifd21] encode start 45 image/jpeg"
+      },
+      {
+        "timeMs": 8847.315,
+        "text": "[DEBUG-rifd21] encode complete 45"
+      },
+      {
+        "timeMs": 8852.68,
+        "text": "[DEBUG-rifd21] encode start 46 image/png"
+      },
+      {
+        "timeMs": 8863.184,
+        "text": "[DEBUG-rifd21] encode complete 46"
+      },
+      {
+        "timeMs": 8872.217,
+        "text": "[DEBUG-rifd21] encode start 47 image/png"
+      },
+      {
+        "timeMs": 8882.762,
+        "text": "[DEBUG-rifd21] encode complete 47"
+      },
+      {
+        "timeMs": 8986.337,
+        "text": "[DEBUG-rifd21] encode start 48 image/png"
+      },
+      {
+        "timeMs": 8996.4,
+        "text": "[DEBUG-rifd21] encode complete 48"
+      },
+      {
+        "timeMs": 9222.581,
+        "text": "[DEBUG-rifd21] encode start 49 image/png"
+      },
+      {
+        "timeMs": 9241.032,
+        "text": "[DEBUG-rifd21] encode complete 49"
+      },
+      {
+        "timeMs": 9338.343,
+        "text": "[DEBUG-rifd21] encode start 50 image/png"
+      },
+      {
+        "timeMs": 9349.011,
+        "text": "[DEBUG-rifd21] encode complete 50"
+      },
+      {
+        "timeMs": 9578.524,
+        "text": "[DEBUG-rifd21] encode start 51 image/jpeg"
+      },
+      {
+        "timeMs": 9589.518,
+        "text": "[DEBUG-rifd21] encode complete 51"
+      },
+      {
+        "timeMs": 9595.137,
+        "text": "[DEBUG-rifd21] encode start 52 image/png"
+      },
+      {
+        "timeMs": 9607.29,
+        "text": "[DEBUG-rifd21] encode complete 52"
+      },
+      {
+        "timeMs": 9617.45,
+        "text": "[DEBUG-rifd21] encode start 53 image/png"
+      },
+      {
+        "timeMs": 9635.584,
+        "text": "[DEBUG-rifd21] encode complete 53"
+      },
+      {
+        "timeMs": 9700.555,
+        "text": "[DEBUG-rifd21] encode start 54 image/png"
+      },
+      {
+        "timeMs": 9710.448,
+        "text": "[DEBUG-rifd21] encode complete 54"
+      },
+      {
+        "timeMs": 9938.434,
+        "text": "[DEBUG-rifd21] encode start 55 image/png"
+      },
+      {
+        "timeMs": 9953.45,
+        "text": "[DEBUG-rifd21] encode complete 55"
+      },
+      {
+        "timeMs": 10025.44,
+        "text": "[DEBUG-rifd21] encode start 56 image/png"
+      },
+      {
+        "timeMs": 10040.691,
+        "text": "[DEBUG-rifd21] encode complete 56"
+      },
+      {
+        "timeMs": 10273.469,
+        "text": "[DEBUG-rifd21] encode start 57 image/jpeg"
+      },
+      {
+        "timeMs": 10286.706,
+        "text": "[DEBUG-rifd21] encode complete 57"
+      },
+      {
+        "timeMs": 10291.309,
+        "text": "[DEBUG-rifd21] encode start 58 image/png"
+      },
+      {
+        "timeMs": 10300.861,
+        "text": "[DEBUG-rifd21] encode complete 58"
+      },
+      {
+        "timeMs": 10308.797,
+        "text": "[DEBUG-rifd21] encode start 59 image/png"
+      },
+      {
+        "timeMs": 10320.24,
+        "text": "[DEBUG-rifd21] encode complete 59"
+      },
+      {
+        "timeMs": 10387.422,
+        "text": "[DEBUG-rifd21] encode start 60 image/png"
+      },
+      {
+        "timeMs": 10407.069,
+        "text": "[DEBUG-rifd21] encode complete 60"
+      },
+      {
+        "timeMs": 10625.759,
+        "text": "[DEBUG-rifd21] encode start 61 image/png"
+      },
+      {
+        "timeMs": 10642.526,
+        "text": "[DEBUG-rifd21] encode complete 61"
+      },
+      {
+        "timeMs": 10743.195,
+        "text": "[DEBUG-rifd21] encode start 62 image/png"
+      },
+      {
+        "timeMs": 10762.615,
+        "text": "[DEBUG-rifd21] encode complete 62"
+      },
+      {
+        "timeMs": 10995.864,
+        "text": "[DEBUG-rifd21] encode start 63 image/jpeg"
+      },
+      {
+        "timeMs": 11008.914,
+        "text": "[DEBUG-rifd21] encode complete 63"
+      },
+      {
+        "timeMs": 11013.825,
+        "text": "[DEBUG-rifd21] encode start 64 image/png"
+      },
+      {
+        "timeMs": 11028.48,
+        "text": "[DEBUG-rifd21] encode complete 64"
+      },
+      {
+        "timeMs": 11036.931,
+        "text": "[DEBUG-rifd21] encode start 65 image/png"
+      },
+      {
+        "timeMs": 11050.894,
+        "text": "[DEBUG-rifd21] encode complete 65"
+      },
+      {
+        "timeMs": 11118.627,
+        "text": "[DEBUG-rifd21] encode start 66 image/png"
+      },
+      {
+        "timeMs": 11133.994,
+        "text": "[DEBUG-rifd21] encode complete 66"
+      },
+      {
+        "timeMs": 11358.92,
+        "text": "[DEBUG-rifd21] encode start 67 image/png"
+      },
+      {
+        "timeMs": 11373.714,
+        "text": "[DEBUG-rifd21] encode complete 67"
+      },
+      {
+        "timeMs": 11444.397,
+        "text": "[DEBUG-rifd21] encode start 68 image/png"
+      },
+      {
+        "timeMs": 11461.151,
+        "text": "[DEBUG-rifd21] encode complete 68"
+      },
+      {
+        "timeMs": 11736.315,
+        "text": "[DEBUG-rifd21] encode start 69 image/jpeg"
+      },
+      {
+        "timeMs": 11752.591,
+        "text": "[DEBUG-rifd21] encode complete 69"
+      },
+      {
+        "timeMs": 11758.393,
+        "text": "[DEBUG-rifd21] encode start 70 image/png"
+      },
+      {
+        "timeMs": 11774.665,
+        "text": "[DEBUG-rifd21] encode complete 70"
+      },
+      {
+        "timeMs": 11783.123,
+        "text": "[DEBUG-rifd21] encode start 71 image/png"
+      },
+      {
+        "timeMs": 11795.805,
+        "text": "[DEBUG-rifd21] encode complete 71"
+      },
+      {
+        "timeMs": 11888.298,
+        "text": "[DEBUG-rifd21] encode start 72 image/png"
+      },
+      {
+        "timeMs": 11908.469,
+        "text": "[DEBUG-rifd21] encode complete 72"
+      },
+      {
+        "timeMs": 12129.109,
+        "text": "[DEBUG-rifd21] encode start 73 image/png"
+      },
+      {
+        "timeMs": 12138.514,
+        "text": "[DEBUG-rifd21] encode complete 73"
+      },
+      {
+        "timeMs": 12206.671,
+        "text": "[DEBUG-rifd21] encode start 74 image/png"
+      },
+      {
+        "timeMs": 12218.932,
+        "text": "[DEBUG-rifd21] encode complete 74"
+      },
+      {
+        "timeMs": 12433.312,
+        "text": "[DEBUG-rifd21] encode start 75 image/png"
+      },
+      {
+        "timeMs": 12451.027,
+        "text": "[DEBUG-rifd21] encode complete 75"
+      },
+      {
+        "timeMs": 12517.739,
+        "text": "[DEBUG-rifd21] encode start 76 image/png"
+      },
+      {
+        "timeMs": 12530.587,
+        "text": "[DEBUG-rifd21] encode complete 76"
+      },
+      {
+        "timeMs": 12791.556,
+        "text": "[DEBUG-rifd21] encode start 77 image/jpeg"
+      },
+      {
+        "timeMs": 12802.727,
+        "text": "[DEBUG-rifd21] encode complete 77"
+      },
+      {
+        "timeMs": 12806.846,
+        "text": "[DEBUG-rifd21] encode start 78 image/png"
+      },
+      {
+        "timeMs": 12817.027,
+        "text": "[DEBUG-rifd21] encode complete 78"
+      },
+      {
+        "timeMs": 12824.066,
+        "text": "[DEBUG-rifd21] encode start 79 image/png"
+      },
+      {
+        "timeMs": 12834.899,
+        "text": "[DEBUG-rifd21] encode complete 79"
+      },
+      {
+        "timeMs": 12903.032,
+        "text": "[DEBUG-rifd21] encode start 80 image/png"
+      },
+      {
+        "timeMs": 12913.515,
+        "text": "[DEBUG-rifd21] encode complete 80"
+      },
+      {
+        "timeMs": 13162.615,
+        "text": "[DEBUG-rifd21] encode start 81 image/png"
+      },
+      {
+        "timeMs": 13177.47,
+        "text": "[DEBUG-rifd21] encode complete 81"
+      },
+      {
+        "timeMs": 13243.684,
+        "text": "[DEBUG-rifd21] encode start 82 image/png"
+      },
+      {
+        "timeMs": 13254.625,
+        "text": "[DEBUG-rifd21] encode complete 82"
+      },
+      {
+        "timeMs": 13498.469,
+        "text": "[DEBUG-rifd21] encode start 83 image/jpeg"
+      },
+      {
+        "timeMs": 13509.564,
+        "text": "[DEBUG-rifd21] encode complete 83"
+      },
+      {
+        "timeMs": 13514.76,
+        "text": "[DEBUG-rifd21] encode start 84 image/jpeg"
+      },
+      {
+        "timeMs": 13538.547,
+        "text": "[DEBUG-rifd21] encode complete 84"
+      },
+      {
+        "timeMs": 15985.694,
+        "text": "[DEBUG-rifd21] before prepare visible true"
+      },
+      {
+        "timeMs": 15987.346,
+        "text": "[DEBUG-rifd21] after prepare"
+      },
+      {
+        "timeMs": 15990.744,
+        "text": "[DEBUG-rifd21] before replay"
+      },
+      {
+        "timeMs": 16033.116,
+        "text": "[DEBUG-rifd21] after replay"
+      },
+      {
+        "timeMs": 16433.314,
+        "text": "[DEBUG-rifd21] fonts ready"
+      },
+      {
+        "timeMs": 16439.271,
+        "text": "[DEBUG-rifd21] encode start 1 image/png"
+      },
+      {
+        "timeMs": 16451.628,
+        "text": "[DEBUG-rifd21] encode complete 1"
+      },
+      {
+        "timeMs": 16459.97,
+        "text": "[DEBUG-rifd21] encode start 2 image/png"
+      },
+      {
+        "timeMs": 16471.908,
+        "text": "[DEBUG-rifd21] encode complete 2"
+      },
+      {
+        "timeMs": 16569.255,
+        "text": "[DEBUG-rifd21] encode start 3 image/png"
+      },
+      {
+        "timeMs": 16580.033,
+        "text": "[DEBUG-rifd21] encode complete 3"
+      },
+      {
+        "timeMs": 16921.073,
+        "text": "[DEBUG-rifd21] encode start 4 image/png"
+      },
+      {
+        "timeMs": 16965.01,
+        "text": "[DEBUG-rifd21] encode complete 4"
+      },
+      {
+        "timeMs": 17316.451,
+        "text": "[DEBUG-rifd21] encode start 5 image/png"
+      },
+      {
+        "timeMs": 17328.242,
+        "text": "[DEBUG-rifd21] encode complete 5"
+      },
+      {
+        "timeMs": 17603.59,
+        "text": "[DEBUG-rifd21] encode start 6 image/jpeg"
+      },
+      {
+        "timeMs": 17621.538,
+        "text": "[DEBUG-rifd21] encode complete 6"
+      },
+      {
+        "timeMs": 17625.639,
+        "text": "[DEBUG-rifd21] encode start 7 image/png"
+      },
+      {
+        "timeMs": 17635.603,
+        "text": "[DEBUG-rifd21] encode complete 7"
+      },
+      {
+        "timeMs": 17643.442,
+        "text": "[DEBUG-rifd21] encode start 8 image/png"
+      },
+      {
+        "timeMs": 17653.997,
+        "text": "[DEBUG-rifd21] encode complete 8"
+      },
+      {
+        "timeMs": 17736.434,
+        "text": "[DEBUG-rifd21] encode start 9 image/png"
+      },
+      {
+        "timeMs": 17747.333,
+        "text": "[DEBUG-rifd21] encode complete 9"
+      },
+      {
+        "timeMs": 18021.746,
+        "text": "[DEBUG-rifd21] encode start 10 image/png"
+      },
+      {
+        "timeMs": 18040.433,
+        "text": "[DEBUG-rifd21] encode complete 10"
+      },
+      {
+        "timeMs": 18125.079,
+        "text": "[DEBUG-rifd21] encode start 11 image/png"
+      },
+      {
+        "timeMs": 18142.465,
+        "text": "[DEBUG-rifd21] encode complete 11"
+      },
+      {
+        "timeMs": 18389.421,
+        "text": "[DEBUG-rifd21] encode start 12 image/jpeg"
+      },
+      {
+        "timeMs": 18401.411,
+        "text": "[DEBUG-rifd21] encode complete 12"
+      },
+      {
+        "timeMs": 18405.836,
+        "text": "[DEBUG-rifd21] encode start 13 image/png"
+      },
+      {
+        "timeMs": 18416.06,
+        "text": "[DEBUG-rifd21] encode complete 13"
+      },
+      {
+        "timeMs": 18423.074,
+        "text": "[DEBUG-rifd21] encode start 14 image/png"
+      },
+      {
+        "timeMs": 18433.854,
+        "text": "[DEBUG-rifd21] encode complete 14"
+      },
+      {
+        "timeMs": 18507.01,
+        "text": "[DEBUG-rifd21] encode start 15 image/png"
+      },
+      {
+        "timeMs": 18533.177,
+        "text": "[DEBUG-rifd21] encode complete 15"
+      },
+      {
+        "timeMs": 18780.551,
+        "text": "[DEBUG-rifd21] encode start 16 image/png"
+      },
+      {
+        "timeMs": 18798.219,
+        "text": "[DEBUG-rifd21] encode complete 16"
+      },
+      {
+        "timeMs": 18868.135,
+        "text": "[DEBUG-rifd21] encode start 17 image/png"
+      },
+      {
+        "timeMs": 18884.564,
+        "text": "[DEBUG-rifd21] encode complete 17"
+      },
+      {
+        "timeMs": 19109.601,
+        "text": "[DEBUG-rifd21] encode start 18 image/png"
+      },
+      {
+        "timeMs": 19122.491,
+        "text": "[DEBUG-rifd21] encode complete 18"
+      },
+      {
+        "timeMs": 19203.85,
+        "text": "[DEBUG-rifd21] encode start 19 image/png"
+      },
+      {
+        "timeMs": 19223.685,
+        "text": "[DEBUG-rifd21] encode complete 19"
+      },
+      {
+        "timeMs": 19452.655,
+        "text": "[DEBUG-rifd21] encode start 20 image/jpeg"
+      },
+      {
+        "timeMs": 19468.589,
+        "text": "[DEBUG-rifd21] encode complete 20"
+      },
+      {
+        "timeMs": 19472.228,
+        "text": "[DEBUG-rifd21] encode start 21 image/png"
+      },
+      {
+        "timeMs": 19482.02,
+        "text": "[DEBUG-rifd21] encode complete 21"
+      },
+      {
+        "timeMs": 19488.871,
+        "text": "[DEBUG-rifd21] encode start 22 image/png"
+      },
+      {
+        "timeMs": 19500.215,
+        "text": "[DEBUG-rifd21] encode complete 22"
+      },
+      {
+        "timeMs": 19601.169,
+        "text": "[DEBUG-rifd21] encode start 23 image/png"
+      },
+      {
+        "timeMs": 19617.515,
+        "text": "[DEBUG-rifd21] encode complete 23"
+      },
+      {
+        "timeMs": 19837.233,
+        "text": "[DEBUG-rifd21] encode start 24 image/png"
+      },
+      {
+        "timeMs": 19850.126,
+        "text": "[DEBUG-rifd21] encode complete 24"
+      },
+      {
+        "timeMs": 19934.363,
+        "text": "[DEBUG-rifd21] encode start 25 image/png"
+      },
+      {
+        "timeMs": 19957.463,
+        "text": "[DEBUG-rifd21] encode complete 25"
+      },
+      {
+        "timeMs": 20190.026,
+        "text": "[DEBUG-rifd21] encode start 26 image/jpeg"
+      },
+      {
+        "timeMs": 20205.552,
+        "text": "[DEBUG-rifd21] encode complete 26"
+      },
+      {
+        "timeMs": 20209.086,
+        "text": "[DEBUG-rifd21] encode start 27 image/jpeg"
+      },
+      {
+        "timeMs": 20221.479,
+        "text": "[DEBUG-rifd21] encode complete 27"
+      },
+      {
+        "timeMs": 20225.253,
+        "text": "[DEBUG-rifd21] encode start 28 image/png"
+      },
+      {
+        "timeMs": 20234.251,
+        "text": "[DEBUG-rifd21] encode complete 28"
+      },
+      {
+        "timeMs": 20241.145,
+        "text": "[DEBUG-rifd21] encode start 29 image/png"
+      },
+      {
+        "timeMs": 20251.531,
+        "text": "[DEBUG-rifd21] encode complete 29"
+      },
+      {
+        "timeMs": 20355.384,
+        "text": "[DEBUG-rifd21] encode start 30 image/png"
+      },
+      {
+        "timeMs": 20374.531,
+        "text": "[DEBUG-rifd21] encode complete 30"
+      },
+      {
+        "timeMs": 20607.122,
+        "text": "[DEBUG-rifd21] encode start 31 image/png"
+      },
+      {
+        "timeMs": 20619.694,
+        "text": "[DEBUG-rifd21] encode complete 31"
+      },
+      {
+        "timeMs": 20717.854,
+        "text": "[DEBUG-rifd21] encode start 32 image/png"
+      },
+      {
+        "timeMs": 20738.351,
+        "text": "[DEBUG-rifd21] encode complete 32"
+      },
+      {
+        "timeMs": 20969.967,
+        "text": "[DEBUG-rifd21] encode start 33 image/jpeg"
+      },
+      {
+        "timeMs": 20981.921,
+        "text": "[DEBUG-rifd21] encode complete 33"
+      },
+      {
+        "timeMs": 20986.033,
+        "text": "[DEBUG-rifd21] encode start 34 image/png"
+      },
+      {
+        "timeMs": 20996.708,
+        "text": "[DEBUG-rifd21] encode complete 34"
+      },
+      {
+        "timeMs": 21004.035,
+        "text": "[DEBUG-rifd21] encode start 35 image/png"
+      },
+      {
+        "timeMs": 21019.219,
+        "text": "[DEBUG-rifd21] encode complete 35"
+      },
+      {
+        "timeMs": 21114.058,
+        "text": "[DEBUG-rifd21] encode start 36 image/png"
+      },
+      {
+        "timeMs": 21136.423,
+        "text": "[DEBUG-rifd21] encode complete 36"
+      },
+      {
+        "timeMs": 21360.489,
+        "text": "[DEBUG-rifd21] encode start 37 image/png"
+      },
+      {
+        "timeMs": 21381.939,
+        "text": "[DEBUG-rifd21] encode complete 37"
+      },
+      {
+        "timeMs": 21469.428,
+        "text": "[DEBUG-rifd21] encode start 38 image/png"
+      },
+      {
+        "timeMs": 21491.562,
+        "text": "[DEBUG-rifd21] encode complete 38"
+      },
+      {
+        "timeMs": 21717.003,
+        "text": "[DEBUG-rifd21] encode start 39 image/jpeg"
+      },
+      {
+        "timeMs": 21729.897,
+        "text": "[DEBUG-rifd21] encode complete 39"
+      },
+      {
+        "timeMs": 21735.358,
+        "text": "[DEBUG-rifd21] encode start 40 image/png"
+      },
+      {
+        "timeMs": 21752.198,
+        "text": "[DEBUG-rifd21] encode complete 40"
+      },
+      {
+        "timeMs": 21760.747,
+        "text": "[DEBUG-rifd21] encode start 41 image/png"
+      },
+      {
+        "timeMs": 21776.501,
+        "text": "[DEBUG-rifd21] encode complete 41"
+      },
+      {
+        "timeMs": 21844.423,
+        "text": "[DEBUG-rifd21] encode start 42 image/png"
+      },
+      {
+        "timeMs": 21861.257,
+        "text": "[DEBUG-rifd21] encode complete 42"
+      },
+      {
+        "timeMs": 22103.747,
+        "text": "[DEBUG-rifd21] encode start 43 image/png"
+      },
+      {
+        "timeMs": 22124.446,
+        "text": "[DEBUG-rifd21] encode complete 43"
+      },
+      {
+        "timeMs": 22198.304,
+        "text": "[DEBUG-rifd21] encode start 44 image/png"
+      },
+      {
+        "timeMs": 22215.854,
+        "text": "[DEBUG-rifd21] encode complete 44"
+      },
+      {
+        "timeMs": 22448.374,
+        "text": "[DEBUG-rifd21] encode start 45 image/jpeg"
+      },
+      {
+        "timeMs": 22460.721,
+        "text": "[DEBUG-rifd21] encode complete 45"
+      },
+      {
+        "timeMs": 22467.315,
+        "text": "[DEBUG-rifd21] encode start 46 image/png"
+      },
+      {
+        "timeMs": 22481.212,
+        "text": "[DEBUG-rifd21] encode complete 46"
+      },
+      {
+        "timeMs": 22488.969,
+        "text": "[DEBUG-rifd21] encode start 47 image/png"
+      },
+      {
+        "timeMs": 22500.087,
+        "text": "[DEBUG-rifd21] encode complete 47"
+      },
+      {
+        "timeMs": 22594.826,
+        "text": "[DEBUG-rifd21] encode start 48 image/png"
+      },
+      {
+        "timeMs": 22611.321,
+        "text": "[DEBUG-rifd21] encode complete 48"
+      },
+      {
+        "timeMs": 22830.905,
+        "text": "[DEBUG-rifd21] encode start 49 image/png"
+      },
+      {
+        "timeMs": 22848.003,
+        "text": "[DEBUG-rifd21] encode complete 49"
+      },
+      {
+        "timeMs": 22915.166,
+        "text": "[DEBUG-rifd21] encode start 50 image/png"
+      },
+      {
+        "timeMs": 22937.783,
+        "text": "[DEBUG-rifd21] encode complete 50"
+      },
+      {
+        "timeMs": 23158.756,
+        "text": "[DEBUG-rifd21] encode start 51 image/jpeg"
+      },
+      {
+        "timeMs": 23171.192,
+        "text": "[DEBUG-rifd21] encode complete 51"
+      },
+      {
+        "timeMs": 23175.735,
+        "text": "[DEBUG-rifd21] encode start 52 image/png"
+      },
+      {
+        "timeMs": 23189.174,
+        "text": "[DEBUG-rifd21] encode complete 52"
+      },
+      {
+        "timeMs": 23196.294,
+        "text": "[DEBUG-rifd21] encode start 53 image/png"
+      },
+      {
+        "timeMs": 23209.198,
+        "text": "[DEBUG-rifd21] encode complete 53"
+      },
+      {
+        "timeMs": 23279.285,
+        "text": "[DEBUG-rifd21] encode start 54 image/png"
+      },
+      {
+        "timeMs": 23295.974,
+        "text": "[DEBUG-rifd21] encode complete 54"
+      },
+      {
+        "timeMs": 23519.02,
+        "text": "[DEBUG-rifd21] encode start 55 image/png"
+      },
+      {
+        "timeMs": 23541.602,
+        "text": "[DEBUG-rifd21] encode complete 55"
+      },
+      {
+        "timeMs": 23612.915,
+        "text": "[DEBUG-rifd21] encode start 56 image/png"
+      },
+      {
+        "timeMs": 23630.159,
+        "text": "[DEBUG-rifd21] encode complete 56"
+      },
+      {
+        "timeMs": 23851.169,
+        "text": "[DEBUG-rifd21] encode start 57 image/jpeg"
+      },
+      {
+        "timeMs": 23864.139,
+        "text": "[DEBUG-rifd21] encode complete 57"
+      },
+      {
+        "timeMs": 23868.634,
+        "text": "[DEBUG-rifd21] encode start 58 image/png"
+      },
+      {
+        "timeMs": 23881.764,
+        "text": "[DEBUG-rifd21] encode complete 58"
+      },
+      {
+        "timeMs": 23890.064,
+        "text": "[DEBUG-rifd21] encode start 59 image/png"
+      },
+      {
+        "timeMs": 23901.269,
+        "text": "[DEBUG-rifd21] encode complete 59"
+      },
+      {
+        "timeMs": 23970.914,
+        "text": "[DEBUG-rifd21] encode start 60 image/png"
+      },
+      {
+        "timeMs": 23987.275,
+        "text": "[DEBUG-rifd21] encode complete 60"
+      },
+      {
+        "timeMs": 24231.381,
+        "text": "[DEBUG-rifd21] encode start 61 image/png"
+      },
+      {
+        "timeMs": 24251.771,
+        "text": "[DEBUG-rifd21] encode complete 61"
+      },
+      {
+        "timeMs": 24351.564,
+        "text": "[DEBUG-rifd21] encode start 62 image/png"
+      },
+      {
+        "timeMs": 24366.433,
+        "text": "[DEBUG-rifd21] encode complete 62"
+      },
+      {
+        "timeMs": 24583.162,
+        "text": "[DEBUG-rifd21] encode start 63 image/jpeg"
+      },
+      {
+        "timeMs": 24595.223,
+        "text": "[DEBUG-rifd21] encode complete 63"
+      },
+      {
+        "timeMs": 24599.229,
+        "text": "[DEBUG-rifd21] encode start 64 image/png"
+      },
+      {
+        "timeMs": 24609.108,
+        "text": "[DEBUG-rifd21] encode complete 64"
+      },
+      {
+        "timeMs": 24618.97,
+        "text": "[DEBUG-rifd21] encode start 65 image/png"
+      },
+      {
+        "timeMs": 24629.303,
+        "text": "[DEBUG-rifd21] encode complete 65"
+      },
+      {
+        "timeMs": 24697.496,
+        "text": "[DEBUG-rifd21] encode start 66 image/png"
+      },
+      {
+        "timeMs": 24713.152,
+        "text": "[DEBUG-rifd21] encode complete 66"
+      },
+      {
+        "timeMs": 24934.494,
+        "text": "[DEBUG-rifd21] encode start 67 image/png"
+      },
+      {
+        "timeMs": 24952.017,
+        "text": "[DEBUG-rifd21] encode complete 67"
+      },
+      {
+        "timeMs": 25027.784,
+        "text": "[DEBUG-rifd21] encode start 68 image/png"
+      },
+      {
+        "timeMs": 25051.268,
+        "text": "[DEBUG-rifd21] encode complete 68"
+      },
+      {
+        "timeMs": 25319.573,
+        "text": "[DEBUG-rifd21] encode start 69 image/jpeg"
+      },
+      {
+        "timeMs": 25331.81,
+        "text": "[DEBUG-rifd21] encode complete 69"
+      },
+      {
+        "timeMs": 25335.511,
+        "text": "[DEBUG-rifd21] encode start 70 image/png"
+      },
+      {
+        "timeMs": 25344.671,
+        "text": "[DEBUG-rifd21] encode complete 70"
+      },
+      {
+        "timeMs": 25351.76,
+        "text": "[DEBUG-rifd21] encode start 71 image/png"
+      },
+      {
+        "timeMs": 25362.372,
+        "text": "[DEBUG-rifd21] encode complete 71"
+      },
+      {
+        "timeMs": 25430.138,
+        "text": "[DEBUG-rifd21] encode start 72 image/png"
+      },
+      {
+        "timeMs": 25448.996,
+        "text": "[DEBUG-rifd21] encode complete 72"
+      },
+      {
+        "timeMs": 25667.488,
+        "text": "[DEBUG-rifd21] encode start 73 image/png"
+      },
+      {
+        "timeMs": 25681.851,
+        "text": "[DEBUG-rifd21] encode complete 73"
+      },
+      {
+        "timeMs": 25776.576,
+        "text": "[DEBUG-rifd21] encode start 74 image/png"
+      },
+      {
+        "timeMs": 25789.881,
+        "text": "[DEBUG-rifd21] encode complete 74"
+      },
+      {
+        "timeMs": 26053.614,
+        "text": "[DEBUG-rifd21] encode start 75 image/png"
+      },
+      {
+        "timeMs": 26067.259,
+        "text": "[DEBUG-rifd21] encode complete 75"
+      },
+      {
+        "timeMs": 26146.622,
+        "text": "[DEBUG-rifd21] encode start 76 image/png"
+      },
+      {
+        "timeMs": 26158.056,
+        "text": "[DEBUG-rifd21] encode complete 76"
+      },
+      {
+        "timeMs": 26390.147,
+        "text": "[DEBUG-rifd21] encode start 77 image/jpeg"
+      },
+      {
+        "timeMs": 26409.37,
+        "text": "[DEBUG-rifd21] encode complete 77"
+      },
+      {
+        "timeMs": 26414.083,
+        "text": "[DEBUG-rifd21] encode start 78 image/png"
+      },
+      {
+        "timeMs": 26423.747,
+        "text": "[DEBUG-rifd21] encode complete 78"
+      },
+      {
+        "timeMs": 26432.534,
+        "text": "[DEBUG-rifd21] encode start 79 image/png"
+      },
+      {
+        "timeMs": 26449.064,
+        "text": "[DEBUG-rifd21] encode complete 79"
+      },
+      {
+        "timeMs": 26547.591,
+        "text": "[DEBUG-rifd21] encode start 80 image/png"
+      },
+      {
+        "timeMs": 26557.637,
+        "text": "[DEBUG-rifd21] encode complete 80"
+      },
+      {
+        "timeMs": 26774.59,
+        "text": "[DEBUG-rifd21] encode start 81 image/png"
+      },
+      {
+        "timeMs": 26794.283,
+        "text": "[DEBUG-rifd21] encode complete 81"
+      },
+      {
+        "timeMs": 26860.913,
+        "text": "[DEBUG-rifd21] encode start 82 image/png"
+      },
+      {
+        "timeMs": 26871.74,
+        "text": "[DEBUG-rifd21] encode complete 82"
+      },
+      {
+        "timeMs": 27119.575,
+        "text": "[DEBUG-rifd21] encode start 83 image/jpeg"
+      },
+      {
+        "timeMs": 27136.022,
+        "text": "[DEBUG-rifd21] encode complete 83"
+      },
+      {
+        "timeMs": 27140.325,
+        "text": "[DEBUG-rifd21] encode start 84 image/jpeg"
+      },
+      {
+        "timeMs": 27152.526,
+        "text": "[DEBUG-rifd21] encode complete 84"
+      },
+      {
+        "timeMs": 27173.921,
+        "text": "[DEBUG-rifd21] seed ready"
+      },
+      {
+        "timeMs": 27480.957,
+        "text": "[DEBUG-rifd21] replaced"
+      },
+      {
+        "timeMs": 27482.162,
+        "text": "[DEBUG-rifd21] after execute true"
+      }
+    ]
+  }
+]

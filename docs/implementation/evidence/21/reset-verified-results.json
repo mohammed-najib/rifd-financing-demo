@@ -1,0 +1,56 @@
+{
+  "source": {
+    "head": "9472adfe4a9e4505a05ea232b71de00375465351",
+    "sha256": "98bd79014134d87c118a697b667283c4f2c8faaac3a6bc3cc06b7ebf4324c9f0"
+  },
+  "directory": "artifacts/acceptance/21/reset-verified-2026-10-16T01-36-01.025Z",
+  "stats": {
+    "startTime": "2026-10-16T01:36:02.278Z",
+    "duration": 39614.543000000005,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "cases": [
+    {
+      "file": "reset.screens.spec.ts",
+      "title": "public reset warning is available unsigned and during startup recovery in both languages",
+      "browser": "chrome",
+      "outcome": "expected",
+      "attempts": [
+        {
+          "status": "passed",
+          "durationMs": 28080,
+          "errors": []
+        }
+      ]
+    },
+    {
+      "file": "reset.screens.spec.ts",
+      "title": "public reset warning is available unsigned and during startup recovery in both languages",
+      "browser": "firefox",
+      "outcome": "expected",
+      "attempts": [
+        {
+          "status": "passed",
+          "durationMs": 35519,
+          "errors": []
+        }
+      ]
+    },
+    {
+      "file": "reset.screens.spec.ts",
+      "title": "public reset warning is available unsigned and during startup recovery in both languages",
+      "browser": "webkit",
+      "outcome": "expected",
+      "attempts": [
+        {
+          "status": "passed",
+          "durationMs": 38262,
+          "errors": []
+        }
+      ]
+    }
+  ]
+}

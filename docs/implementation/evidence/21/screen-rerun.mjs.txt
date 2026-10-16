@@ -1,0 +1,82 @@
+import { createHash } from 'node:crypto'
+import { execFileSync, spawn } from 'node:child_process'
+import { createWriteStream } from 'node:fs'
+import { copyFile, mkdir, readFile, readdir, writeFile } from 'node:fs/promises'
+import { arch, platform, release } from 'node:os'
+import { resolve } from 'node:path'
+import { chromium, firefox, webkit } from '@playwright/test'
+
+// Every invocation has its own reports. A focused recheck cannot erase the
+// complete run's failures, screenshots or traces.
+const slice = process.env.RIFD_ACCEPTANCE_SLICE ?? '20'
+if (!/^[1-9]\d*$/.test(slice)) throw new Error('RIFD_ACCEPTANCE_SLICE must be a positive issue number')
+const directory = resolve('artifacts/acceptance', slice, new Date().toISOString().replaceAll(':', '-'))
+await mkdir(directory, { recursive: true })
+const git = (...args) => execFileSync('git', args, { encoding: 'utf8' }).trim()
+const paths = git('ls-files', '--cached', '--others', '--exclude-standard', '-z').split('\0').filter(path => /^(src|tests|scripts|packages)\//.test(path) || /^(package.json|pnpm-lock.yaml|.*\.config\.(ts|js)|tsconfig.json)$/.test(path)).sort()
+const files = await Promise.all(paths.map(async path => ({ path, sha256: createHash('sha256').update(await readFile(path)).digest('hex') })))
+const source = { head: git('rev-parse', 'HEAD'), changes: git('status', '--short'), sha256: createHash('sha256').update(JSON.stringify(files)).digest('hex'), files }
+await writeFile(`${directory}/source.json`, JSON.stringify(source, null, 2) + '\n')
+const report = {
+  startedAt: new Date().toISOString(), directory, source: { head: source.head, sha256: source.sha256 },
+  runner: { path: 'artifacts/acceptance/21/ui-acceptance.mjs', sha256: createHash('sha256').update(await readFile(new URL(import.meta.url))).digest('hex') },
+  host: { platform: platform(), release: release(), arch: arch(), node: process.version, pnpm: execFileSync('pnpm', ['--version'], { encoding: 'utf8' }).trim(), playwright: JSON.parse(await readFile('node_modules/@playwright/test/package.json', 'utf8')).version },
+  browsers: [], steps: [], outcome: 'failed',
+}
+const env = { ...process.env, RIFD_ACCEPTANCE_DIR: directory }
+async function run(name, args) {
+  const started = Date.now()
+  const log = createWriteStream(`${directory}/${name}.log`)
+  console.log(`Running pnpm ${args.join(' ')}`)
+  const child = spawn('pnpm', args, { env, stdio: ['ignore', 'pipe', 'pipe'] })
+  child.stdout.on('data', data => { log.write(data); process.stdout.write(data) })
+  child.stderr.on('data', data => { log.write(data); process.stderr.write(data) })
+  const exitCode = await new Promise((resolve, reject) => { child.on('error', reject); child.on('close', code => resolve(code ?? 1)) })
+  await new Promise(resolve => log.end(resolve))
+  report.steps.push({ name, command: ['pnpm', ...args], exitCode, durationMs: Date.now() - started })
+  return exitCode === 0
+}
+try {
+  for (const [name, browserType, options] of [
+    ['chrome', chromium, { channel: 'chrome' }],
+    ['firefox', firefox, {}],
+    ['webkit', webkit, { executablePath: process.env.RIFD_WEBKIT_EXECUTABLE }],
+  ]) {
+    const browser = await browserType.launch(options)
+    try { report.browsers.push({ name, version: browser.version(), executable: name === 'chrome' ? 'installed chrome channel' : options.executablePath ?? browserType.executablePath(), ...(name === 'chrome' ? {} : { bundledExecutable: browserType.executablePath() }) }) }
+    finally { await browser.close() }
+  }
+  for (const name of ['typecheck', 'lint', 'test', 'test:skills', 'skills:check']) await run(name.replaceAll(':', '-'), [name])
+  if (await run('build', ['build'])) {
+    const staticFiles = ['dist/client/_shell.html', ...(await readdir('dist/client/assets')).filter(name => name.endsWith('.css')).map(name => `dist/client/assets/${name}`)]
+    report.staticBuild = await Promise.all(staticFiles.map(async path => {
+      const bytes = await readFile(path)
+      return { path, bytes: bytes.length, sha256: createHash('sha256').update(bytes).digest('hex') }
+    }))
+    const reusedDirectory = resolve('artifacts/acceptance/21/2026-10-15T23-18-56.972Z')
+    const previousSource = JSON.parse(await readFile(`${reusedDirectory}/source.json`, 'utf8'))
+    const previousFiles = new Map(previousSource.files.map(file => [file.path, file.sha256]))
+    const differences = source.files.filter(file => previousFiles.get(file.path) !== file.sha256).map(file => file.path)
+    const allowed = new Set(['src/ui/draft.tsx', 'tests/browser/acceptance.screens.spec.ts'])
+    if (source.files.length !== previousSource.files.length || differences.some(path => !allowed.has(path))) throw new Error('API reuse refused: inputs changed outside the UI fix and screen setup')
+    const apiReport = JSON.parse(await readFile(`${reusedDirectory}/api/report.json`, 'utf8'))
+    if (apiReport.stats.expected !== 158 || apiReport.stats.unexpected || apiReport.stats.flaky || apiReport.stats.skipped) throw new Error('API reuse refused: original suite did not pass all158 cases')
+    report.reusedApi = { directory: reusedDirectory, source: { head: previousSource.head, sha256: previousSource.sha256 }, reason: 'Only the draft sample-selection expression and screen checkpoint setup changed. Domain, Demo, API harness, API tests, styles and configuration inputs match.', differences, unchangedFiles: source.files.length - differences.length, stats: apiReport.stats }
+    await mkdir(`${directory}/api`, { recursive: true })
+    await copyFile(`${reusedDirectory}/api/report.json`, `${directory}/api/report.json`)
+    await writeFile(`${directory}/api/reused-from.json`, JSON.stringify(report.reusedApi, null, 2) + '\n')
+    await run('screens', ['test:browser', '--workers=3', '--timeout=180000'])
+    report.suites = await Promise.all(['api', 'screens'].map(async name => {
+      const result = JSON.parse(await readFile(`${directory}/${name}/report.json`, 'utf8'))
+      return { name, ...result.stats }
+    }))
+  }
+  report.outcome = report.steps.length === 7 && !!report.reusedApi && report.steps.every(step => step.exitCode === 0) ? 'passed' : 'failed'
+} catch (error) {
+  report.error = String(error)
+} finally {
+  report.finishedAt = new Date().toISOString()
+  await writeFile(`${directory}/run.json`, JSON.stringify(report, null, 2) + '\n')
+  console.log(`Acceptance ${report.outcome}. Reports: ${directory}`)
+  if (report.outcome !== 'passed') process.exitCode = 1
+}

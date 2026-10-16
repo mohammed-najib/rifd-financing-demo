@@ -1,0 +1,93 @@
+{
+  "finalImplementation": "a3d0610e159dc1d95143988f660c38a7a56d219e",
+  "runs": {
+    "pointerRed": {
+      "path": "artifacts/acceptance/21/pointer-red/screens/report.json",
+      "startTime": "2026-10-15T22:06:35.451Z",
+      "duration": 108207.879,
+      "expected": 2,
+      "skipped": 0,
+      "unexpected": 2,
+      "flaky": 0
+    },
+    "initialFocused": {
+      "path": "artifacts/acceptance/21/focused/screens/report.json",
+      "startTime": "2026-10-15T22:09:23.440Z",
+      "duration": 453841.67299999995,
+      "expected": 48,
+      "skipped": 0,
+      "unexpected": 6,
+      "flaky": 0
+    },
+    "saveFocusRed": {
+      "path": "artifacts/acceptance/21/focus-red/screens/report.json",
+      "startTime": "2026-10-15T22:43:48.963Z",
+      "duration": 39154.604,
+      "expected": 0,
+      "skipped": 0,
+      "unexpected": 2,
+      "flaky": 0
+    },
+    "pointerSavePrintFocused": {
+      "path": "artifacts/acceptance/21/final-focused/screens/report.json",
+      "startTime": "2026-10-15T22:44:55.839Z",
+      "duration": 383021.362,
+      "expected": 34,
+      "skipped": 0,
+      "unexpected": 2,
+      "flaky": 0
+    },
+    "firefoxRecoveryRecheck": {
+      "path": "artifacts/acceptance/21/pointer-recovery-recheck/screens/report.json",
+      "startTime": "2026-10-15T22:51:32.921Z",
+      "duration": 54832.023,
+      "expected": 2,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "dialogRed": {
+      "path": "artifacts/acceptance/21/dialog-focus-red/screens/report.json",
+      "startTime": "2026-10-15T23:12:54.313Z",
+      "duration": 31187.173000000003,
+      "expected": 0,
+      "skipped": 0,
+      "unexpected": 2,
+      "flaky": 0
+    },
+    "englishDialogRed": {
+      "path": "artifacts/acceptance/21/dialog-focus-red-en/screens/report.json",
+      "startTime": "2026-10-15T23:13:48.626Z",
+      "duration": 29396.611,
+      "expected": 0,
+      "skipped": 0,
+      "unexpected": 1,
+      "flaky": 0
+    },
+    "dialogGreen": {
+      "path": "artifacts/acceptance/21/dialog-focus-green/screens/report.json",
+      "startTime": "2026-10-15T23:15:41.067Z",
+      "duration": 151353.187,
+      "expected": 15,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "sampleAndLanguage": {
+      "path": "artifacts/acceptance/21/sample-language-focused/screens/report.json",
+      "startTime": "2026-10-15T23:49:07.425Z",
+      "duration": 67274.046,
+      "expected": 6,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    }
+  },
+  "notes": {
+    "initialFocused": "Six setup failures from navigating before sign-in settled; fixed in checkpoint setup.",
+    "pointerSavePrintFocused": "34 passed; two Firefox Arabic pointer cases stopped before input at a five-second recovery wait. Increased to 15 seconds and exact two-case recheck passed.",
+    "dialogRed": "Arabic reproduced focus escape. English used an incorrect Back/Return label and stopped before traversal. Corrected locator in dedicated English red run reproduced focus escape.",
+    "dialogGreen": "All 15 cases passed after shared containment fix: six decision, six preview and three gallery cases across Chrome/Firefox/WebKit.",
+    "sampleAndLanguage": "All six cases passed: existing cross-tab product reapplication and corrected unsigned English checkpoints in Chrome, Firefox and WebKit."
+  }
+}

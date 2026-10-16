@@ -1,0 +1,354 @@
+{
+  "scope": "Reset screen-test setup and timing diagnosis. Earlier failed outcomes are preserved. Temporary instrumentation was removed; the later reviewed 120-second chooser budget is retained. No production source changes remain.",
+  "originalRun": "artifacts/acceptance/21/2026-10-15T23-51-02.450Z",
+  "runs": [
+    {
+      "name": "reset-recheck",
+      "directory": "artifacts/acceptance/21/reset-recheck-2026-10-16T01-13-44.719Z",
+      "source": {
+        "head": "a3d0610e159dc1d95143988f660c38a7a56d219e",
+        "sha256": "70dda3c5bc87e562aedd7fd3d4b67c4c4a77a112a11dc9c919c439f2afe6877f"
+      },
+      "sourceManifestSha256": "da8f8c8a512629b3335548ff14411778183041d62fe9fdc1418c80d38ef16448",
+      "diagnosticSnapshotPaths": [],
+      "command": [
+        "pnpm",
+        "exec",
+        "playwright",
+        "test",
+        "tests/browser/reset.screens.spec.ts",
+        "--project=chrome",
+        "--grep",
+        "public reset warning",
+        "--repeat-each=3",
+        "--workers=3",
+        "--timeout=180000",
+        "--trace=on"
+      ],
+      "reason": "Repeat the unchanged Chrome reset case after its full-run 30-second assertion timeout; preserve all original outcomes",
+      "outcome": "failed",
+      "stats": {
+        "startTime": "2026-10-16T01:13:46.250Z",
+        "duration": 47825.53,
+        "expected": 1,
+        "skipped": 0,
+        "unexpected": 2,
+        "flaky": 0
+      }
+    },
+    {
+      "name": "reset-extended",
+      "directory": "artifacts/acceptance/21/reset-extended-2026-10-16T01-15-42.577Z",
+      "source": {
+        "head": "a3d0610e159dc1d95143988f660c38a7a56d219e",
+        "sha256": "ce92a2a402d5de5382ce4681c50b4801ed107cffbec4afad2041f15102d51f1d"
+      },
+      "sourceManifestSha256": "517f704f12f96de542b7b18de62408502030a24375615ed5d8c23d4e914cae87",
+      "diagnosticSnapshotPaths": [
+        "artifacts/acceptance/21/reset-extended-2026-10-16T01-15-42.577Z/source-snapshot/tests/browser/reset.screens.spec.ts"
+      ],
+      "command": [
+        "pnpm",
+        "exec",
+        "playwright",
+        "test",
+        "tests/browser/reset.screens.spec.ts",
+        "--project=chrome",
+        "--grep",
+        "public reset warning",
+        "--repeat-each=3",
+        "--workers=3",
+        "--timeout=180000",
+        "--trace=on"
+      ],
+      "reason": "Diagnostic wait extended from30 to60 seconds, with no production change, to measure eventual reset completion",
+      "outcome": "failed",
+      "stats": {
+        "startTime": "2026-10-16T01:15:44.050Z",
+        "duration": 79567.60699999999,
+        "expected": 1,
+        "skipped": 0,
+        "unexpected": 2,
+        "flaky": 0
+      }
+    },
+    {
+      "name": "reset-probe",
+      "directory": "artifacts/acceptance/21/reset-probe-2026-10-16T01-18-12.952Z",
+      "source": {
+        "head": "a3d0610e159dc1d95143988f660c38a7a56d219e",
+        "sha256": "08196856d738e6357acf55d5a18204faa3ea24fc3413ef101f1191e71ad82df2"
+      },
+      "sourceManifestSha256": "b20252fb4d67386da199dca4b4dbada9ea6cad993307423af6478d72e5d57b09",
+      "diagnosticSnapshotPaths": [
+        "artifacts/acceptance/21/reset-probe-2026-10-16T01-18-12.952Z/source-snapshot/src/ui/reset.tsx"
+      ],
+      "command": [
+        "pnpm",
+        "exec",
+        "playwright",
+        "test",
+        "tests/browser/reset.screens.spec.ts",
+        "--project=chrome",
+        "--grep",
+        "public reset warning",
+        "--repeat-each=3",
+        "--workers=3",
+        "--timeout=180000",
+        "--trace=on"
+      ],
+      "reason": "Diagnostic reset prepare/execute boundary logs, original30second assertion",
+      "outcome": "failed",
+      "stats": {
+        "startTime": "2026-10-16T01:18:14.274Z",
+        "duration": 46581.861999999994,
+        "expected": 0,
+        "skipped": 0,
+        "unexpected": 3,
+        "flaky": 0
+      }
+    },
+    {
+      "name": "reset-probe2",
+      "directory": "artifacts/acceptance/21/reset-probe2-2026-10-16T01-20-03.481Z",
+      "source": {
+        "head": "a3d0610e159dc1d95143988f660c38a7a56d219e",
+        "sha256": "0dfd0395c277540a3032f7fb2cad01ba46946f29cacc7481b92fdc38ae209ae1"
+      },
+      "sourceManifestSha256": "f4acca45eef71a9151070d7387bc6083784046226fcdc0f75b19d2f264315e78",
+      "diagnosticSnapshotPaths": [
+        "artifacts/acceptance/21/reset-probe2-2026-10-16T01-20-03.481Z/source-snapshot/src/demo/index.ts",
+        "artifacts/acceptance/21/reset-probe2-2026-10-16T01-20-03.481Z/source-snapshot/src/ui/reset.tsx"
+      ],
+      "command": [
+        "pnpm",
+        "exec",
+        "playwright",
+        "test",
+        "tests/browser/reset.screens.spec.ts",
+        "--project=chrome",
+        "--grep",
+        "public reset warning",
+        "--repeat-each=3",
+        "--workers=3",
+        "--timeout=180000",
+        "--trace=on"
+      ],
+      "reason": "Diagnostic reset resource/storage boundary logs, original30second assertion",
+      "outcome": "failed",
+      "stats": {
+        "startTime": "2026-10-16T01:20:04.971Z",
+        "duration": 47673.439,
+        "expected": 2,
+        "skipped": 0,
+        "unexpected": 1,
+        "flaky": 0
+      }
+    },
+    {
+      "name": "reset-probe3",
+      "directory": "artifacts/acceptance/21/reset-probe3-2026-10-16T01-22-21.791Z",
+      "source": {
+        "head": "a3d0610e159dc1d95143988f660c38a7a56d219e",
+        "sha256": "8cb21e6429354556c5ebb613511f71763c348e065a7d812f7f470edd23105965"
+      },
+      "sourceManifestSha256": "a4a7000a2d4e8af07ef20c016abae78211bd33427c998c5412eeffff97d52524",
+      "diagnosticSnapshotPaths": [
+        "artifacts/acceptance/21/reset-probe3-2026-10-16T01-22-21.791Z/source-snapshot/src/demo/evidence.ts",
+        "artifacts/acceptance/21/reset-probe3-2026-10-16T01-22-21.791Z/source-snapshot/src/demo/index.ts",
+        "artifacts/acceptance/21/reset-probe3-2026-10-16T01-22-21.791Z/source-snapshot/src/ui/reset.tsx"
+      ],
+      "command": [
+        "pnpm",
+        "exec",
+        "playwright",
+        "test",
+        "tests/browser/reset.screens.spec.ts",
+        "--project=chrome",
+        "--grep",
+        "public reset warning",
+        "--repeat-each=3",
+        "--workers=3",
+        "--timeout=180000",
+        "--trace=on"
+      ],
+      "reason": "Diagnostic canvas encoding start/completion boundaries, original30second assertion",
+      "outcome": "failed",
+      "stats": {
+        "startTime": "2026-10-16T01:22:23.091Z",
+        "duration": 46794.382999999994,
+        "expected": 1,
+        "skipped": 0,
+        "unexpected": 2,
+        "flaky": 0
+      }
+    },
+    {
+      "name": "reset-focus-probe",
+      "directory": "artifacts/acceptance/21/reset-focus-probe-2026-10-16T01-24-24.334Z",
+      "source": {
+        "head": "a3d0610e159dc1d95143988f660c38a7a56d219e",
+        "sha256": "a7410dc9a3fc50bf46742ff7c3e5d50258f01220b4448ce1d82a19e273fe3449"
+      },
+      "sourceManifestSha256": "d4ebba19ad5d9c9acb08e7eb0433c12ded00ba00d3f23e53ef7cfb91c748e34b",
+      "diagnosticSnapshotPaths": [
+        "artifacts/acceptance/21/reset-focus-probe-2026-10-16T01-24-24.334Z/source-snapshot/tests/browser/reset.screens.spec.ts",
+        "artifacts/acceptance/21/reset-focus-probe-2026-10-16T01-24-24.334Z/source-snapshot/src/demo/evidence.ts",
+        "artifacts/acceptance/21/reset-focus-probe-2026-10-16T01-24-24.334Z/source-snapshot/src/demo/index.ts",
+        "artifacts/acceptance/21/reset-focus-probe-2026-10-16T01-24-24.334Z/source-snapshot/src/ui/reset.tsx"
+      ],
+      "command": [
+        "pnpm",
+        "exec",
+        "playwright",
+        "test",
+        "tests/browser/reset.screens.spec.ts",
+        "--project=chrome",
+        "--grep",
+        "public reset warning",
+        "--repeat-each=3",
+        "--workers=3",
+        "--timeout=180000",
+        "--trace=on"
+      ],
+      "reason": "Diagnostic page.bringToFront before reset, original30second assertion and encoding logs",
+      "outcome": "passed",
+      "stats": {
+        "startTime": "2026-10-16T01:24:25.543Z",
+        "duration": 28038.278,
+        "expected": 3,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      }
+    },
+    {
+      "name": "reset-foreground-clean",
+      "directory": "artifacts/acceptance/21/reset-final-2026-10-16T01-28-11.935Z",
+      "source": {
+        "head": "c3647066e414a0aa120ea8914833ea62aa4e1f14",
+        "sha256": "0f245d6dd603fc0034baa937b05b064908e867be1d5bbf929d3830c314a6f9d0"
+      },
+      "command": [
+        "pnpm",
+        "exec",
+        "playwright",
+        "test",
+        "tests/browser/reset.screens.spec.ts",
+        "--workers=3",
+        "--timeout=180000",
+        "--trace=on"
+      ],
+      "outcome": "failed",
+      "stats": {
+        "startTime": "2026-10-16T01:28:13.144Z",
+        "duration": 195072.20200000002,
+        "expected": 11,
+        "skipped": 0,
+        "unexpected": 1,
+        "flaky": 0
+      }
+    },
+    {
+      "name": "reset-duration-probe",
+      "directory": "artifacts/acceptance/21/reset-duration-probe-2026-10-16T01-32-19.511Z",
+      "source": {
+        "head": "c3647066e414a0aa120ea8914833ea62aa4e1f14",
+        "sha256": "680619f2447c3cb0045c989168286817fdd40bda77b849e43194992e2cf70726"
+      },
+      "command": [
+        "pnpm",
+        "exec",
+        "playwright",
+        "test",
+        "tests/browser/reset.screens.spec.ts",
+        "--project=chrome",
+        "--grep",
+        "public reset warning",
+        "--repeat-each=3",
+        "--workers=3",
+        "--timeout=180000",
+        "--trace=on"
+      ],
+      "outcome": "passed",
+      "stats": {
+        "startTime": "2026-10-16T01:32:20.799Z",
+        "duration": 111386.117,
+        "expected": 3,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "chooserWaits": [
+        {
+          "trace": "artifacts/acceptance/21/reset-duration-probe-2026-10-16T01-32-19.511Z/screens/results/reset.screens-public-reset-75277--recovery-in-both-languages-chrome-repeat1/trace.zip",
+          "sha256": "5cca12caede58f97764cfa5a1b6ca79a3c42a82098b8124551773ae50715bffa",
+          "waitMs": 94232,
+          "passed": true
+        },
+        {
+          "trace": "artifacts/acceptance/21/reset-duration-probe-2026-10-16T01-32-19.511Z/screens/results/reset.screens-public-reset-75277--recovery-in-both-languages-chrome-repeat2/trace.zip",
+          "sha256": "1b316faf236781b636de7a753485b3ab708d0e69ed95666f1f92f949a23cdac7",
+          "waitMs": 95055,
+          "passed": true
+        },
+        {
+          "trace": "artifacts/acceptance/21/reset-duration-probe-2026-10-16T01-32-19.511Z/screens/results/reset.screens-public-reset-75277--recovery-in-both-languages-chrome/trace.zip",
+          "sha256": "ae50142958358da0c25c646c0878ce0aac04c0945670b5e8630c23fbc6c305bf",
+          "waitMs": 95028,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "reset-verified",
+      "directory": "artifacts/acceptance/21/reset-verified-2026-10-16T01-36-01.025Z",
+      "source": {
+        "head": "9472adfe4a9e4505a05ea232b71de00375465351",
+        "sha256": "98bd79014134d87c118a697b667283c4f2c8faaac3a6bc3cc06b7ebf4324c9f0"
+      },
+      "command": [
+        "pnpm",
+        "exec",
+        "playwright",
+        "test",
+        "tests/browser/reset.screens.spec.ts",
+        "--grep",
+        "public reset warning",
+        "--workers=3",
+        "--timeout=180000",
+        "--trace=on"
+      ],
+      "outcome": "passed",
+      "stats": {
+        "startTime": "2026-10-16T01:36:02.278Z",
+        "duration": 39614.543000000005,
+        "expected": 3,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      }
+    }
+  ],
+  "observations": [
+    "Original unchanged Chrome case repeated with one pass and two 30-second assertion timeouts.",
+    "A 60-second diagnostic assertion also produced one pass and two timeouts, so that diagnostic wait was discarded. The later measured 120-second budget is retained.",
+    "Boundary logs locate delayed completion in seed image encoding, before the durable reset write.",
+    "Affected encodes continued at roughly one callback per second. Foreground probes completed all 84 encodes and the reset in about 11 seconds in each of three runs.",
+    "Bringing the test page forward before explicit confirmation passed three of three probes. This supports a foreground setup correction; it does not establish completion timing while backgrounded.",
+    "The clean reset-file recheck then passed eleven cases and timed out in Chrome again. Foregrounding alone was insufficient.",
+    "Three longer bounded Chrome probes completed the real reset with final chooser waits of 94,232, 95,055 and 95,028 ms. This establishes slow functional completion, not a performance pass.",
+    "The affected case passed in Chrome, Firefox and WebKit against 9472adf with no retries or skips. Combined with the eleven previously passing reset cases, all twelve unique reset cases have passing results. Earlier failed invocations remain failed."
+  ],
+  "foregroundSetup": {
+    "commit": "c364706",
+    "file": "tests/browser/reset.screens.spec.ts",
+    "behavior": "Bring page to front after bilingual captures, before explicit reset confirmation. Original 30-second chooser assertion remains."
+  },
+  "finalBudget": {
+    "commit": "9472adf",
+    "caseTimeoutMs": 180000,
+    "chooserTimeoutMs": 120000,
+    "scope": "Only the public unsigned/startup-recovery reset case; all actions and final postcondition retained. No production source changes."
+  }
+}

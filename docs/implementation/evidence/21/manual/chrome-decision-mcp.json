@@ -1,0 +1,840 @@
+[
+  {
+    "at": "2026-10-15T23:07:10.637Z",
+    "operation": "decision chooser",
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "## Latest page snapshot\nuid=6_0 RootWebArea \"رِفد / RIFD · Fictional financing demo\" url=\"http://127.0.0.1:4175/staff/applications/RIFD-2026-007/decision\"\n  uid=6_1 main busy\n    uid=6_2 \"رِفد / RIFD\"\n    uid=6_3 heading \"جارٍ تجهيز العرض التجريبي\" level=\"1\"\n    uid=6_4 \"Preparing the demo\"\n"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:07:35.828Z",
+    "operation": "decision chooser ready",
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Element matching one of [\"سلمى ناصر\"] found.\n## Latest page snapshot\nuid=6_0 RootWebArea \"رِفد / RIFD · Fictional financing demo\" url=\"http://127.0.0.1:4175/staff/applications/RIFD-2026-007/decision\"\n  uid=7_0 banner\n    uid=7_1 link \"رِفد عرض تمويل تجريبي\" url=\"http://127.0.0.1:4175/\"\n    uid=7_4 navigation \"التنقل الرئيسي\"\n      uid=7_5 button \"إعادة ضبط العرض\"\n      uid=7_6 link \"مكونات الواجهة\" url=\"http://127.0.0.1:4175/components\"\n      uid=7_8 link \"منتجات التمويل\" url=\"http://127.0.0.1:4175/products\"\n    uid=7_10 button \"English\"\n  uid=7_11 main\n    uid=7_12 \"ابدأ الاستكشاف\"\n    uid=7_13 heading \"اختر هوية تجريبية\" focusable focused level=\"1\"\n    uid=7_14 \"تصفح الطلبات بهوية افتراضية. يرى المتقدم طلباته فقط، وتقرأ المراجعة الطلبات المقدمة.\"\n    uid=7_15 button \"مريم سالم\"\n    uid=7_16 button \"هدى علي\"\n    uid=7_17 button \"عمر حسن\"\n    uid=7_18 button \"سلمى ناصر\"\n    uid=7_19 \"قارن المنتجات وأكمل الطلب وقدمه وتابع سجله. ستُضاف إجراءات المراجعة لاحقًا.\"\n  uid=7_20 contentinfo\n    uid=7_21 \"عرض تجريبي. الأشخاص والمنتجات وشروط التمويل افتراضية. لا يُرسل أي طلب إلى بنك، ولا تُتحقق هوية، ولا تُعالج مدفوعات.\"\n    uid=7_22 \"قد يبدأ التبويب المكرر أو المفتوح من تبويب آخر للعرض بالهوية نفسها. يظل النشاط وتسجيل الخروج وتغيير الهوية مستقلًا في كل تبويب.\"\n    uid=7_23 \"تظل البيانات والملفات في ملف هذا المتصفح ويمكن فحصها محليًا. لا تتزامن بين الأجهزة أو المتصفحات، وقد تختفي بمسح البيانات أو التصفح الخاص أو إخلاء التخزين. استخدم بيانات ومستندات افتراضية فقط.\"\n"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:07:42.330Z",
+    "tool": "press_key",
+    "input": {
+      "pageId": 3,
+      "key": "Tab"
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully pressed key: Tab"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:07:44.519Z",
+    "tool": "press_key",
+    "input": {
+      "pageId": 3,
+      "key": "Tab"
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully pressed key: Tab"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:07:46.589Z",
+    "tool": "press_key",
+    "input": {
+      "pageId": 3,
+      "key": "Tab"
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully pressed key: Tab"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:07:49.425Z",
+    "tool": "press_key",
+    "input": {
+      "pageId": 3,
+      "key": "Tab"
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully pressed key: Tab"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:07:51.742Z",
+    "tool": "press_key",
+    "input": {
+      "pageId": 3,
+      "key": "Enter"
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully pressed key: Enter"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:08:31.523Z",
+    "tool": "press_key",
+    "input": {
+      "pageId": 3,
+      "key": "Tab"
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully pressed key: Tab"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:08:33.623Z",
+    "tool": "press_key",
+    "input": {
+      "pageId": 3,
+      "key": "Tab"
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully pressed key: Tab"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:08:36.603Z",
+    "tool": "press_key",
+    "input": {
+      "pageId": 3,
+      "key": "Tab"
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully pressed key: Tab"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:08:38.718Z",
+    "tool": "press_key",
+    "input": {
+      "pageId": 3,
+      "key": "Tab"
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully pressed key: Tab"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:08:41.322Z",
+    "tool": "press_key",
+    "input": {
+      "pageId": 3,
+      "key": "Tab"
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully pressed key: Tab"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:08:44.577Z",
+    "tool": "press_key",
+    "input": {
+      "pageId": 3,
+      "key": "Tab"
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully pressed key: Tab"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:08:46.583Z",
+    "tool": "press_key",
+    "input": {
+      "pageId": 3,
+      "key": "Tab"
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully pressed key: Tab"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:08:48.698Z",
+    "tool": "press_key",
+    "input": {
+      "pageId": 3,
+      "key": "Tab"
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully pressed key: Tab"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:08:50.937Z",
+    "tool": "press_key",
+    "input": {
+      "pageId": 3,
+      "key": "Tab"
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully pressed key: Tab"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:08:53.936Z",
+    "tool": "press_key",
+    "input": {
+      "pageId": 3,
+      "key": "Tab"
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully pressed key: Tab"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:08:58.278Z",
+    "tool": "press_key",
+    "input": {
+      "pageId": 3,
+      "key": "Tab"
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully pressed key: Tab"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:09:00.814Z",
+    "tool": "press_key",
+    "input": {
+      "pageId": 3,
+      "key": "Tab"
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully pressed key: Tab"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:09:02.851Z",
+    "tool": "press_key",
+    "input": {
+      "pageId": 3,
+      "key": "Tab"
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully pressed key: Tab"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:09:04.983Z",
+    "tool": "press_key",
+    "input": {
+      "pageId": 3,
+      "key": "Tab"
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully pressed key: Tab"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:09:09.582Z",
+    "tool": "press_key",
+    "input": {
+      "pageId": 3,
+      "key": "Tab"
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully pressed key: Tab"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:09:12.576Z",
+    "tool": "press_key",
+    "input": {
+      "pageId": 3,
+      "key": "Tab"
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully pressed key: Tab"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:09:28.638Z",
+    "tool": "press_key",
+    "input": {
+      "pageId": 3,
+      "key": "Tab"
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully pressed key: Tab"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:09:30.577Z",
+    "tool": "press_key",
+    "input": {
+      "pageId": 3,
+      "key": "Tab"
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully pressed key: Tab"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:09:32.742Z",
+    "tool": "press_key",
+    "input": {
+      "pageId": 3,
+      "key": "Tab"
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully pressed key: Tab"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:09:34.799Z",
+    "tool": "press_key",
+    "input": {
+      "pageId": 3,
+      "key": "Tab"
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully pressed key: Tab"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:09:37.006Z",
+    "tool": "press_key",
+    "input": {
+      "pageId": 3,
+      "key": "Tab"
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully pressed key: Tab"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:09:41.263Z",
+    "tool": "press_key",
+    "input": {
+      "pageId": 3,
+      "key": "Tab"
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully pressed key: Tab"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:09:45.623Z",
+    "tool": "press_key",
+    "input": {
+      "pageId": 3,
+      "key": "Tab"
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully pressed key: Tab"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:09:48.137Z",
+    "tool": "press_key",
+    "input": {
+      "pageId": 3,
+      "key": "Tab"
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully pressed key: Tab"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:09:50.214Z",
+    "tool": "press_key",
+    "input": {
+      "pageId": 3,
+      "key": "Tab"
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully pressed key: Tab"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:09:52.616Z",
+    "tool": "press_key",
+    "input": {
+      "pageId": 3,
+      "key": "Tab"
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully pressed key: Tab"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:09:57.432Z",
+    "tool": "press_key",
+    "input": {
+      "pageId": 3,
+      "key": "Tab"
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully pressed key: Tab"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:09:59.394Z",
+    "tool": "press_key",
+    "input": {
+      "pageId": 3,
+      "key": "Tab"
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully pressed key: Tab"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:10:01.726Z",
+    "tool": "press_key",
+    "input": {
+      "pageId": 3,
+      "key": "Tab"
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully pressed key: Tab"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:10:03.667Z",
+    "tool": "press_key",
+    "input": {
+      "pageId": 3,
+      "key": "Tab"
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully pressed key: Tab"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:10:05.705Z",
+    "tool": "press_key",
+    "input": {
+      "pageId": 3,
+      "key": "Tab"
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully pressed key: Tab"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:10:08.184Z",
+    "operation": "keyboard purpose target",
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Script ran on page and returned:\n```json\n{\"focus\":\"لم يجتز\",\"outline\":\"rgb(211, 145, 48) solid 3px\"}\n```"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:10:15.423Z",
+    "tool": "evaluate_script",
+    "input": {
+      "pageId": 3,
+      "function": "() => ({focus:document.activeElement.textContent,criterion:document.activeElement.closest('fieldset')?.querySelector('legend')?.textContent,width:innerWidth,height:innerHeight,lang:document.documentElement.lang})",
+      "waitForStableDom": false
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Script ran on page and returned:\n```json\n{\"focus\":\"لم يجتز\",\"criterion\":\"ملاءمة الغرض لمنتج التمويل\",\"width\":1890,\"height\":877,\"lang\":\"ar\"}\n```"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:10:24.781Z",
+    "tool": "press_key",
+    "input": {
+      "pageId": 3,
+      "key": "Enter"
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully pressed key: Enter"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:10:27.939Z",
+    "tool": "press_key",
+    "input": {
+      "pageId": 3,
+      "key": "Alt+ArrowLeft"
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully pressed key: Alt+ArrowLeft"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:10:42.505Z",
+    "tool": "click",
+    "input": {
+      "pageId": 3,
+      "uid": "9_12"
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully clicked on the element\nPage navigated to http://127.0.0.1:4175/staff/applications/RIFD-2026-007/decision."
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:10:44.374Z",
+    "tool": "emulate",
+    "input": {
+      "pageId": 3,
+      "viewport": "390x950x1"
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Emulation configured successfully\nEmulating viewport: {\"deviceScaleFactor\":1,\"isMobile\":false,\"hasTouch\":false,\"isLandscape\":false,\"width\":390,\"height\":950}"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:10:59.242Z",
+    "tool": "fill",
+    "input": {
+      "pageId": 3,
+      "uid": "11_53",
+      "value": "غرض الشراء لا يطابق منتج التمويل. Fictional equipment for متجر صنعاء."
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully filled out the element\nEmulating viewport: {\"deviceScaleFactor\":1,\"isMobile\":false,\"hasTouch\":false,\"isLandscape\":false,\"width\":390,\"height\":950}"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:11:01.996Z",
+    "tool": "press_key",
+    "input": {
+      "pageId": 3,
+      "key": "Tab"
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully pressed key: Tab\nEmulating viewport: {\"deviceScaleFactor\":1,\"isMobile\":false,\"hasTouch\":false,\"isLandscape\":false,\"width\":390,\"height\":950}"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:11:04.201Z",
+    "tool": "press_key",
+    "input": {
+      "pageId": 3,
+      "key": "Enter"
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully pressed key: Enter\nEmulating viewport: {\"deviceScaleFactor\":1,\"isMobile\":false,\"hasTouch\":false,\"isLandscape\":false,\"width\":390,\"height\":950}"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:11:06.047Z",
+    "operation": "Arabic confirmation",
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Emulating viewport: {\"deviceScaleFactor\":1,\"isMobile\":false,\"hasTouch\":false,\"isLandscape\":false,\"width\":390,\"height\":950}\n## Latest page snapshot\nuid=6_0 RootWebArea \"رِفد / RIFD · Fictional financing demo\" url=\"http://127.0.0.1:4175/staff/applications/RIFD-2026-007/decision\"\n  uid=12_0 dialog \"تأكيد الرفض\" modal\n    uid=12_1 heading \"تأكيد الرفض\" level=\"2\"\n    uid=12_2 \"مراجعة\"\n    uid=12_3 \": \"\n    uid=12_4 \"سلمى ناصر\"\n    uid=12_5 \"RIFD-2026-007\"\n    uid=12_6 \" · \"\n    uid=12_7 \"مريم سالم\"\n    uid=12_8 \" · \"\n    uid=12_9 \"تمويل المعدات\"\n    uid=12_10 \"900,000 ر.ي.\"\n    uid=12_11 \" · \"\n    uid=12_12 \"12\"\n    uid=12_13 \" \"\n    uid=12_14 \"شهرًا\"\n    uid=12_15 \"غرض الشراء لا يطابق منتج التمويل. Fictional equipment for متجر صنعاء.\"\n    uid=12_16 \"القرار نهائي. تُقفل البيانات والمستندات والفحوص والإسناد. تقبل الموافقة شروط المتقدم وتثبت جدول السداد التوضيحي.\"\n    uid=12_17 button \"العودة إلى التحرير\" focusable focused\n    uid=12_18 button \"تأكيد القرار النهائي\"\n"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:11:14.641Z",
+    "tool": "press_key",
+    "input": {
+      "pageId": 3,
+      "key": "Shift+Tab"
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully pressed key: Shift+Tab\nEmulating viewport: {\"deviceScaleFactor\":1,\"isMobile\":false,\"hasTouch\":false,\"isLandscape\":false,\"width\":390,\"height\":950}"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:11:16.695Z",
+    "operation": "after Shift+Tab",
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Script ran on page and returned:\n```json\n{\"focus\":\"رِفدعرض تمويل تجريبيإعادة ضبط العرضمكونات الواجهةمنتجات التمويلقائمة الطلباتسلمى ناصرمراجعةEnglishتغيير الهويةتسجيل الخروجإنهاء الجلسةمراجعةقائمة الطلباتاقرأ الطلبات المقدمة بجميع حالات الإسناد. المسودات والردود الخاصة غير ظاهرة للمراجعة.العودة إلى القائمةتمويل المعداتRIFD-2026-007قيد المراجعةمريم سالم · ورشة المدار التجريبيةطباعة الملخصتجربة تعارض المراجعةينقل هذا التحكم التجريبي الطلب إلى خالد مع إبقاء هذا العرض قديمًا لتجربة رفض الحفظ.محاكاة إسناد الطلب إلى خالدالعودة إلى المراجعةالإسناد والمراجعةالمراجع المسند إليه: مسند إليكبدأت المراجعة. يحتفظ نقل الإسناد بنتائج المراجعة الحالية.نقل إلى خالد عليشروط التمويل المقدمةRIFD-2026-007 · مريم سالم · تمويل المعدات900,000 ر.ي. · 12 شهرًاالقرار نهائي. تُقفل البيانات والمستندات والفحوص والإسناد. تقبل الموافقة شروط المتقدم وتثبت جدول السداد التوضيحي.متطلبات الموافقةالمستندات التي تنتظر القبولملخص الإيرادات والمصروفاتعرض سعر المعداتالفحوص التي تنتظر الاجتيازاتساق المستندات والبياناتملاءمة الغرض لمنتج التمويلتوافق مبلغ التمويل مع تكلفة الشراءالقدرة التوضيحية على السدادمتطلبات الرفضيتطلب الرفض إخفاق معيار جوهري واحد على الأقل: مدة النشاط أو ملاءمة الغرض أو تغطية الميزانية أو القدرة على السداد. نقص المستندات أو عدم اتساقها وحده لا يبرر الرفض.يوجد معيار جوهري لم يجتز الفحص.تسجيل القرار النهائياكتب سببًا واضحًا للمتقدم، ثم افحص القرار وأكّده صراحةً.سبب القرار الظاهر للمتقدمغرض الشراء لا يطابق منتج التمويل. Fictional equipment for متجر صنعاء.فحص الموافقةفحص الرفضسجل الطلبتقديم الطلب6 أكتوبر 2026بدء المراجعة7 أكتوبر 2026تأكيد الرفضمراجعة: سلمى ناصرRIFD-2026-007 · مريم سالم · تمويل المعدات900,000 ر.ي. · 12 شهرًاغرض الشراء لا يطابق منتج التمويل. Fictional equipment for متجر صنعاء.القرار نهائي. تُقفل البيانات والمستندات والفحوص والإسناد. تقبل الموافقة شروط المتقدم وتثبت جدول السداد التوضيحي.العودة إلى التحريرتأكيد القرار النهائيعرض تجريبي. الأشخاص والمنتجات وشروط التمويل افتراضية. لا يُرسل أي طلب إلى بنك، ولا تُتحقق هوية، ولا تُعالج مدفوعات.قد يبدأ التبويب المكرر أو المفتوح من تبويب آخر للعرض بالهوية نفسها. يظل النشاط وتسجيل الخروج وتغيير الهوية مستقلًا في كل تبويب.تظل البيانات والملفات في ملف هذا المتصفح ويمكن فحصها محليًا. لا تتزامن بين الأجهزة أو المتصفحات، وقد تختفي بمسح البيانات أو التصفح الخاص أو إخلاء التخزين. استخدم بيانات ومستندات افتراضية فقط.\",\"width\":390,\"scrollWidth\":375}\n```"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:11:19.084Z",
+    "tool": "press_key",
+    "input": {
+      "pageId": 3,
+      "key": "Tab"
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully pressed key: Tab\nEmulating viewport: {\"deviceScaleFactor\":1,\"isMobile\":false,\"hasTouch\":false,\"isLandscape\":false,\"width\":390,\"height\":950}"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:11:21.073Z",
+    "operation": "after Tab",
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Script ran on page and returned:\n```json\n{\"focus\":\"العودة إلى التحرير\",\"width\":390,\"scrollWidth\":375}\n```"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:11:23.195Z",
+    "operation": "Arabic dialog screenshot",
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Took a screenshot of the current page's viewport.\nSaved screenshot to /tmp/rifd21-decision-ar-390.png.\nEmulating viewport: {\"deviceScaleFactor\":1,\"isMobile\":false,\"hasTouch\":false,\"isLandscape\":false,\"width\":390,\"height\":950}"
+        }
+      ]
+    }
+  },
+  {
+    "at": "2026-10-15T23:11:35.591Z",
+    "tool": "press_key",
+    "input": {
+      "pageId": 3,
+      "key": "Escape"
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully pressed key: Escape\nEmulating viewport: {\"deviceScaleFactor\":1,\"isMobile\":false,\"hasTouch\":false,\"isLandscape\":false,\"width\":390,\"height\":950}"
+        }
+      ]
+    }
+  }
+]
