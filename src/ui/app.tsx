@@ -140,7 +140,7 @@ export function App() {
   const navigateTo = (to: string, replace = false) => {
     setError(null)
     const target = new URL(to, window.location.origin)
-    return to === '/' ? navigate({ to: '/', replace }) : navigate({ to: '/$', params: { _splat: target.pathname.slice(1) }, search: defaultParseSearch(target.search), replace })
+    return to === '/' ? navigate({ to: '/', replace, resetScroll: target.pathname !== path }) : navigate({ to: '/$', params: { _splat: target.pathname.slice(1) }, search: defaultParseSearch(target.search), replace, resetScroll: target.pathname !== path })
   }
   const needsDeparture = () => !!departure.current?.dirty || !!departure.current?.pending || !!currentContext.current?.session && [...draftBuffers.current.values()].some(draftDirty) || !!currentContext.current?.session && [...reviewBuffers.current.values()].some(reviewDirty) || !!currentContext.current?.session && [...correctionBuffers.current.values()].some(correctionDirty) || !!currentContext.current?.session && [...decisionBuffers.current.values()].some(decisionDirty)
   const guard = (action: () => void) => {

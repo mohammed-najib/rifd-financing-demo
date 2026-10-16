@@ -26,6 +26,11 @@ const initialBuffer = (input: ApplicationView): DraftBuffer => {
 }
 export const draftDirty = (buffer: DraftBuffer) => !savedTime(buffer.baseline) || JSON.stringify(buffer.fields) !== JSON.stringify(buffer.baseline.snapshot.fields) || buffer.product !== buffer.baseline.product || buffer.purchaseRemoved || Object.keys(buffer.selections).length > 0 || buffer.status === 'unknown'
 const fieldId = (field: keyof Fields) => field === 'explanation' ? 'purchase-explanation' : `field-${field}`
+const focusIssue = (id: string) => {
+  const control = document.getElementById(id)
+  control?.focus()
+  control?.scrollIntoView({ block: 'center' })
+}
 const publication = (operation: ApplicationOperation | null) => operation?.kind === 'submit' || operation?.kind === 'resubmit'
 const sameInput = (previous: ApplicationOperation, next: Pick<ApplicationOperation, 'fields' | 'product' | 'documents'>) => previous.product === next.product && JSON.stringify(previous.fields) === JSON.stringify(next.fields) && JSON.stringify(previous.documents) === JSON.stringify(next.documents)
 
@@ -132,7 +137,8 @@ export function DraftEditor({ demo, view: suppliedView, context, language, retai
     if (newer && !draftDirty(state.current) && (view.status === 'draft' || corrections)) update(initialBuffer(view))
   }, [view])
   useEffect(() => {
-    document.getElementById(focusTarget.current ?? 'step-heading')?.focus()
+    if (focusTarget.current) focusIssue(focusTarget.current)
+    else document.getElementById('step-heading')?.focus()
     focusTarget.current = null
   }, [step])
   useEffect(() => {
@@ -286,7 +292,7 @@ export function DraftEditor({ demo, view: suppliedView, context, language, retai
     setSwitchTo(null); setReapplyConfirmation(null)
   }
   const openIssue = (target: ApplicationStep, id: string) => {
-    if (corrections || target === step) document.getElementById(id)?.focus()
+    if (corrections || target === step) focusIssue(id)
     else { focusTarget.current = id; changeStep(target) }
   }
   const renderField = (field: keyof Fields) => <ApplicationField key={field} field={field} id={fieldId(field)} value={buffer.fields[field]} product={buffer.product} language={language}
@@ -310,7 +316,7 @@ export function DraftEditor({ demo, view: suppliedView, context, language, retai
       {shownIssues && <div className="summary border-danger-border bg-danger-surface text-danger-text" id="validation-summary" role="alert" tabIndex={-1}><h3>{a('errors')}</h3><ul>{fieldIssues.map(issue => {
         const target = (Object.keys(stepFields) as Array<keyof typeof stepFields>).find(group => stepFields[group].includes(issue.field))!
         return <li key={issue.field}><a href={`?step=${target}#${fieldId(issue.field)}`} onClick={event => { event.preventDefault(); openIssue(target, fieldId(issue.field)) }}>{fieldLabels[issue.field][language]}: {issueMessage(issue)[language]}</a></li>
-      })}{unchangedTargets.map(target => <li key={target.kind === 'field' ? `change-${target.field}` : `change-${target.slot}`}><a href={`#${target.kind === 'field' ? fieldId(target.field) : `${target.slot}-file`}`} onClick={event => { event.preventDefault(); document.getElementById(target.kind === 'field' ? fieldId(target.field) : `${target.slot}-file`)?.focus() }}>{target.kind === 'field' ? fieldLabels[target.field][language] : documentLabel(target.slot, buffer.product)[language]}: {c('requiredChange')}</a></li>)}{missingSlots.map(slot => <li key={slot}><a href={`?step=documents#${slot}-file`} onClick={event => { event.preventDefault(); openIssue('documents', `${slot}-file`) }}>{documentLabel(slot, buffer.product)[language]}: {a('missing')}</a></li>)}</ul></div>}
+      })}{unchangedTargets.map(target => <li key={target.kind === 'field' ? `change-${target.field}` : `change-${target.slot}`}><a href={`#${target.kind === 'field' ? fieldId(target.field) : `${target.slot}-file`}`} onClick={event => { event.preventDefault(); focusIssue(target.kind === 'field' ? fieldId(target.field) : `${target.slot}-file`) }}>{target.kind === 'field' ? fieldLabels[target.field][language] : documentLabel(target.slot, buffer.product)[language]}: {c('requiredChange')}</a></li>)}{missingSlots.map(slot => <li key={slot}><a href={`?step=documents#${slot}-file`} onClick={event => { event.preventDefault(); openIssue('documents', `${slot}-file`) }}>{documentLabel(slot, buffer.product)[language]}: {a('missing')}</a></li>)}</ul></div>}
       {step === 'business' && <p className="text-[13px] text-muted">{a('financialHint')}</p>}
       {!corrections && step === 'financing' && <><label htmlFor="draft-product">{a('product')}</label><select id="draft-product" ref={productControl} value={buffer.product} disabled={locked} onChange={event => {
         const product = event.target.value as ProductId
