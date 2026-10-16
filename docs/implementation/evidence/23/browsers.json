@@ -1,0 +1,9 @@
+{
+  "recordedAt": "2026-10-16T20:36:19.925Z",
+  "playwright": "1.64.1",
+  "versions": {
+    "chrome": "155.0.8059.39",
+    "firefox": "157.0",
+    "webkit": "27.2"
+  }
+}

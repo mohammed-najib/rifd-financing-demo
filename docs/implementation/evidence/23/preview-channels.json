@@ -1,0 +1,53 @@
+{
+  "status": "success",
+  "result": {
+    "channels": [
+      {
+        "name": "projects/rifd-portfolio-mdnb/sites/rifd-portfolio-mdnb/channels/rifd-review",
+        "url": "https://rifd-portfolio-mdnb--rifd-review-0pctwjax.web.app",
+        "release": {
+          "name": "projects/rifd-portfolio-mdnb/sites/rifd-portfolio-mdnb/channels/rifd-review/releases/1792182777711000",
+          "version": {
+            "name": "projects/rifd-portfolio-mdnb/sites/rifd-portfolio-mdnb/versions/ea1a7ab0ece6377e",
+            "status": "FINALIZED",
+            "config": {
+              "rewrites": [
+                {
+                  "glob": "**",
+                  "path": "/_shell.html"
+                }
+              ]
+            },
+            "labels": {
+              "deployment-tool": "cli-firebase"
+            },
+            "createTime": "2026-10-16T20:32:48.881860Z",
+            "createUser": {
+              "email": "mohammed.najib.developer@gmail.com"
+            },
+            "finalizeTime": "2026-10-16T20:32:57.234524Z",
+            "finalizeUser": {
+              "email": "mohammed.najib.developer@gmail.com"
+            }
+          },
+          "type": "DEPLOY",
+          "releaseTime": "2026-10-16T20:32:57.711Z",
+          "releaseUser": {
+            "email": "mohammed.najib.developer@gmail.com"
+          }
+        },
+        "createTime": "2026-10-16T20:32:46.019285105Z",
+        "updateTime": "2026-10-16T20:32:57.711Z",
+        "retainedReleaseCount": 10,
+        "expireTime": "2026-11-15T20:32:46.019285105Z"
+      },
+      {
+        "name": "projects/rifd-portfolio-mdnb/sites/rifd-portfolio-mdnb/channels/live",
+        "url": "https://rifd-portfolio-mdnb.web.app",
+        "createTime": "2026-10-16T20:31:58.980751827Z",
+        "updateTime": "2026-10-16T20:31:58.980751827Z",
+        "retainedReleaseCount": 999999
+      }
+    ]
+  }
+}

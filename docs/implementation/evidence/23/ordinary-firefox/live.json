@@ -1,0 +1,275 @@
+{
+  "outcome": "passed",
+  "checkedAt": "2026-10-16T20:47:43.002Z",
+  "origin": "https://rifd-portfolio-mdnb.web.app",
+  "browser": "firefox",
+  "version": "155.0.1",
+  "headless": true,
+  "scope": "Fresh startup, public products, signed-out protected link, identity return, business query and refresh, approved repayment, reviewer role switch and refresh, public print and reset warning in both languages. Full journeys use the separate Playwright reports.",
+  "captures": [
+    {
+      "name": "ar-products",
+      "direction": "rtl",
+      "fonts": [
+        {
+          "family": "Noto Sans",
+          "status": "loaded"
+        },
+        {
+          "family": "Noto Sans Arabic",
+          "status": "loaded"
+        }
+      ],
+      "heading": "منتجات التمويل",
+      "identity": null,
+      "language": "ar",
+      "scripts": [
+        "https://rifd-portfolio-mdnb.web.app/assets/index-CzJ0UPGN.js"
+      ],
+      "url": "https://rifd-portfolio-mdnb.web.app/products",
+      "width": 1366
+    },
+    {
+      "name": "ar-applicant-refresh",
+      "direction": "rtl",
+      "fonts": [
+        {
+          "family": "Noto Sans",
+          "status": "loaded"
+        },
+        {
+          "family": "Noto Sans Arabic",
+          "status": "loaded"
+        }
+      ],
+      "heading": "RIFD-2026-001",
+      "identity": "مريم سالممتقدم",
+      "language": "ar",
+      "scripts": [
+        "https://rifd-portfolio-mdnb.web.app/assets/index-CzJ0UPGN.js"
+      ],
+      "url": "https://rifd-portfolio-mdnb.web.app/applications/RIFD-2026-001/edit?step=business",
+      "width": 1366
+    },
+    {
+      "name": "ar-repayment",
+      "direction": "rtl",
+      "fonts": [
+        {
+          "family": "Noto Sans",
+          "status": "loaded"
+        },
+        {
+          "family": "Noto Sans Arabic",
+          "status": "loaded"
+        }
+      ],
+      "heading": "جدول سداد توضيحي افتراضي",
+      "identity": "مريم سالممتقدم",
+      "language": "ar",
+      "scripts": [
+        "https://rifd-portfolio-mdnb.web.app/assets/index-CzJ0UPGN.js"
+      ],
+      "url": "https://rifd-portfolio-mdnb.web.app/applications/RIFD-2026-005/repayment",
+      "width": 1366
+    },
+    {
+      "name": "ar-staff-refresh",
+      "direction": "rtl",
+      "fonts": [
+        {
+          "family": "Noto Sans",
+          "status": "loaded"
+        },
+        {
+          "family": "Noto Sans Arabic",
+          "status": "loaded"
+        }
+      ],
+      "heading": "RIFD-2026-007",
+      "identity": "سلمى ناصرمراجعة",
+      "language": "ar",
+      "scripts": [
+        "https://rifd-portfolio-mdnb.web.app/assets/index-CzJ0UPGN.js"
+      ],
+      "url": "https://rifd-portfolio-mdnb.web.app/staff/applications/RIFD-2026-007",
+      "width": 1366
+    },
+    {
+      "name": "ar-print",
+      "direction": "rtl",
+      "fonts": [
+        {
+          "family": "Noto Sans",
+          "status": "loaded"
+        },
+        {
+          "family": "Noto Sans Arabic",
+          "status": "loaded"
+        }
+      ],
+      "heading": "ملخص الطلب للطباعة",
+      "identity": "سلمى ناصرمراجعة",
+      "language": "ar",
+      "scripts": [
+        "https://rifd-portfolio-mdnb.web.app/assets/index-CzJ0UPGN.js"
+      ],
+      "url": "https://rifd-portfolio-mdnb.web.app/staff/applications/RIFD-2026-005/print",
+      "width": 1366
+    },
+    {
+      "name": "ar-reset-warning",
+      "direction": "rtl",
+      "fonts": [
+        {
+          "family": "Noto Sans",
+          "status": "loaded"
+        },
+        {
+          "family": "Noto Sans Arabic",
+          "status": "loaded"
+        }
+      ],
+      "heading": "إعادة ضبط العرض",
+      "identity": null,
+      "language": "ar",
+      "scripts": [
+        "https://rifd-portfolio-mdnb.web.app/assets/index-CzJ0UPGN.js"
+      ],
+      "url": "https://rifd-portfolio-mdnb.web.app/demo/reset",
+      "width": 1366
+    },
+    {
+      "name": "en-products",
+      "direction": "ltr",
+      "fonts": [
+        {
+          "family": "Noto Sans",
+          "status": "loaded"
+        },
+        {
+          "family": "Noto Sans Arabic",
+          "status": "loaded"
+        }
+      ],
+      "heading": "Financing products",
+      "identity": null,
+      "language": "en",
+      "scripts": [
+        "https://rifd-portfolio-mdnb.web.app/assets/index-CzJ0UPGN.js"
+      ],
+      "url": "https://rifd-portfolio-mdnb.web.app/products",
+      "width": 1366
+    },
+    {
+      "name": "en-applicant-refresh",
+      "direction": "ltr",
+      "fonts": [
+        {
+          "family": "Noto Sans",
+          "status": "loaded"
+        },
+        {
+          "family": "Noto Sans Arabic",
+          "status": "loaded"
+        }
+      ],
+      "heading": "RIFD-2026-001",
+      "identity": "Mariam SalemApplicant",
+      "language": "en",
+      "scripts": [
+        "https://rifd-portfolio-mdnb.web.app/assets/index-CzJ0UPGN.js"
+      ],
+      "url": "https://rifd-portfolio-mdnb.web.app/applications/RIFD-2026-001/edit?step=business",
+      "width": 1366
+    },
+    {
+      "name": "en-repayment",
+      "direction": "ltr",
+      "fonts": [
+        {
+          "family": "Noto Sans",
+          "status": "loaded"
+        },
+        {
+          "family": "Noto Sans Arabic",
+          "status": "loaded"
+        }
+      ],
+      "heading": "Fictional repayment illustration",
+      "identity": "Mariam SalemApplicant",
+      "language": "en",
+      "scripts": [
+        "https://rifd-portfolio-mdnb.web.app/assets/index-CzJ0UPGN.js"
+      ],
+      "url": "https://rifd-portfolio-mdnb.web.app/applications/RIFD-2026-005/repayment",
+      "width": 1366
+    },
+    {
+      "name": "en-staff-refresh",
+      "direction": "ltr",
+      "fonts": [
+        {
+          "family": "Noto Sans",
+          "status": "loaded"
+        },
+        {
+          "family": "Noto Sans Arabic",
+          "status": "loaded"
+        }
+      ],
+      "heading": "RIFD-2026-007",
+      "identity": "Salma NasserReviewer",
+      "language": "en",
+      "scripts": [
+        "https://rifd-portfolio-mdnb.web.app/assets/index-CzJ0UPGN.js"
+      ],
+      "url": "https://rifd-portfolio-mdnb.web.app/staff/applications/RIFD-2026-007",
+      "width": 1366
+    },
+    {
+      "name": "en-print",
+      "direction": "ltr",
+      "fonts": [
+        {
+          "family": "Noto Sans",
+          "status": "loaded"
+        },
+        {
+          "family": "Noto Sans Arabic",
+          "status": "loaded"
+        }
+      ],
+      "heading": "Printable application summary",
+      "identity": "Salma NasserReviewer",
+      "language": "en",
+      "scripts": [
+        "https://rifd-portfolio-mdnb.web.app/assets/index-CzJ0UPGN.js"
+      ],
+      "url": "https://rifd-portfolio-mdnb.web.app/staff/applications/RIFD-2026-005/print",
+      "width": 1366
+    },
+    {
+      "name": "en-reset-warning",
+      "direction": "ltr",
+      "fonts": [
+        {
+          "family": "Noto Sans",
+          "status": "loaded"
+        },
+        {
+          "family": "Noto Sans Arabic",
+          "status": "loaded"
+        }
+      ],
+      "heading": "Reset demo",
+      "identity": null,
+      "language": "en",
+      "scripts": [
+        "https://rifd-portfolio-mdnb.web.app/assets/index-CzJ0UPGN.js"
+      ],
+      "url": "https://rifd-portfolio-mdnb.web.app/demo/reset",
+      "width": 1366
+    }
+  ]
+}

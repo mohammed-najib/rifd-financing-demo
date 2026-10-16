@@ -1,0 +1,28 @@
+ar-products
+ar-applicant-refresh
+ar-repayment
+ar-staff-refresh
+ar-print
+ar-reset-warning
+en-products
+en-applicant-refresh
+en-repayment
+en-staff-refresh
+en-print
+en-reset-warning
+/home/mdnb/.npm/_npx/deb77af66d9637d4/node_modules/selenium-webdriver/lib/error.js:523
+    let err = new ctor(data.message)
+              ^
+
+WebDriverError: Failed to decode response from marionette
+    at Object.throwDecodedError (/home/mdnb/.npm/_npx/deb77af66d9637d4/node_modules/selenium-webdriver/lib/error.js:523:15)
+    at parseHttpResponse (/home/mdnb/.npm/_npx/deb77af66d9637d4/node_modules/selenium-webdriver/lib/http.js:524:13)
+    at Executor.execute (/home/mdnb/.npm/_npx/deb77af66d9637d4/node_modules/selenium-webdriver/lib/http.js:456:28)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Driver.execute (/home/mdnb/.npm/_npx/deb77af66d9637d4/node_modules/selenium-webdriver/lib/webdriver.js:745:17)
+    at async Object.thenFinally [as finally] (/home/mdnb/.npm/_npx/deb77af66d9637d4/node_modules/selenium-webdriver/lib/promise.js:100:5)
+    at async file:///tmp/rifd23-ordinary.mjs:57:13 {
+  remoteStacktrace: ''
+}
+
+Node.js v26.7.0

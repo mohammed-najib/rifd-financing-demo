@@ -1,0 +1,122 @@
+[
+  {
+    "phase": "preview",
+    "path": "artifacts/release/23/preview-ordinary/ar-applicant-refresh.png",
+    "sha256": "d8df8002e7117bfd52dacafcc780dbe9d9307b458b59e554d18cbb0599c27c8a"
+  },
+  {
+    "phase": "preview",
+    "path": "artifacts/release/23/preview-ordinary/ar-print.png",
+    "sha256": "52bc59458a75610d7fe814d1dd7447568e2e527bd582e98392884b5206bb9937"
+  },
+  {
+    "phase": "preview",
+    "path": "artifacts/release/23/preview-ordinary/ar-products.png",
+    "sha256": "b76afb9b83557c64b406bb6f4a0c49622408270fd3dd3a82e2b2465712f23228"
+  },
+  {
+    "phase": "preview",
+    "path": "artifacts/release/23/preview-ordinary/ar-repayment.png",
+    "sha256": "fc6e59e4943b2c33f3589bf797593a1a68a4f831131c981e52e51a3be00b9f9f"
+  },
+  {
+    "phase": "preview",
+    "path": "artifacts/release/23/preview-ordinary/ar-reset-warning.png",
+    "sha256": "5d61b000c2374b627926cc2cc06ef02185bd8acb7fa6c6ef942048e0ea09b81d"
+  },
+  {
+    "phase": "preview",
+    "path": "artifacts/release/23/preview-ordinary/ar-staff-refresh.png",
+    "sha256": "ecdfec841322f42d68f6dc359e08e4b33f7051f5c74d35c3c13843ff018864b5"
+  },
+  {
+    "phase": "preview",
+    "path": "artifacts/release/23/preview-ordinary/en-applicant-refresh.png",
+    "sha256": "015748226e5255ddd15669082b1d536148e1cc0d96f5ada044019cc393e7c8b8"
+  },
+  {
+    "phase": "preview",
+    "path": "artifacts/release/23/preview-ordinary/en-print.png",
+    "sha256": "e2a57bbce5b1c00735af77ba74621c3ebf019d878a2dbdfd2aa4a85421266d95"
+  },
+  {
+    "phase": "preview",
+    "path": "artifacts/release/23/preview-ordinary/en-products.png",
+    "sha256": "e6333a6708d3fa4fe1b1967722b754a4b6aa1034732b0bd9e7b353cf52b69320"
+  },
+  {
+    "phase": "preview",
+    "path": "artifacts/release/23/preview-ordinary/en-repayment.png",
+    "sha256": "55ac46da01cc71a105937c222e697cd0024b012fc44f6bccb4ac8aade7e7dd8a"
+  },
+  {
+    "phase": "preview",
+    "path": "artifacts/release/23/preview-ordinary/en-reset-warning.png",
+    "sha256": "b7348b115880975ef91f344503e73b1418e8956cf4cbffea43cb3fe4547d622b"
+  },
+  {
+    "phase": "preview",
+    "path": "artifacts/release/23/preview-ordinary/en-staff-refresh.png",
+    "sha256": "5633ab8a3f77af65fbf02ef335c45572855707d4d128c1a31e06713bc1de3a38"
+  },
+  {
+    "phase": "live",
+    "path": "artifacts/release/23/live-ordinary/ar-applicant-refresh.png",
+    "sha256": "d8df8002e7117bfd52dacafcc780dbe9d9307b458b59e554d18cbb0599c27c8a"
+  },
+  {
+    "phase": "live",
+    "path": "artifacts/release/23/live-ordinary/ar-print.png",
+    "sha256": "52bc59458a75610d7fe814d1dd7447568e2e527bd582e98392884b5206bb9937"
+  },
+  {
+    "phase": "live",
+    "path": "artifacts/release/23/live-ordinary/ar-products.png",
+    "sha256": "b76afb9b83557c64b406bb6f4a0c49622408270fd3dd3a82e2b2465712f23228"
+  },
+  {
+    "phase": "live",
+    "path": "artifacts/release/23/live-ordinary/ar-repayment.png",
+    "sha256": "fc6e59e4943b2c33f3589bf797593a1a68a4f831131c981e52e51a3be00b9f9f"
+  },
+  {
+    "phase": "live",
+    "path": "artifacts/release/23/live-ordinary/ar-reset-warning.png",
+    "sha256": "5d61b000c2374b627926cc2cc06ef02185bd8acb7fa6c6ef942048e0ea09b81d"
+  },
+  {
+    "phase": "live",
+    "path": "artifacts/release/23/live-ordinary/ar-staff-refresh.png",
+    "sha256": "ecdfec841322f42d68f6dc359e08e4b33f7051f5c74d35c3c13843ff018864b5"
+  },
+  {
+    "phase": "live",
+    "path": "artifacts/release/23/live-ordinary/en-applicant-refresh.png",
+    "sha256": "015748226e5255ddd15669082b1d536148e1cc0d96f5ada044019cc393e7c8b8"
+  },
+  {
+    "phase": "live",
+    "path": "artifacts/release/23/live-ordinary/en-print.png",
+    "sha256": "e2a57bbce5b1c00735af77ba74621c3ebf019d878a2dbdfd2aa4a85421266d95"
+  },
+  {
+    "phase": "live",
+    "path": "artifacts/release/23/live-ordinary/en-products.png",
+    "sha256": "e6333a6708d3fa4fe1b1967722b754a4b6aa1034732b0bd9e7b353cf52b69320"
+  },
+  {
+    "phase": "live",
+    "path": "artifacts/release/23/live-ordinary/en-repayment.png",
+    "sha256": "55ac46da01cc71a105937c222e697cd0024b012fc44f6bccb4ac8aade7e7dd8a"
+  },
+  {
+    "phase": "live",
+    "path": "artifacts/release/23/live-ordinary/en-reset-warning.png",
+    "sha256": "b7348b115880975ef91f344503e73b1418e8956cf4cbffea43cb3fe4547d622b"
+  },
+  {
+    "phase": "live",
+    "path": "artifacts/release/23/live-ordinary/en-staff-refresh.png",
+    "sha256": "5633ab8a3f77af65fbf02ef335c45572855707d4d128c1a31e06713bc1de3a38"
+  }
+]

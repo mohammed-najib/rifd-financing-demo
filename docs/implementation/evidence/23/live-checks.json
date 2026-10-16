@@ -1,0 +1,1063 @@
+{
+  "outcome": "failed",
+  "origin": "https://rifd-portfolio-mdnb.web.app",
+  "applicationCommit": "1352c140782168ce9e77773547e35658c19cff45",
+  "sourceSha256": "b40ed3702f8c955998aaf4b38246930469a1cdbd47bbec6ba68357c0d8e1f8fd",
+  "stats": {
+    "startTime": "2026-10-16T20:46:55.828Z",
+    "duration": 399862.322,
+    "expected": 30,
+    "skipped": 0,
+    "unexpected": 15,
+    "flaky": 0
+  },
+  "browsers": {
+    "recordedAt": "2026-10-16T20:36:19.925Z",
+    "playwright": "1.64.1",
+    "versions": {
+      "chrome": "155.0.8059.39",
+      "firefox": "157.0",
+      "webkit": "27.2"
+    }
+  },
+  "rawReport": "artifacts/release/23/live/report.json",
+  "rawReportSha256": "99a4863777ba308f033da8785354b29b90200644762c95a19aedd62e196460e2",
+  "artifactRelocation": null,
+  "cases": [
+    {
+      "title": "en a new young business submits, is rejected and receives its public reason",
+      "file": "decisions.screens.spec.ts",
+      "line": 7,
+      "project": "chrome",
+      "status": "unexpected",
+      "results": [
+        {
+          "status": "failed",
+          "retry": 0,
+          "durationMs": 4,
+          "error": "Error: browserType.launch: Target page, context or browser has been closed\nBrowser logs:\n\n<launching> /opt/google/chrome/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,AvoidCorsURLLoaderRestartOnRedirect,Translate,AutoDeElevate,OptimizationHints,NetworkTimeServiceQuerying,AimEnabled,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/home/mdnb/Dev/Projects/project_impr"
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "error-context",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/decisions.screens-en-a-new-bac8a--receives-its-public-reason-chrome/error-context.md",
+          "sha256": "726145c3b9efe34400bbd93b6dc2a6d723de90c566b852af68ce5c8bec0c49b4"
+        },
+        {
+          "name": "trace",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/decisions.screens-en-a-new-bac8a--receives-its-public-reason-chrome/trace.zip",
+          "sha256": "d3d1610f31d3b8f20502cecddbf1267d19ec7a88683cd645ab87926be3bf6328"
+        }
+      ]
+    },
+    {
+      "title": "en first submission through approval freezes the applicant terms",
+      "file": "decisions.screens.spec.ts",
+      "line": 150,
+      "project": "chrome",
+      "status": "unexpected",
+      "results": [
+        {
+          "status": "failed",
+          "retry": 0,
+          "durationMs": 4,
+          "error": "Error: browserType.launch: Target page, context or browser has been closed\nBrowser logs:\n\n<launching> /opt/google/chrome/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,AvoidCorsURLLoaderRestartOnRedirect,Translate,AutoDeElevate,OptimizationHints,NetworkTimeServiceQuerying,AimEnabled,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/home/mdnb/Dev/Projects/project_impr"
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "error-context",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/decisions.screens-en-first-1f20a-freezes-the-applicant-terms-chrome/error-context.md",
+          "sha256": "ae76deb816a16ff8433fdc2c3ccb20beb7a6922c75e4c51bd514d477cb7e0413"
+        },
+        {
+          "name": "trace",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/decisions.screens-en-first-1f20a-freezes-the-applicant-terms-chrome/trace.zip",
+          "sha256": "6ff728c91a135d9637102cfba61b483c70e6376bc509865c41f3f586a21e4b3a"
+        }
+      ]
+    },
+    {
+      "title": "en a new young business submits, is rejected and receives its public reason",
+      "file": "decisions.screens.spec.ts",
+      "line": 7,
+      "project": "firefox",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "durationMs": 34351
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "trace",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/decisions.screens-en-a-new-bac8a--receives-its-public-reason-firefox/trace.zip",
+          "sha256": "01c81f625bd94f81a370ad63c0020a524204ad1b77188ba633660a88c4affb13"
+        }
+      ]
+    },
+    {
+      "title": "en first submission through approval freezes the applicant terms",
+      "file": "decisions.screens.spec.ts",
+      "line": 150,
+      "project": "firefox",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "durationMs": 37690
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "trace",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/decisions.screens-en-first-1f20a-freezes-the-applicant-terms-firefox/trace.zip",
+          "sha256": "5cac7b0107134f19f5e6bf0e4c080b0a7f6c92bcf71240c5f3cbc38351d51f10"
+        }
+      ]
+    },
+    {
+      "title": "en a new young business submits, is rejected and receives its public reason",
+      "file": "decisions.screens.spec.ts",
+      "line": 7,
+      "project": "webkit",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "durationMs": 35776
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "trace",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/decisions.screens-en-a-new-bac8a--receives-its-public-reason-webkit/trace.zip",
+          "sha256": "934029c0597e6f15936aa8355073bad0baa42407eb6d3159af8ded621d849736"
+        }
+      ]
+    },
+    {
+      "title": "en first submission through approval freezes the applicant terms",
+      "file": "decisions.screens.spec.ts",
+      "line": 150,
+      "project": "webkit",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "durationMs": 35055
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "trace",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/decisions.screens-en-first-1f20a-freezes-the-applicant-terms-webkit/trace.zip",
+          "sha256": "bf6803914da50c6833b7af53ae9c3a11bda31477e74a950edd8155bfe5f5c3e7"
+        }
+      ]
+    },
+    {
+      "title": "ar public static deep links, shell, assets and refresh",
+      "file": "delivery.gates.spec.ts",
+      "line": 12,
+      "project": "chrome",
+      "status": "unexpected",
+      "results": [
+        {
+          "status": "failed",
+          "retry": 0,
+          "durationMs": 8,
+          "error": "Error: browserType.launch: Target page, context or browser has been closed\nBrowser logs:\n\n<launching> /opt/google/chrome/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,AvoidCorsURLLoaderRestartOnRedirect,Translate,AutoDeElevate,OptimizationHints,NetworkTimeServiceQuerying,AimEnabled,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/home/mdnb/Dev/Projects/project_impr"
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "error-context",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/delivery.gates-ar-public-s-24cd3-ks-shell-assets-and-refresh-chrome/error-context.md",
+          "sha256": "a6a2c706e404f98b13d606c733dcec2427da1774887c2c2322d38c719a484fb3"
+        },
+        {
+          "name": "trace",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/delivery.gates-ar-public-s-24cd3-ks-shell-assets-and-refresh-chrome/trace.zip",
+          "sha256": "47d5fcdbfbac6595f3bb63cec08643a9e3ae2568e3dcae7eb64ae7ca7b31539b"
+        }
+      ]
+    },
+    {
+      "title": "ar mariam protected direct links, sign-in return, query and safe fallbacks refresh",
+      "file": "delivery.gates.spec.ts",
+      "line": 46,
+      "project": "chrome",
+      "status": "unexpected",
+      "results": [
+        {
+          "status": "failed",
+          "retry": 0,
+          "durationMs": 5,
+          "error": "Error: browserType.launch: Target page, context or browser has been closed\nBrowser logs:\n\n<launching> /opt/google/chrome/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,AvoidCorsURLLoaderRestartOnRedirect,Translate,AutoDeElevate,OptimizationHints,NetworkTimeServiceQuerying,AimEnabled,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/home/mdnb/Dev/Projects/project_impr"
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "error-context",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/delivery.gates-ar-mariam-p-bd816--and-safe-fallbacks-refresh-chrome/error-context.md",
+          "sha256": "754eb26568553fe4bac3c61ead8eb72ed857befeaab927ee4b7d5de24a1a59c2"
+        },
+        {
+          "name": "trace",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/delivery.gates-ar-mariam-p-bd816--and-safe-fallbacks-refresh-chrome/trace.zip",
+          "sha256": "90305f3686fd266a788986d4596d72b4df6ac12473eaa3d25346c229b88182e6"
+        }
+      ]
+    },
+    {
+      "title": "ar huda protected direct links, sign-in return, query and safe fallbacks refresh",
+      "file": "delivery.gates.spec.ts",
+      "line": 46,
+      "project": "chrome",
+      "status": "unexpected",
+      "results": [
+        {
+          "status": "failed",
+          "retry": 0,
+          "durationMs": 5,
+          "error": "Error: browserType.launch: Target page, context or browser has been closed\nBrowser logs:\n\n<launching> /opt/google/chrome/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,AvoidCorsURLLoaderRestartOnRedirect,Translate,AutoDeElevate,OptimizationHints,NetworkTimeServiceQuerying,AimEnabled,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/home/mdnb/Dev/Projects/project_impr"
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "error-context",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/delivery.gates-ar-huda-pro-ac2a1--and-safe-fallbacks-refresh-chrome/error-context.md",
+          "sha256": "5db47e87c3120177ab85b138d5cd8fd13b5da66016bf1e74b243b8239a576083"
+        },
+        {
+          "name": "trace",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/delivery.gates-ar-huda-pro-ac2a1--and-safe-fallbacks-refresh-chrome/trace.zip",
+          "sha256": "8da8f3e303ca30d2048552a19824fb2da26c135f8141da6ce39a3d733d938c30"
+        }
+      ]
+    },
+    {
+      "title": "ar salma protected direct links, sign-in return, query and safe fallbacks refresh",
+      "file": "delivery.gates.spec.ts",
+      "line": 46,
+      "project": "chrome",
+      "status": "unexpected",
+      "results": [
+        {
+          "status": "failed",
+          "retry": 0,
+          "durationMs": 5,
+          "error": "Error: browserType.launch: Target page, context or browser has been closed\nBrowser logs:\n\n<launching> /opt/google/chrome/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,AvoidCorsURLLoaderRestartOnRedirect,Translate,AutoDeElevate,OptimizationHints,NetworkTimeServiceQuerying,AimEnabled,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/home/mdnb/Dev/Projects/project_impr"
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "error-context",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/delivery.gates-ar-salma-pr-b5950--and-safe-fallbacks-refresh-chrome/error-context.md",
+          "sha256": "06d128271b7e4c32b286b0ebfeea36197e7d543616b5540f64c22568b9b5cb91"
+        },
+        {
+          "name": "trace",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/delivery.gates-ar-salma-pr-b5950--and-safe-fallbacks-refresh-chrome/trace.zip",
+          "sha256": "85565af1adba78b85ff183c15fcb134cabe1e7dc082f60c8e082ab3e340ddc17"
+        }
+      ]
+    },
+    {
+      "title": "en public static deep links, shell, assets and refresh",
+      "file": "delivery.gates.spec.ts",
+      "line": 12,
+      "project": "chrome",
+      "status": "unexpected",
+      "results": [
+        {
+          "status": "failed",
+          "retry": 0,
+          "durationMs": 7,
+          "error": "Error: browserType.launch: Target page, context or browser has been closed\nBrowser logs:\n\n<launching> /opt/google/chrome/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,AvoidCorsURLLoaderRestartOnRedirect,Translate,AutoDeElevate,OptimizationHints,NetworkTimeServiceQuerying,AimEnabled,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/home/mdnb/Dev/Projects/project_impr"
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "error-context",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/delivery.gates-en-public-s-e0488-ks-shell-assets-and-refresh-chrome/error-context.md",
+          "sha256": "ae30cc5f60bd54c779d77bc8b4aaf04bd67e5910f2def1d1b208624e359454bb"
+        },
+        {
+          "name": "trace",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/delivery.gates-en-public-s-e0488-ks-shell-assets-and-refresh-chrome/trace.zip",
+          "sha256": "c63cc1ffbb158e5c84e61a2a171440c7760cdf34c6606d1acc8d975719c62f86"
+        }
+      ]
+    },
+    {
+      "title": "en mariam protected direct links, sign-in return, query and safe fallbacks refresh",
+      "file": "delivery.gates.spec.ts",
+      "line": 46,
+      "project": "chrome",
+      "status": "unexpected",
+      "results": [
+        {
+          "status": "failed",
+          "retry": 0,
+          "durationMs": 5,
+          "error": "Error: browserType.launch: Target page, context or browser has been closed\nBrowser logs:\n\n<launching> /opt/google/chrome/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,AvoidCorsURLLoaderRestartOnRedirect,Translate,AutoDeElevate,OptimizationHints,NetworkTimeServiceQuerying,AimEnabled,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/home/mdnb/Dev/Projects/project_impr"
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "error-context",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/delivery.gates-en-mariam-p-4a028--and-safe-fallbacks-refresh-chrome/error-context.md",
+          "sha256": "f7b0c00186df515ca07c29b65c21300c1a50c4e1fb731f31a4dd2a59e3c3892f"
+        },
+        {
+          "name": "trace",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/delivery.gates-en-mariam-p-4a028--and-safe-fallbacks-refresh-chrome/trace.zip",
+          "sha256": "7160f0305e876f7d2f6103fa0c5120a86987beff9ed17297ee294e7888c0228b"
+        }
+      ]
+    },
+    {
+      "title": "en huda protected direct links, sign-in return, query and safe fallbacks refresh",
+      "file": "delivery.gates.spec.ts",
+      "line": 46,
+      "project": "chrome",
+      "status": "unexpected",
+      "results": [
+        {
+          "status": "failed",
+          "retry": 0,
+          "durationMs": 4,
+          "error": "Error: browserType.launch: Target page, context or browser has been closed\nBrowser logs:\n\n<launching> /opt/google/chrome/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,AvoidCorsURLLoaderRestartOnRedirect,Translate,AutoDeElevate,OptimizationHints,NetworkTimeServiceQuerying,AimEnabled,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/home/mdnb/Dev/Projects/project_impr"
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "error-context",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/delivery.gates-en-huda-pro-3086d--and-safe-fallbacks-refresh-chrome/error-context.md",
+          "sha256": "eefe40bc65428cd9b2f3dc276721f0009bdca0bb66c1f78922220e06ae40a048"
+        },
+        {
+          "name": "trace",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/delivery.gates-en-huda-pro-3086d--and-safe-fallbacks-refresh-chrome/trace.zip",
+          "sha256": "8916295528f95263ece3d3c28d9c8f6db59f379987c6003847d4583e5e24e6ef"
+        }
+      ]
+    },
+    {
+      "title": "en salma protected direct links, sign-in return, query and safe fallbacks refresh",
+      "file": "delivery.gates.spec.ts",
+      "line": 46,
+      "project": "chrome",
+      "status": "unexpected",
+      "results": [
+        {
+          "status": "failed",
+          "retry": 0,
+          "durationMs": 4,
+          "error": "Error: browserType.launch: Target page, context or browser has been closed\nBrowser logs:\n\n<launching> /opt/google/chrome/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,AvoidCorsURLLoaderRestartOnRedirect,Translate,AutoDeElevate,OptimizationHints,NetworkTimeServiceQuerying,AimEnabled,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/home/mdnb/Dev/Projects/project_impr"
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "error-context",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/delivery.gates-en-salma-pr-84cb9--and-safe-fallbacks-refresh-chrome/error-context.md",
+          "sha256": "e3898f1107735a15f4d010efc452e960ebb0213f748a4e5441b668779aafbc71"
+        },
+        {
+          "name": "trace",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/delivery.gates-en-salma-pr-84cb9--and-safe-fallbacks-refresh-chrome/trace.zip",
+          "sha256": "6ed911ebe35038e78d70c79c702128cd494a9573fa9d8677e87eb1b6d1714425"
+        }
+      ]
+    },
+    {
+      "title": "ar public static deep links, shell, assets and refresh",
+      "file": "delivery.gates.spec.ts",
+      "line": 12,
+      "project": "firefox",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "durationMs": 31329
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "trace",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/delivery.gates-ar-public-s-24cd3-ks-shell-assets-and-refresh-firefox/trace.zip",
+          "sha256": "555e9747323d10752c967b98dea907d0a5ba570456e16804124f9069d06b9380"
+        }
+      ]
+    },
+    {
+      "title": "ar mariam protected direct links, sign-in return, query and safe fallbacks refresh",
+      "file": "delivery.gates.spec.ts",
+      "line": 46,
+      "project": "firefox",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "durationMs": 45636
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "trace",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/delivery.gates-ar-mariam-p-bd816--and-safe-fallbacks-refresh-firefox/trace.zip",
+          "sha256": "ab5c016b765d5f92dc5a16cfc1ac24885a8599f87b1aaf4c77ccfb2db90fc6bd"
+        }
+      ]
+    },
+    {
+      "title": "ar huda protected direct links, sign-in return, query and safe fallbacks refresh",
+      "file": "delivery.gates.spec.ts",
+      "line": 46,
+      "project": "firefox",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "durationMs": 25920
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "trace",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/delivery.gates-ar-huda-pro-ac2a1--and-safe-fallbacks-refresh-firefox/trace.zip",
+          "sha256": "1f3234bb617f7b2de6acc7c0eb52b43ce4215f6fb7c6193408fabbcd79122142"
+        }
+      ]
+    },
+    {
+      "title": "ar salma protected direct links, sign-in return, query and safe fallbacks refresh",
+      "file": "delivery.gates.spec.ts",
+      "line": 46,
+      "project": "firefox",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "durationMs": 40122
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "trace",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/delivery.gates-ar-salma-pr-b5950--and-safe-fallbacks-refresh-firefox/trace.zip",
+          "sha256": "d4fe79e953b8a59083f086316e7d23bf5d39eb15ec490ebf66e6805c25728ca9"
+        }
+      ]
+    },
+    {
+      "title": "en public static deep links, shell, assets and refresh",
+      "file": "delivery.gates.spec.ts",
+      "line": 12,
+      "project": "firefox",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "durationMs": 22605
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "trace",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/delivery.gates-en-public-s-e0488-ks-shell-assets-and-refresh-firefox/trace.zip",
+          "sha256": "5cde782e6c4d54856d46c25b3d9872a941e9336f312e3f8bf8d6025b4e57118f"
+        }
+      ]
+    },
+    {
+      "title": "en mariam protected direct links, sign-in return, query and safe fallbacks refresh",
+      "file": "delivery.gates.spec.ts",
+      "line": 46,
+      "project": "firefox",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "durationMs": 43169
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "trace",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/delivery.gates-en-mariam-p-4a028--and-safe-fallbacks-refresh-firefox/trace.zip",
+          "sha256": "05d12808ab934cc3d36e2360bb033c4218634f9b3638c3c8730569d5c3c4d841"
+        }
+      ]
+    },
+    {
+      "title": "en huda protected direct links, sign-in return, query and safe fallbacks refresh",
+      "file": "delivery.gates.spec.ts",
+      "line": 46,
+      "project": "firefox",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "durationMs": 27539
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "trace",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/delivery.gates-en-huda-pro-3086d--and-safe-fallbacks-refresh-firefox/trace.zip",
+          "sha256": "dee5596ce55fa4f6cdcbbfae83a4f124ce4695ef66142ca32611c3ebefeb27ed"
+        }
+      ]
+    },
+    {
+      "title": "en salma protected direct links, sign-in return, query and safe fallbacks refresh",
+      "file": "delivery.gates.spec.ts",
+      "line": 46,
+      "project": "firefox",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "durationMs": 35094
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "trace",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/delivery.gates-en-salma-pr-84cb9--and-safe-fallbacks-refresh-firefox/trace.zip",
+          "sha256": "de22015d5e3c18d2afcfdaead7daf4deae6f8fd1a0bfca78777fe2d6a7525a2e"
+        }
+      ]
+    },
+    {
+      "title": "ar public static deep links, shell, assets and refresh",
+      "file": "delivery.gates.spec.ts",
+      "line": 12,
+      "project": "webkit",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "durationMs": 28404
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "trace",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/delivery.gates-ar-public-s-24cd3-ks-shell-assets-and-refresh-webkit/trace.zip",
+          "sha256": "5a68f5529517d507e313fd4504d6d45a1a94df3933a93a83566afa46b3c4285b"
+        }
+      ]
+    },
+    {
+      "title": "ar mariam protected direct links, sign-in return, query and safe fallbacks refresh",
+      "file": "delivery.gates.spec.ts",
+      "line": 46,
+      "project": "webkit",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "durationMs": 42062
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "trace",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/delivery.gates-ar-mariam-p-bd816--and-safe-fallbacks-refresh-webkit/trace.zip",
+          "sha256": "e039871bc11c56e7826329b04ac3dd9d1fae109d92860309cfce4e347b14d4cb"
+        }
+      ]
+    },
+    {
+      "title": "ar huda protected direct links, sign-in return, query and safe fallbacks refresh",
+      "file": "delivery.gates.spec.ts",
+      "line": 46,
+      "project": "webkit",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "durationMs": 31819
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "trace",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/delivery.gates-ar-huda-pro-ac2a1--and-safe-fallbacks-refresh-webkit/trace.zip",
+          "sha256": "1439ed6db87fc3e1d199b1162341323942e77fd1bd5426fdbf216e1121114a0f"
+        }
+      ]
+    },
+    {
+      "title": "ar salma protected direct links, sign-in return, query and safe fallbacks refresh",
+      "file": "delivery.gates.spec.ts",
+      "line": 46,
+      "project": "webkit",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "durationMs": 37529
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "trace",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/delivery.gates-ar-salma-pr-b5950--and-safe-fallbacks-refresh-webkit/trace.zip",
+          "sha256": "feb41fb9a32d8a329d469751041a061a178a13fe44ea14c07060c947d1d5017a"
+        }
+      ]
+    },
+    {
+      "title": "en public static deep links, shell, assets and refresh",
+      "file": "delivery.gates.spec.ts",
+      "line": 12,
+      "project": "webkit",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "durationMs": 28948
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "trace",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/delivery.gates-en-public-s-e0488-ks-shell-assets-and-refresh-webkit/trace.zip",
+          "sha256": "02e3007cc20c3569e392976ff981161b1a629f77b67c1c48b79bd6ab4a0f205f"
+        }
+      ]
+    },
+    {
+      "title": "en mariam protected direct links, sign-in return, query and safe fallbacks refresh",
+      "file": "delivery.gates.spec.ts",
+      "line": 46,
+      "project": "webkit",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "durationMs": 40110
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "trace",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/delivery.gates-en-mariam-p-4a028--and-safe-fallbacks-refresh-webkit/trace.zip",
+          "sha256": "fd2fe3fb429da884be63650920cbeb021d0a91f391a0d0a846dda1189a9bc5d5"
+        }
+      ]
+    },
+    {
+      "title": "en huda protected direct links, sign-in return, query and safe fallbacks refresh",
+      "file": "delivery.gates.spec.ts",
+      "line": 46,
+      "project": "webkit",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "durationMs": 29346
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "trace",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/delivery.gates-en-huda-pro-3086d--and-safe-fallbacks-refresh-webkit/trace.zip",
+          "sha256": "d1bd596a38b1a776ac771a1fd89a2ce131101761e8bee4d25423cd1f4157bc4a"
+        }
+      ]
+    },
+    {
+      "title": "en salma protected direct links, sign-in return, query and safe fallbacks refresh",
+      "file": "delivery.gates.spec.ts",
+      "line": 46,
+      "project": "webkit",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "durationMs": 33985
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "trace",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/delivery.gates-en-salma-pr-84cb9--and-safe-fallbacks-refresh-webkit/trace.zip",
+          "sha256": "8871d8bae3f6736680537f094bc338f9a56f3d8d659109e0a9c52d901dc7607c"
+        }
+      ]
+    },
+    {
+      "title": "draft saves incomplete text, reports ready separately, and restores a real preview",
+      "file": "drafts.screens.spec.ts",
+      "line": 57,
+      "project": "chrome",
+      "status": "unexpected",
+      "results": [
+        {
+          "status": "failed",
+          "retry": 0,
+          "durationMs": 7,
+          "error": "Error: browserType.launch: Target page, context or browser has been closed\nBrowser logs:\n\n<launching> /opt/google/chrome/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,AvoidCorsURLLoaderRestartOnRedirect,Translate,AutoDeElevate,OptimizationHints,NetworkTimeServiceQuerying,AimEnabled,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/home/mdnb/Dev/Projects/project_impr"
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "error-context",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/drafts.screens-draft-saves-fa74e-and-restores-a-real-preview-chrome/error-context.md",
+          "sha256": "f72dd7681e65a791d5e32359d33a0e47c4028b8118b370209d500ad1da0f5ba4"
+        },
+        {
+          "name": "trace",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/drafts.screens-draft-saves-fa74e-and-restores-a-real-preview-chrome/trace.zip",
+          "sha256": "04de27193d43779220869f561fbb7e339fecb17f46ef45370bf981562b45188d"
+        }
+      ]
+    },
+    {
+      "title": "draft saves incomplete text, reports ready separately, and restores a real preview",
+      "file": "drafts.screens.spec.ts",
+      "line": 57,
+      "project": "firefox",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "durationMs": 16150
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "trace",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/drafts.screens-draft-saves-fa74e-and-restores-a-real-preview-firefox/trace.zip",
+          "sha256": "cb8e78d8526d2d4669f85ef70ed2542b10c4cd8ee717fc0f0c95e5dc02c29f5a"
+        }
+      ]
+    },
+    {
+      "title": "draft saves incomplete text, reports ready separately, and restores a real preview",
+      "file": "drafts.screens.spec.ts",
+      "line": 57,
+      "project": "webkit",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "durationMs": 24742
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "trace",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/drafts.screens-draft-saves-fa74e-and-restores-a-real-preview-webkit/trace.zip",
+          "sha256": "8ab4aa36bcb767c2892510b034abe368ab8dea4bd13dcd5e327d2e85868adbc6"
+        }
+      ]
+    },
+    {
+      "title": "notifications persist read state and open the current correction record in en",
+      "file": "notifications.screens.spec.ts",
+      "line": 3,
+      "project": "chrome",
+      "status": "unexpected",
+      "results": [
+        {
+          "status": "failed",
+          "retry": 0,
+          "durationMs": 7,
+          "error": "Error: browserType.launch: Target page, context or browser has been closed\nBrowser logs:\n\n<launching> /opt/google/chrome/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,AvoidCorsURLLoaderRestartOnRedirect,Translate,AutoDeElevate,OptimizationHints,NetworkTimeServiceQuerying,AimEnabled,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/home/mdnb/Dev/Projects/project_impr"
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "error-context",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/notifications.screens-noti-38388-ent-correction-record-in-en-chrome/error-context.md",
+          "sha256": "2441252575bb3c84bea6ae1e662f48467672b34ae69dab63f9126a27c82e9a65"
+        },
+        {
+          "name": "trace",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/notifications.screens-noti-38388-ent-correction-record-in-en-chrome/trace.zip",
+          "sha256": "b90e074a1d5c71cf6fe427afc2a0c493bc7c9ff25d7dc035caa3060f2a979e74"
+        }
+      ]
+    },
+    {
+      "title": "notifications persist read state and open the current correction record in en",
+      "file": "notifications.screens.spec.ts",
+      "line": 3,
+      "project": "firefox",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "durationMs": 13119
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "trace",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/notifications.screens-noti-38388-ent-correction-record-in-en-firefox/trace.zip",
+          "sha256": "61a04a84024cfccfe34696f30eb99520ae0719b07a81f38a620700d7c7256730"
+        }
+      ]
+    },
+    {
+      "title": "notifications persist read state and open the current correction record in en",
+      "file": "notifications.screens.spec.ts",
+      "line": 3,
+      "project": "webkit",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "durationMs": 15705
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "trace",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/notifications.screens-noti-38388-ent-correction-record-in-en-webkit/trace.zip",
+          "sha256": "b9c4bb1d85295bc8bb7433dc41bd6cc0fb001fc095281f4354736f84bfb0d501"
+        }
+      ]
+    },
+    {
+      "title": "cancel and aborted reset retain unfinished input and ready files, then success returns to Arabic chooser",
+      "file": "reset.screens.spec.ts",
+      "line": 47,
+      "project": "chrome",
+      "status": "unexpected",
+      "results": [
+        {
+          "status": "failed",
+          "retry": 0,
+          "durationMs": 6,
+          "error": "Error: browserType.launch: Target page, context or browser has been closed\nBrowser logs:\n\n<launching> /opt/google/chrome/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,AvoidCorsURLLoaderRestartOnRedirect,Translate,AutoDeElevate,OptimizationHints,NetworkTimeServiceQuerying,AimEnabled,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/home/mdnb/Dev/Projects/project_impr"
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "error-context",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/reset.screens-cancel-and-a-a13d0-s-returns-to-Arabic-chooser-chrome/error-context.md",
+          "sha256": "e009e55d0286ff7280eb611057cfa16e520e827c0e227d91eee3361f3d16855e"
+        },
+        {
+          "name": "trace",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/reset.screens-cancel-and-a-a13d0-s-returns-to-Arabic-chooser-chrome/trace.zip",
+          "sha256": "c3fa7832744812f4df53baa702129ea0ba57eb2bc39b3e95fc1eb5d230b597a9"
+        }
+      ]
+    },
+    {
+      "title": "cancel and aborted reset retain unfinished input and ready files, then success returns to Arabic chooser",
+      "file": "reset.screens.spec.ts",
+      "line": 47,
+      "project": "firefox",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "durationMs": 19950
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "trace",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/reset.screens-cancel-and-a-a13d0-s-returns-to-Arabic-chooser-firefox/trace.zip",
+          "sha256": "45f6625cb3116ca9d9e1f503a790bc0f65f1f3742fb74ec7617b06e4de93fbe9"
+        }
+      ]
+    },
+    {
+      "title": "cancel and aborted reset retain unfinished input and ready files, then success returns to Arabic chooser",
+      "file": "reset.screens.spec.ts",
+      "line": 47,
+      "project": "webkit",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "durationMs": 29128
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "trace",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/reset.screens-cancel-and-a-a13d0-s-returns-to-Arabic-chooser-webkit/trace.zip",
+          "sha256": "c891a2a85cc548d89f420aa6ecd6ef7809c68fb3720c5e9d6942a41427a26db8"
+        }
+      ]
+    },
+    {
+      "title": "en resubmission publishes changed targets and the reviewer separately verifies them",
+      "file": "resubmission.screens.spec.ts",
+      "line": 15,
+      "project": "chrome",
+      "status": "unexpected",
+      "results": [
+        {
+          "status": "failed",
+          "retry": 0,
+          "durationMs": 4,
+          "error": "Error: browserType.launch: Target page, context or browser has been closed\nBrowser logs:\n\n<launching> /opt/google/chrome/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,AvoidCorsURLLoaderRestartOnRedirect,Translate,AutoDeElevate,OptimizationHints,NetworkTimeServiceQuerying,AimEnabled,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/home/mdnb/Dev/Projects/project_impr"
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "error-context",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/resubmission.screens-en-re-dc79d-er-separately-verifies-them-chrome/error-context.md",
+          "sha256": "e6d806980642ee9f90c41904f85693f4f7552d821727297dfd709b410088469c"
+        },
+        {
+          "name": "trace",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/resubmission.screens-en-re-dc79d-er-separately-verifies-them-chrome/trace.zip",
+          "sha256": "24449e62af13eec2783cbee3a6f152db4fce2ddbb07226210bba823a9b1d4845"
+        }
+      ]
+    },
+    {
+      "title": "en resubmission publishes changed targets and the reviewer separately verifies them",
+      "file": "resubmission.screens.spec.ts",
+      "line": 15,
+      "project": "firefox",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "durationMs": 18675
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "trace",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/resubmission.screens-en-re-dc79d-er-separately-verifies-them-firefox/trace.zip",
+          "sha256": "03084667dff3898d1de84308588d34caed4a1962dbd6d64b9ea808c3619c8279"
+        }
+      ]
+    },
+    {
+      "title": "en resubmission publishes changed targets and the reviewer separately verifies them",
+      "file": "resubmission.screens.spec.ts",
+      "line": 15,
+      "project": "webkit",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "durationMs": 23550
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "trace",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/resubmission.screens-en-re-dc79d-er-separately-verifies-them-webkit/trace.zip",
+          "sha256": "f32457a189575c9d1b6cda11031a0298fe7217de8e66a94128ef5a21bf2d109b"
+        }
+      ]
+    },
+    {
+      "title": "complete first submission, linked validation, failure and read-only tracking in en",
+      "file": "submission.screens.spec.ts",
+      "line": 11,
+      "project": "chrome",
+      "status": "unexpected",
+      "results": [
+        {
+          "status": "failed",
+          "retry": 0,
+          "durationMs": 6,
+          "error": "Error: browserType.launch: Target page, context or browser has been closed\nBrowser logs:\n\n<launching> /opt/google/chrome/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,AvoidCorsURLLoaderRestartOnRedirect,Translate,AutoDeElevate,OptimizationHints,NetworkTimeServiceQuerying,AimEnabled,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/home/mdnb/Dev/Projects/project_impr"
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "error-context",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/submission.screens-complet-6aa17-nd-read-only-tracking-in-en-chrome/error-context.md",
+          "sha256": "7a093933a1c8927767f1abf6dacb8b41af005df21663b629798c755eb5e797f3"
+        },
+        {
+          "name": "trace",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/submission.screens-complet-6aa17-nd-read-only-tracking-in-en-chrome/trace.zip",
+          "sha256": "314f652ec39200c41b92c7ad88b8c1ca5c6ffc21a6e655d5bb369c1defa0f09f"
+        }
+      ]
+    },
+    {
+      "title": "complete first submission, linked validation, failure and read-only tracking in en",
+      "file": "submission.screens.spec.ts",
+      "line": 11,
+      "project": "firefox",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "durationMs": 25149
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "trace",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/submission.screens-complet-6aa17-nd-read-only-tracking-in-en-firefox/trace.zip",
+          "sha256": "13c74f1ddd0bf5ff8bb84dc86cc9f97fdeb3a8de1f170692621bade878443586"
+        }
+      ]
+    },
+    {
+      "title": "complete first submission, linked validation, failure and read-only tracking in en",
+      "file": "submission.screens.spec.ts",
+      "line": 11,
+      "project": "webkit",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "durationMs": 29776
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "trace",
+          "path": "/home/mdnb/Dev/Projects/project_impress_bank/artifacts/release/23/live/results/submission.screens-complet-6aa17-nd-read-only-tracking-in-en-webkit/trace.zip",
+          "sha256": "2d9aca18dba16b6f208064930a216c4cb67eef767d632d38c78cd7750399ecff"
+        }
+      ]
+    }
+  ]
+}

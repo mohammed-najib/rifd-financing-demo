@@ -7,6 +7,7 @@ artifacts/
 test-results/
 playwright-report/
 firebase-debug.log
+.firebase/
 ui-debug.log
 *.tsbuildinfo
 firepit-log.txt
