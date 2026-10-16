@@ -25,10 +25,9 @@
         "reviewerConfirmation": "P2 resolved. Exported frame shows Passed feedback and replacement Accepted; MP4 hash and 270-second chapter metadata match. No remaining spec findings."
       }
     ],
-    "measurementFollowup": "No findings. Entry timestamps correctly scope sample loading to its first frame, retain excluded queued shifts, and preserve geometry/busy-frame/0.1 checks. Reviewer confirmed12/12 passing corrected cases and unchanged measured release."
+    "measurementFollowup": "No findings. Entry timestamps correctly scope sample loading to its first frame, retain excluded queued shifts, and preserve geometry/busy-frame/0.1 checks. Reviewer confirmed 12/12 passing corrected cases and unchanged measured release."
   },
-  "remainingVerification": [
-    "final public release and URL verification"
-  ],
-  "note": "Both independent reviews have no open findings. Original failed invocations remain distinct from follow-up coverage."
+  "remainingVerification": [],
+  "note": "Both independent reviews have no open findings. Original failed invocations remain distinct from follow-up coverage.",
+  "publicationVerification": "All 15 public repository, release, asset, guide and immutable-reference URLs returned 200 anonymously; tag commit and six asset digests verified."
 }

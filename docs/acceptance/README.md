@@ -72,7 +72,7 @@ The story numbers below refer to the accepted spec and map all 82 stories to the
 
 ## How to assess the results
 
-Rows A01-A27 and A29-A30 inherit the completed functional, bilingual/manual, performance and release checks. A28 is completed only with the actual public repository/release, reviewed delivery commit, measured film and final checks recorded in [slice 24](../implementation/24-evidence.md). The film gives breadth; it does not replace the longer acceptance evidence.
+Rows A01-A27 and A29-A30 inherit the completed functional, bilingual/manual, performance and release checks. A28 is completed by the verified public repository/release, reviewed delivery commit, measured film and final checks recorded in [slice 24](../implementation/24-evidence.md). The film gives breadth; it does not replace the longer acceptance evidence.
 
 [Slice 20](../implementation/20-evidence.md) reconciles 602 unique browser cases while preserving its failed original invocation. [Slice 21](../implementation/21-evidence.md) records ordinary-browser walkthroughs, actual print/native preview inspection, native zoom and four user-assisted reader scenes, including its original failures and rechecks. [Slice 22](../implementation/22-evidence.md#final-results) records the complete regression plus affected reruns and measured build. [Slice 23](../implementation/23-evidence.md) reconciles preview/live cases while preserving original storage and launch failures. Ordinary Firefox checkpoint completion is distinct from its failed teardown.
 

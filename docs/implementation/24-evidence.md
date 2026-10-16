@@ -74,3 +74,5 @@ unchanged 270-second duration. No open Spec findings remain.
 Standards: 0 findings. Spec: 1 resolved P2, 0 open findings.
 
 Both reviewers also examined the final measurement correction and exact-hash verifier. Neither found a new issue. They confirmed the preserved thresholds, raw excluded entries, twelve passing corrected measurements and exact unchanged application/static inventory.
+
+The release was published and checked on 16 October 2026 at 22:31 UTC. Its tag retains reviewed delivery commit [`648a313`](https://github.com/mohammed-najib/rifd-financing-demo/commit/648a313de8f6c499d228922e03d353a6d89beec3). All six asset digests and fifteen anonymous public URLs passed verification. A following documentation commit records publication and ticket completion on `main` without moving the release tag.
