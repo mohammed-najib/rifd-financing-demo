@@ -78,6 +78,8 @@ test('cancel and aborted reset retain unfinished input and ready files, then suc
 })
 
 test('public reset warning is available unsigned and during startup recovery in both languages', async ({ page }) => {
+  // The final chooser wait took 94-95 seconds in concurrent Chrome traces.
+  test.setTimeout(180_000)
   await page.goto('/demo/reset')
   await expect(page.locator('[data-workspace-ready="true"]')).toBeVisible({ timeout: 30_000 })
   await page.getByRole('button', { name: 'إعادة ضبط العرض', exact: true }).last().click()
@@ -102,8 +104,8 @@ test('public reset warning is available unsigned and during startup recovery in 
     await page.setViewportSize({ width, height: 900 })
     await page.screenshot({ path: `docs/implementation/evidence/18/reset-ar-${width}.png`, fullPage: true })
   }
-  // Foreground this page after captures so Chrome does not throttle seed-image encoding.
+  // Run the confirmed reset in a foreground page after the captures.
   await page.bringToFront()
   await page.getByRole('button', { name: 'استبدال جميع بيانات العرض', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'اختر هوية تجريبية', exact: true })).toBeVisible({ timeout: 30_000 })
+  await expect(page.getByRole('heading', { name: 'اختر هوية تجريبية', exact: true })).toBeVisible({ timeout: 120_000 })
 })
