@@ -120,4 +120,7 @@ for (const language of ['ar', 'en'] as const) test(`${language} real saved PDF J
     await expect(dialog).toHaveCount(0)
     await expect(opener).toBeFocused()
   }
+  await page.goto('/applications/RIFD-2026-001')
+  await page.getByRole('button', { name: ar ? 'معاينة إثبات النشاط التجاري' : 'Preview Business evidence', exact: true }).click()
+  await expect(page.getByRole('dialog', { name: ar ? 'معاينة المستند' : 'Document preview', exact: true })).toHaveAccessibleDescription(ar ? 'إثبات النشاط التجاري' : 'Business evidence')
 })

@@ -488,7 +488,8 @@ function ApplicationList({ list, language, go }: { list: ApplicationSummary[]; l
 
 function ApplicationDetail({ demo, view, language, queueSearch, children, confirmed, redirectedCorrection, redirectedRepayment, requesting, go }: { demo: ReturnType<typeof createDemo>; view: ApplicationView; language: Language; queueSearch: string; children?: React.ReactNode; confirmed?: boolean; redirectedCorrection?: boolean; redirectedRepayment?: boolean; requesting?: boolean; go: (path: string) => void }) {
   const [previewFileId, setPreviewFileId] = useState<string | null>(null)
-  useEffect(() => { if (previewFileId && !view.documents.some(document => document.file?.id === previewFileId)) setPreviewFileId(null) }, [view, previewFileId])
+  const previewDocument = view.documents.find(document => document.file?.id === previewFileId)
+  useEffect(() => { if (previewFileId && !previewDocument) setPreviewFileId(null) }, [view, previewFileId])
   const t = (key: keyof typeof text) => text[key][language]
   const fields = view.snapshot.fields
   const printHref = `${view.role === 'reviewer' ? '/staff' : ''}/applications/${view.id}/print${queueSearch}`
@@ -516,6 +517,6 @@ function ApplicationDetail({ demo, view, language, queueSearch, children, confir
       {view.repayment && <RepaymentSummary repayment={view.repayment} language={language} />}
     </div></div>}
     {view.role === 'reviewer' && view.repayment && <RepaymentSummary repayment={view.repayment} language={language} />}
-    {previewFileId && <DocumentPreview demo={demo} applicationId={view.id} fileId={previewFileId} language={language} close={() => setPreviewFileId(null)} />}
+    {previewFileId && previewDocument && <DocumentPreview demo={demo} applicationId={view.id} fileId={previewFileId} label={documentLabel(previewDocument.slot, view.product)} language={language} close={() => setPreviewFileId(null)} />}
   </>
 }
