@@ -54,6 +54,26 @@
   font-display: swap;
 }
 
+/* Match native select behavior, with space between the chevron and either edge.
+   Utilities layer keeps field-level padding utilities from covering the arrow. */
+@layer utilities {
+  select:not([multiple]):not([size]) {
+    appearance: none;
+    padding-inline-end: 2.75rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2360746f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-size: 16px;
+    background-position: right 14px center;
+  }
+  select:not([multiple]):not([size]):dir(rtl) { background-position: left 14px center; }
+  @media (forced-colors: active) {
+    select:not([multiple]):not([size]) {
+      appearance: auto;
+      background-image: none;
+    }
+  }
+}
+
 /* Keep the project's base styles instead of importing Preflight. */
 @layer base {
   :root {
