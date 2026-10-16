@@ -79,13 +79,15 @@ for (const language of ['ar', 'en'] as const) test(`${language} real saved PDF J
   await page.getByRole('button', { name: ar ? 'مريم سالم' : 'Mariam Salem', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'RIFD-2026-001', exact: true })).toBeVisible()
   await page.reload()
-  for (const slot of ['identity', 'business', 'purchase']) {
+  for (const slot of ['identity', 'business', 'purchase'] as const) {
     const section = page.locator(`section[aria-labelledby="${slot}-heading"]`)
     const opener = section.getByRole('button', { name: ar ? 'معاينة الملف المحفوظ' : 'Preview saved file', exact: true })
     await opener.focus()
     await page.keyboard.press('Enter')
     const dialog = page.getByRole('dialog', { name: ar ? 'معاينة المستند' : 'Document preview', exact: true })
     await expect(dialog).toBeVisible()
+    const labels = { identity: ar ? 'إثبات هوية المتقدم' : 'Applicant identity evidence', business: ar ? 'إثبات النشاط التجاري' : 'Business evidence', purchase: ar ? 'خطة شراء المخزون' : 'Stock purchase plan' }
+    await expect(dialog).toHaveAccessibleDescription(labels[slot])
     const download = dialog.getByRole('link', { name: ar ? 'تنزيل الملف' : 'Download file', exact: true })
     await expect(download).toBeVisible()
     if (slot === 'business') await expect(dialog.locator('object[type="application/pdf"]')).toBeVisible()
