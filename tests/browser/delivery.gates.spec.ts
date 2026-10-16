@@ -7,6 +7,23 @@ async function ready(page: Page, language: 'ar' | 'en') {
   await expect(page.locator('main')).toHaveAttribute('aria-busy', 'false')
 }
 
+test('HTML entry points revalidate before reusing a cached release', async ({ request }) => {
+  for (const path of ['/', '/_shell.html', '/products', '/staff/applications/RIFD-2026-007?status=underReview']) {
+    const response = await request.get(path)
+    expect(response.status()).toBe(200)
+    expect(response.headers()['content-type']).toContain('text/html')
+    expect(response.headers()['cache-control'] ?? '', path).toMatch(/\bno-cache\b/)
+    const html = await response.text()
+    const scripts = [...html.matchAll(/<script\b[^>]*src="(\/assets\/[^" ]+\.js)"/g)].map(match => match[1])
+    expect(scripts.length).toBeGreaterThan(0)
+    for (const script of scripts) {
+      const asset = await request.get(script)
+      expect(asset.status()).toBe(200)
+      expect(asset.headers()['content-type']).toMatch(/javascript/)
+    }
+  }
+})
+
 for (const language of ['ar', 'en'] as const) {
   const ar = language === 'ar'
   test(`${language} public static deep links, shell, assets and refresh`, async ({ page, request }, info) => {

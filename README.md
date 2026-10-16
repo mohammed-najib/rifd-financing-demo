@@ -10,9 +10,13 @@ build hashes, release identifiers and hosted checks.
 [Case study](docs/case-study.md) · [Acceptance checklist](docs/acceptance/README.md) ·
 [Architecture](docs/architecture.md) · [State and role flow](docs/user-flow.md).
 
-The hosted application is commit `1352c140782168ce9e77773547e35658c19cff45`,
+The original delivery used application commit `1352c140782168ce9e77773547e35658c19cff45`,
 Hosting version `ea1a7ab0ece6377e`. The delivery release adds the public evidence,
 documentation and measured film. See [delivery verification](docs/implementation/24-evidence.md).
+
+The live site includes the header mark as its browser tab icon, with SVG and ICO
+assets. The favicon update was published on 17 October 2026 as Hosting version
+`aacc629c4616653e` and checked in Chrome and Firefox on the homepage and deep links.
 
 A fictional, Arabic-first financing demo that saves records and evidence in the browser. The delivered application provides the complete seeded dataset, product comparison, [five-step saveable drafts](.scratch/financing-application-and-review-implementation/issues/03-compare-products-and-complete-drafts.md), session recovery, tab synchronization, conflict recovery, [submission with public history](.scratch/financing-application-and-review-implementation/issues/06-submit-and-track-applications.md), notifications, printing, a searchable staff queue, reviewer assignment, the staff review workspace, targeted correction requests and private correction responses in Arabic and English.
 
@@ -145,6 +149,16 @@ RIFD_HOSTING=1 pnpm test:browser
 ```
 
 The emulator uses the local `demo-rifd` project identifier and the committed `firebase.json`. It serves only `dist/client`, preserves actual assets before the fallback, and runs without a Start runtime server. `pnpm emulators` starts it for manual inspection. The dedicated Firebase project and default Hosting site are `rifd-portfolio-mdnb`; `.firebaserc` selects it for release commands. The [release record](docs/implementation/23-evidence.md) documents the `rifd-review` preview, its expiry and promotion to the live site. The SPA setup follows [Start's SPA guide](https://tanstack.com/start/latest/docs/framework/react/guide/spa-mode); the inspected output determines the [Hosting fallback](https://firebase.google.com/docs/hosting/full-config).
+
+Page responses use `Cache-Control: no-cache` so browsers revalidate HTML before
+reusing a release. Assets and fonts retain their one-hour browser cache. The
+header rule covers incoming deep-link URLs as well as `/_shell.html`, because
+Hosting selects headers before applying rewrites. When introducing this policy,
+keep the previous release's referenced assets available until its existing page
+caches expire. The 17 October 2026 recovery, Hosting version `932164ef4226552d`,
+also restores `index-CzJ0UPGN.js` for pages cached before the favicon deployment.
+A hard refresh may still be needed
+if a browser already cached the HTML fallback at that script URL.
 
 For performance measurement, keep `pnpm emulators` running in a separate terminal
 and stop other test, build and audit jobs. `pnpm test:performance` builds fresh
