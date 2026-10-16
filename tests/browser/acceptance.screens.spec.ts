@@ -190,3 +190,17 @@ for (const language of ['ar', 'en'] as const) test(`${language} amount separator
   expect(limits.first).toBeLessThan(limits.separator)
   expect(limits.separator).toBeLessThan(limits.second)
 })
+
+for (const language of ['ar', 'en'] as const) test(`${language} saving a staff note keeps focus on its save button`, async ({ page }) => {
+  await page.goto('/staff/applications/RIFD-2026-007')
+  await expect(page.locator('[data-workspace-ready="true"]')).toBeVisible({ timeout: 60_000 })
+  if (language === 'en') await page.getByRole('button', { name: 'English', exact: true }).click()
+  await page.getByRole('button', { name: language === 'ar' ? 'سلمى ناصر' : 'Salma Nasser', exact: true }).click()
+  const note = page.getByRole('textbox', { name: language === 'ar' ? 'ملاحظة داخلية' : 'Internal note', exact: true })
+  await note.fill('Fictional note with keyboard save focus.')
+  const save = page.getByRole('button', { name: language === 'ar' ? 'حفظ الملاحظة' : 'Save note', exact: true })
+  await save.focus(); await page.keyboard.press('Enter')
+  await expect(note).toHaveValue('')
+  await expect(save).toBeFocused()
+  await expect(page.getByRole('status').filter({ hasText: language === 'ar' ? 'حُفظت نتيجة المراجعة.' : 'Review change saved.' })).toBeVisible()
+})
