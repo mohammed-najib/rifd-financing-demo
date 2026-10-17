@@ -407,3 +407,31 @@ receipt. Load latest keeps note, replacement, correction and decision text,
 updates permissions and invalidates confirmations. Confirmed reclaim changes
 the revision again, requiring inspection before retained work can be applied.
 Decisions require a newly prepared final confirmation.
+
+
+## Checked Saved demonstrations
+
+`Demo.listSavedDemonstrations` and `Demo.selectSavedDemonstration` expose the five
+accepted captures through the document workflow. `src/demo/saved-demonstrations/`
+retains byte-for-byte copies of their checked bundles, original fictional sources
+and recorded full-page rasters. Eager inline assets keep all five available after
+the application loads, including when the visitor goes offline before choosing
+an example. This adds about 1.1 MB of compressed evidence to the initial bundle.
+
+Selection hashes the actual authorized source bytes and each bundled raster.
+The static preparation path uses those exact recorded rasters. Current-document
+attachment also requires the slot, ordered page scope, actual declarations,
+language, product, expected months and frozen model/question/preparation/display
+versions to match. The demo interface rereads current source authority after
+asynchronous work. Historical files, superseded preparations and unauthorized
+workspaces cannot authorize attachment. A mismatch opens the original read-only
+example with its own context. The capture's retained findings and four certified
+overlays never pass through the provisional live display policy.
+
+Screens keep findings in plain language and expose native/mapped answers and
+versions only in provenance. Applicant sources open inline on request. Reviewer
+sources sit beside findings and human assessment controls on wide screens.
+Opening an example performs no financing write, inference request or guest
+sign-in. Local context changes, commit hints and activation invalidate the open
+selection. These assets are checked Saved demonstrations, distinct from live
+analysis, previous live analysis and scripted Illustrative examples.

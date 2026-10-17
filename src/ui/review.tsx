@@ -7,6 +7,7 @@ import type { DocumentSlot, Language } from '../domain/model'
 import { AssignmentActions } from './assignment'
 import { combineDeparture, type Departure } from './departure'
 import { DocumentPreview } from './preview'
+import { SavedDemonstrations } from './saved-demonstrations'
 import { ApplicationInformation, PublicCorrections, PublicHistory } from './public-record'
 import { date, documentLabel, errors, events, fieldLabels, money, outcomes, reviewChecks, text } from './i18n'
 import { demoIdentities } from '../demo'
@@ -150,6 +151,7 @@ export function ReviewWorkspace({ demo, datasetId, view, language, retained, rem
         <section className="panel"><h2 id="review-documents" tabIndex={-1}>{text.documents[language]}</h2>{view.documents.map(document => <section key={document.slot} aria-labelledby={`document-${document.slot}`} className="border-0 border-b border-solid border-border py-4 last:border-b-0">
           <h3 id={`document-${document.slot}`}>{documentLabel(document.slot, view.product)[language]}</h3>{baseline && document.file && baseline.documents[document.slot] !== document.file.id && <p className="status">{t(baseline.documents[document.slot] ? 'replaced' : 'added')}</p>}
           <p>{document.file ? <><bdi dir="ltr" className="wrap-anywhere">{document.file.name}</bdi><br /><bdi>{document.file.mime} · {document.file.size} B</bdi><br />{text.included[language]}</> : text.missing[language]}</p>
+          <SavedDemonstrations demo={demo} language={language} reviewer current={{ applicationId: view.id, slot: document.slot, language, fileId: document.file?.id }}>
           <p>{outcomes[view.assessments![document.slot].status][language]}{view.assessments![document.slot].reason && <span> · {view.assessments![document.slot].reason![language]}</span>}</p>
           {document.file && view.permissions.assessDocument && <>
             <p id={`inspection-help-${document.slot}`} role="status" aria-live="polite">{t(inspectionFor(document.slot)?.kind === 'inspected' ? 'inspectionConfirmed' : inspectionFor(document.slot)?.kind === 'unableToOpen' ? 'unableHelp' : 'inspectionRequired')}</p>
@@ -163,6 +165,7 @@ export function ReviewWorkspace({ demo, datasetId, view, language, retained, rem
             <label className="mt-3 flex items-start gap-2"><input type="checkbox" checked={inspectionFor(document.slot)?.kind === 'unableToOpen'} disabled={blocked || !view.permissions.assessDocument} aria-describedby={`inspection-help-${document.slot}`} onChange={event => confirmInspection(document.slot, 'unableToOpen', event.target.checked)} />{t('unableToOpen')}</label>
             <div className="actions"><button disabled={!view.permissions.assessDocument} aria-disabled={blocked || !buffer.replacement.text.trim() || !inspectionFor(document.slot)} onClick={() => { const inspection = inspectionFor(document.slot); if (!blocked && view.permissions.assessDocument && buffer.replacement!.text.trim() && inspection) void run({ ...base(), kind: 'assessDocument', slot: document.slot, fileId: document.file!.id, status: 'needsReplacement', reason: { ar: buffer.replacement!.text, en: buffer.replacement!.text }, inspection }) }}>{t('saveAssessment')}</button><button className="secondary" disabled={busy || !!buffer.intent} onClick={() => { buffer.replacement = null; update(); replacementTrigger.current?.focus() }}>{t('cancel')}</button></div>
           </div>}
+          </SavedDemonstrations>
         </section>)}</section>
         <PublicCorrections record={view} language={language} preview={{ demo, applicationId: view.id }} />
         <PublicHistory history={view.history} language={language} />

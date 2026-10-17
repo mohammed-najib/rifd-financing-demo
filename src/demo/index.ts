@@ -11,6 +11,7 @@ import { DemoError, openStorage, readStored, transact, validateDataset } from '.
 import { projectQueue } from './queue'
 import { applyReviewCommand, validateReviewCommand } from './review'
 import { inspectionContext } from './inspection'
+import { hashBytes, matchesSavedContext, openSavedExample, savedExamples, type SavedSelection } from './saved-demonstrations'
 import { activeCorrection, correctionDocument, validateCorrectionSave, validateResubmission } from './corrections'
 import type { ApplicantView, ApplicationMutation, ApplicationOperation, ApplicationView, CommitHint, Context, Controls, Demo, ErrorKind, LanguageOperation, MutationResult, NotificationReadOperation, NotificationReadResult, PreferenceOperation, PreparedAttachment, QueuePreferenceOperation, Result, ReviewOperation, SaveCorrectionsOperation, SaveDraftOperation, Session, SubmitOperation, ResubmitOperation } from './types'
 export type { ApplicationOperation, ApplicationSummary, ApplicationView, CommitHint, Context, Controls, Demo, DemoOperation, DraftDocuments, ErrorKind, LanguageOperation, MutationResult, NotificationDestination, NotificationReadOperation, NotificationReadResult, OperationInspection, PreferenceInspection, PreferenceOperation, PreparedAttachment, Preparation, PrintSummary, QueuePreferenceOperation, QueueQuery, StaffQueue, Result, ReviewOperation, SaveCorrectionsOperation, SaveDraftOperation, SubmitOperation, ResubmitOperation, ResetContext, ResetOperation, ResetResult, ResetInspection } from './types'
@@ -546,6 +547,47 @@ export function createDemo(): Demo {
     }
   }).sort((a, b) => (b.submittedAt ?? '').localeCompare(a.submittedAt ?? '') || a.id.localeCompare(b.id))
   return {
+    listSavedDemonstrations: async () => success(savedExamples()),
+    selectSavedDemonstration: input => attempt(async () => {
+      const selection: SavedSelection = structuredClone(input)
+      const current = selection.current
+      const captured = generation
+      const who = current ? actor() : null
+      const resolve = (data: Dataset) => {
+        if (!current || !who) throw new DemoError('unavailable')
+        authority(captured, who, data.meta.datasetId, data)
+        const application = permitted(data, who, current.applicationId)
+        const snapshot = who !== 'salma' && application.workspace ? application.workspace.snapshot : application.submitted
+        if (!snapshot) throw new DemoError('unavailable')
+        let file: StoredFile | undefined
+        if (current.attachment) {
+          if (who === 'salma' || application.owner !== who) throw new DemoError('unavailable')
+          if (application.status !== 'draft') correctionDocument(application, current.slot)
+          const selected = selections.get(`${who}/${application.id}/${current.slot}`)
+          if (selected?.status !== 'ready' || selected.attachmentId !== current.attachment.id) throw new DemoError('supersededSelection')
+          file = preparedFile(who, application.id, current.slot, current.attachment)
+        } else {
+          const id = snapshot.documents[current.slot]
+          if (current.fileId && current.fileId !== id) throw new DemoError('unavailable')
+          file = data.files.find(file => file.id === id && file.applicationId === application.id && file.slot === current.slot)
+        }
+        const canEdit = who !== 'salma' && !!application.workspace && ['draft', 'correctionsRequested'].includes(application.status)
+        const fields = canEdit && current.fields ? current.fields : snapshot.fields
+        const product = canEdit && application.status === 'draft' && current.product ? current.product : application.product
+        const initialMonth = (application.submittedAt ?? domainDate).slice(0, 7)
+        const fingerprint = JSON.stringify([application.status, snapshot, application.rounds, application.assignee, application.activity, file?.id, file?.hash, file?.size, fields, product])
+        return { file, fields, product, months: application.evidenceMonths, initialMonth, fingerprint }
+      }
+      const observed = current ? resolve(await read()) : null
+      const opened = await openSavedExample(selection.exampleId)
+      if (!opened) throw new DemoError('unavailable')
+      const sourceMatches = observed?.file && await hashBytes(observed.file.bytes) === opened.capture.source.sha256
+      if (current) {
+        const latest = resolve(await read())
+        if (observed?.fingerprint === latest.fingerprint && sourceMatches && matchesSavedContext(opened.capture, current, latest.fields, latest.product, latest.months, latest.initialMonth)) opened.attachment = 'current-document'
+      }
+      return opened
+    }),
     execute,
     inspectReset: () => attempt(() => resetStorage.inspect()),
     inspectResetOperation: input => {
@@ -824,5 +866,7 @@ export function createDemo(): Demo {
     },
   }
 }
+
+export type { SavedBasis, SavedCapture, SavedExample, SavedSelection, OpenedSavedDemonstration } from './saved-demonstrations'
 
 export const demoIdentities = identities.filter(identity => identity.selectable)

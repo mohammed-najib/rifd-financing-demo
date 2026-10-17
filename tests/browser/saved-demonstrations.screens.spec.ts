@@ -1,0 +1,62 @@
+import { expect, test } from '@playwright/test'
+
+for (const language of ['ar', 'en'] as const) test(`${language} applicant can inspect every saved example offline by keyboard on a narrow screen`, async ({ page, context }, info) => {
+  const ar = language === 'ar'
+  await page.setViewportSize({ width: 390, height: 900 })
+  await page.goto('/applications/RIFD-2026-001/edit?step=documents')
+  await page.getByRole('button', { name: 'مريم سالم', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'RIFD-2026-001' })).toBeVisible()
+  if (!ar) await page.getByRole('button', { name: 'English', exact: true }).click()
+  const requests: string[] = []
+  page.on('request', request => { if (/firebase|typesafe|analysis|identitytoolkit/.test(request.url())) requests.push(request.url()) })
+  await context.setOffline(true)
+  const assistance = page.getByRole('region', { name: ar ? 'عروض توضيحية محفوظة' : 'Saved demonstrations', exact: true }).first()
+  await assistance.getByText(ar ? 'اختيار عرض توضيحي محفوظ' : 'Choose a Saved demonstration', { exact: true }).click()
+  const buttons = assistance.getByRole('button', { name: /^(Open saved example|فتح المثال المحفوظ)/ })
+  await expect(buttons).toHaveCount(5)
+  for (let index = 0; index < 5; index++) {
+    await buttons.nth(index).focus(); await page.keyboard.press('Enter')
+    await expect(assistance.getByRole('status').filter({ hasText: ar ? 'مثال مستقل للقراءة فقط' : 'Separate read-only example' })).toBeVisible()
+    await assistance.getByRole('button', { name: ar ? 'عرض مصدر المثال' : 'Show example source', exact: true }).click()
+    await expect(assistance.getByRole('img')).toBeVisible()
+    await expect(assistance.locator('[data-evidence-highlight]')).toHaveCount(index === 3 ? 0 : 1)
+    await expect(assistance.getByRole('link', { name: ar ? 'تنزيل المصدر' : 'Download source', exact: true })).toHaveAttribute('href', /^blob:/)
+    await assistance.getByText(ar ? 'مصدر التحليل وتفاصيله' : 'Analysis provenance', { exact: true }).click()
+    await expect(assistance.locator('pre')).toContainText('checked-static-capture-v1')
+    await expect(assistance.locator('pre')).toContainText('2026-10-17T05:01:38.245Z')
+    if (index === 0) {
+      await assistance.getByRole('button', { name: ar ? 'الصفحة التالية' : 'Next page', exact: true }).click()
+      await expect(assistance.getByRole('img')).toHaveAttribute('alt', ar ? 'مصدر المثال، الصفحة 2' : 'Example source, page 2')
+      await expect(assistance.locator('[data-evidence-highlight]')).toHaveCount(0)
+    }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+  }
+  expect(requests).toEqual([])
+  await page.screenshot({ path: info.outputPath(`saved-examples-${language}-390.png`), fullPage: true })
+})
+
+for (const language of ['ar', 'en'] as const) test(`${language} reviewer sees source beside findings while assessment remains a separate human action`, async ({ page, context }, info) => {
+  const ar = language === 'ar'
+  await page.setViewportSize({ width: 1440, height: 950 })
+  await page.goto('/staff/applications/RIFD-2026-007')
+  await expect(page.locator('[data-workspace-ready="true"]')).toBeVisible()
+  if (!ar) await page.getByRole('button', { name: 'English', exact: true }).click()
+  await page.getByRole('button', { name: ar ? 'سلمى ناصر' : 'Salma Nasser', exact: true }).click()
+  const financial = page.getByRole('region', { name: ar ? 'ملخص الإيرادات والمصروفات' : 'Revenue and expense summary', exact: true })
+  const assessment = financial.getByRole('button', { name: ar ? 'قبول المستند' : 'Accept document', exact: true })
+  const confirmation = financial.getByRole('checkbox', { name: ar ? 'أؤكد أنني فحصت المستند الحالي' : 'I confirm I inspected the current source', exact: true })
+  await expect(assessment).toBeDisabled()
+  const activity = await page.getByRole('region', { name: ar ? 'نشاط داخلي' : 'Internal activity', exact: true }).innerText()
+  await context.setOffline(true)
+  await financial.getByText(ar ? 'اختيار عرض توضيحي محفوظ' : 'Choose a Saved demonstration', { exact: true }).click()
+  await financial.getByRole('button', { name: ar ? 'فتح المثال المحفوظ ملخص مالي بالإنجليزية' : 'Open saved example English financial summary', exact: true }).click()
+  await expect(financial.getByRole('img')).toBeVisible()
+  await expect(confirmation).not.toBeChecked()
+  await expect(assessment).toBeDisabled()
+  await expect(page.getByRole('region', { name: ar ? 'نشاط داخلي' : 'Internal activity', exact: true })).toHaveText(activity, { useInnerText: true })
+  for (const width of [1440, 390]) {
+    await page.setViewportSize({ width, height: 950 })
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+    await financial.screenshot({ path: info.outputPath(`reviewer-${language}-${width}.png`) })
+  }
+})

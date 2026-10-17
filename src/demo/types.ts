@@ -97,6 +97,8 @@ export type Preparation = {
 }
 export type Controls = { slow: boolean; failure: 'upload' | 'save' | 'submission' | 'storage' | null }
 export type Demo = {
+  listSavedDemonstrations(): Promise<Result<import('./saved-demonstrations').SavedExample[]>>;
+  selectSavedDemonstration(input: import('./saved-demonstrations').SavedSelection): Promise<Result<import('./saved-demonstrations').OpenedSavedDemonstration>>;
   inspectReset(): Promise<Result<ResetContext>>;
   inspectResetOperation(operation: ResetOperation): Promise<Result<ResetInspection>>;
   execute(operation: ResetOperation): Promise<Result<ResetResult>>;

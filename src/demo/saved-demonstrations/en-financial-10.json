@@ -1,0 +1,804 @@
+{
+  "label": "Saved demonstration",
+  "captureKind": "actual Jev responses, not scripted replacements",
+  "checkedAt": "2026-10-17T05:01:38.245Z",
+  "source": {
+    "path": "corpus/cases/en-financial-10/source.png",
+    "sha256": "8a9f5fe315e7f94a62882f98d599c9f44409e20a44275e2ccda261f5b2721c63",
+    "bytes": 68512
+  },
+  "context": {
+    "slot": "financial",
+    "language": "en",
+    "product": null,
+    "initialSubmissionMonth": "2026-10",
+    "expectedCompletedMonths": [
+      "2026-07",
+      "2026-08",
+      "2026-09"
+    ],
+    "comparisons": {
+      "period": "July to September 2026",
+      "averageRevenue": "163200 YER",
+      "averageExpenses": "81600 YER"
+    }
+  },
+  "sourceFamily": "en-financial-10",
+  "language": "en",
+  "slot": "financial",
+  "pages": [
+    {
+      "width": 1120,
+      "height": 1568,
+      "sourceWidth": 800,
+      "sourceHeight": 1120,
+      "rotation": 0,
+      "padding": {
+        "left": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      "scale": 1.4,
+      "durationMs": 60.10000002384186,
+      "page": 1,
+      "path": "corpus/cases/en-financial-10/page-1.png",
+      "sha256": "edc43d517e9772bd5bb79938c6317289c49a2dc538290127ca30f53f8497f5d6",
+      "byteLength": 234917,
+      "renderer": "Chromium createImageBitmap/canvas",
+      "preparationVersion": "full-page-pdfjs-5.4.296-v1"
+    }
+  ],
+  "model": "jev-1.14.0",
+  "questionVersion": "evidence-questions-v1",
+  "preparationVersion": "full-page-pdfjs-5.4.296-v1",
+  "candidateDisplayPolicy": "candidate-display-v1-dev10",
+  "staticSelectionVersion": "checked-static-capture-v1",
+  "staticSelectionRule": "Retain the actual candidate findings. Permit only individually source-checked certified overlays in this saved example. This post-capture selection is not a new live policy or fresh held-out validation.",
+  "capturedAt": [
+    "2026-10-17T04:51:51.022Z",
+    "2026-10-17T04:51:51.844Z"
+  ],
+  "captures": [
+    {
+      "path": "../captures/evaluation/17f106f8-2adf-459c-a009-5ed4491ac3f5-1.json",
+      "sha256": "54982cbe2e3ca9a6e8b55e2406fe6cb6245a333d1dd6668a6a35a12c452f4cc3"
+    },
+    {
+      "path": "../captures/evaluation/17f106f8-2adf-459c-a009-5ed4491ac3f5-2.json",
+      "sha256": "fc01c062446070b2758507be781c8e583d5beba0e08679068fa515c70625a538"
+    }
+  ],
+  "nativeAndMapped": [
+    {
+      "kind": "page-1",
+      "coverage": {
+        "selectedPages": [
+          1
+        ],
+        "analyzedPages": [
+          1
+        ],
+        "complete": false
+      },
+      "analysis": {
+        "ok": true,
+        "native": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "category": {
+              "type": "choice",
+              "choice": "financial",
+              "confidence": 1,
+              "probabilities": {
+                "identity": 0,
+                "business": 0,
+                "financial": 1,
+                "stock": 0,
+                "equipment": 0,
+                "other": 0,
+                "mixed": 0,
+                "cannot_determine": 0
+              }
+            },
+            "readability": {
+              "type": "score",
+              "score": 1.95,
+              "confidence": 0.94,
+              "legend": {
+                "0": "Relevant text cannot be read reliably.",
+                "1": "Some relevant text is readable, but details are obscured.",
+                "2": "Relevant text and digits are clearly readable."
+              },
+              "probabilities": {
+                "0": 0,
+                "1": 0.04,
+                "2": 0.96
+              }
+            },
+            "period_presence": {
+              "type": "noul",
+              "noul": 1
+            },
+            "period_multiplicity": {
+              "type": "choice",
+              "choice": "single",
+              "confidence": 0.76,
+              "probabilities": {
+                "single": 0.84,
+                "repeated": 0.09,
+                "ambiguous": 0.07
+              }
+            },
+            "revenue0_presence": {
+              "type": "noul",
+              "noul": 0.01
+            },
+            "revenue0_multiplicity": {
+              "type": "choice",
+              "choice": "ambiguous",
+              "confidence": 1,
+              "probabilities": {
+                "single": 0,
+                "repeated": 0,
+                "ambiguous": 1
+              }
+            },
+            "revenue1_presence": {
+              "type": "noul",
+              "noul": 0.01
+            },
+            "revenue1_multiplicity": {
+              "type": "choice",
+              "choice": "ambiguous",
+              "confidence": 1,
+              "probabilities": {
+                "single": 0,
+                "repeated": 0,
+                "ambiguous": 1
+              }
+            },
+            "revenue2_presence": {
+              "type": "noul",
+              "noul": 0.01
+            },
+            "revenue2_multiplicity": {
+              "type": "choice",
+              "choice": "ambiguous",
+              "confidence": 1,
+              "probabilities": {
+                "single": 0,
+                "repeated": 0,
+                "ambiguous": 1
+              }
+            },
+            "expenses0_presence": {
+              "type": "noul",
+              "noul": 0.01
+            },
+            "expenses0_multiplicity": {
+              "type": "choice",
+              "choice": "ambiguous",
+              "confidence": 1,
+              "probabilities": {
+                "single": 0,
+                "repeated": 0,
+                "ambiguous": 1
+              }
+            },
+            "expenses1_presence": {
+              "type": "noul",
+              "noul": 0.01
+            },
+            "expenses1_multiplicity": {
+              "type": "choice",
+              "choice": "ambiguous",
+              "confidence": 1,
+              "probabilities": {
+                "single": 0,
+                "repeated": 0,
+                "ambiguous": 1
+              }
+            },
+            "expenses2_presence": {
+              "type": "noul",
+              "noul": 0.01
+            },
+            "expenses2_multiplicity": {
+              "type": "choice",
+              "choice": "ambiguous",
+              "confidence": 1,
+              "probabilities": {
+                "single": 0,
+                "repeated": 0,
+                "ambiguous": 1
+              }
+            },
+            "averageRevenue_presence": {
+              "type": "noul",
+              "noul": 1
+            },
+            "averageRevenue_multiplicity": {
+              "type": "choice",
+              "choice": "single",
+              "confidence": 0.83,
+              "probabilities": {
+                "single": 0.89,
+                "repeated": 0.11,
+                "ambiguous": 0
+              }
+            },
+            "averageExpenses_presence": {
+              "type": "noul",
+              "noul": 1
+            },
+            "averageExpenses_multiplicity": {
+              "type": "choice",
+              "choice": "single",
+              "confidence": 0.79,
+              "probabilities": {
+                "single": 0.86,
+                "repeated": 0.14,
+                "ambiguous": 0
+              }
+            },
+            "period_box": {
+              "type": "box",
+              "box": {
+                "top": 0.21,
+                "bottom": 0.26,
+                "left": 0.06,
+                "right": 0.32
+              },
+              "confidence": 0.96
+            },
+            "revenue0_box": {
+              "type": "box",
+              "box": {
+                "top": 0.45,
+                "bottom": 0.55,
+                "left": 0.04,
+                "right": 0.55
+              },
+              "confidence": 0.12
+            },
+            "revenue1_box": {
+              "type": "box",
+              "box": {
+                "top": 0.45,
+                "bottom": 0.55,
+                "left": 0.05,
+                "right": 0.54
+              },
+              "confidence": 0.12
+            },
+            "revenue2_box": {
+              "type": "box",
+              "box": {
+                "top": 0.45,
+                "bottom": 0.54,
+                "left": 0.05,
+                "right": 0.54
+              },
+              "confidence": 0.11
+            },
+            "expenses0_box": {
+              "type": "box",
+              "box": {
+                "top": 0.46,
+                "bottom": 0.95,
+                "left": 0.04,
+                "right": 0.55
+              },
+              "confidence": 0.12
+            },
+            "expenses1_box": {
+              "type": "box",
+              "box": {
+                "top": 0.52,
+                "bottom": 0.55,
+                "left": 0.05,
+                "right": 0.54
+              },
+              "confidence": 0.12
+            },
+            "expenses2_box": {
+              "type": "box",
+              "box": {
+                "top": 0.46,
+                "bottom": 0.95,
+                "left": 0.05,
+                "right": 0.54
+              },
+              "confidence": 0.11
+            },
+            "averageRevenue_box": {
+              "type": "box",
+              "box": {
+                "top": 0.7,
+                "bottom": 0.73,
+                "left": 0.06,
+                "right": 0.22
+              },
+              "confidence": 0.99
+            },
+            "averageExpenses_box": {
+              "type": "box",
+              "box": {
+                "top": 0.78,
+                "bottom": 0.8,
+                "left": 0.06,
+                "right": 0.2
+              },
+              "confidence": 0.93
+            }
+          },
+          "usage": {
+            "input_tokens": 8010,
+            "output_tokens": 836
+          }
+        },
+        "mapped": {
+          "category": {
+            "type": "choice",
+            "value": "financial",
+            "probability": 1,
+            "confidence": 1,
+            "probabilities": {
+              "identity": 0,
+              "business": 0,
+              "financial": 1,
+              "stock": 0,
+              "equipment": 0,
+              "other": 0,
+              "mixed": 0,
+              "cannot_determine": 0
+            }
+          },
+          "readability": {
+            "type": "score",
+            "value": "Relevant text and digits are clearly readable.",
+            "probability": 0.96,
+            "confidence": 0.94,
+            "score": 1.95,
+            "legend": {
+              "0": "Relevant text cannot be read reliably.",
+              "1": "Some relevant text is readable, but details are obscured.",
+              "2": "Relevant text and digits are clearly readable."
+            },
+            "probabilities": {
+              "0": 0,
+              "1": 0.04,
+              "2": 0.96
+            }
+          },
+          "period_presence": {
+            "type": "boolean",
+            "value": true,
+            "probability": 1
+          },
+          "period_multiplicity": {
+            "type": "choice",
+            "value": "single",
+            "probability": 0.84,
+            "confidence": 0.76,
+            "probabilities": {
+              "single": 0.84,
+              "repeated": 0.09,
+              "ambiguous": 0.07
+            }
+          },
+          "revenue0_presence": {
+            "type": "boolean",
+            "value": false,
+            "probability": 0.01
+          },
+          "revenue0_multiplicity": {
+            "type": "choice",
+            "value": "ambiguous",
+            "probability": 1,
+            "confidence": 1,
+            "probabilities": {
+              "single": 0,
+              "repeated": 0,
+              "ambiguous": 1
+            }
+          },
+          "revenue1_presence": {
+            "type": "boolean",
+            "value": false,
+            "probability": 0.01
+          },
+          "revenue1_multiplicity": {
+            "type": "choice",
+            "value": "ambiguous",
+            "probability": 1,
+            "confidence": 1,
+            "probabilities": {
+              "single": 0,
+              "repeated": 0,
+              "ambiguous": 1
+            }
+          },
+          "revenue2_presence": {
+            "type": "boolean",
+            "value": false,
+            "probability": 0.01
+          },
+          "revenue2_multiplicity": {
+            "type": "choice",
+            "value": "ambiguous",
+            "probability": 1,
+            "confidence": 1,
+            "probabilities": {
+              "single": 0,
+              "repeated": 0,
+              "ambiguous": 1
+            }
+          },
+          "expenses0_presence": {
+            "type": "boolean",
+            "value": false,
+            "probability": 0.01
+          },
+          "expenses0_multiplicity": {
+            "type": "choice",
+            "value": "ambiguous",
+            "probability": 1,
+            "confidence": 1,
+            "probabilities": {
+              "single": 0,
+              "repeated": 0,
+              "ambiguous": 1
+            }
+          },
+          "expenses1_presence": {
+            "type": "boolean",
+            "value": false,
+            "probability": 0.01
+          },
+          "expenses1_multiplicity": {
+            "type": "choice",
+            "value": "ambiguous",
+            "probability": 1,
+            "confidence": 1,
+            "probabilities": {
+              "single": 0,
+              "repeated": 0,
+              "ambiguous": 1
+            }
+          },
+          "expenses2_presence": {
+            "type": "boolean",
+            "value": false,
+            "probability": 0.01
+          },
+          "expenses2_multiplicity": {
+            "type": "choice",
+            "value": "ambiguous",
+            "probability": 1,
+            "confidence": 1,
+            "probabilities": {
+              "single": 0,
+              "repeated": 0,
+              "ambiguous": 1
+            }
+          },
+          "averageRevenue_presence": {
+            "type": "boolean",
+            "value": true,
+            "probability": 1
+          },
+          "averageRevenue_multiplicity": {
+            "type": "choice",
+            "value": "single",
+            "probability": 0.89,
+            "confidence": 0.83,
+            "probabilities": {
+              "single": 0.89,
+              "repeated": 0.11,
+              "ambiguous": 0
+            }
+          },
+          "averageExpenses_presence": {
+            "type": "boolean",
+            "value": true,
+            "probability": 1
+          },
+          "averageExpenses_multiplicity": {
+            "type": "choice",
+            "value": "single",
+            "probability": 0.86,
+            "confidence": 0.79,
+            "probabilities": {
+              "single": 0.86,
+              "repeated": 0.14,
+              "ambiguous": 0
+            }
+          },
+          "meta": {
+            "model": "jev-1.14.0",
+            "usage": {
+              "inputTokens": 8010,
+              "outputTokens": 836,
+              "totalTokens": 8846
+            },
+            "id": "req_01a14833b484799a96f4414a1841501f"
+          }
+        },
+        "boxes": {
+          "period_box": {
+            "type": "box",
+            "box": {
+              "top": 0.21,
+              "bottom": 0.26,
+              "left": 0.06,
+              "right": 0.32
+            },
+            "confidence": 0.96
+          },
+          "revenue0_box": {
+            "type": "box",
+            "box": {
+              "top": 0.45,
+              "bottom": 0.55,
+              "left": 0.04,
+              "right": 0.55
+            },
+            "confidence": 0.12
+          },
+          "revenue1_box": {
+            "type": "box",
+            "box": {
+              "top": 0.45,
+              "bottom": 0.55,
+              "left": 0.05,
+              "right": 0.54
+            },
+            "confidence": 0.12
+          },
+          "revenue2_box": {
+            "type": "box",
+            "box": {
+              "top": 0.45,
+              "bottom": 0.54,
+              "left": 0.05,
+              "right": 0.54
+            },
+            "confidence": 0.11
+          },
+          "expenses0_box": {
+            "type": "box",
+            "box": {
+              "top": 0.46,
+              "bottom": 0.95,
+              "left": 0.04,
+              "right": 0.55
+            },
+            "confidence": 0.12
+          },
+          "expenses1_box": {
+            "type": "box",
+            "box": {
+              "top": 0.52,
+              "bottom": 0.55,
+              "left": 0.05,
+              "right": 0.54
+            },
+            "confidence": 0.12
+          },
+          "expenses2_box": {
+            "type": "box",
+            "box": {
+              "top": 0.46,
+              "bottom": 0.95,
+              "left": 0.05,
+              "right": 0.54
+            },
+            "confidence": 0.11
+          },
+          "averageRevenue_box": {
+            "type": "box",
+            "box": {
+              "top": 0.7,
+              "bottom": 0.73,
+              "left": 0.06,
+              "right": 0.22
+            },
+            "confidence": 0.99
+          },
+          "averageExpenses_box": {
+            "type": "box",
+            "box": {
+              "top": 0.78,
+              "bottom": 0.8,
+              "left": 0.06,
+              "right": 0.2
+            },
+            "confidence": 0.93
+          }
+        },
+        "requestId": "req_01a14833b484799a96f4414a1841501f",
+        "status": 200,
+        "calls": 1,
+        "durationMs": 900.3493289999997,
+        "versions": {
+          "model": "jev-1.14.0",
+          "sdk": "0.7.0",
+          "tanstack": "0.69.0",
+          "mapping": "native-bridge-v1",
+          "questions": "evidence-questions-v1",
+          "preparation": "full-page-pdfjs-5.4.296-v1"
+        }
+      }
+    },
+    {
+      "kind": "comparison",
+      "coverage": {
+        "selectedPages": [
+          1
+        ],
+        "analyzedPages": [
+          1
+        ],
+        "complete": true
+      },
+      "analysis": {
+        "ok": true,
+        "native": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "period": {
+              "type": "choice",
+              "choice": "different",
+              "confidence": 0.9,
+              "probabilities": {
+                "consistent": 0,
+                "different": 0.92,
+                "not_found": 0.08,
+                "conflicting": 0,
+                "cannot_determine": 0
+              }
+            },
+            "averageRevenue": {
+              "type": "choice",
+              "choice": "not_found",
+              "confidence": 0.75,
+              "probabilities": {
+                "consistent": 0.09,
+                "different": 0.04,
+                "not_found": 0.8,
+                "conflicting": 0.02,
+                "cannot_determine": 0.05
+              }
+            },
+            "averageExpenses": {
+              "type": "choice",
+              "choice": "not_found",
+              "confidence": 0.66,
+              "probabilities": {
+                "consistent": 0.15,
+                "different": 0.04,
+                "not_found": 0.73,
+                "conflicting": 0.02,
+                "cannot_determine": 0.06
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 5639,
+            "output_tokens": 177
+          }
+        },
+        "mapped": {
+          "period": {
+            "type": "choice",
+            "value": "different",
+            "probability": 0.92,
+            "confidence": 0.9,
+            "probabilities": {
+              "consistent": 0,
+              "different": 0.92,
+              "not_found": 0.08,
+              "conflicting": 0,
+              "cannot_determine": 0
+            }
+          },
+          "averageRevenue": {
+            "type": "choice",
+            "value": "not_found",
+            "probability": 0.8,
+            "confidence": 0.75,
+            "probabilities": {
+              "consistent": 0.09,
+              "different": 0.04,
+              "not_found": 0.8,
+              "conflicting": 0.02,
+              "cannot_determine": 0.05
+            }
+          },
+          "averageExpenses": {
+            "type": "choice",
+            "value": "not_found",
+            "probability": 0.73,
+            "confidence": 0.66,
+            "probabilities": {
+              "consistent": 0.15,
+              "different": 0.04,
+              "not_found": 0.73,
+              "conflicting": 0.02,
+              "cannot_determine": 0.06
+            }
+          },
+          "meta": {
+            "model": "jev-1.14.0",
+            "usage": {
+              "inputTokens": 5639,
+              "outputTokens": 177,
+              "totalTokens": 5816
+            },
+            "id": "req_01a14833b7e47d7eb0b27b6a174df68e"
+          }
+        },
+        "boxes": {},
+        "requestId": "req_01a14833b7e47d7eb0b27b6a174df68e",
+        "status": 200,
+        "calls": 1,
+        "durationMs": 797.9161139999997,
+        "versions": {
+          "model": "jev-1.14.0",
+          "sdk": "0.7.0",
+          "tanstack": "0.69.0",
+          "mapping": "native-bridge-v1",
+          "questions": "evidence-questions-v1",
+          "preparation": "full-page-pdfjs-5.4.296-v1"
+        }
+      }
+    }
+  ],
+  "findings": {
+    "pages": [
+      {
+        "page": 1,
+        "available": true,
+        "category": "financial",
+        "readability": 2
+      }
+    ],
+    "comparisons": [
+      {
+        "field": "period",
+        "outcome": null,
+        "scopeComplete": true
+      },
+      {
+        "field": "averageRevenue",
+        "outcome": null,
+        "scopeComplete": true
+      },
+      {
+        "field": "averageExpenses",
+        "outcome": null,
+        "scopeComplete": true
+      }
+    ],
+    "highlights": [
+      {
+        "page": 1,
+        "target": "period",
+        "box": {
+          "top": 0.21,
+          "bottom": 0.26,
+          "left": 0.06,
+          "right": 0.32
+        },
+        "boxConfidence": 0.96
+      }
+    ]
+  },
+  "limitations": [
+    "The printed period is April-June rather than July-September. The native period disagreement falls below the frozen display threshold. Native average comparisons incorrectly say not_found rather than cannot_determine and are suppressed."
+  ],
+  "appIntegration": "Not installed or published in the application.",
+  "matchingRule": "Exact source/raster, context, selected-page and question/preparation/model/display-policy versions only. A changed input must be shown as a separate saved example and cannot claim fresh analysis."
+}

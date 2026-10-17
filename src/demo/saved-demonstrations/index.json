@@ -1,0 +1,58 @@
+{
+  "label": "Saved demonstrations",
+  "checkedAt": "2026-10-17T05:01:38.245Z",
+  "examples": [
+    {
+      "id": "ar-financial-01",
+      "path": "saved-demonstrations/ar-financial-01.json",
+      "language": "ar",
+      "slot": "financial",
+      "certifiedOverlays": 1,
+      "limitations": [
+        "Partial mapped coverage, pages 1 and 2 only. Pages 3 and 4 failed Box validation. The comparison received only pages 1 and 2 and did not test the full-document revenue conflict. Do not show a complete-document match."
+      ]
+    },
+    {
+      "id": "en-business-02",
+      "path": "saved-demonstrations/en-business-02.json",
+      "language": "en",
+      "slot": "business",
+      "certifiedOverlays": 1,
+      "limitations": [
+        "Native presence probability for the visibly printed business-name field is 0.41. That field has no overlay. The start-month overlay is not certified."
+      ]
+    },
+    {
+      "id": "en-purchase-03",
+      "path": "saved-demonstrations/en-purchase-03.json",
+      "language": "en",
+      "slot": "purchase",
+      "certifiedOverlays": 1,
+      "limitations": [
+        "The purchase description is absent. Only the budget target has a checked overlay."
+      ]
+    },
+    {
+      "id": "en-identity-10",
+      "path": "saved-demonstrations/en-identity-10.json",
+      "language": "en",
+      "slot": "identity",
+      "certifiedOverlays": 0,
+      "limitations": [
+        "The name comparison is correct on this fictional case. The Box touches the value boundary and is not certified for display. This is not identity authentication."
+      ]
+    },
+    {
+      "id": "en-financial-10",
+      "path": "saved-demonstrations/en-financial-10.json",
+      "language": "en",
+      "slot": "financial",
+      "certifiedOverlays": 1,
+      "limitations": [
+        "The printed period is April-June rather than July-September. The native period disagreement falls below the frozen display threshold. Native average comparisons incorrectly say not_found rather than cannot_determine and are suppressed."
+      ]
+    }
+  ],
+  "fictional": true,
+  "published": false
+}
