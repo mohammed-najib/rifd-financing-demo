@@ -6,12 +6,10 @@ import { documentLabel, money, text } from './i18n'
 import { Select } from './select'
 
 const copy = {
-  eyebrow: { en: 'A little support. A bigger possibility.', ar: 'دعم بسيط. وفرص أكبر.' },
   heading: { en: 'Your business.', ar: 'مشروعك.' },
   accent: { en: 'Its next chapter.', ar: 'وخطوته القادمة.' },
   intro: { en: 'More stock for your shelves. Better tools for your work. Explore financing shaped around your next step.', ar: 'مخزون جديد لمتجرك. ومعدات أفضل لعملك. اكتشف التمويل المناسب لخطوتك القادمة.' },
   explore: { en: 'Find your financing', ar: 'اكتشف خيارات التمويل' },
-  demo: { en: 'Fictional financing demo', ar: 'عرض تمويل افتراضي' },
   products: { en: 'Room to grow', ar: 'مساحة للنمو' },
   productIntro: { en: 'Two purposes. Clear terms. Choose what your business needs.', ar: 'خياران بشروط واضحة. اختر ما يحتاجه مشروعك.' },
   inventory: { en: 'Keep your shelves ready.', ar: 'مخزون يواكب طموحك.' },
@@ -46,7 +44,7 @@ export function Products({ language, choose }: { language: Language; choose: (pr
   const [terms, setTerms] = useState({ inventory: 6, equipment: 12 })
   return <div className="products-page">
     <section className="products-hero grid grid-cols-[1.15fr_1fr] items-center gap-16 narrow:grid-cols-1 narrow:gap-8">
-      <div><span className="products-label">{copy.eyebrow[language]}</span><h1 tabIndex={-1}>{copy.heading[language]}<em>{copy.accent[language]}</em></h1><p>{copy.intro[language]}</p><a className="button" href="#financing-products">{copy.explore[language]}<Icon name="arrow" size={19} /></a><span className="products-demo-note"><span />{copy.demo[language]}</span></div>
+      <div><h1 tabIndex={-1}>{copy.heading[language]}<em>{copy.accent[language]}</em></h1><p>{copy.intro[language]}</p><a className="button" href="#financing-products">{copy.explore[language]}<Icon name="arrow" size={19} /></a></div>
       <div className="growth-art" aria-hidden="true">
         <div className="growth-orbit" /><div className="growth-orbit growth-orbit-two" />
         <div className="growth-label"><span />{language === 'ar' ? 'خطوتك القادمة' : 'YOUR NEXT CHAPTER'}</div>

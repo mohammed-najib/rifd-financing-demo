@@ -13,8 +13,7 @@
 .products-page :is(button, .button):not(.select-trigger):hover { transform: translateY(-2px); box-shadow: 0 7px 18px rgb(11 100 88 / .12); }
 .products-page :is(button, .button):not(.select-trigger):active { transform: translateY(0); }
 .products-hero .button { gap: 25px; padding: 13px 21px; }
-.products-demo-note { display: flex; align-items: center; gap: 7px; margin-top: 18px; font-size: 10px; color: var(--color-muted); }
-.products-demo-note > span, .growth-label > span { width: 5px; height: 5px; border-radius: 50%; background: var(--color-accent); }
+.growth-label > span { width: 5px; height: 5px; border-radius: 50%; background: var(--color-accent); }
 .growth-art { position: relative; isolation: isolate; min-height: 350px; overflow: hidden; border: 1px solid #c9d2b8; border-radius: var(--radius-card); background: #e3e8d9; }
 .growth-orbit { position: absolute; border: 1px solid #c9d2b8; border-radius: 50%; width: 430px; height: 430px; inset-inline-start: 11%; top: -60px; }
 .growth-orbit-two { width: 300px; height: 300px; inset-inline-start: 24%; top: 5px; }
