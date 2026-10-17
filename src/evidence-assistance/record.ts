@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { correctionTargetsSchema } from '../domain/model'
 import { versions, type EvidenceRun, type SelectedEvidence } from './contract'
 import { makeRequest, interpret, recordRequest } from './policy'
 
@@ -14,6 +15,7 @@ const binding = z.object({
   authorityGeneration: z.number().int().nonnegative(), sharedRevision: z.number().int().nonnegative(), workspaceRevision: z.number().int().nonnegative(), dependencyKey: z.string(), durable: z.boolean(),
 }).strict()
 const declaration = z.object({ fullName: z.string().nullable(), status: z.enum(['valid', 'missing', 'invalid']) }).strict()
+const correction = z.object({ targets: correctionTargetsSchema, initialSubmissionMonth: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/) }).strict()
 const versionRecord = z.object({
   questions: z.literal(versions.questions), preparation: z.literal(versions.preparation), mapping: z.literal(versions.mapping),
   display: z.literal(versions.display), defaults: z.literal(versions.defaults), model: z.literal(versions.model), bridge: z.literal(versions.bridge), sdk: z.literal(versions.sdk),
@@ -37,17 +39,17 @@ const schema = z.object({
   }).strict(),
   stages: z.array(z.object({ stage: z.string(), outcome: z.enum(['successful', 'partial', 'unavailable', 'skipped']), reason: z.string().optional() }).strict()).max(4),
   provenance: z.object({
-    source: z.object({ id: z.string(), name: z.string(), mime: z.string(), hash }).strict(), binding, context: declaration, versions: versionRecord, plan,
-    request: z.object({ runId: z.string().uuid(), stage: z.literal('combined-page-declaration'), model: z.literal(versions.model), plan, state: z.object({ page: z.string(), declaredApplicantName: z.string().nullable() }).strict(), questions: z.record(z.string(), question), versions: versionRecord, dependencies: z.record(z.string(), z.array(z.string())) }).strict(),
+    source: z.object({ id: z.string(), name: z.string(), mime: z.string(), hash }).strict(), binding, context: declaration, correction: correction.optional(), versions: versionRecord, plan,
+    request: z.object({ runId: z.string().uuid(), stage: z.literal('combined-page-declaration'), model: z.literal(versions.model), plan, state: z.object({ page: z.string(), declaredApplicantName: z.string().nullable(), correction: correction.optional() }).strict(), questions: z.record(z.string(), question), versions: versionRecord, dependencies: z.record(z.string(), z.array(z.string())) }).strict(),
     raster: z.object({ page: z.literal(1), sourceHash: hash, rasterHash: hash, width: dimensions, height: dimensions, sourceWidth: dimensions, sourceHeight: dimensions, uprightWidth: dimensions, uprightHeight: dimensions, orientation: z.number(), rotation: z.number(), scale: dimensions, padding: z.object({ left: z.number(), top: z.number(), right: z.number(), bottom: z.number() }).strict(), viewport: matrix, orientationTransform: matrix, transform: matrix, renderer: z.string(), worker: z.string(), resources: z.string(), preparation: z.literal(versions.preparation) }).strict(),
     native: z.object({ model: z.literal(versions.model), answers: z.object({ category: choice.optional(), readability: score.optional(), namePresence: z.object({ type: z.literal('noul'), noul: probability }).strict().optional(), nameSupport: choice.optional() }).strict(), receivedAnswers: z.record(z.string(), z.json()), usage: z.object({ input_tokens: z.number().int().nonnegative(), output_tokens: z.number().int().nonnegative() }).strict(), responseId: z.string().optional() }).strict(),
     accounting: z.literal('reported'), startedAt: date, dispatchedAt: date, answeredAt: date, completedAt: date,
   }).strict(),
 }).strict()
 
-export function evidenceDependencyKey(selection: Pick<SelectedEvidence, 'binding' | 'source' | 'declaration'>): string {
-  const { binding: b, source, declaration } = selection
-  return JSON.stringify([b.datasetId, b.applicationId, b.slot, b.audience, b.context, b.contextId, b.roundId, source.id, source.hash, declaration])
+export function evidenceDependencyKey(selection: Pick<SelectedEvidence, 'binding' | 'source' | 'declaration' | 'correction'>): string {
+  const { binding: b, source, declaration, correction } = selection
+  return JSON.stringify([b.datasetId, b.applicationId, b.slot, b.audience, b.context, b.contextId, b.roundId, source.id, source.hash, declaration, ...(correction ? [correction] : [])])
 }
 
 export function contextKey(binding: SelectedEvidence['binding']): string {
@@ -71,7 +73,8 @@ export function readRecord(raw: unknown): EvidenceRun | null {
     const p = run.provenance
     if (Date.parse(run.expiresAt) !== Date.parse(p.completedAt) + retentionMilliseconds || Date.parse(p.completedAt) > Date.now() || !(p.startedAt <= p.dispatchedAt && p.dispatchedAt <= p.answeredAt && p.answeredAt <= p.completedAt)) return null
     if (run.id !== p.request.runId || p.source.hash !== p.raster.sourceHash || run.coverage.totalPages !== 1 || JSON.stringify(run.coverage.selected) !== '[1]' || JSON.stringify(run.coverage.successful) !== '[1]' || JSON.stringify(run.coverage.prepared) !== '[1]' || JSON.stringify(run.coverage.dispatched) !== '[1]' || run.coverage.failed.length || run.coverage.unchecked.length || run.coverage.uncheckedCount !== 0) return null
-    const selection: SelectedEvidence = { source: { ...p.source, bytes: new ArrayBuffer(0) }, declaration: p.context, binding: p.binding }
+    if ((p.binding.context === 'correction-workspace') !== !!p.correction || p.correction && (!p.binding.roundId || p.binding.contextId !== p.binding.roundId)) return null
+    const selection: SelectedEvidence = { source: { ...p.source, bytes: new ArrayBuffer(0) }, declaration: p.context, ...(p.correction ? { correction: p.correction } : {}), binding: p.binding }
     if (p.binding.dependencyKey !== evidenceDependencyKey(selection)) return null
     const preparedRequest = makeRequest(selection, { bytes: new ArrayBuffer(0), manifest: p.raster, totalPages: 1 }, run.id)
     const request = recordRequest(preparedRequest)

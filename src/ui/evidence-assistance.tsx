@@ -1,11 +1,12 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { Demo } from '../demo'
-import type { Language } from '../domain/model'
+import type { Language, ProductId } from '../domain/model'
 import type { AssistanceState, EvidenceAssistance, EvidenceInput, SelectedEvidence } from '../evidence-assistance/contract'
 import { assistanceText, findingText, reasonText } from './evidence-assistance-copy'
 import { DocumentPreviewContent } from './preview'
+import { documentLabel, fieldLabels } from './i18n'
 
-export function IdentityAssistance({ demo, input, language, disabled, edit, replace }: { demo: Demo; input: EvidenceInput; language: Language; disabled: boolean; edit: () => void; replace: () => void }) {
+export function IdentityAssistance({ demo, input, product, language, disabled, edit, replace }: { demo: Demo; input: EvidenceInput; product: ProductId; language: Language; disabled: boolean; edit?: () => void; replace: () => void }) {
   const [open, setOpen] = useState(false), [showSource, setShowSource] = useState(false), [retained, setRetained] = useState(false)
   const [selection, setSelection] = useState<SelectedEvidence | null>(null)
   const [state, setState] = useState<AssistanceState | null>(null)
@@ -13,12 +14,15 @@ export function IdentityAssistance({ demo, input, language, disabled, edit, repl
   const [renderFailed, setRenderFailed] = useState(false)
   const [cleared, setCleared] = useState<'success' | 'failed' | null>(null)
   const handle = useRef<EvidenceAssistance | null>(null)
-  const key = JSON.stringify(input)
+  // Matching Save changes a prepared reference into a saved file reference, but
+  // keeps the same source and context. Preserve its temporary run for retention.
+  const key = JSON.stringify({ ...input, fileId: input.attachment?.id ?? input.fileId, attachment: undefined })
+  const selectedInput = useMemo(() => input, [key])
   const t = (key: keyof typeof assistanceText) => assistanceText[key][language]
   useEffect(() => {
     if (!open) return
     let active = true
-    const controller = demo.createEvidenceAssistance(JSON.parse(key) as EvidenceInput)
+    const controller = demo.createEvidenceAssistance(selectedInput)
     handle.current = controller
     setState(controller.read()); setSelection(null); setShowSource(false); setRetained(false)
     const unsubscribe = controller.subscribe(() => {
@@ -29,7 +33,7 @@ export function IdentityAssistance({ demo, input, language, disabled, edit, repl
     })
     void controller.inspect().then(result => { if (active && result.ok) setSelection(result.value) })
     return () => { active = false; unsubscribe(); controller.dispose(); if (handle.current === controller) handle.current = null }
-  }, [demo, key, open])
+  }, [demo, selectedInput, open])
   useEffect(() => {
     setFile(null); setRenderFailed(false)
     if (!selection || !showSource) return
@@ -48,9 +52,10 @@ export function IdentityAssistance({ demo, input, language, disabled, edit, repl
   return <section className="evidence-assistance my-4 min-w-0 rounded-card border border-solid border-border p-4" aria-label={t('title')}>
     <h4>{t('title')}</h4><p>{t('notice')}</p>
     {!open ? <button disabled={disabled} onClick={() => setOpen(true)}>{t('check')}</button> : <>
-      <p>{t('transmission')}</p>
+      <p>{t(input.context === 'correction-workspace' ? 'correctionTransmission' : 'transmission')}</p>
       <div className="grid grid-cols-2 items-start gap-4 narrow:grid-cols-1"><div className="min-w-0"><h5>{t('context')}</h5>
         {selection ? <><p className="wrap-anywhere"><bdi>{selection.source.name}</bdi></p><p>{t('name')}: <bdi>{selection.declaration.fullName ?? t('missing')}</bdi></p></> : <p role="status">{t('unavailable')}</p>}
+        {selection?.correction && <><h5>{t('permittedTargets')}</h5><ul>{selection.correction.targets.map(target => <li key={target.kind === 'field' ? target.field : target.slot}><strong>{target.kind === 'field' ? fieldLabels[target.field][language] : documentLabel(target.slot, product)[language]}</strong><p className="wrap-anywhere">{target.reason[language]}</p></li>)}</ul><p>{t('correctionHint')}</p></>}
         <p>{t('scope')}</p>
         <div className="actions"><button disabled={!selection} onClick={() => setShowSource(value => !value)}>{t(showSource ? 'hideSource' : 'showSource')}</button>
           <button disabled={disabled || !selection || busy} onClick={() => void handle.current?.run()}>{t(state?.status === 'unavailable' || state?.status === 'cancelled' || state?.status === 'completed' ? 'retry' : 'run')}</button>
@@ -62,13 +67,14 @@ export function IdentityAssistance({ demo, input, language, disabled, edit, repl
         {state?.storage === 'incompatible' && <p role="status">{t('incompatible')}</p>}
         {state?.storage === 'temporary-only' && <p role="status">{t('storageFailed')}</p>}
         {state?.result?.stale && state.reason !== 'stale' && <p role="status">{reasonText.stale[language]}</p>}
+        {state?.result && !state.result.stale && state.result.stages.some(stage => stage.outcome === 'partial') && <p role="status">{t('partialResults')}</p>}
         {state?.result && <><p>{t(state.result.restored ? 'previous' : state.result.temporary ? 'temporary' : 'saved')}</p>
           <p><time dateTime={state.result.provenance.completedAt}>{new Date(state.result.provenance.completedAt).toLocaleString(language)}</time> · {t('expires')} <time dateTime={state.result.expiresAt}>{new Date(state.result.expiresAt).toLocaleString(language)}</time></p><dl>{Object.entries(state.result.findings).map(([name, value]) => <div key={name}><dt>{t(name as keyof typeof state.result.findings)}</dt><dd>{findingText[value][language]}</dd></div>)}</dl>
           <details onToggle={() => void handle.current?.refresh()}><summary>{t('provenance')}</summary><pre className="max-h-[400px] overflow-auto whitespace-pre-wrap wrap-anywhere text-xs" dir="ltr">{JSON.stringify(state.result, null, 2)}</pre></details>
         </>}
       </div></div>
       {showSource && file && <DocumentPreviewContent file={file} language={language} prepared={!!input.attachment} renderFailed={renderFailed} onRenderError={() => setRenderFailed(true)} />}
-      <div className="actions"><button onClick={edit}>{t('edit')}</button><button onClick={replace}>{t('replace')}</button><button onClick={() => { void handle.current?.refresh(); setRetained(true) }}>{t('retain')}</button></div>
+      <div className="actions">{edit && <button disabled={disabled || !selection} onClick={edit}>{t('edit')}</button>}<button disabled={disabled || !selection} onClick={replace}>{t('replace')}</button><button disabled={disabled || !selection} onClick={() => { void handle.current?.refresh(); setRetained(true) }}>{t('retain')}</button></div>
       {retained && <p role="status">{t('retained')}</p>}
     </>}
     <button onClick={() => void clearAnalysis()}>{t('clear')}</button>

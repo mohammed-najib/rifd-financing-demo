@@ -24,12 +24,23 @@ Tailwind CSS 4.3.3 compiles through its pinned Vite plugin. `src/ui/styles.css` 
 
 The [acceptance checklist](acceptance/README.md) separates automated behavior, ordinary-browser manual work, print inspection, performance and hosted checks. Browser-only persistence, no real authentication or payment processing, and fresh-offline launch remain explicit limits.
 
-Draft identity assistance uses `Demo.createEvidenceAssistance`. The handle owns an
+Draft and private correction identity assistance use `Demo.createEvidenceAssistance`. The handle owns an
 explicit inspect/run/cancel/refresh/clear lifecycle and retained results. Authorized reads bind
 actual source bytes, declared-name context and authority/dependency generations.
 Completion rechecks those dependencies. Replacement, relevant edits, sign-out,
 reset and view disposal cannot publish late findings. Language changes do not run
 analysis. Assistance never writes financing data.
+
+Correction inputs bind the current workspace's round identifier. The same task
+context includes the actual reviewer-written target reasons, permitted fields and
+document slots, and the initial submission month for later financial tasks.
+Every question depends on that shared context. Document-only correction targets
+keep the name read-only in operations and presentation. Matching ordinary Save
+can retain a temporary result without restarting its run. Resubmission closes
+that round's analysis authority and publishes only the correction response.
+Staff reads, public print, notifications and review activity exclude applicant
+analysis before and after publication. Correction validation and deterministic
+financing calculations continue through their existing operations.
 
 `src/evidence-assistance` separates the shared contracts, fixed question/display
 policy, cancellable browser preparation and controller. Preparation uses one

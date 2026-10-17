@@ -30,10 +30,11 @@ export function makeRequest(selection: SelectedEvidence, image: PreparedPage, ru
     dependencies.nameSupport = [...common]
   }
   for (const question of Object.keys(dependencies)) dependencies[question].push('declaration.fullName', 'declaration.status')
+  if (selection.correction) for (const question of Object.keys(dependencies)) dependencies[question].push('correction')
   const request: StageRequest = {
     runId, stage: 'combined-page-declaration', model: versions.model,
     plan: { maximumAttempts: 2, stages: ['combined-page-declaration', 'bound-verification'], verification: 'reserved-not-enabled' },
-    state: { page: 'original-page-1', declaredApplicantName: selection.declaration.fullName },
+    state: { page: 'original-page-1', declaredApplicantName: selection.declaration.fullName, ...(selection.correction ? { correction: selection.correction } : {}) },
     image, questions, versions, dependencies,
   }
   const metadata = new TextEncoder().encode(JSON.stringify({ ...request, image: { ...image, bytes: undefined } })).byteLength

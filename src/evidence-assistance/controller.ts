@@ -191,7 +191,7 @@ export function createAssistance(resolve: () => Promise<Result<SelectedEvidence>
         const completed: EvidenceRun = {
           schemaVersion: 1, id, provenanceKind: 'live-analysis', temporary: true, restored: false, stale: false, expiresAt: new Date(Date.parse(completedAt) + retentionMilliseconds).toISOString(), coverage: runCoverage, findings: result.findings,
           stages: [{ stage: 'combined-page-declaration', outcome: result.partial ? 'partial' : 'successful' }, { stage: 'name-comparison', outcome: selection.declaration.status === 'valid' ? result.native.answers.nameSupport ? 'successful' : 'unavailable' : 'skipped', reason: selection.declaration.status === 'valid' ? undefined : 'missing-context' }, { stage: 'bound-verification', outcome: 'skipped', reason: 'not-enabled' }],
-          provenance: { source, binding: selection.binding, context: selection.declaration, versions: request.versions, plan: request.plan, request: recordedRequest, raster: page.manifest, native: result.native, accounting: 'reported', startedAt, dispatchedAt, answeredAt, completedAt },
+          provenance: { source, binding: selection.binding, context: selection.declaration, ...(selection.correction ? { correction: selection.correction } : {}), versions: request.versions, plan: request.plan, request: recordedRequest, raster: page.manifest, native: result.native, accounting: 'reported', startedAt, dispatchedAt, answeredAt, completedAt },
         }
         if (ticket && final.value.binding.durable) {
           try {

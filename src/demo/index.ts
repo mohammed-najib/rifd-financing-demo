@@ -587,26 +587,39 @@ export function createDemo(options: { evidenceTransport?: EvidenceTransport } = 
       const selectedInput: EvidenceInput = structuredClone(input)
       const captured = generation
       const who = session?.identity
-      const schema = z.object({ action: z.literal('check-document'), applicationId: z.string().min(1), slot: z.literal('identity'), audience: z.literal('applicant'), context: z.literal('draft'), fileId: z.string().nullable().optional(), attachment: preparedSchema.optional(), declaredName: z.string().optional() }).strict()
-      const resolve = (): Promise<Result<SelectedEvidence>> => attempt(async () => {
+      const schema = z.object({ action: z.literal('check-document'), applicationId: z.string().min(1), slot: z.literal('identity'), audience: z.literal('applicant'), context: z.enum(['draft', 'correction-workspace']), roundId: z.string().min(1).optional(), fileId: z.string().nullable().optional(), attachment: preparedSchema.optional(), declaredName: z.string().optional() }).strict()
+      // All slot tasks use this owner/workspace context. Task-specific selection
+      // below currently supplies only the implemented identity declarations.
+      const authorize = (data: Dataset) => {
         const parsed = schema.safeParse(selectedInput)
         if (!parsed.success) throw new DemoError('validation')
         const command = parsed.data
-        const data = await read()
         if (!who) throw new DemoError('sessionExpired')
         authority(captured, who, data.meta.datasetId, data)
         const application = editable(data, who, command.applicationId)
-        if (application.owner !== who || application.status !== 'draft' || !application.workspace) throw new DemoError('unavailable')
-        const snapshot = application.workspace.snapshot
+        if (!application.workspace) throw new DemoError('unavailable')
+        const round = command.context === 'correction-workspace' && command.roundId ? activeCorrection(application, command.roundId) : null
+        if (command.context === 'correction-workspace' && !round || command.context === 'draft' && application.status !== 'draft') throw new DemoError('unavailable')
+        if (round) {
+          correctionDocument(application, command.slot)
+          if (command.declaredName !== undefined && command.declaredName !== application.workspace.snapshot.fields.fullName && !round.targets.some(target => target.kind === 'field' && target.field === 'fullName')) throw new DemoError('permissionDenied')
+        }
+        const correction = round ? { targets: round.targets.map(target => target.kind === 'field' ? { kind: target.kind, field: target.field, reason: target.reason } : { kind: target.kind, slot: target.slot, reason: target.reason }), initialSubmissionMonth: application.submittedAt!.slice(0, 7) } : undefined
+        return { command, application, workspace: application.workspace, round, correction }
+      }
+      const resolve = (): Promise<Result<SelectedEvidence>> => attempt(async () => {
+        const data = await read()
+        const { command, application, workspace, round, correction } = authorize(data)
+        const snapshot = workspace.snapshot
         let file: StoredFile | undefined
-        const active = selections.get(`${who}/${application.id}/identity`)
+        const active = selections.get(`${who}/${application.id}/${command.slot}`)
         if (command.attachment) {
-          if (snapshot.documents.identity !== command.attachment.id && (active?.status !== 'ready' || active.attachmentId !== command.attachment.id)) throw new DemoError('supersededSelection')
-          file = preparedFile(who, application.id, 'identity', command.attachment)
+          if (snapshot.documents[command.slot] !== command.attachment.id && (active?.status !== 'ready' || active.attachmentId !== command.attachment.id)) throw new DemoError('supersededSelection')
+          file = preparedFile(who!, application.id, command.slot, command.attachment)
         } else {
-          const id = snapshot.documents.identity
+          const id = snapshot.documents[command.slot]
           if (!id || command.fileId !== undefined && command.fileId !== id || active && (active.status !== 'ready' || active.attachmentId !== id)) throw new DemoError('supersededSelection')
-          file = data.files.find(file => file.id === id && file.applicationId === application.id && file.slot === 'identity')
+          file = data.files.find(file => file.id === id && file.applicationId === application.id && file.slot === command.slot)
         }
         if (!file) throw new DemoError('unavailable')
         const name = command.declaredName ?? snapshot.fields.fullName
@@ -615,27 +628,22 @@ export function createDemo(options: { evidenceTransport?: EvidenceTransport } = 
         const source = { id: file.id, ...fileResult(file) }
         const actualHash = await hashBytes(source.bytes)
         const latest = await read()
-        authority(captured, who, data.meta.datasetId, latest)
-        const fresh = editable(latest, who, command.applicationId)
-        if (fresh.status !== application.status || fresh.workspace?.snapshot.fields.fullName !== snapshot.fields.fullName || fresh.workspace.snapshot.documents.identity !== snapshot.documents.identity || selections.get(`${who}/${application.id}/identity`)?.token !== active?.token) throw new DemoError('staleWorkspace')
+        const fresh = authorize(latest)
+        if (fresh.workspace.snapshot.fields.fullName !== snapshot.fields.fullName || fresh.workspace.snapshot.documents[command.slot] !== snapshot.documents[command.slot] || JSON.stringify(fresh.correction) !== JSON.stringify(correction) || selections.get(`${who}/${application.id}/${command.slot}`)?.token !== active?.token) throw new DemoError('staleWorkspace')
         if (actualHash !== file.hash) throw new DemoError('damaged')
-        const selection: SelectedEvidence = { source, declaration, binding: {
+        const selection: SelectedEvidence = { source, declaration, ...(correction ? { correction } : {}), binding: {
           datasetId: data.meta.datasetId, applicationId: application.id, slot: command.slot, audience: command.audience, context: command.context,
-          contextId: 'draft', roundId: null, authorityGeneration: captured, sharedRevision: application.sharedRevision, workspaceRevision: application.workspace.revision,
-          durable: !!application.workspace.savedAt && snapshot.documents.identity === file.id && name === snapshot.fields.fullName,
+          contextId: round?.id ?? 'draft', roundId: round?.id ?? null, authorityGeneration: captured, sharedRevision: application.sharedRevision, workspaceRevision: workspace.revision,
+          durable: !!workspace.savedAt && snapshot.documents[command.slot] === file.id && name === snapshot.fields.fullName,
           dependencyKey: '',
         } }
         selection.binding.dependencyKey = evidenceDependencyKey(selection)
         return selection
       })
       const authorizeClear = (): Promise<Result<SelectedEvidence['binding']>> => attempt(async () => {
-        const parsed = schema.safeParse(selectedInput)
-        if (!parsed.success || !who) throw new DemoError('unavailable')
         const data = await read()
-        authority(captured, who, data.meta.datasetId, data)
-        const application = editable(data, who, parsed.data.applicationId)
-        if (application.status !== 'draft' || !application.workspace) throw new DemoError('unavailable')
-        return { datasetId: data.meta.datasetId, applicationId: application.id, slot: parsed.data.slot, audience: parsed.data.audience, context: parsed.data.context, contextId: 'draft', roundId: null, authorityGeneration: captured, sharedRevision: application.sharedRevision, workspaceRevision: application.workspace.revision, durable: false, dependencyKey: '' }
+        const { command, application, workspace, round } = authorize(data)
+        return { datasetId: data.meta.datasetId, applicationId: application.id, slot: command.slot, audience: command.audience, context: command.context, contextId: round?.id ?? 'draft', roundId: round?.id ?? null, authorityGeneration: captured, sharedRevision: application.sharedRevision, workspaceRevision: workspace.revision, durable: false, dependencyKey: '' }
       })
       const handle = createAssistance(resolve, options.evidenceTransport, analysisStorage, authorizeClear, () => { assistance.delete(handle) })
       assistance.add(handle)

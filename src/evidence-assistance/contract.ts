@@ -1,5 +1,5 @@
 import type { PreparedAttachment, Result } from '../demo/types'
-import type { DocumentSlot } from '../domain/model'
+import type { CorrectionTarget, DocumentSlot } from '../domain/model'
 
 export const versions = {
   questions: 'identity-questions-v1', preparation: 'full-page-pdfjs-5.4.296-v1',
@@ -21,12 +21,14 @@ export type EvidenceContext = 'draft' | 'correction-workspace' | 'submitted'
 export type EvidenceAction = 'check-document' | 'find-supporting-evidence'
 export type EvidenceInput = {
   action: EvidenceAction; applicationId: string; slot: DocumentSlot; audience: EvidenceAudience; context: EvidenceContext;
-  fileId?: string | null; attachment?: PreparedAttachment; declaredName?: string;
+  fileId?: string | null; attachment?: PreparedAttachment; declaredName?: string; roundId?: string;
 }
+export type CorrectionEvidenceContext = { targets: CorrectionTarget[]; initialSubmissionMonth: string }
 export type EvidenceSource = { id: string; bytes: ArrayBuffer; name: string; mime: string; hash: string }
 export type SelectedEvidence = {
   source: EvidenceSource;
   declaration: { fullName: string | null; status: 'valid' | 'missing' | 'invalid' };
+  correction?: CorrectionEvidenceContext;
   binding: { datasetId: string; applicationId: string; slot: DocumentSlot; audience: EvidenceAudience; context: EvidenceContext; contextId: string; roundId: string | null; authorityGeneration: number; sharedRevision: number; workspaceRevision: number; dependencyKey: string; durable: boolean };
 }
 export type RasterManifest = {
@@ -43,7 +45,7 @@ export type FixedQuestion = { type: 'choice'; instructions: string; criteria: Re
   | { type: 'noul'; instructions: string }
 export type StageRequest = {
   runId: string; stage: 'combined-page-declaration'; model: typeof versions.model; plan: AttemptPlan;
-  state: { page: string; declaredApplicantName: string | null };
+  state: { page: string; declaredApplicantName: string | null; correction?: CorrectionEvidenceContext };
   image: PreparedPage;
   questions: Record<string, FixedQuestion>; versions: typeof versions;
   dependencies: Record<string, string[]>;
@@ -65,7 +67,7 @@ export type Coverage = { totalPages: number | null; selected: number[]; prepared
 export type EvidenceRun = {
   schemaVersion: 1; id: string; provenanceKind: 'live-analysis'; temporary: boolean; restored: boolean; stale: boolean; expiresAt: string; coverage: Coverage; findings: Findings;
   stages: { stage: string; outcome: 'successful' | 'partial' | 'unavailable' | 'skipped'; reason?: string }[];
-  provenance: { source: Omit<EvidenceSource, 'bytes'>; binding: SelectedEvidence['binding']; context: SelectedEvidence['declaration']; versions: typeof versions; plan: AttemptPlan; request: Omit<StageRequest, 'image'>; raster: RasterManifest; native: NativeCapture; accounting: 'reported'; startedAt: string; dispatchedAt: string; answeredAt: string; completedAt: string };
+  provenance: { source: Omit<EvidenceSource, 'bytes'>; binding: SelectedEvidence['binding']; context: SelectedEvidence['declaration']; correction?: CorrectionEvidenceContext; versions: typeof versions; plan: AttemptPlan; request: Omit<StageRequest, 'image'>; raster: RasterManifest; native: NativeCapture; accounting: 'reported'; startedAt: string; dispatchedAt: string; answeredAt: string; completedAt: string };
 }
 export type AssistanceReason = 'live-unavailable' | 'source-limit' | 'invalid-source' | 'multipage' | 'preparation-timeout' | 'prepared-limit' | 'context-limit' | 'provider-unavailable' | 'analysis-storage' | 'invalid-response' | 'stale' | 'unauthorized'
 export type AssistanceState = {
