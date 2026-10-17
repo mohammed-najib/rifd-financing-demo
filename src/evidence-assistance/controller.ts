@@ -1,5 +1,5 @@
 import type { Result } from '../demo/types'
-import { type AssistanceState, type Coverage, type EvidenceAssistance, type EvidenceRun, type EvidenceTransport, type SelectedEvidence } from './contract'
+import { declaredDetail, evidenceTargets, type AssistanceState, type Coverage, type EvidenceAssistance, type EvidenceRun, type EvidenceTransport, type SelectedEvidence } from './contract'
 import { preparePage, PreparationError } from './prepare'
 import { interpret, makeRequest, recordRequest } from './policy'
 import { retentionMilliseconds } from './record'
@@ -23,7 +23,7 @@ export function createAssistance(resolve: () => Promise<Result<SelectedEvidence>
   const display = (selected?: SelectedEvidence) => {
     if (!record) { state.result = null; return }
     const stale = !selected || record.provenance.binding.dependencyKey !== selected.binding.dependencyKey
-    state.result = { ...record, stale, findings: stale ? { category: 'unavailable', readability: 'unavailable', namePresence: 'unavailable', nameSupport: 'unavailable' } : record.findings }
+    state.result = { ...record, stale, findings: stale ? Object.fromEntries(Object.keys(record.findings).map(key => [key, 'unavailable'])) as EvidenceRun['findings'] : record.findings }
     if (stale && state.status !== 'preparing' && state.status !== 'running') { state.status = 'unavailable'; state.reason = 'stale' }
   }
   const invalidate = (reason: 'stale' | 'unauthorized') => {
@@ -190,7 +190,7 @@ export function createAssistance(resolve: () => Promise<Result<SelectedEvidence>
         const completedAt = new Date().toISOString()
         const completed: EvidenceRun = {
           schemaVersion: 1, id, provenanceKind: 'live-analysis', temporary: true, restored: false, stale: false, expiresAt: new Date(Date.parse(completedAt) + retentionMilliseconds).toISOString(), coverage: runCoverage, findings: result.findings,
-          stages: [{ stage: 'combined-page-declaration', outcome: result.partial ? 'partial' : 'successful' }, { stage: 'name-comparison', outcome: selection.declaration.status === 'valid' ? result.native.answers.nameSupport ? 'successful' : 'unavailable' : 'skipped', reason: selection.declaration.status === 'valid' ? undefined : 'missing-context' }, { stage: 'bound-verification', outcome: 'skipped', reason: 'not-enabled' }],
+          stages: [{ stage: 'combined-page-declaration', outcome: result.partial ? 'partial' : 'successful' }, ...evidenceTargets(selection.binding.slot).map(target => ({ stage: `${target.field === 'fullName' ? 'name' : target.field}-comparison`, outcome: (declaredDetail(selection.declaration, target).status === 'valid' ? result.native.answers[target.support] ? 'successful' : 'unavailable' : 'skipped') as EvidenceRun['stages'][number]['outcome'], ...(declaredDetail(selection.declaration, target).status === 'valid' ? {} : { reason: 'missing-context' }) })), { stage: 'bound-verification', outcome: 'skipped', reason: 'not-enabled' }],
           provenance: { source, binding: selection.binding, context: selection.declaration, ...(selection.correction ? { correction: selection.correction } : {}), versions: request.versions, plan: request.plan, request: recordedRequest, raster: page.manifest, native: result.native, accounting: 'reported', startedAt, dispatchedAt, answeredAt, completedAt },
         }
         if (ticket && final.value.binding.durable) {

@@ -3,6 +3,8 @@ export const assistanceText = {
   notice: { ar: 'قد تكون الاقتراحات غير صحيحة. راجع المستند الأصلي.', en: 'Suggestions may be wrong. Check the original document.' },
   transmission: { ar: 'استخدم بيانات افتراضية فقط. عند توفر الخدمة، يُرسل المستند المحدد والاسم المعلن إلى خدمة التحليل. راجع السياق قبل التشغيل.', en: 'Use fictional data only. When available, the selected document and declared name are sent to the analysis service. Review the context before running.' },
   correctionTransmission: { ar: 'استخدم بيانات افتراضية فقط. عند توفر الخدمة، يُرسل المستند المحدد والاسم المعلن وأسباب التصحيح وأهدافه المسموحة وشهر التقديم الأصلي إلى خدمة التحليل. راجع السياق قبل التشغيل.', en: 'Use fictional data only. When available, the selected document, declared name, correction reasons, permitted targets and initial submission month are sent to the analysis service. Review the context before running.' },
+  businessTransmission: { ar: 'استخدم بيانات افتراضية فقط. عند توفر الخدمة، يُرسل المستند المحدد واسم النشاط وعنوانه وشهر بدء مزاولته المعلنة إلى خدمة التحليل. راجع السياق قبل التشغيل.', en: 'Use fictional data only. When available, the selected document and declared business name, address and operating-since month are sent to the analysis service. Review the context before running.' },
+  businessCorrectionTransmission: { ar: 'استخدم بيانات افتراضية فقط. عند توفر الخدمة، يُرسل المستند المحدد ومعلومات النشاط المعلنة وأسباب التصحيح وأهدافه المسموحة وشهر التقديم الأصلي إلى خدمة التحليل. راجع السياق قبل التشغيل.', en: 'Use fictional data only. When available, the selected document, declared business details, correction reasons, permitted targets and initial submission month are sent to the analysis service. Review the context before running.' },
   permittedTargets: { ar: 'أهداف التصحيح المسموحة وأسباب المراجع', en: 'Permitted correction targets and reviewer reasons' },
   correctionHint: { ar: 'الاقتراحات خاصة ولا تحقق أهداف التصحيح. يلزم تغيير صالح للمعلومات المطلوبة أو مستند بمحتوى مختلف قبل إعادة التقديم.', en: 'Suggestions stay private and do not satisfy correction targets. Resubmission still requires a valid change to requested fields or a document with different content.' },
   partialResults: { ar: 'بعض النتائج غير متاحة. راجع نطاق التحليل والمصدر.', en: 'Some findings are unavailable. Check the coverage and original source.' },
@@ -18,6 +20,7 @@ export const assistanceText = {
   sourceFailed: { ar: 'تعذر عرض الصفحة هنا. يمكنك فتح الملف أو تنزيله وفحصه، أو توضيح سبب تعذر فتحه وطلب الاستبدال.', en: 'This page could not be displayed here. Open or download the file to inspect it, or explain why it cannot be opened and request replacement.' },
   context: { ar: 'المصدر والسياق المحددان للفحص', en: 'Selected source and context' }, name: { ar: 'اسم المتقدم المعلن', en: 'Declared applicant name' },
   missing: { ar: 'الاسم مفقود أو غير صالح. ستُتخطى مقارنة الاسم فقط.', en: 'Name missing or invalid. Only the name comparison will be skipped.' },
+  missingDetail: { ar: 'المعلومة مفقودة أو غير صالحة. ستُتخطى مقارنتها فقط.', en: 'Detail missing or invalid. Only its comparison will be skipped.' },
   scope: { ar: 'الصفحة الكاملة 1، بعد التأكد من أن المصدر صفحة واحدة. الملفات متعددة الصفحات لا يمكن فحصها هنا.', en: 'Complete page 1, after proving the source has one page. Longer documents cannot be checked here.' },
   showSource: { ar: 'عرض المصدر الحالي', en: 'Show current source' }, hideSource: { ar: 'إخفاء المصدر الحالي', en: 'Hide current source' },
   idle: { ar: 'راجع المصدر والسياق ثم ابدأ الفحص.', en: 'Review the source and context, then run the check.' },
@@ -36,8 +39,12 @@ export const assistanceText = {
   selected: { ar: 'المحددة', en: 'Selected' }, prepared: { ar: 'المجهزة', en: 'Prepared' }, dispatched: { ar: 'المرسلة', en: 'Sent' }, successful: { ar: 'المفحوصة', en: 'Checked' }, failed: { ar: 'غير المتاحة', en: 'Failed' }, unreadable: { ar: 'بها صعوبة قراءة', en: 'Reading limitations' }, unchecked: { ar: 'غير المفحوصة', en: 'Unchecked' },
   allPages: { ar: 'كل صفحات المصدر', en: 'All source pages' },
   category: { ar: 'نوع المستند الظاهر، الصفحة 1', en: 'Apparent document category, page 1' }, readability: { ar: 'وضوح النص والأرقام، الصفحة 1', en: 'Text and digit readability, page 1' }, namePresence: { ar: 'وجود اسم المتقدم المطبوع، الصفحة 1', en: 'Printed applicant name presence, page 1' }, nameSupport: { ar: 'دعم الاسم المعلن، الصفحة 1', en: 'Declared name support, page 1' },
+  businessNamePresence: { ar: 'وجود اسم النشاط المطبوع، الصفحة 1', en: 'Printed business name presence, page 1' }, businessNameSupport: { ar: 'دعم اسم النشاط المعلن، الصفحة 1', en: 'Business name support, page 1' },
+  addressPresence: { ar: 'وجود عنوان النشاط المطبوع، الصفحة 1', en: 'Printed business address presence, page 1' }, addressSupport: { ar: 'دعم عنوان النشاط المعلن، الصفحة 1', en: 'Business address support, page 1' },
+  operatingSincePresence: { ar: 'وجود شهر بدء مزاولة النشاط المطبوع، الصفحة 1', en: 'Printed operating-since month presence, page 1' }, operatingSinceSupport: { ar: 'دعم شهر بدء مزاولة النشاط المعلن، الصفحة 1', en: 'Operating-since month support, page 1' },
   provenance: { ar: 'مصدر التحليل وتفاصيله', en: 'Analysis provenance' },
   edit: { ar: 'تعديل الاسم المعلن', en: 'Edit declared name' }, replace: { ar: 'اختيار مستند بديل', en: 'Choose replacement' }, retain: { ar: 'الاحتفاظ بالمستند', en: 'Retain document' },
+  editBusinessName: { ar: 'تعديل اسم النشاط', en: 'Edit business name' }, editAddress: { ar: 'تعديل عنوان النشاط', en: 'Edit business address' }, editOperatingSince: { ar: 'تعديل شهر بدء مزاولة النشاط', en: 'Edit operating-since month' },
   retained: { ar: 'يمكنك الاحتفاظ بالمستند. استخدم الحفظ المعتاد لأي تعديلات.', en: 'You can retain this document. Use the ordinary Save action for any edits.' },
   unavailable: { ar: 'التحليل غير متاح. يمكنك فحص المصدر ومتابعة العمل المعتاد.', en: 'Analysis unavailable. You can inspect the source and continue ordinary work.' },
 }
@@ -47,6 +54,16 @@ export const findingText = {
   present: { ar: 'يبدو أن اسم المتقدم مطبوع', en: 'A printed applicant name appears present' }, absent: { ar: 'لم يُعثر على اسم المتقدم في الصفحة المفحوصة', en: 'Applicant name not found in the checked page' },
   consistent: { ar: 'يبدو الاسم متفقًا مع الاسم المعلن', en: 'Printed name appears consistent with the declared name' }, different: { ar: 'يبدو الاسم المطبوع مختلفًا عن الاسم المعلن', en: 'Printed name appears different from the declared name' }, not_found: { ar: 'لم يُعثر على الاسم في الصفحة المفحوصة', en: 'Name not found in the checked page' }, conflict: { ar: 'توجد أسماء مطبوعة متعارضة', en: 'Conflicting printed name entries' }, undetermined: { ar: 'تعذر التحديد. افحص المصدر.', en: 'Could not determine. Inspect the source.' }, unavailable: assistanceText.unavailable,
   'missing-context': assistanceText.missing,
+}
+export const businessFindingText = {
+  ...findingText,
+  present: { ar: 'يبدو أن هذا الحقل مطبوع', en: 'A printed value appears present for this field' },
+  absent: { ar: 'لم يُعثر على هذا الحقل في الصفحة المفحوصة', en: 'This field was not found in the checked page' },
+  consistent: { ar: 'يبدو أن القيمة المطبوعة متفقة مع هذه المعلومة المعلنة', en: 'Printed value appears consistent with this declaration' },
+  different: { ar: 'يبدو أن القيمة المطبوعة مختلفة عن هذه المعلومة المعلنة', en: 'Printed value appears different from this declaration' },
+  not_found: { ar: 'لم يُعثر على هذه المعلومة في الصفحة المفحوصة', en: 'This detail was not found in the checked page' },
+  conflict: { ar: 'توجد قيم مطبوعة متعارضة لهذا الحقل', en: 'Conflicting printed entries for this field' },
+  'missing-context': assistanceText.missingDetail,
 }
 export const reasonText = {
   'live-unavailable': { ar: 'التحليل المباشر غير متاح حتى توصيل الخدمة. العروض المحفوظة متاحة.', en: 'Live analysis unavailable until the service is connected. Saved demonstrations remain available.' },

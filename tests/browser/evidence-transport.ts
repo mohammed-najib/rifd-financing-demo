@@ -11,6 +11,20 @@ export const nativeIdentity = () => ({
   usage: { input_tokens: 2500, output_tokens: 40 },
 })
 
+export const nativeBusiness = () => ({
+  ...nativeIdentity(),
+  answers: {
+    category: { type: 'choice', choice: 'business', confidence: 0.999, probabilities: { identity: 0, business: 1, financial: 0, stock: 0, equipment: 0, other: 0, mixed: 0, uncertain: 0 } },
+    readability: nativeIdentity().answers.readability,
+    businessNamePresence: { type: 'noul', noul: 0.999 },
+    addressPresence: { type: 'noul', noul: 0.999 },
+    operatingSincePresence: { type: 'noul', noul: 0.999 },
+    businessNameSupport: { type: 'choice', choice: 'different', confidence: 0.999, probabilities: { consistent: 0, different: 1, not_found: 0, conflict: 0, uncertain: 0 } },
+    addressSupport: { type: 'choice', choice: 'conflict', confidence: 0.999, probabilities: { consistent: 0, different: 0, not_found: 0, conflict: 1, uncertain: 0 } },
+    operatingSinceSupport: { type: 'choice', choice: 'consistent', confidence: 0.999, probabilities: { consistent: 1, different: 0, not_found: 0, conflict: 0, uncertain: 0 } },
+  },
+})
+
 // This transport exists only in the browser test entry points. No runtime fake mode.
 export function fakeEvidenceTransport(requests: StageRequest[] = [], respond = nativeIdentity): EvidenceTransport {
   return { async evaluate(request) { requests.push(request); return respond() } }

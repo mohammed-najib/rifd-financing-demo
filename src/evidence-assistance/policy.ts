@@ -1,41 +1,48 @@
 import { z } from 'zod'
-import { bounds, versions, type Findings, type NativeCapture, type SelectedEvidence, type StageRequest, type PreparedPage } from './contract'
+import { bounds, versions, evidenceTargets, declaredDetail, type EvidenceTarget, type Findings, type NativeCapture, type SelectedEvidence, type StageRequest, type PreparedPage } from './contract'
 
 const categories = {
   identity: 'Applicant identity evidence naming a person', business: 'Business registration or business evidence',
   financial: 'Revenue and expense summary', stock: 'Stock purchase plan', equipment: 'Equipment supplier quotation',
   other: 'Another document category', mixed: 'Mixed document categories', uncertain: 'Cannot determine',
 }
-const support = {
-  consistent: 'The printed applicant name appears consistent with the declaration',
-  different: 'A readable printed applicant name appears different from the declaration',
-  not_found: 'Applicant name not found anywhere in the checked original page',
-  conflict: 'Conflicting applicant name entries are printed in the checked original page', uncertain: 'Cannot determine',
-}
+const support = (target: EvidenceTarget) => ({
+  consistent: `All readable printed ${target.name} entries appear consistent with the declaration, with no incompatible entry`,
+  different: `A readable printed ${target.name} appears different from the declaration, with no incompatible printed entries`,
+  not_found: `The printed ${target.name} is not found anywhere in the checked original page`,
+  conflict: `Incompatible ${target.name} entries are printed in the checked original page, including when one matches the declaration`,
+  uncertain: 'Cannot determine, including repeated entries with ambiguous field associations',
+})
 export const readabilityLevels = ['Relevant text unreadable', 'Partly readable with obscured details', 'Relevant text and digits clearly readable']
 
 export function makeRequest(selection: SelectedEvidence, image: PreparedPage, runId: string): StageRequest {
   const common = ['source.hash', 'raster.rasterHash', 'selectedPages', 'versions']
-  const dependencies: StageRequest['dependencies'] = {
-    category: [...common], readability: [...common], namePresence: [...common],
-  }
+  const targets = evidenceTargets(selection.binding.slot)
+  const dependencies: StageRequest['dependencies'] = { category: [...common], readability: [...common] }
   const questions: StageRequest['questions'] = {
     category: { type: 'choice', instructions: 'What is the apparent document category of the complete original page in `page`?', criteria: categories },
-    readability: { type: 'score', instructions: 'How readable are the relevant text and digits, especially the printed applicant name, on the complete original page in `page`?', criteria: readabilityLevels },
-    namePresence: { type: 'noul', instructions: 'Does the complete original page in `page` contain a printed applicant name, regardless of agreement with `declaredApplicantName`? A different name still counts as present.' },
+    readability: { type: 'score', instructions: `How readable are the relevant text and digits, especially the printed ${targets.map(target => target.name).join(', ')}, on the complete original page in \`page\`?`, criteria: readabilityLevels },
   }
-  if (selection.declaration.status === 'valid') {
-    questions.nameSupport = { type: 'choice', instructions: 'How does the printed applicant name on the complete original page in `page` support `declaredApplicantName`? Inspect all name occurrences, retaining conflicting entries. Do not authenticate identity or transcribe the name.', criteria: support }
-    // Shared state is visible to every question, so all answers depend on the declaration.
-    dependencies.nameSupport = [...common]
+  for (const target of targets) {
+    questions[target.presence] = { type: 'noul', instructions: `Does the complete original page in \`page\` contain a printed ${target.name}, regardless of agreement with \`${target.statePath}\`? A different value still counts as present.` }
+    dependencies[target.presence] = [...common]
+    if (declaredDetail(selection.declaration, target).status === 'valid') {
+      questions[target.support] = { type: 'choice', instructions: `How does the printed ${target.name} on the complete original page in \`page\` support \`${target.statePath}\`? Inspect all occurrences, retaining repeated or incompatible entries. Do not select a matching entry while ignoring another, transcribe values, authenticate identity or determine operating history or eligibility.`, criteria: support(target) }
+      dependencies[target.support] = [...common]
+    }
   }
-  for (const question of Object.keys(dependencies)) dependencies[question].push('declaration.fullName', 'declaration.status')
-  if (selection.correction) for (const question of Object.keys(dependencies)) dependencies[question].push('correction')
+  // Every question sees the shared declarations, even source-only judgments.
+  for (const question of Object.keys(dependencies)) {
+    for (const target of targets) dependencies[question].push(...(target.field === 'fullName' ? ['declaration.fullName', 'declaration.status'] : [`declaration.business.${target.field}.value`, `declaration.business.${target.field}.status`]))
+    if (selection.correction) dependencies[question].push('correction')
+  }
+  const state: StageRequest['state'] = { page: 'original-page-1', ...(selection.correction ? { correction: selection.correction } : {}) }
+  if (selection.declaration.business) state.declaredBusiness = { businessName: selection.declaration.business.businessName.value, address: selection.declaration.business.address.value, operatingSince: selection.declaration.business.operatingSince.value }
+  else state.declaredApplicantName = selection.declaration.fullName
   const request: StageRequest = {
     runId, stage: 'combined-page-declaration', model: versions.model,
     plan: { maximumAttempts: 2, stages: ['combined-page-declaration', 'bound-verification'], verification: 'reserved-not-enabled' },
-    state: { page: 'original-page-1', declaredApplicantName: selection.declaration.fullName, ...(selection.correction ? { correction: selection.correction } : {}) },
-    image, questions, versions, dependencies,
+    state, image, questions, versions, dependencies,
   }
   const metadata = new TextEncoder().encode(JSON.stringify({ ...request, image: { ...image, bytes: undefined } })).byteLength
   if (metadata > bounds.contextBytes || metadata + Math.ceil(image.bytes.byteLength / 3) * 4 > bounds.bodyBytes) throw new Error('context-limit')
@@ -57,18 +64,23 @@ export function interpret(raw: unknown, selection: SelectedEvidence): { native: 
   const parsed = envelope.safeParse(raw)
   if (!parsed.success) throw new Error('invalid-response')
   const native: NativeCapture = { ...parsed.data, receivedAnswers: parsed.data.answers, answers: {} }
-  const findings: Findings = { category: 'unavailable', readability: 'unavailable', namePresence: 'unavailable', nameSupport: selection.declaration.status === 'valid' ? 'unavailable' : 'missing-context' }
-  for (const [key, criteria] of [['category', categories], ['nameSupport', support]] as const) {
-    if (key === 'nameSupport' && selection.declaration.status !== 'valid') continue
+  const findings: Findings = { category: 'unavailable', readability: 'unavailable' }
+  const targets = evidenceTargets(selection.binding.slot)
+  const readChoice = (key: 'category' | EvidenceTarget['support'], criteria: Record<string, string>) => {
     const answer = choice.safeParse(parsed.data.answers[key])
-    if (answer.success && distribution(answer.data.probabilities, Object.keys(criteria)) && answer.data.choice in criteria && answer.data.probabilities[answer.data.choice] === Math.max(...Object.values(answer.data.probabilities))) {
-      native.answers[key] = answer.data
-    }
+    if (answer.success && distribution(answer.data.probabilities, Object.keys(criteria)) && answer.data.choice in criteria && answer.data.probabilities[answer.data.choice] === Math.max(...Object.values(answer.data.probabilities))) native.answers[key] = answer.data
+  }
+  readChoice('category', categories)
+  for (const target of targets) {
+    findings[target.presence] = 'unavailable'
+    const applicable = declaredDetail(selection.declaration, target).status === 'valid'
+    findings[target.support] = applicable ? 'unavailable' : 'missing-context'
+    if (applicable) readChoice(target.support, support(target))
+    const presence = noul.safeParse(parsed.data.answers[target.presence])
+    if (presence.success) native.answers[target.presence] = presence.data
   }
   const readable = score.safeParse(parsed.data.answers.readability)
   if (readable.success && distribution(readable.data.probabilities, ['0', '1', '2']) && readabilityLevels.every((level, i) => readable.data.legend[i] === level) && Math.abs(readable.data.score - Object.entries(readable.data.probabilities).reduce((sum, [level, probability]) => sum + Number(level) * probability, 0)) < 0.0001) native.answers.readability = readable.data
-  const presence = noul.safeParse(parsed.data.answers.namePresence)
-  if (presence.success) native.answers.namePresence = presence.data
   if (!Object.keys(native.answers).length) throw new Error('invalid-response')
   const category = native.answers.category
   if (category) findings.category = category.confidence >= 0.99 && category.choice !== 'uncertain' ? category.choice as Findings['category'] : 'undetermined'
@@ -77,14 +89,17 @@ export function interpret(raw: unknown, selection: SelectedEvidence): { native: 
     const levels = Object.entries(readability.probabilities).sort((a, b) => b[1] - a[1])
     findings.readability = levels[0][1] >= 0.99 && levels[0][1] > levels[1][1] ? (['unreadable', 'partial', 'clear'] as const)[Number(levels[0][0])] : 'undetermined'
   }
-  const usable = findings.category === 'identity' && findings.readability === 'clear'
-  if (native.answers.namePresence) findings.namePresence = native.answers.namePresence.noul >= 0.99 ? 'present' : native.answers.namePresence.noul <= 0.01 && usable ? 'absent' : 'undetermined'
-  const comparison = native.answers.nameSupport
-  if (comparison) {
-    findings.nameSupport = 'undetermined'
-    if (usable && comparison.confidence >= 0.99 && comparison.choice !== 'uncertain') {
-      if (comparison.choice === 'not_found' && findings.namePresence === 'absent') findings.nameSupport = 'not_found'
-      else if (comparison.choice !== 'not_found' && findings.namePresence === 'present') findings.nameSupport = comparison.choice as Findings['nameSupport']
+  const usable = findings.category === selection.binding.slot && findings.readability === 'clear'
+  for (const target of targets) {
+    const presence = native.answers[target.presence]
+    if (presence) findings[target.presence] = presence.noul >= 0.99 ? 'present' : presence.noul <= 0.01 && usable ? 'absent' : 'undetermined'
+    const comparison = native.answers[target.support]
+    if (comparison) {
+      findings[target.support] = 'undetermined'
+      if (usable && comparison.confidence >= 0.99 && comparison.choice !== 'uncertain') {
+        if (comparison.choice === 'not_found' && findings[target.presence] === 'absent') findings[target.support] = 'not_found'
+        else if (comparison.choice !== 'not_found' && findings[target.presence] === 'present') findings[target.support] = comparison.choice as Findings[typeof target.support]
+      }
     }
   }
   return { native, findings, partial: Object.values(findings).includes('unavailable') }

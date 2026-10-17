@@ -7,6 +7,7 @@ import { DraftEditor } from '../../src/ui/draft'
 import { ReviewWorkspace } from '../../src/ui/review'
 import { correctionApplicationId, requestIdentityCorrection, correctionCommand, prepareCorrectionIdentity } from './correction-evidence-fixtures'
 import { pdfFile } from './evidence-fixtures'
+import { requestBusinessCorrection } from './business-evidence-fixtures'
 
 const demo = createDemo({ evidenceTransport: {
   async evaluate(request, signal) {
@@ -31,7 +32,8 @@ if (reviewerMode && new URLSearchParams(location.search).get('reviewer') === 'pd
 if (reviewerMode) await demo.signIn('salma')
 let view = await demo.readApplication(correctionMode || reviewerMode ? correctionApplicationId : 'RIFD-2026-001')
 if (correctionMode && view.ok && view.value.status === 'underReview') {
-  await requestIdentityCorrection(demo, correctionMode === 'name' ? [{ kind: 'field', field: 'fullName', reason: { ar: 'صحح الاسم المعلن.', en: 'Correct the declared name.' } }] : [])
+  if (correctionMode === 'business') await requestBusinessCorrection(demo)
+  else await requestIdentityCorrection(demo, correctionMode === 'name' ? [{ kind: 'field', field: 'fullName', reason: { ar: 'صحح الاسم المعلن.', en: 'Correct the declared name.' } }] : [])
   view = await demo.readApplication(correctionApplicationId)
 }
 if (!context.ok || !view.ok) throw new Error('fixture')
@@ -39,7 +41,7 @@ const initialContext = context.value, initialView = view.value
 function Screen() {
   const [language, setLanguage] = useState<Language>('ar'), [step, setStep] = useState<ApplicationStep>('documents'), [view, setView] = useState(initialView)
   return <div className="mx-auto max-w-[1200px] p-4" dir={language === 'ar' ? 'rtl' : 'ltr'}><h1>Browser test fixture</h1><button onClick={() => { const next = language === 'ar' ? 'en' : 'ar'; setLanguage(next); document.documentElement.dir = next === 'ar' ? 'rtl' : 'ltr' }}>{language === 'ar' ? 'English' : 'العربية'}</button>
-    {view.role === 'reviewer' ? <ReviewWorkspace demo={demo} datasetId={initialContext.datasetId} view={view} language={language} remember={() => {}} changed={setView} departure={() => {}} /> : view.status === 'draft' || view.status === 'correctionsRequested' ? <DraftEditor demo={demo} view={view} context={initialContext} language={language} step={step} changeStep={setStep} remember={() => {}} departure={() => {}} savedView={setView} /> : <h2>{language === 'ar' ? 'أُعيد تقديم التصحيحات.' : 'Corrections resubmitted.'}</h2>}
+    {view.role === 'reviewer' ? <ReviewWorkspace demo={demo} datasetId={initialContext.datasetId} view={view} language={language} remember={() => {}} changed={setView} departure={() => {}} /> : view.status === 'draft' || view.status === 'correctionsRequested' ? <DraftEditor demo={demo} view={view} context={initialContext} language={language} step={step} changeStep={setStep} remember={() => {}} departure={() => {}} savedView={setView} /> : <h2>{view.status === 'submitted' ? language === 'ar' ? 'قُدم الطلب.' : 'Application submitted.' : language === 'ar' ? 'أُعيد تقديم التصحيحات.' : 'Corrections resubmitted.'}</h2>}
   </div>
 }
 createRoot(document.getElementById('root')!).render(<Screen />)

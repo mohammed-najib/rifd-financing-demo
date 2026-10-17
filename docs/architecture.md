@@ -24,9 +24,9 @@ Tailwind CSS 4.3.3 compiles through its pinned Vite plugin. `src/ui/styles.css` 
 
 The [acceptance checklist](acceptance/README.md) separates automated behavior, ordinary-browser manual work, print inspection, performance and hosted checks. Browser-only persistence, no real authentication or payment processing, and fresh-offline launch remain explicit limits.
 
-Draft, private correction and submitted identity assistance use `Demo.createEvidenceAssistance`. The handle owns an
+Draft, private correction and submitted identity and business assistance use `Demo.createEvidenceAssistance`. The handle owns an
 explicit inspect/run/cancel/refresh/clear lifecycle and retained results. Authorized reads bind
-actual source bytes, declared-name context and authority/dependency generations.
+actual source bytes, relevant declarations and authority/dependency generations.
 Completion rechecks those dependencies. Replacement, relevant edits, sign-out,
 reset and view disposal cannot publish late findings. Language changes do not run
 analysis. Assistance never writes financing data.
@@ -67,6 +67,16 @@ assets. Source/raster hashes, orientation, padding and transforms accompany each
 result. The pinned JPEG decoder rejects truncated scans that browser decoding
 would repair silently. Incomplete, encrypted, oversized or multipage sources remain available
 through ordinary inspection but cannot produce one-page findings.
+
+Shared target definitions identify business name, address and operating-since
+month for separate presence and support findings. Invalid or missing declarations
+skip only their comparisons. Existing domain validation determines applicability;
+operating-history arithmetic and eligibility stay in the domain rules. Every
+model-visible declaration participates in each question's dependency manifest.
+Business checks share correction permissions, reviewer source selection and
+retention without depending on unrelated applicant fields or staff notes.
+The current one-page limit also applies to business evidence; multipage support
+and automatic highlights remain separate implementation tickets.
 
 The controller reserves the shape of a two-stage plan for later bound verification;
 this slice evaluates only the combined page/declaration stage. It retains native

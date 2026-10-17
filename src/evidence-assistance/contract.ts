@@ -2,8 +2,8 @@ import type { PreparedAttachment, Result } from '../demo/types'
 import type { CorrectionTarget, DocumentSlot } from '../domain/model'
 
 export const versions = {
-  questions: 'identity-questions-v1', preparation: 'full-page-pdfjs-5.4.296-v1',
-  mapping: 'identity-mapping-v1', display: 'release-display-v2-experimental',
+  questions: 'evidence-questions-v2', preparation: 'full-page-pdfjs-5.4.296-v1',
+  mapping: 'evidence-mapping-v2', display: 'release-display-v2-experimental',
   defaults: 'provisional-display-defaults-v1', model: 'jev-1.14.0',
   bridge: 'fixed-evaluation-v1', sdk: 'not-connected',
 } as const
@@ -20,16 +20,34 @@ export type EvidenceAudience = 'applicant' | 'reviewer'
 export type EvidenceContext = 'draft' | 'correction-workspace' | 'submitted'
 export type EvidenceAction = 'check-document' | 'find-supporting-evidence'
 // Both audiences use the same implemented tasks. Add new document definitions here.
-export const evidenceTaskSlots: readonly DocumentSlot[] = ['identity']
+export const evidenceTaskSlots: readonly DocumentSlot[] = ['identity', 'business']
+export type BusinessField = 'businessName' | 'address' | 'operatingSince'
+export type DeclaredDetail = { value: string | null; status: 'valid' | 'missing' | 'invalid' }
+export type EvidenceDeclaration = { fullName: string | null; status: DeclaredDetail['status']; business?: never }
+  | { fullName?: never; status?: never; business: Record<BusinessField, DeclaredDetail> }
+export type PresenceKey = 'namePresence' | 'businessNamePresence' | 'addressPresence' | 'operatingSincePresence'
+export type SupportKey = 'nameSupport' | 'businessNameSupport' | 'addressSupport' | 'operatingSinceSupport'
+// These named targets also identify the regions to locate when highlights are enabled.
+export type EvidenceTarget = { field: 'fullName' | BusinessField; name: string; presence: PresenceKey; support: SupportKey; statePath: string }
+const identityTargets: readonly EvidenceTarget[] = [{ field: 'fullName', name: 'applicant name', presence: 'namePresence', support: 'nameSupport', statePath: 'declaredApplicantName' }]
+const businessTargets: readonly EvidenceTarget[] = [
+  { field: 'businessName', name: 'business name', presence: 'businessNamePresence', support: 'businessNameSupport', statePath: 'declaredBusiness.businessName' },
+  { field: 'address', name: 'business address', presence: 'addressPresence', support: 'addressSupport', statePath: 'declaredBusiness.address' },
+  { field: 'operatingSince', name: 'business operating-since month', presence: 'operatingSincePresence', support: 'operatingSinceSupport', statePath: 'declaredBusiness.operatingSince' },
+]
+export const evidenceTargets = (slot: DocumentSlot): readonly EvidenceTarget[] => slot === 'identity' ? identityTargets : slot === 'business' ? businessTargets : []
+export const declaredDetail = (declaration: EvidenceDeclaration, target: EvidenceTarget): DeclaredDetail => target.field === 'fullName'
+  ? { value: declaration.fullName ?? null, status: declaration.status ?? 'missing' }
+  : declaration.business?.[target.field] ?? { value: null, status: 'missing' }
 export type EvidenceInput = {
   action: EvidenceAction; applicationId: string; slot: DocumentSlot; audience: EvidenceAudience; context: EvidenceContext;
-  fileId?: string | null; attachment?: PreparedAttachment; declaredName?: string; roundId?: string;
+  fileId?: string | null; attachment?: PreparedAttachment; declaredName?: string; declaredBusiness?: Record<BusinessField, string>; roundId?: string;
 }
 export type CorrectionEvidenceContext = { targets: CorrectionTarget[]; initialSubmissionMonth: string }
 export type EvidenceSource = { id: string; bytes: ArrayBuffer; name: string; mime: string; hash: string }
 export type SelectedEvidence = {
   source: EvidenceSource;
-  declaration: { fullName: string | null; status: 'valid' | 'missing' | 'invalid' };
+  declaration: EvidenceDeclaration;
   correction?: CorrectionEvidenceContext;
   binding: { datasetId: string; applicationId: string; slot: DocumentSlot; audience: EvidenceAudience; context: EvidenceContext; contextId: string; roundId: string | null; authorityGeneration: number; sharedRevision: number; workspaceRevision: number; dependencyKey: string; durable: boolean; reviewContext?: string };
 }
@@ -47,7 +65,7 @@ export type FixedQuestion = { type: 'choice'; instructions: string; criteria: Re
   | { type: 'noul'; instructions: string }
 export type StageRequest = {
   runId: string; stage: 'combined-page-declaration'; model: typeof versions.model; plan: AttemptPlan;
-  state: { page: string; declaredApplicantName: string | null; correction?: CorrectionEvidenceContext };
+  state: { page: string; declaredApplicantName?: string | null; declaredBusiness?: Record<BusinessField, string | null>; correction?: CorrectionEvidenceContext };
   image: PreparedPage;
   questions: Record<string, FixedQuestion>; versions: typeof versions;
   dependencies: Record<string, string[]>;
@@ -57,14 +75,13 @@ export type EvidenceTransport = { evaluate(request: StageRequest, signal: AbortS
 export type ChoiceAnswer = { type: 'choice'; choice: string; confidence: number; probabilities: Record<string, number> }
 export type ScoreAnswer = { type: 'score'; score: number; confidence: number; probabilities: Record<string, number>; legend: Record<string, string> }
 export type NoulAnswer = { type: 'noul'; noul: number }
-export type NativeAnswers = { category?: ChoiceAnswer; readability?: ScoreAnswer; namePresence?: NoulAnswer; nameSupport?: ChoiceAnswer }
+export type NativeAnswers = { category?: ChoiceAnswer; readability?: ScoreAnswer } & Partial<Record<PresenceKey, NoulAnswer>> & Partial<Record<SupportKey, ChoiceAnswer>>
 export type NativeCapture = { model: string; answers: NativeAnswers; receivedAnswers: Record<string, unknown>; usage: { input_tokens: number; output_tokens: number }; responseId?: string }
 export type Findings = {
   category: 'identity' | 'business' | 'financial' | 'stock' | 'equipment' | 'other' | 'mixed' | 'undetermined' | 'unavailable';
   readability: 'clear' | 'partial' | 'unreadable' | 'undetermined' | 'unavailable';
-  namePresence: 'present' | 'absent' | 'undetermined' | 'unavailable';
-  nameSupport: 'consistent' | 'different' | 'not_found' | 'conflict' | 'undetermined' | 'missing-context' | 'unavailable';
-}
+} & Partial<Record<PresenceKey, 'present' | 'absent' | 'undetermined' | 'unavailable'>>
+  & Partial<Record<SupportKey, 'consistent' | 'different' | 'not_found' | 'conflict' | 'undetermined' | 'missing-context' | 'unavailable'>>
 export type Coverage = { totalPages: number | null; selected: number[]; prepared: number[]; dispatched: number[]; successful: number[]; failed: number[]; unreadable: number[]; unchecked: number[]; uncheckedCount: number | null }
 export type EvidenceRun = {
   schemaVersion: 1; id: string; provenanceKind: 'live-analysis'; temporary: boolean; restored: boolean; stale: boolean; expiresAt: string; coverage: Coverage; findings: Findings;

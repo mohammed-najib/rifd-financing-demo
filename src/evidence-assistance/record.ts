@@ -14,7 +14,12 @@ const binding = z.object({
   audience: z.enum(['applicant', 'reviewer']), context: z.enum(['draft', 'correction-workspace', 'submitted']), contextId: z.string().min(1), roundId: z.string().nullable(),
   authorityGeneration: z.number().int().nonnegative(), sharedRevision: z.number().int().nonnegative(), workspaceRevision: z.number().int().nonnegative(), dependencyKey: z.string(), durable: z.boolean(), reviewContext: z.string().min(1).optional(),
 }).strict()
-const declaration = z.object({ fullName: z.string().nullable(), status: z.enum(['valid', 'missing', 'invalid']) }).strict()
+const detail = z.object({ value: z.string().nullable(), status: z.enum(['valid', 'missing', 'invalid']) }).strict()
+const business = z.object({ businessName: detail, address: detail, operatingSince: detail }).strict()
+const declaration = z.union([z.object({ fullName: z.string().nullable(), status: z.enum(['valid', 'missing', 'invalid']) }).strict(), z.object({ business }).strict()])
+const presenceFinding = z.enum(['present', 'absent', 'undetermined', 'unavailable'])
+const supportFinding = z.enum(['consistent', 'different', 'not_found', 'conflict', 'undetermined', 'missing-context', 'unavailable'])
+const presence = z.object({ type: z.literal('noul'), noul: z.number().min(0).max(1) }).strict()
 const correction = z.object({ targets: correctionTargetsSchema, initialSubmissionMonth: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/) }).strict()
 const versionRecord = z.object({
   questions: z.literal(versions.questions), preparation: z.literal(versions.preparation), mapping: z.literal(versions.mapping),
@@ -34,15 +39,15 @@ const schema = z.object({
   coverage: z.object({ totalPages: z.number().int().min(1).max(100).nullable(), selected: pages, prepared: pages, dispatched: pages, successful: pages, failed: pages, unreadable: pages, unchecked: pages, uncheckedCount: z.number().int().nonnegative().nullable() }).strict(),
   findings: z.object({
     category: z.enum(['identity', 'business', 'financial', 'stock', 'equipment', 'other', 'mixed', 'undetermined', 'unavailable']),
-    readability: z.enum(['clear', 'partial', 'unreadable', 'undetermined', 'unavailable']), namePresence: z.enum(['present', 'absent', 'undetermined', 'unavailable']),
-    nameSupport: z.enum(['consistent', 'different', 'not_found', 'conflict', 'undetermined', 'missing-context', 'unavailable']),
+    readability: z.enum(['clear', 'partial', 'unreadable', 'undetermined', 'unavailable']), namePresence: presenceFinding.optional(), nameSupport: supportFinding.optional(),
+    businessNamePresence: presenceFinding.optional(), businessNameSupport: supportFinding.optional(), addressPresence: presenceFinding.optional(), addressSupport: supportFinding.optional(), operatingSincePresence: presenceFinding.optional(), operatingSinceSupport: supportFinding.optional(),
   }).strict(),
-  stages: z.array(z.object({ stage: z.string(), outcome: z.enum(['successful', 'partial', 'unavailable', 'skipped']), reason: z.string().optional() }).strict()).max(4),
+  stages: z.array(z.object({ stage: z.string(), outcome: z.enum(['successful', 'partial', 'unavailable', 'skipped']), reason: z.string().optional() }).strict()).max(6),
   provenance: z.object({
     source: z.object({ id: z.string(), name: z.string(), mime: z.string(), hash }).strict(), binding, context: declaration, correction: correction.optional(), versions: versionRecord, plan,
-    request: z.object({ runId: z.string().uuid(), stage: z.literal('combined-page-declaration'), model: z.literal(versions.model), plan, state: z.object({ page: z.string(), declaredApplicantName: z.string().nullable(), correction: correction.optional() }).strict(), questions: z.record(z.string(), question), versions: versionRecord, dependencies: z.record(z.string(), z.array(z.string())) }).strict(),
+    request: z.object({ runId: z.string().uuid(), stage: z.literal('combined-page-declaration'), model: z.literal(versions.model), plan, state: z.object({ page: z.string(), declaredApplicantName: z.string().nullable().optional(), declaredBusiness: z.object({ businessName: z.string().nullable(), address: z.string().nullable(), operatingSince: z.string().nullable() }).strict().optional(), correction: correction.optional() }).strict(), questions: z.record(z.string(), question), versions: versionRecord, dependencies: z.record(z.string(), z.array(z.string())) }).strict(),
     raster: z.object({ page: z.literal(1), sourceHash: hash, rasterHash: hash, width: dimensions, height: dimensions, sourceWidth: dimensions, sourceHeight: dimensions, uprightWidth: dimensions, uprightHeight: dimensions, orientation: z.number(), rotation: z.number(), scale: dimensions, padding: z.object({ left: z.number(), top: z.number(), right: z.number(), bottom: z.number() }).strict(), viewport: matrix, orientationTransform: matrix, transform: matrix, renderer: z.string(), worker: z.string(), resources: z.string(), preparation: z.literal(versions.preparation) }).strict(),
-    native: z.object({ model: z.literal(versions.model), answers: z.object({ category: choice.optional(), readability: score.optional(), namePresence: z.object({ type: z.literal('noul'), noul: probability }).strict().optional(), nameSupport: choice.optional() }).strict(), receivedAnswers: z.record(z.string(), z.json()), usage: z.object({ input_tokens: z.number().int().nonnegative(), output_tokens: z.number().int().nonnegative() }).strict(), responseId: z.string().optional() }).strict(),
+    native: z.object({ model: z.literal(versions.model), answers: z.object({ category: choice.optional(), readability: score.optional(), namePresence: presence.optional(), nameSupport: choice.optional(), businessNamePresence: presence.optional(), businessNameSupport: choice.optional(), addressPresence: presence.optional(), addressSupport: choice.optional(), operatingSincePresence: presence.optional(), operatingSinceSupport: choice.optional() }).strict(), receivedAnswers: z.record(z.string(), z.json()), usage: z.object({ input_tokens: z.number().int().nonnegative(), output_tokens: z.number().int().nonnegative() }).strict(), responseId: z.string().optional() }).strict(),
     accounting: z.literal('reported'), startedAt: date, dispatchedAt: date, answeredAt: date, completedAt: date,
   }).strict(),
 }).strict()
