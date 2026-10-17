@@ -13,7 +13,7 @@ export type SavedSelection = {
   exampleId: string;
   current?: {
     applicationId: string; slot: DocumentSlot; language: Language;
-    fileId?: string; attachment?: PreparedAttachment; fields?: Fields; product?: ProductId;
+    fileId?: string | null; attachment?: PreparedAttachment; fields?: Fields; product?: ProductId;
     selectedPages?: number[]; versions?: SavedBasis;
   };
 }

@@ -67,24 +67,26 @@ export function SavedDemonstrations({ demo, current, language, reviewer = false,
   const capture = selected?.capture
   return <section className="mt-4 min-w-0" aria-label={t('title')}>
     <details><summary>{t('choose')}</summary><p>{t('experimental')}</p><p>{t('notice')}</p><div className="actions">{examples.map(example => <button className="secondary" key={example.id} onClick={() => void select(example.id)}>{t('open')} {savedNames[example.id as keyof typeof savedNames][language]}</button>)}</div></details>
-    {!selected && children}
     {busy && <p role="status">{t('loading')}</p>}{error && <p role="alert">{error}</p>}
-    {capture && selected && <div key={capture.sourceFamily} className="mt-4 rounded-card border border-solid border-border p-3">
+    <div className={selected ? "mt-4 rounded-card border border-solid border-border p-3" : undefined}>
+      {capture && selected && <>
       <h4>{t('mode')} · {savedNames[capture.sourceFamily as keyof typeof savedNames][language]}</h4><p>{t('date')}</p><p>{t('notice')}</p>
-      <p role="status">{t(selected.attachment === 'current-document' ? 'attached' : 'separate')}</p>
-      <div className={reviewer ? 'grid grid-cols-2 items-start gap-4 compact:grid-cols-1' : ''}>
-        {reviewer && <SavedSource key={capture.sourceFamily} opened={selected} language={language} />}
-        <div className="min-w-0"><h5>{t('coverage')}</h5><ul>{capture.findings.pages.map(page => <li key={page.page}>{t('page')} {page.page} · {t(page.available ? 'available' : 'unavailable')}{page.category && <p>{savedTargets[page.category][language]}</p>}{page.readability === 2 && <p>{t('readable')}</p>}</li>)}</ul>
+      <p role="status">{t(selected.attachment === 'current-document' ? 'attached' : 'separate')}</p></>}
+      <div className={reviewer && selected ? 'grid grid-cols-2 items-start gap-4 compact:grid-cols-1' : ''}>
+        {reviewer && selected && <SavedSource key={selected.capture.sourceFamily} opened={selected} language={language} />}
+        <div key="findings" className="min-w-0">{capture && selected && <><h5>{t('coverage')}</h5><ul>{capture.findings.pages.map(page => <li key={page.page}>{t('page')} {page.page} · {t(page.available ? 'available' : 'unavailable')}{page.category && <p>{savedTargets[page.category][language]}</p>}{page.readability === 2 && <p>{t('readable')}</p>}</li>)}</ul>
           <ul>{capture.findings.comparisons.map(finding => <li key={finding.field}>{t('page')} {capture.findings.pages.filter(page => page.available).map(page => page.page).join(', ')} · {savedTargets[finding.field][language]}: {t(finding.outcome === 'consistent' || finding.outcome === 'different' || finding.outcome === 'not_found' ? finding.outcome : 'suppressed')}</li>)}</ul>
           <p>{savedLimitations[capture.sourceFamily as keyof typeof savedLimitations][language]}</p>
           <h5>{t('context')}</h5><dl className="facts">{Object.entries(capture.context.comparisons).map(([target, value]) => <div key={target}><dt>{savedTargets[target][language]}</dt><dd><bdi>{value}</bdi></dd></div>)}</dl>
-          {reviewer && <><h5>{t('assessment')}</h5>{selected.attachment === 'example' && <p>{t('assessmentHelp')}</p>}</>}
+          {reviewer && <><h5>{t('assessment')}</h5>{selected.attachment === 'example' && <p>{t('assessmentHelp')}</p>}</>}</>}
           {children}
         </div>
       </div>
+      {capture && selected && <>
       {!reviewer && <><button className="secondary" onClick={() => setShowSource(!showSource)} aria-expanded={showSource}>{t(showSource ? 'hide' : 'show')}</button>{showSource && <SavedSource key={capture.sourceFamily} opened={selected} language={language} />}</>}
       <details className="mt-4"><summary>{t('provenance')}</summary><pre dir="ltr" className="max-h-[400px] overflow-auto whitespace-pre-wrap text-[12px] wrap-anywhere">{JSON.stringify({ provenance: selected.provenance, attachment: selected.attachment, ...capture }, null, 2)}</pre></details>
       <button className="secondary mt-3" onClick={() => { generation.current++; setOpened(null) }}>{t('close')}</button>
-    </div>}
+      </>}
+    </div>
   </section>
 }

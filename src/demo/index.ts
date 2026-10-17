@@ -12,7 +12,7 @@ import { projectQueue } from './queue'
 import { applyReviewCommand, validateReviewCommand } from './review'
 import { inspectionContext } from './inspection'
 import { hashBytes, matchesSavedContext, openSavedExample, savedExamples, type SavedSelection } from './saved-demonstrations'
-import { activeCorrection, correctionDocument, validateCorrectionSave, validateResubmission } from './corrections'
+import { activeCorrection, correctionDocument, validateCorrectionFields, validateCorrectionSave, validateResubmission } from './corrections'
 import type { ApplicantView, ApplicationMutation, ApplicationOperation, ApplicationView, CommitHint, Context, Controls, Demo, ErrorKind, LanguageOperation, MutationResult, NotificationReadOperation, NotificationReadResult, PreferenceOperation, PreparedAttachment, QueuePreferenceOperation, Result, ReviewOperation, SaveCorrectionsOperation, SaveDraftOperation, Session, SubmitOperation, ResubmitOperation } from './types'
 export type { ApplicationOperation, ApplicationSummary, ApplicationView, CommitHint, Context, Controls, Demo, DemoOperation, DraftDocuments, ErrorKind, LanguageOperation, MutationResult, NotificationDestination, NotificationReadOperation, NotificationReadResult, OperationInspection, PreferenceInspection, PreferenceOperation, PreparedAttachment, Preparation, PrintSummary, QueuePreferenceOperation, QueueQuery, StaffQueue, Result, ReviewOperation, SaveCorrectionsOperation, SaveDraftOperation, SubmitOperation, ResubmitOperation, ResetContext, ResetOperation, ResetResult, ResetInspection } from './types'
 
@@ -569,9 +569,12 @@ export function createDemo(): Demo {
         } else {
           const id = snapshot.documents[current.slot]
           if (current.fileId && current.fileId !== id) throw new DemoError('unavailable')
-          file = data.files.find(file => file.id === id && file.applicationId === application.id && file.slot === current.slot)
+          const selected = selections.get(`${who}/${application.id}/${current.slot}`)
+          const sourceCurrent = current.fileId !== null && (!selected || selected.status === 'ready' && selected.attachmentId === id)
+          if (sourceCurrent) file = data.files.find(file => file.id === id && file.applicationId === application.id && file.slot === current.slot)
         }
         const canEdit = who !== 'salma' && !!application.workspace && ['draft', 'correctionsRequested'].includes(application.status)
+        if (canEdit && current.fields && application.status === 'correctionsRequested') validateCorrectionFields(application, current.fields)
         const fields = canEdit && current.fields ? current.fields : snapshot.fields
         const product = canEdit && application.status === 'draft' && current.product ? current.product : application.product
         const initialMonth = (application.submittedAt ?? domainDate).slice(0, 7)
