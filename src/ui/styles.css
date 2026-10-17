@@ -28,6 +28,9 @@
   --color-footer: #f4efe6;
   --color-table-heading: #eee9dd;
   --color-focus: #0b6458;
+  --color-hover-border: #8d806a;
+  --shadow-card-hover: 0 12px 26px rgb(17 47 40 / .05);
+  --shadow-button-hover: 0 7px 18px rgb(11 100 88 / .14);
   --radius-card: 8px;
   --radius-control: 4px;
   --radius-icon: 6px;
@@ -96,17 +99,17 @@
   button, input, a, textarea, select { font: inherit; }
   button, a { @apply touch-manipulation; }
   button { @apply cursor-pointer; }
-  button:disabled, button[aria-disabled='true'] { @apply cursor-wait opacity-65; }
+  :is(button, .button):is(:disabled, [aria-disabled='true']) { @apply cursor-wait opacity-65; }
   a { @apply text-accent underline-offset-4; }
 
   button, .button {
     @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-control border border-solid border-accent bg-accent px-[18px] py-[9px] font-semibold text-white no-underline;
-    transition: background-color 180ms, border-color 180ms, box-shadow 180ms, transform 180ms, filter 180ms;
+    transition: background-color 200ms, border-color 200ms, box-shadow 200ms, transform 200ms, filter 200ms;
   }
   button + button, .button + button { @apply ms-2.5; }
   :where(button, .button):not(:disabled, [aria-disabled='true']):is(:hover, :focus-visible) {
     transform: translateY(-2px);
-    box-shadow: 0 7px 18px rgb(11 100 88 / .14);
+    box-shadow: var(--shadow-button-hover);
     filter: brightness(.94);
   }
   :where(button, .button):not(:disabled, [aria-disabled='true']):active {
@@ -115,6 +118,15 @@
   }
   :focus-visible { @apply outline-[3px] outline-solid outline-focus outline-offset-4; }
   h1:focus { outline: none; }
+  summary { cursor: pointer; border-radius: var(--radius-control); transition: color 200ms, background-color 200ms; }
+  summary:is(:hover, :focus-visible) { color: var(--color-accent); background-color: var(--color-summary); }
+  input[type=file]::file-selector-button {
+    margin-inline-end: 12px; padding: 8px 12px; border: 1px solid var(--color-control-border);
+    border-radius: var(--radius-control); background: var(--color-summary); color: var(--color-accent);
+    font: inherit; cursor: pointer; transition: color 200ms, background-color 200ms, border-color 200ms, box-shadow 200ms;
+  }
+  input[type=file]:not(:disabled):is(:hover, :focus-visible)::file-selector-button { background: var(--color-accent); color: var(--color-surface); border-color: var(--color-accent); box-shadow: var(--shadow-button-hover); }
+  input[type=file]:disabled::file-selector-button { cursor: not-allowed; opacity: .65; }
 
   h1 { @apply mt-0 mb-[15px] text-[clamp(28px,3vw,40px)] leading-[1.5] font-semibold wrap-anywhere; letter-spacing: -.6px; }
   h2 { @apply mt-0 mb-3.5 text-[21px] leading-[1.7] font-semibold narrow:text-[19px]; }
@@ -127,6 +139,7 @@
   header, main, aside, section, article, div { @apply min-w-0; }
 
   progress { @apply w-full accent-accent; }
+  input:is([type=checkbox], [type=radio]) { accent-color: var(--color-accent); cursor: pointer; }
   dialog {
     @apply max-h-[90vh] max-w-[calc(100vw-30px)] overflow-auto rounded-card border border-solid border-border bg-surface p-6 text-inherit;
   }
@@ -148,8 +161,9 @@
   .brand small { @apply text-[11px] font-normal; }
   .eyebrow { @apply mb-2 text-[13px] font-semibold text-accent; }
   .intro { @apply mb-[30px] max-w-[780px] text-[16px] text-muted narrow:mb-[22px] narrow:text-[14px]; }
-  .button.secondary { @apply border-secondary-border bg-transparent text-accent; }
-  .button.secondary:not([aria-disabled='true']):is(:hover, :focus-visible) { background: var(--color-summary); border-color: var(--color-accent); }
+  .button.secondary, button.secondary { @apply border-secondary-border bg-transparent text-accent; }
+  :is(.button.secondary, button.secondary):not(:disabled, [aria-disabled='true'], [aria-current=step]):is(:hover, :focus-visible) { background: var(--color-summary); border-color: var(--color-accent); }
+  button[aria-pressed=true] { background: var(--color-summary); border-color: var(--color-accent); color: var(--color-accent); }
   .status { @apply inline-block rounded-[20px] px-[11px] py-1 text-[12px] font-semibold whitespace-nowrap; }
   td .status { @apply px-2 py-[3px] text-[11px]; }
   .actions { @apply my-4 flex flex-wrap items-center gap-3; }
@@ -163,8 +177,14 @@
   .sidebar p:last-child { @apply mt-[25px] text-[13px] text-muted compact:hidden; }
   .sidebar .eyebrow { @apply compact:m-0; }
   .identity-card { @apply border-border; }
-  .product-card, .identity-card, .application-card { transition: border-color 200ms, box-shadow 200ms, transform 200ms; }
-  .product-card:hover, .identity-card:enabled:is(:hover, :focus-visible), .application-card:is(:hover, :focus-within) { transform: translateY(-3px); border-color: #8d806a; box-shadow: 0 12px 26px rgb(17 47 40 / .05); filter: none; }
+  :where(.panel, .summary, .draft-feedback, .product-card, .identity-card, .queue-counts > div, fieldset.rounded-card, [role=alert].rounded-card, .growth-art) {
+    --card-hover-offset: -3px;
+    transition: border-color 200ms, box-shadow 200ms, transform 200ms;
+    &:not(:disabled, [aria-disabled=true]):is(:hover, :focus-within) { transform: translateY(var(--card-hover-offset)); border-color: var(--color-hover-border); box-shadow: var(--shadow-card-hover); filter: none; }
+    & :where(.panel, .summary, .draft-feedback, .product-card, .identity-card, .queue-counts > div, fieldset.rounded-card, [role=alert].rounded-card, .growth-art) { --card-hover-offset: 0px; }
+    @media (prefers-reduced-motion: reduce) { --card-hover-offset: 0px; transition: none; }
+    @media print { transform: none !important; box-shadow: none !important; transition: none; }
+  }
   .identity-card strong { @apply text-[19px]; }
   .identity-card > span:nth-child(3) { @apply col-start-2 text-[13px] text-muted; }
   .application-card h2 { @apply mb-[5px] narrow:text-[20px]; }
@@ -200,7 +220,8 @@
   :is(.draft-editor, .application-field) :is(textarea, select, input[type=file], input[type=text]) {
     @apply w-full max-w-full rounded-control border border-solid border-control-border bg-surface p-2.5 text-inherit;
   }
-  .draft-editor [aria-current=step] { @apply bg-accent text-white; }
+  .application-steps [aria-current=step] { @apply bg-accent text-white; }
+  .button-spinner { @apply inline-block size-4 animate-spin rounded-full border-2 border-solid border-current border-e-transparent; }
   :is(.draft-editor, .application-field) :is(input, textarea, select)[aria-invalid=true] { @apply border-danger-border; }
   :is(.draft-editor, .application-field) textarea { @apply min-h-[130px] resize-y; }
   .sample-picker label { @apply m-0 w-full; }
@@ -213,6 +234,13 @@
   .startup .brand { @apply mb-[35px]; }
   .startup h1 { @apply text-[25px]; }
   .startup p { @apply text-[14px] text-muted; }
+  .gallery-index { gap: 8px; margin-bottom: 32px; }
+  .gallery-index .button { min-height: 34px; padding: 5px 10px; font-size: 11px; }
+  [id^=gallery-] { scroll-margin-top: 24px; }
+  .gallery-section { padding-block: 16px; border-bottom: 1px solid var(--color-border); }
+  .gallery-palette { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 16px; list-style: none; padding: 0; margin: 24px 0; font-size: 12px; }
+  .gallery-swatch { display: block; height: 64px; margin-bottom: 8px; border: 1px solid var(--color-border); border-radius: var(--radius-control); }
+  @media (max-width: 767px) { .gallery-palette { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 
   .site-header { display: flex; align-items: center; flex-wrap: wrap; gap: 30px; min-height: 96px; padding: 20px max(5%, calc((100vw - 1240px) / 2)); border-bottom: 1px solid var(--color-border); background: var(--color-surface); }
   .site-header .brand { gap: 13px; letter-spacing: -.7px; }
@@ -239,9 +267,10 @@
     .site-workspace-products { padding-top: 0; }
   }
   @media (prefers-reduced-motion: reduce) {
-    button, .button, .panel, .identity-card, .product-card, .application-card { transition: none; }
+    button, .button, summary { transition: none; }
+    input[type=file]::file-selector-button { transition: none; }
+    .button-spinner { animation: none; }
     button, .button { transform: none; }
-    .product-card:hover, .identity-card:enabled:is(:hover, :focus-visible), .application-card:is(:hover, :focus-within) { transform: none; }
   }
 }
 

@@ -6,6 +6,19 @@ import { containDialogFocus } from './dialog'
 
 const filePreviewClassName = 'block h-[55vh] w-full border border-solid border-border bg-surface object-contain'
 
+export function DocumentPreviewContent({ file, language, prepared = false, renderFailed = false, onRenderError }: {
+  file: { url: string; mime: string; name: string }; language: Language; prepared?: boolean; renderFailed?: boolean; onRenderError: () => void;
+}) {
+  const t = (key: keyof typeof draftText) => draftText[key][language]
+  return <>
+    <p><bdi dir="ltr" className="wrap-anywhere">{file.name}</bdi></p><p>{prepared ? t('readyDocument') : t('savedDocument')}</p>
+    {!renderFailed && (file.mime === 'application/pdf'
+      ? <object className={filePreviewClassName} data={file.url} type="application/pdf" aria-label={t('savedDocument')} onError={onRenderError}><p>{t('previewFailed')}</p></object>
+      : <img className={filePreviewClassName} src={file.url} alt={prepared ? t('readyDocument') : t('savedDocument')} onError={onRenderError} />)}
+    <div className="actions"><a className="button secondary" href={file.url} target="_blank" rel="noopener noreferrer">{t('openFile')}</a><a className="button secondary" href={file.url} download={file.name}>{t('download')}</a></div>
+  </>
+}
+
 export function DocumentPreview({ demo, applicationId, fileId, attachment, label, language, close }: {
   demo: Demo; applicationId: string; fileId?: string; attachment?: PreparedAttachment; label: Bilingual; language: Language; close: () => void;
 }) {
@@ -37,13 +50,7 @@ export function DocumentPreview({ demo, applicationId, fileId, attachment, label
   return <dialog ref={dialog} className="w-[900px]" aria-labelledby="preview-heading" aria-describedby="preview-document-label" onKeyDown={containDialogFocus} onCancel={close} onClose={close}>
     <div className="mb-[18px] flex flex-wrap items-center justify-between gap-3"><h2 id="preview-heading">{t('preview')}</h2><button onClick={close}>{t('closePreview')}</button></div>
     <p id="preview-document-label" className="font-semibold">{label[language]}</p>
-    {file ? <>
-      <p><bdi dir="ltr" className="wrap-anywhere">{file.name}</bdi></p><p>{attachment ? t('readyDocument') : t('savedDocument')}</p>
-      {error !== 'render' && (file.mime === 'application/pdf'
-        ? <object className={filePreviewClassName} data={file.url} type="application/pdf" aria-label={t('savedDocument')} onError={() => setError('render')}><p>{t('previewFailed')}</p></object>
-        : <img className={filePreviewClassName} src={file.url} alt={attachment ? t('readyDocument') : t('savedDocument')} onError={() => setError('render')} />)}
-      <div className="actions"><a className="button secondary" href={file.url} target="_blank" rel="noopener noreferrer">{t('openFile')}</a><a className="button secondary" href={file.url} download={file.name}>{t('download')}</a></div>
-    </> : !error && <p role="status">{text.readLoading[language]}</p>}
+    {file ? <DocumentPreviewContent file={file} language={language} prepared={!!attachment} renderFailed={error === 'render'} onRenderError={() => setError('render')} /> : !error && <p role="status">{text.readLoading[language]}</p>}
     {error && <p role="alert">{error === 'render' ? t('previewFailed') : errors[error][language]}</p>}
     {error && <button onClick={() => setRetry(value => value + 1)}>{text.retry[language]}</button>}
   </dialog>

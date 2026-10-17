@@ -8,7 +8,7 @@
 .products-hero h1:lang(ar) { letter-spacing: -.8px; line-height: 1.65; font-size: clamp(34px, 3.4vw, 49px); }
 .products-hero h1 em { display: block; color: var(--color-accent); font-style: normal; }
 .products-hero p { max-width: 460px; margin-bottom: 28px; color: var(--color-muted); font-size: 15px; line-height: 1.9; }
-.products-page :is(button, .button) { font-size: 12px; }
+.products-page :is(button, .button), .product-card :is(button, .button) { font-size: 12px; }
 .products-hero .button { gap: 25px; padding: 13px 21px; }
 .growth-label > span { width: 5px; height: 5px; border-radius: 50%; background: var(--color-accent); }
 .growth-art { position: relative; isolation: isolate; min-height: 350px; overflow: hidden; border: 1px solid #c9d2b8; border-radius: var(--radius-card); background: #e3e8d9; }

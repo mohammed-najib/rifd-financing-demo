@@ -1,6 +1,6 @@
 export const galleryText = {
   title: { ar: 'مكونات الواجهة', en: 'Interface components' },
-  intro: { ar: 'المكونات المستخدمة في رحلات المتقدم والمراجع، مع أمثلة افتراضية لحالاتها. التعديلات هنا تخص الأمثلة فقط ولا تحفظ طلبات أو ملفات.', en: 'Components used in the applicant and reviewer journeys, with fictional examples of their states. Changes here affect only the examples and do not save applications or files.' },
+  intro: { ar: 'المرجع الموحد لمكونات الموقع وألوانه وحركاته. الأمثلة تستخدم المكونات نفسها في صفحات المتقدم والمراجعة. تفاعلاتك هنا تخص الأمثلة فقط ولا تحفظ طلبات أو ملفات.', en: 'The canonical reference for the site’s components, colors, and motion. Examples use the same components as applicant and reviewer pages. Interactions here affect only the examples and do not save applications or files.' },
   fields: { ar: 'الحقول والتحقق', en: 'Fields and validation' },
   focus: { ar: 'استخدم Tab للوصول إلى الحقول والأزرار وفحص إطار التركيز. صحح المبلغ لإزالة الخطأ.', en: 'Use Tab to reach fields and buttons and inspect the focus outline. Correct the amount to clear its error.' },
   statuses: { ar: 'حالات الطلب والمراجعة', en: 'Application and review states' },

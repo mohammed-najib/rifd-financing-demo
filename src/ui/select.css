@@ -3,9 +3,9 @@
   width: 100%; min-height: 45px; margin: 0; padding: 9px 12px; border: 1px solid var(--color-control-border);
   border-radius: var(--radius-control); background: var(--color-surface); color: var(--color-ink);
   box-shadow: none; font: inherit; text-align: start; cursor: pointer; vertical-align: middle;
-  transition: border-color 160ms, box-shadow 160ms;
+  transition: background-color 200ms, border-color 200ms, box-shadow 200ms;
 }
-.select-trigger:where(:not(:disabled, [aria-disabled=true])):hover { border-color: #8d806a; background: var(--color-summary); box-shadow: 0 0 0 2px rgb(11 100 88 / .08); }
+.select-trigger:where(:not(:disabled, [aria-disabled=true])):hover { border-color: var(--color-hover-border); background: var(--color-summary); box-shadow: 0 0 0 2px rgb(11 100 88 / .08); }
 .select-trigger:is(:hover, :focus-visible, :active) { transform: none; filter: none; }
 .select-trigger:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
 .select-trigger[aria-expanded=true] { border-color: var(--color-accent); box-shadow: 0 0 0 3px rgb(11 100 88 / .08); }
@@ -29,7 +29,7 @@
 }
 .select-option + .select-option { margin-top: 3px; }
 .select-option[aria-selected=true] { background: var(--color-summary); color: var(--color-accent); }
-.select-option[data-active=true] { background: #e8e6d8; outline: 1px solid #8d806a; outline-offset: -1px; }
+.select-option[data-active=true] { background: #e8e6d8; outline: 1px solid var(--color-hover-border); outline-offset: -1px; }
 .select-option[aria-disabled=true] { opacity: .5; cursor: not-allowed; }
 .select-check { flex: none; color: var(--color-accent); visibility: hidden; }
 .select-option[aria-selected=true] .select-check { visibility: visible; }

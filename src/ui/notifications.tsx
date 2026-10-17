@@ -4,6 +4,18 @@ import type { Language, Notification } from '../domain/model'
 import { date, errors, events, text } from './i18n'
 import { notificationText as copy } from './notification-copy'
 
+export function NotificationCard({ notice, language, disabled, open, markRead }: {
+  notice: Notification; language: Language; disabled?: boolean; open: () => void; markRead: () => void;
+}) {
+  return <article className="panel" data-notification={notice.id}>
+    <div className="flex flex-wrap items-center justify-between gap-3"><h2>{events[notice.kind][language]}</h2><span className="status bg-summary text-accent">{copy[notice.read ? 'read' : 'unread'][language]}</span></div>
+    <p><bdi>{notice.applicationId}</bdi> · <bdi>{date(notice.date, language)}</bdi></p>
+    <div className="actions"><a className="button secondary" href={`/applications/${notice.applicationId}`} aria-disabled={!!disabled} onClick={event => { event.preventDefault(); if (!disabled) open() }}>{copy.open[language]}</a>
+      {!notice.read && <button disabled={disabled} onClick={markRead}>{copy.mark[language]}</button>}
+    </div>
+  </article>
+}
+
 export function Notifications({ demo, datasetId, language, reload, go }: { demo: Demo; datasetId: string; language: Language; reload: number; go: (path: string) => void }) {
   const [notices, setNotices] = useState<Notification[] | null>(null)
   const [error, setError] = useState<ErrorKind | null>(null)
@@ -58,13 +70,7 @@ export function Notifications({ demo, datasetId, language, reload, go }: { demo:
   }
   return <>
     <h1 tabIndex={-1}>{copy.title[language]}</h1><p className="intro">{copy.intro[language]}</p>
-    {!notices ? !error && <p role="status">{text.readLoading[language]}</p> : notices.length ? <div className="grid gap-5">{notices.map(notice => <article className="panel" data-notification={notice.id} key={notice.id}>
-      <div className="flex flex-wrap items-center justify-between gap-3"><h2>{events[notice.kind][language]}</h2><span className="status bg-summary text-accent">{copy[notice.read ? 'read' : 'unread'][language]}</span></div>
-      <p><bdi>{notice.applicationId}</bdi> · <bdi>{date(notice.date, language)}</bdi></p>
-      <div className="actions"><a className="button secondary" href={`/applications/${notice.applicationId}`} aria-disabled={!!pending} onClick={event => { event.preventDefault(); if (!pending) void open(notice) }}>{copy.open[language]}</a>
-        {!notice.read && <button disabled={!!pending} onClick={() => void run({ kind: 'markNotificationRead', datasetId, operationId: crypto.randomUUID(), notificationId: notice.id, expectedRevision: notice.revision }, false)}>{copy.mark[language]}</button>}
-      </div>
-    </article>)}</div> : <p className="summary">{copy.empty[language]}</p>}
+    {!notices ? !error && <p role="status">{text.readLoading[language]}</p> : notices.length ? <div className="grid gap-5">{notices.map(notice => <NotificationCard key={notice.id} notice={notice} language={language} disabled={!!pending} open={() => void open(notice)} markRead={() => void run({ kind: 'markNotificationRead', datasetId, operationId: crypto.randomUUID(), notificationId: notice.id, expectedRevision: notice.revision }, false)} />)}</div> : <p className="summary">{copy.empty[language]}</p>}
     {pending?.phase === 'working' && <p role="status">{copy.saving[language]}</p>}
     {error && <p className="summary" role="alert">{errors[error][language]}</p>}
     {pending?.phase === 'inspect' && <button onClick={() => void inspect()}>{copy.inspect[language]}</button>}

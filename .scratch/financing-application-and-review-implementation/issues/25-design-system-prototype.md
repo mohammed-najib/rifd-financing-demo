@@ -41,3 +41,32 @@ keyboard interaction, product and term selection into a new draft, staff
 filters, submission, corrections, review, repayment, printing and offline
 recovery. Reports and local captures are in `/tmp/rifd-selected-n`. The existing
 large JavaScript chunk build warning remains. No public deployment was made.
+
+The `/components` page is now the canonical catalogue, with sixteen linked
+sections covering identity and colors, buttons, card surfaces, financing cards,
+all application fields, selection and upload controls, steps and pagination,
+statuses, attachments, save feedback, queue views, notifications, repayment,
+history, loading and dialogs. Gallery interactions use local example state.
+
+Identity cards, product cards, queue counts, application steps, notification
+cards, repayment schedules and preview content are shared with production
+pages. The catalogue uses the existing field, select, attachment, status,
+queue-row, history, repayment-summary and departure-dialog implementations.
+Future visual changes belong in these shared implementations and styles.
+
+Cards share border, shadow and timing rules. Nested cards avoid cumulative
+movement. Native buttons and action links share primary and secondary states;
+file buttons and disclosures have matching feedback. Disabled controls,
+semantic error colors, reduced motion and print output retain explicit rules.
+
+The expanded gallery passed eight Chrome browser tests and six targeted
+Firefox/WebKit tests, alongside TypeScript, ESLint, 105 unit tests and the
+production build. Reports are in `/tmp/rifd-canonical-gallery` and
+`/tmp/rifd-canonical-crossbrowser`.
+
+The site audit passed 46 page/language combinations spanning public pages,
+applicant drafts and documents, corrections, staff review and decision pages,
+repayment and print views. It inspected 334 card instances, 660 enabled action
+instances, 20 disabled actions and 12 file controls, and checked each route at
+390px for horizontal overflow. Its report and captures are in
+`/tmp/rifd-site-interaction-audit`.

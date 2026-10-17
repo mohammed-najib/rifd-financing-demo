@@ -30,6 +30,7 @@ import { ComponentGallery } from './gallery'
 import { galleryText } from './gallery-copy'
 import { LoadingPanel } from './feedback'
 import { Products } from './products'
+import { IdentityCard } from './identity-card'
 
 type Screen = { kind: 'home' | 'chooser' | 'products' | 'applicantList' | 'staffList' | 'newDraft' | 'reset' | 'gallery' | 'unavailable' | 'notifications' } | { kind: 'applicantDetail' | 'staffDetail' | 'staffRequest' | 'staffDecision' | 'applicantPrint' | 'staffPrint' | 'applicantRepayment' | 'staffRepayment'; id: string }
 function resolveScreen(path: string): Screen {
@@ -424,7 +425,7 @@ export function App() {
           : isChooser ? <section className="mx-auto mt-[15px] mb-10 max-w-[970px] narrow:mt-[5px] narrow:mb-5">
             <Heading>{t('chooseIdentity')}</Heading><p className="intro">{t('chooserIntro')}</p>
             {recovery.current && <p className="summary" role="status">{t('recoverSession')}</p>}
-            <div className="grid grid-cols-2 gap-5 narrow:grid-cols-1 narrow:gap-3.5">{demoIdentities.map(person => <button className="identity-card m-0 grid min-h-[140px] grid-cols-[52px_1fr_20px] items-center gap-x-[18px] gap-y-[2px] rounded-card bg-surface p-[26px] text-start text-ink narrow:min-h-[110px] narrow:p-5" key={person.id} disabled={busy} onClick={() => void selectIdentity(person.id as ActorId)} aria-label={person.name[language]}><span className="row-[1/3] flex size-[52px] items-center justify-center rounded-[50%] bg-summary text-[22px] text-accent" aria-hidden="true">{person.name[language].slice(0, 1)}</span><strong>{person.name[language]}</strong><span>{person.role === 'reviewer' ? t('reviewer') : t('applicant')}</span><span className="col-start-3 row-[1/3] text-[24px] text-accent" aria-hidden="true">{language === 'ar' ? '←' : '→'}</span></button>)}</div>
+            <div className="grid grid-cols-2 gap-5 narrow:grid-cols-1 narrow:gap-3.5">{demoIdentities.map(person => <IdentityCard key={person.id} name={person.name[language]} role={person.role === 'reviewer' ? t('reviewer') : t('applicant')} language={language} disabled={busy} onClick={() => void selectIdentity(person.id as ActorId)} />)}</div>
             <p className="my-[22px] text-[13px] text-muted">{t('sliceNotice')}</p>
           </section>
           : !routeReady ? <LoadingPanel language={language} />

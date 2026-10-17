@@ -23,6 +23,12 @@ export function RepaymentSummary({ repayment, language }: { repayment: Repayment
   return <section className="summary" aria-labelledby="repayment-totals"><h2 id="repayment-totals">{text.repayment[language]}</h2><p>{repaymentText.frozen[language]}</p><dl className="facts">{(['amount', 'markup', 'total', 'completed', 'remaining'] as const).map(key => <div key={key}><dt>{text[key][language]}</dt><dd><bdi dir="ltr">{money(totals[key], language)}</bdi></dd></div>)}</dl></section>
 }
 
+export function RepaymentSchedule({ repayment, language }: { repayment: Repayment; language: Language }) {
+  return <section className="panel"><h2 id="repayment-installments">{repaymentText.installments[language]}</h2><ol role="list" className="m-0 list-none p-0" aria-labelledby="repayment-installments">{repayment.rows.map(row => <li key={row.due} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-5 gap-y-2 border-0 border-b border-solid border-border py-4 last:border-b-0 narrow:gap-x-3">
+          <time dateTime={row.due}>{date(row.due, language)}</time><bdi dir="ltr" className="font-semibold">{money(row.amount, language)}</bdi><span className={`status col-span-full justify-self-start ${row.status === 'completed' ? 'bg-status-approved text-status-approved-text' : 'bg-summary text-accent'}`}>{text[row.status === 'completed' ? 'completedRow' : 'upcoming'][language]}</span>
+        </li>)}</ol></section>
+}
+
 export function RepaymentOverview({ view, language, queueSearch, go }: { view: ApplicationView; language: Language; queueSearch: string; go: (path: string) => void }) {
   if (view.status !== 'approved' || !view.repayment) return null
   const repayment = view.repayment
@@ -41,9 +47,7 @@ export function RepaymentOverview({ view, language, queueSearch, go }: { view: A
           <RepaymentSummary repayment={repayment} language={language} />
           <section className="panel mt-6"><h2>{repaymentText.next[language]}</h2>{next ? <><p><time dateTime={next.due}>{date(next.due, language)}</time></p><p className="text-[24px] font-semibold text-accent"><bdi dir="ltr">{money(next.amount, language)}</bdi></p><span>{text.upcoming[language]}</span></> : <p>{repaymentText.noUpcoming[language]}</p>}<dl className="facts"><div><dt>{repaymentText.approvedAt[language]}</dt><dd><time dateTime={repayment.approvedAt}>{date(repayment.approvedAt, language)}</time></dd></div><div><dt>{text.term[language]}</dt><dd>{repayment.term} {text.months[language]}</dd></div></dl></section>
         </div>
-        <section className="panel"><h2 id="repayment-installments">{repaymentText.installments[language]}</h2><ol role="list" className="m-0 list-none p-0" aria-labelledby="repayment-installments">{repayment.rows.map(row => <li key={row.due} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-5 gap-y-2 border-0 border-b border-solid border-border py-4 last:border-b-0 narrow:gap-x-3">
-          <time dateTime={row.due}>{date(row.due, language)}</time><bdi dir="ltr" className="font-semibold">{money(row.amount, language)}</bdi><span className={`status col-span-full justify-self-start ${row.status === 'completed' ? 'bg-status-approved text-status-approved-text' : 'bg-summary text-accent'}`}>{text[row.status === 'completed' ? 'completedRow' : 'upcoming'][language]}</span>
-        </li>)}</ol></section>
+        <RepaymentSchedule repayment={repayment} language={language} />
       </div>
     </section>
   </>

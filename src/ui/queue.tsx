@@ -5,6 +5,7 @@ import type { Context, Demo, ErrorKind, QueuePreferenceOperation, QueueQuery, St
 import { products } from '../domain'
 import { queuePreferencesSchema, type Language, type QueuePreferences } from '../domain/model'
 import { ApplicationRows } from './application-rows'
+import { QueueCounts } from './queue-counts'
 import { errors, statuses, text } from './i18n'
 import { queueText } from './queue-copy'
 import { EmptyQueue, ReadFailure } from './feedback'
@@ -95,10 +96,7 @@ export function StaffApplicationQueue({ demo, context, language, input, href, re
 
   return <>
     <p className="eyebrow">{language === 'ar' ? 'مساحة العمل' : 'Workspace'}</p><h1 tabIndex={-1}>{t('staffApplications')}</h1><p className="intro">{t('staffIntro')}</p>
-      <div className="queue-counts mb-5 grid grid-cols-6 gap-[15px] compact:grid-cols-3 narrow:grid-cols-2 narrow:gap-2.5" aria-label={t('all')} aria-busy={!queue && reading}>
-        <div><strong>{queue?.total ?? '…'}</strong><span>{t('all')}</span></div>
-        {queuePreferencesSchema.shape.status.options.filter(status => status !== 'all').map(status => <div key={status}><strong>{queue?.counts[status] ?? '…'}</strong><span>{statuses[status][language]}</span></div>)}
-      </div>
+      <QueueCounts total={queue?.total} counts={queue?.counts} language={language} busy={!queue && reading} />
       <p className="text-[13px] text-muted">{t('assignedToYou')}: <bdi>{queue?.assignments.you ?? '…'}</bdi> · {q('colleague')}: <bdi>{queue?.assignments.colleague ?? '…'}</bdi> · {t('unassigned')}: <bdi>{queue?.assignments.unassigned ?? '…'}</bdi></p>
     <section className="panel mb-5" aria-label={q('search')} aria-busy={saving}>
       <label className="block" htmlFor="queue-search">{q('search')}<input className={control} id="queue-search" type="search" value={query.search} aria-describedby="queue-search-hint" onChange={event => change({ search: event.target.value, page: 1 })} /></label>
