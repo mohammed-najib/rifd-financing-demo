@@ -12,7 +12,7 @@ const matrix = z.array(z.number().finite()).max(9)
 const binding = z.object({
   datasetId: z.string().uuid(), applicationId: z.string().min(1), slot: z.enum(['identity', 'business', 'financial', 'purchase']),
   audience: z.enum(['applicant', 'reviewer']), context: z.enum(['draft', 'correction-workspace', 'submitted']), contextId: z.string().min(1), roundId: z.string().nullable(),
-  authorityGeneration: z.number().int().nonnegative(), sharedRevision: z.number().int().nonnegative(), workspaceRevision: z.number().int().nonnegative(), dependencyKey: z.string(), durable: z.boolean(),
+  authorityGeneration: z.number().int().nonnegative(), sharedRevision: z.number().int().nonnegative(), workspaceRevision: z.number().int().nonnegative(), dependencyKey: z.string(), durable: z.boolean(), reviewContext: z.string().min(1).optional(),
 }).strict()
 const declaration = z.object({ fullName: z.string().nullable(), status: z.enum(['valid', 'missing', 'invalid']) }).strict()
 const correction = z.object({ targets: correctionTargetsSchema, initialSubmissionMonth: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/) }).strict()
@@ -49,7 +49,7 @@ const schema = z.object({
 
 export function evidenceDependencyKey(selection: Pick<SelectedEvidence, 'binding' | 'source' | 'declaration' | 'correction'>): string {
   const { binding: b, source, declaration, correction } = selection
-  return JSON.stringify([b.datasetId, b.applicationId, b.slot, b.audience, b.context, b.contextId, b.roundId, source.id, source.hash, declaration, ...(correction ? [correction] : [])])
+  return JSON.stringify([b.datasetId, b.applicationId, b.slot, b.audience, b.context, b.contextId, b.roundId, source.id, source.hash, declaration, ...(correction ? [correction] : []), ...(b.reviewContext ? [b.reviewContext] : [])])
 }
 
 export function contextKey(binding: SelectedEvidence['binding']): string {
@@ -71,6 +71,7 @@ export function readRecord(raw: unknown): EvidenceRun | null {
     if (!parsed.success) return null
     const run = parsed.data
     const p = run.provenance
+    if ((p.binding.context === 'submitted') !== !!p.binding.reviewContext || (p.binding.audience === 'reviewer') !== (p.binding.context === 'submitted')) return null
     if (Date.parse(run.expiresAt) !== Date.parse(p.completedAt) + retentionMilliseconds || Date.parse(p.completedAt) > Date.now() || !(p.startedAt <= p.dispatchedAt && p.dispatchedAt <= p.answeredAt && p.answeredAt <= p.completedAt)) return null
     if (run.id !== p.request.runId || p.source.hash !== p.raster.sourceHash || run.coverage.totalPages !== 1 || JSON.stringify(run.coverage.selected) !== '[1]' || JSON.stringify(run.coverage.successful) !== '[1]' || JSON.stringify(run.coverage.prepared) !== '[1]' || JSON.stringify(run.coverage.dispatched) !== '[1]' || run.coverage.failed.length || run.coverage.unchecked.length || run.coverage.uncheckedCount !== 0) return null
     if ((p.binding.context === 'correction-workspace') !== !!p.correction || p.correction && (!p.binding.roundId || p.binding.contextId !== p.binding.roundId)) return null

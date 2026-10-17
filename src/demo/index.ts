@@ -16,7 +16,7 @@ import { activeCorrection, correctionDocument, validateCorrectionFields, validat
 import { createAssistance } from '../evidence-assistance/controller'
 import { evidenceDependencyKey } from '../evidence-assistance/record'
 import { createAnalysisStorage, withAnalysisAuthority } from '../evidence-assistance/storage'
-import type { EvidenceInput, EvidenceTransport, SelectedEvidence } from '../evidence-assistance/contract'
+import { evidenceTaskSlots, type EvidenceInput, type EvidenceTransport, type SelectedEvidence } from '../evidence-assistance/contract'
 import type { ApplicantView, ApplicationMutation, ApplicationOperation, ApplicationView, CommitHint, Context, Controls, Demo, ErrorKind, LanguageOperation, MutationResult, NotificationReadOperation, NotificationReadResult, PreferenceOperation, PreparedAttachment, QueuePreferenceOperation, Result, ReviewOperation, SaveCorrectionsOperation, SaveDraftOperation, Session, SubmitOperation, ResubmitOperation } from './types'
 export type { ApplicationOperation, ApplicationSummary, ApplicationView, CommitHint, Context, Controls, Demo, DemoOperation, DraftDocuments, ErrorKind, LanguageOperation, MutationResult, NotificationDestination, NotificationReadOperation, NotificationReadResult, OperationInspection, PreferenceInspection, PreferenceOperation, PreparedAttachment, Preparation, PrintSummary, QueuePreferenceOperation, QueueQuery, StaffQueue, Result, ReviewOperation, SaveCorrectionsOperation, SaveDraftOperation, SubmitOperation, ResubmitOperation, ResetContext, ResetOperation, ResetResult, ResetInspection } from './types'
 
@@ -587,15 +587,26 @@ export function createDemo(options: { evidenceTransport?: EvidenceTransport } = 
       const selectedInput: EvidenceInput = structuredClone(input)
       const captured = generation
       const who = session?.identity
-      const schema = z.object({ action: z.literal('check-document'), applicationId: z.string().min(1), slot: z.literal('identity'), audience: z.literal('applicant'), context: z.enum(['draft', 'correction-workspace']), roundId: z.string().min(1).optional(), fileId: z.string().nullable().optional(), attachment: preparedSchema.optional(), declaredName: z.string().optional() }).strict()
-      // All slot tasks use this owner/workspace context. Task-specific selection
-      // below currently supplies only the implemented identity declarations.
+      const task = { applicationId: z.string().min(1), slot: z.enum(slots), fileId: z.string().nullable().optional() }
+      const schema = z.discriminatedUnion('action', [
+        z.object({ ...task, action: z.literal('check-document'), audience: z.literal('applicant'), context: z.enum(['draft', 'correction-workspace']), roundId: z.string().min(1).optional(), attachment: preparedSchema.optional(), declaredName: z.string().optional() }).strict(),
+        z.object({ ...task, action: z.literal('find-supporting-evidence'), audience: z.literal('reviewer'), context: z.literal('submitted') }).strict(),
+      ])
       const authorize = (data: Dataset) => {
         const parsed = schema.safeParse(selectedInput)
         if (!parsed.success) throw new DemoError('validation')
         const command = parsed.data
+        if (!evidenceTaskSlots.includes(command.slot)) throw new DemoError('unavailable')
         if (!who) throw new DemoError('sessionExpired')
         authority(captured, who, data.meta.datasetId, data)
+        if (command.action === 'find-supporting-evidence') {
+          if (who !== 'salma') throw new DemoError('permissionDenied')
+          const application = permitted(data, who, command.applicationId)
+          const snapshot = application.submitted
+          const reviewContext = inspectionContext(data, who, application, command.slot)
+          if (!snapshot || !reviewContext) throw new DemoError('unavailable')
+          return { command, application, snapshot, workspace: null, round: null, correction: undefined, reviewContext }
+        }
         const application = editable(data, who, command.applicationId)
         if (!application.workspace) throw new DemoError('unavailable')
         const round = command.context === 'correction-workspace' && command.roundId ? activeCorrection(application, command.roundId) : null
@@ -605,15 +616,14 @@ export function createDemo(options: { evidenceTransport?: EvidenceTransport } = 
           if (command.declaredName !== undefined && command.declaredName !== application.workspace.snapshot.fields.fullName && !round.targets.some(target => target.kind === 'field' && target.field === 'fullName')) throw new DemoError('permissionDenied')
         }
         const correction = round ? { targets: round.targets.map(target => target.kind === 'field' ? { kind: target.kind, field: target.field, reason: target.reason } : { kind: target.kind, slot: target.slot, reason: target.reason }), initialSubmissionMonth: application.submittedAt!.slice(0, 7) } : undefined
-        return { command, application, workspace: application.workspace, round, correction }
+        return { command, application, snapshot: application.workspace.snapshot, workspace: application.workspace, round, correction, reviewContext: undefined }
       }
       const resolve = (): Promise<Result<SelectedEvidence>> => attempt(async () => {
         const data = await read()
-        const { command, application, workspace, round, correction } = authorize(data)
-        const snapshot = workspace.snapshot
+        const { command, application, snapshot, workspace, round, correction, reviewContext } = authorize(data)
         let file: StoredFile | undefined
-        const active = selections.get(`${who}/${application.id}/${command.slot}`)
-        if (command.attachment) {
+        const active = command.action === 'check-document' ? selections.get(`${who}/${application.id}/${command.slot}`) : undefined
+        if (command.action === 'check-document' && command.attachment) {
           if (snapshot.documents[command.slot] !== command.attachment.id && (active?.status !== 'ready' || active.attachmentId !== command.attachment.id)) throw new DemoError('supersededSelection')
           file = preparedFile(who!, application.id, command.slot, command.attachment)
         } else {
@@ -622,19 +632,20 @@ export function createDemo(options: { evidenceTransport?: EvidenceTransport } = 
           file = data.files.find(file => file.id === id && file.applicationId === application.id && file.slot === command.slot)
         }
         if (!file) throw new DemoError('unavailable')
-        const name = command.declaredName ?? snapshot.fields.fullName
+        const name = command.action === 'check-document' ? command.declaredName ?? snapshot.fields.fullName : snapshot.fields.fullName
         const length = name.trim().length > 200 ? 101 : [...name.trim()].length
         const declaration: SelectedEvidence['declaration'] = { fullName: length >= 2 && length <= 100 ? name : null, status: !length ? 'missing' : length < 2 || length > 100 ? 'invalid' : 'valid' }
         const source = { id: file.id, ...fileResult(file) }
         const actualHash = await hashBytes(source.bytes)
         const latest = await read()
         const fresh = authorize(latest)
-        if (fresh.workspace.snapshot.fields.fullName !== snapshot.fields.fullName || fresh.workspace.snapshot.documents[command.slot] !== snapshot.documents[command.slot] || JSON.stringify(fresh.correction) !== JSON.stringify(correction) || selections.get(`${who}/${application.id}/${command.slot}`)?.token !== active?.token) throw new DemoError('staleWorkspace')
+        if (fresh.snapshot.fields.fullName !== snapshot.fields.fullName || fresh.snapshot.documents[command.slot] !== snapshot.documents[command.slot] || fresh.reviewContext !== reviewContext || JSON.stringify(fresh.correction) !== JSON.stringify(correction) || command.action === 'check-document' && selections.get(`${who}/${application.id}/${command.slot}`)?.token !== active?.token) throw new DemoError('staleWorkspace')
         if (actualHash !== file.hash) throw new DemoError('damaged')
         const selection: SelectedEvidence = { source, declaration, ...(correction ? { correction } : {}), binding: {
           datasetId: data.meta.datasetId, applicationId: application.id, slot: command.slot, audience: command.audience, context: command.context,
-          contextId: round?.id ?? 'draft', roundId: round?.id ?? null, authorityGeneration: captured, sharedRevision: application.sharedRevision, workspaceRevision: workspace.revision,
-          durable: !!workspace.savedAt && snapshot.documents[command.slot] === file.id && name === snapshot.fields.fullName,
+          contextId: round?.id ?? command.context, roundId: round?.id ?? null, authorityGeneration: captured, sharedRevision: application.sharedRevision, workspaceRevision: workspace?.revision ?? 0,
+          durable: (!workspace || !!workspace.savedAt) && snapshot.documents[command.slot] === file.id && name === snapshot.fields.fullName,
+          ...(reviewContext ? { reviewContext } : {}),
           dependencyKey: '',
         } }
         selection.binding.dependencyKey = evidenceDependencyKey(selection)
@@ -642,8 +653,8 @@ export function createDemo(options: { evidenceTransport?: EvidenceTransport } = 
       })
       const authorizeClear = (): Promise<Result<SelectedEvidence['binding']>> => attempt(async () => {
         const data = await read()
-        const { command, application, workspace, round } = authorize(data)
-        return { datasetId: data.meta.datasetId, applicationId: application.id, slot: command.slot, audience: command.audience, context: command.context, contextId: round?.id ?? 'draft', roundId: round?.id ?? null, authorityGeneration: captured, sharedRevision: application.sharedRevision, workspaceRevision: workspace.revision, durable: false, dependencyKey: '' }
+        const { command, application, workspace, round, reviewContext } = authorize(data)
+        return { datasetId: data.meta.datasetId, applicationId: application.id, slot: command.slot, audience: command.audience, context: command.context, contextId: round?.id ?? command.context, roundId: round?.id ?? null, authorityGeneration: captured, sharedRevision: application.sharedRevision, workspaceRevision: workspace?.revision ?? 0, durable: false, dependencyKey: '', ...(reviewContext ? { reviewContext } : {}) }
       })
       const handle = createAssistance(resolve, options.evidenceTransport, analysisStorage, authorizeClear, () => { assistance.delete(handle) })
       assistance.add(handle)

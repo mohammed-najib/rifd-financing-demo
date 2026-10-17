@@ -24,7 +24,7 @@ Tailwind CSS 4.3.3 compiles through its pinned Vite plugin. `src/ui/styles.css` 
 
 The [acceptance checklist](acceptance/README.md) separates automated behavior, ordinary-browser manual work, print inspection, performance and hosted checks. Browser-only persistence, no real authentication or payment processing, and fresh-offline launch remain explicit limits.
 
-Draft and private correction identity assistance use `Demo.createEvidenceAssistance`. The handle owns an
+Draft, private correction and submitted identity assistance use `Demo.createEvidenceAssistance`. The handle owns an
 explicit inspect/run/cancel/refresh/clear lifecycle and retained results. Authorized reads bind
 actual source bytes, declared-name context and authority/dependency generations.
 Completion rechecks those dependencies. Replacement, relevant edits, sign-out,
@@ -41,6 +41,22 @@ that round's analysis authority and publishes only the correction response.
 Staff reads, public print, notifications and review activity exclude applicant
 analysis before and after publication. Correction validation and deterministic
 financing calculations continue through their existing operations.
+
+Reviewers use `find-supporting-evidence` with the same task definitions and
+lifecycle. The selector reads the authorized submitted snapshot even while an
+applicant saves private corrections. Reviewer inputs cannot override declarations
+or supply prepared files. Staff reading does not require assignment and grants no
+write permission. Reviewer records remain separate from applicant records.
+Their dependency key includes the existing inspection context, so publication and
+assignment transitions invalidate findings, including reassignment away and back.
+Unrelated notes preserve findings after a fresh authorized read.
+
+The shared assistance panel places the submitted source, findings and existing
+assessment controls in three columns on desktop and stacks them on smaller
+screens. Ordinary PDF inspection has explicit page navigation, open and download
+routes independent of analysis coverage and limits. Opening a source or receiving
+findings never confirms inspection. Assessment writes still require the current
+inspection confirmation or the explained unable-to-open replacement exception.
 
 `src/evidence-assistance` separates the shared contracts, fixed question/display
 policy, cancellable browser preparation and controller. Preparation uses one

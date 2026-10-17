@@ -19,6 +19,8 @@ export const bounds = {
 export type EvidenceAudience = 'applicant' | 'reviewer'
 export type EvidenceContext = 'draft' | 'correction-workspace' | 'submitted'
 export type EvidenceAction = 'check-document' | 'find-supporting-evidence'
+// Both audiences use the same implemented tasks. Add new document definitions here.
+export const evidenceTaskSlots: readonly DocumentSlot[] = ['identity']
 export type EvidenceInput = {
   action: EvidenceAction; applicationId: string; slot: DocumentSlot; audience: EvidenceAudience; context: EvidenceContext;
   fileId?: string | null; attachment?: PreparedAttachment; declaredName?: string; roundId?: string;
@@ -29,7 +31,7 @@ export type SelectedEvidence = {
   source: EvidenceSource;
   declaration: { fullName: string | null; status: 'valid' | 'missing' | 'invalid' };
   correction?: CorrectionEvidenceContext;
-  binding: { datasetId: string; applicationId: string; slot: DocumentSlot; audience: EvidenceAudience; context: EvidenceContext; contextId: string; roundId: string | null; authorityGeneration: number; sharedRevision: number; workspaceRevision: number; dependencyKey: string; durable: boolean };
+  binding: { datasetId: string; applicationId: string; slot: DocumentSlot; audience: EvidenceAudience; context: EvidenceContext; contextId: string; roundId: string | null; authorityGeneration: number; sharedRevision: number; workspaceRevision: number; dependencyKey: string; durable: boolean; reviewContext?: string };
 }
 export type RasterManifest = {
   page: number; sourceHash: string; rasterHash: string; width: number; height: number;
