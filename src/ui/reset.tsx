@@ -11,6 +11,7 @@ export const resetText = {
     ar: 'سيستبدل هذا الإجراء جميع الطلبات والملفات والسجل والإشعارات وإيصالات العمليات والتفضيلات والجلسات والعمل غير المكتمل في جميع تبويبات العرض في ملف هذا المتصفح. ستعود الطلبات الثلاثة عشر الأصلية واللغة العربية والتفضيلات الافتراضية، وسيُطلب اختيار هوية من جديد.',
     en: 'This replaces all applications, files, history, notifications, receipts, preferences, sessions and unfinished work across every demo tab in this browser profile. It restores the thirteen original applications, Arabic and default preferences. Every tab must choose an identity again.',
   },
+  analysisCleanup: { ar: 'تعذر تنظيف التحليل السابق. بيانات التمويل متاحة، ولا يمكن استخدام نتائج مجموعة البيانات السابقة. ستُعاد محاولة التنظيف أثناء الاستخدام.', en: 'Previous analysis could not be cleaned up. Financing data is available and previous dataset results cannot be used. Cleanup will be retried during active use.' },
   confirm: { ar: 'استبدال جميع بيانات العرض', en: 'Replace all demo data' },
   cancel: { ar: 'إلغاء', en: 'Cancel' },
   inspect: { ar: 'فحص حالة العرض الحالية', en: 'Inspect current demo' },

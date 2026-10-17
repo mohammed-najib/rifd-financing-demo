@@ -25,7 +25,7 @@ Tailwind CSS 4.3.3 compiles through its pinned Vite plugin. `src/ui/styles.css` 
 The [acceptance checklist](acceptance/README.md) separates automated behavior, ordinary-browser manual work, print inspection, performance and hosted checks. Browser-only persistence, no real authentication or payment processing, and fresh-offline launch remain explicit limits.
 
 Draft identity assistance uses `Demo.createEvidenceAssistance`. The handle owns an
-explicit inspect/run/cancel lifecycle and temporary results. Authorized reads bind
+explicit inspect/run/cancel/refresh/clear lifecycle and retained results. Authorized reads bind
 actual source bytes, declared-name context and authority/dependency generations.
 Completion rechecks those dependencies. Replacement, relevant edits, sign-out,
 reset and view disposal cannot publish late findings. Language changes do not run
@@ -46,5 +46,30 @@ this slice evaluates only the combined page/declaration stage. It retains native
 answers, distributions, fractional readability, usage and timestamps in provenance.
 Ordinary runtime has no provider transport and reports live analysis unavailable.
 Only test entry points inject deterministic or fake HTTP transports with dummy
-credentials. Separate analysis storage, service admission, native SDK integration
-and automatic highlights belong to subsequent tickets.
+credentials. Service admission, native SDK integration and automatic highlights
+belong to subsequent tickets.
+
+Analysis uses the separate version-1 `rifd-evidence-analysis` IndexedDB database
+after financing startup validates the current dataset. The financing database
+keeps its one-store layout and unchanged logical records. Context records retain
+one bounded completed run, its original seven-day expiry, native/mapped answers,
+coverage, dependency manifest and versions. Prepared visitor images are never
+archived. Restored results retain their dates and say previous live analysis.
+Changed dependencies keep explicitly stale scope and provenance while suppressing
+current findings. Corrupt or incompatible analysis does not affect financing reads.
+
+Web Locks serialize financing commits/reset with analysis retention. Each context
+has a run generation and a separate clear generation. A newer run fences late
+completions without discarding another view's completed unsaved result; clear
+fences both. Without Web Locks, assistance remains temporary. Unsaved sources and
+context become durable only after matching ordinary Save. Failed/cancelled runs
+retain the previous result and expiry. Storage failure leaves new findings
+temporary and reports that they cannot be recovered after closing.
+
+Reset invalidates local authority before replacing financing data. Cleanup of
+old-dataset and expired analysis runs during startup and activation, including
+recovery after interrupted cleanup. Public `analysisAvailability()` reports its
+status. Cross-tab hints carry dataset identifiers only; each view rereads its own
+authorized source/context. Reads never restart inference or replay a server
+answer. No live overlays are implemented yet; a later highlight restoration must
+reconstruct and verify the recorded raster before drawing anything.

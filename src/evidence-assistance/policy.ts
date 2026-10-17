@@ -41,6 +41,10 @@ export function makeRequest(selection: SelectedEvidence, image: PreparedPage, ru
   return request
 }
 
+export function recordRequest(request: StageRequest): Omit<StageRequest, 'image'> {
+  return { runId: request.runId, stage: request.stage, model: request.model, plan: request.plan, state: request.state, questions: request.questions, versions: request.versions, dependencies: request.dependencies }
+}
+
 const probability = z.number().min(0).max(1)
 const choice = z.object({ type: z.literal('choice'), choice: z.string(), confidence: probability, probabilities: z.record(z.string(), probability) })
 const score = z.object({ type: z.literal('score'), score: z.number().min(0).max(2), confidence: probability, probabilities: z.record(z.string(), probability), legend: z.record(z.string(), z.string()) })

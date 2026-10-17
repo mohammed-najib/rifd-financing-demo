@@ -5,6 +5,7 @@ export const versions = {
   questions: 'identity-questions-v1', preparation: 'full-page-pdfjs-5.4.296-v1',
   mapping: 'identity-mapping-v1', display: 'release-display-v2-experimental',
   defaults: 'provisional-display-defaults-v1', model: 'jev-1.14.0',
+  bridge: 'fixed-evaluation-v1', sdk: 'not-connected',
 } as const
 
 export const bounds = {
@@ -26,7 +27,7 @@ export type EvidenceSource = { id: string; bytes: ArrayBuffer; name: string; mim
 export type SelectedEvidence = {
   source: EvidenceSource;
   declaration: { fullName: string | null; status: 'valid' | 'missing' | 'invalid' };
-  binding: { datasetId: string; applicationId: string; slot: DocumentSlot; audience: EvidenceAudience; context: EvidenceContext; authorityGeneration: number; workspaceRevision: number; dependencyKey: string };
+  binding: { datasetId: string; applicationId: string; slot: DocumentSlot; audience: EvidenceAudience; context: EvidenceContext; contextId: string; roundId: string | null; authorityGeneration: number; sharedRevision: number; workspaceRevision: number; dependencyKey: string; durable: boolean };
 }
 export type RasterManifest = {
   page: number; sourceHash: string; rasterHash: string; width: number; height: number;
@@ -62,20 +63,23 @@ export type Findings = {
 }
 export type Coverage = { totalPages: number | null; selected: number[]; prepared: number[]; dispatched: number[]; successful: number[]; failed: number[]; unreadable: number[]; unchecked: number[]; uncheckedCount: number | null }
 export type EvidenceRun = {
-  id: string; provenanceKind: 'live-analysis'; temporary: true; coverage: Coverage; findings: Findings;
+  schemaVersion: 1; id: string; provenanceKind: 'live-analysis'; temporary: boolean; restored: boolean; stale: boolean; expiresAt: string; coverage: Coverage; findings: Findings;
   stages: { stage: string; outcome: 'successful' | 'partial' | 'unavailable' | 'skipped'; reason?: string }[];
-  provenance: { source: Omit<EvidenceSource, 'bytes'>; binding: SelectedEvidence['binding']; context: SelectedEvidence['declaration']; versions: typeof versions; plan: AttemptPlan; request: Omit<StageRequest, 'image'>; raster: RasterManifest; native: NativeCapture; startedAt: string; dispatchedAt: string; answeredAt: string; completedAt: string };
+  provenance: { source: Omit<EvidenceSource, 'bytes'>; binding: SelectedEvidence['binding']; context: SelectedEvidence['declaration']; versions: typeof versions; plan: AttemptPlan; request: Omit<StageRequest, 'image'>; raster: RasterManifest; native: NativeCapture; accounting: 'reported'; startedAt: string; dispatchedAt: string; answeredAt: string; completedAt: string };
 }
-export type AssistanceReason = 'live-unavailable' | 'source-limit' | 'invalid-source' | 'multipage' | 'preparation-timeout' | 'prepared-limit' | 'context-limit' | 'provider-unavailable' | 'invalid-response' | 'stale' | 'unauthorized'
+export type AssistanceReason = 'live-unavailable' | 'source-limit' | 'invalid-source' | 'multipage' | 'preparation-timeout' | 'prepared-limit' | 'context-limit' | 'provider-unavailable' | 'analysis-storage' | 'invalid-response' | 'stale' | 'unauthorized'
 export type AssistanceState = {
   status: 'idle' | 'preparing' | 'running' | 'completed' | 'unavailable' | 'cancelled' | 'disposed';
   result: EvidenceRun | null; reason?: AssistanceReason; coverage: Coverage;
+  storage: 'available' | 'temporary-only' | 'incompatible';
 }
 export type EvidenceAssistance = {
   inspect(): Promise<Result<SelectedEvidence>>;
   read(): AssistanceState;
   subscribe(listener: () => void): () => void;
   run(): Promise<void>;
+  refresh(): Promise<void>;
+  clear(): Promise<Result<void>>;
   cancel(): void;
   dispose(): void;
 }

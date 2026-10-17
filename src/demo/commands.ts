@@ -10,6 +10,7 @@ export const preferenceOperationSchema = z.discriminatedUnion('kind', [
 ])
 export const commitHintSchema = z.discriminatedUnion('kind', [
   z.object({ datasetId: z.string().uuid(), kind: z.literal('reset') }).strict(),
+  z.object({ datasetId: z.string().uuid(), kind: z.literal('analysis') }).strict(),
   z.object({ datasetId: z.string().uuid(), kind: z.literal('preferences'), revision: hintRevision }).strict(),
   z.object({ datasetId: z.string().uuid(), kind: z.literal('workspace'), applicationId: z.string().min(1), revision: hintRevision }).strict(),
   z.object({ datasetId: z.string().uuid(), kind: z.literal('application'), applicationId: z.string().min(1), revision: hintRevision }).strict(),

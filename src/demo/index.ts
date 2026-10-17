@@ -14,6 +14,8 @@ import { inspectionContext } from './inspection'
 import { hashBytes, matchesSavedContext, openSavedExample, savedExamples, type SavedSelection } from './saved-demonstrations'
 import { activeCorrection, correctionDocument, validateCorrectionFields, validateCorrectionSave, validateResubmission } from './corrections'
 import { createAssistance } from '../evidence-assistance/controller'
+import { evidenceDependencyKey } from '../evidence-assistance/record'
+import { createAnalysisStorage, withAnalysisAuthority } from '../evidence-assistance/storage'
 import type { EvidenceInput, EvidenceTransport, SelectedEvidence } from '../evidence-assistance/contract'
 import type { ApplicantView, ApplicationMutation, ApplicationOperation, ApplicationView, CommitHint, Context, Controls, Demo, ErrorKind, LanguageOperation, MutationResult, NotificationReadOperation, NotificationReadResult, PreferenceOperation, PreparedAttachment, QueuePreferenceOperation, Result, ReviewOperation, SaveCorrectionsOperation, SaveDraftOperation, Session, SubmitOperation, ResubmitOperation } from './types'
 export type { ApplicationOperation, ApplicationSummary, ApplicationView, CommitHint, Context, Controls, Demo, DemoOperation, DraftDocuments, ErrorKind, LanguageOperation, MutationResult, NotificationDestination, NotificationReadOperation, NotificationReadResult, OperationInspection, PreferenceInspection, PreferenceOperation, PreparedAttachment, Preparation, PrintSummary, QueuePreferenceOperation, QueueQuery, StaffQueue, Result, ReviewOperation, SaveCorrectionsOperation, SaveDraftOperation, SubmitOperation, ResubmitOperation, ResetContext, ResetOperation, ResetResult, ResetInspection } from './types'
@@ -39,6 +41,21 @@ export function createDemo(options: { evidenceTransport?: EvidenceTransport } = 
   const subscribers = new Set<(session: Session | null) => void>()
   const assistance = new Set<ReturnType<typeof createAssistance>>()
   const invalidateAssistance = () => { for (const handle of assistance) handle.invalidate('unauthorized') }
+  const analysisStorage = createAnalysisStorage(async () => {
+    // Optional cleanup observes financing authority without adopting a dataset or
+    // expiring a session during startup/recovery in another operation.
+    const connection = db, expectedDataset = datasetId
+    if (!connection || !expectedDataset || storageFailure) throw new Error('analysis-authority')
+    const data = validateDataset(await readStored(connection))
+    if (db !== connection || datasetId !== expectedDataset || storageFailure || data.meta.datasetId !== expectedDataset) throw new Error('analysis-authority')
+    return expectedDataset
+  }, id => announce({ datasetId: id, kind: 'analysis' }))
+  let analysisCleanup: 'pending' | 'complete' | 'unavailable' = 'pending'
+  let cleaningAnalysis: Promise<void> | null = null
+  const cleanAnalysis = () => {
+    cleaningAnalysis ??= analysisStorage.clean().then(() => { analysisCleanup = 'complete' }, () => { analysisCleanup = 'unavailable' }).finally(() => { cleaningAnalysis = null; emit() })
+    return cleaningAnalysis
+  }
   const newDrafts = new Map<string, Application>()
   let controls: Controls = { slow: false, failure: null }
   const resetStorage = createResetStorage()
@@ -47,9 +64,11 @@ export function createDemo(options: { evidenceTransport?: EvidenceTransport } = 
     newDrafts.clear(); preparations.clear(); selections.clear(); resetStorage.clear()
     controls = { slow: false, failure: null }
     datasetId = id; session = null; generation++; armExpiry()
+    analysisCleanup = 'pending'; void cleanAnalysis()
     try { sessionStorage.removeItem(sessionKey) } catch { /* Old sessions cannot match the new dataset. */ }
   }
   const delay = () => sleep(controls.slow ? 1500 : 400)
+  const transactFinancing = (...args: Parameters<typeof transact>) => withAnalysisAuthority(() => transact(...args))
   const consume = (kind: Controls['failure']) => {
     if (controls.failure !== kind) return false
     controls = { ...controls, failure: null }
@@ -182,7 +201,7 @@ export function createDemo(options: { evidenceTransport?: EvidenceTransport } = 
     if (!file) throw new DemoError('unavailable')
     return { bytes: file.bytes.slice(0), name: file.name, mime: file.mime, hash: file.hash }
   }
-  const activate = () => { if (document.visibilityState === 'visible') { expire(); emit() } }
+  const activate = () => { if (document.visibilityState === 'visible') { expire(); if (datasetId && !storageFailure) void cleanAnalysis(); emit() } }
   const hint = (event: MessageEvent<unknown>) => { if (commitHintSchema.safeParse(event.data).success) emit() }
   const storageHint = (event: StorageEvent) => {
     if (event.key !== 'rifd.commit.v1' || !event.newValue) return
@@ -277,6 +296,12 @@ export function createDemo(options: { evidenceTransport?: EvidenceTransport } = 
   async function execute(operation: ApplicationOperation): Promise<Result<MutationResult>>
   async function execute(operation: NotificationReadOperation): Promise<Result<NotificationReadResult>>
   async function execute(input: PreferenceOperation | ApplicationMutation | NotificationReadOperation | ResetOperation): Promise<Result<Context | MutationResult | NotificationReadResult | ResetResult>> {
+    const operation = structuredClone(input)
+    const result = await executeOperation(operation)
+    if (result.ok && (operation.kind === 'saveDraft' || operation.kind === 'saveCorrections')) await Promise.all([...assistance].map(handle => handle.revalidate()))
+    return result
+  }
+  async function executeOperation(input: PreferenceOperation | ApplicationMutation | NotificationReadOperation | ResetOperation): Promise<Result<Context | MutationResult | NotificationReadResult | ResetResult>> {
     // Capture raw payload and attachment descriptors before any delay.
     const operation = structuredClone(input)
     if (operation.kind === 'resetDemo') return attempt(async () => {
@@ -288,10 +313,11 @@ export function createDemo(options: { evidenceTransport?: EvidenceTransport } = 
         if (datasetId && datasetId !== completed) { acceptDataset(completed); emit() }
         return { datasetId: completed, replay: true }
       }
+      invalidateAssistance()
       await delay()
       let seed: Dataset
       try { await prepareFonts(); seed = await prepareSeed() } catch { throw new DemoError('resources') }
-      const result = await resetStorage.replace(command, seed, () => consume('storage'))
+      const result = await withAnalysisAuthority(() => resetStorage.replace(command, seed, () => consume('storage')))
       if (!result.replay || datasetId !== result.datasetId) { acceptDataset(result.datasetId); if (result.replay) emit() }
       if (!result.replay) announce({ datasetId: result.datasetId, kind: 'reset' })
       return result
@@ -306,7 +332,7 @@ export function createDemo(options: { evidenceTransport?: EvidenceTransport } = 
       if (!db) throw new DemoError('startup')
       let replay = false
       let abortStorage = false
-      const data = await transact(db, raw => {
+      const data = await transactFinancing(db, raw => {
         const current = validateDataset(raw)
         authority(captured, who, command.datasetId, current)
         const application = permitted(current, who, command.applicationId)
@@ -384,7 +410,7 @@ export function createDemo(options: { evidenceTransport?: EvidenceTransport } = 
       await delay()
       if (!db) throw new DemoError('startup')
       let changed = false
-      const data = await transact(db, raw => {
+      const data = await transactFinancing(db, raw => {
         const current = validateDataset(raw)
         authority(captured, who, command.datasetId, current)
         const { notification } = notificationDestination(current, who, command.notificationId)
@@ -417,7 +443,7 @@ export function createDemo(options: { evidenceTransport?: EvidenceTransport } = 
       if (!db) throw new DemoError('startup')
       let replay = false
       let abortStorage = false
-      const data = await transact(db, raw => {
+      const data = await transactFinancing(db, raw => {
         if (captured !== generation || actor() !== who) throw new DemoError('sessionExpired')
         const current = validateDataset(raw)
         authority(captured, who, command.datasetId, current)
@@ -525,7 +551,7 @@ export function createDemo(options: { evidenceTransport?: EvidenceTransport } = 
       if (captured !== generation) throw new DemoError('sessionExpired')
       if (!db) throw new DemoError('startup')
       let replay = false
-      const data = await transact(db, raw => {
+      const data = await transactFinancing(db, raw => {
         const current = validateDataset(raw)
         if (command.kind === 'setQueuePreferences') authority(captured, 'salma', command.datasetId, current)
         if (current.meta.datasetId !== command.datasetId || current.meta.datasetId !== datasetId) throw new DemoError('supersededDataset')
@@ -573,11 +599,9 @@ export function createDemo(options: { evidenceTransport?: EvidenceTransport } = 
         if (application.owner !== who || application.status !== 'draft' || !application.workspace) throw new DemoError('unavailable')
         const snapshot = application.workspace.snapshot
         let file: StoredFile | undefined
-        let selectionToken: string | null = null
         const active = selections.get(`${who}/${application.id}/identity`)
         if (command.attachment) {
-          if (active?.status !== 'ready' || active.attachmentId !== command.attachment.id) throw new DemoError('supersededSelection')
-          selectionToken = active.token
+          if (snapshot.documents.identity !== command.attachment.id && (active?.status !== 'ready' || active.attachmentId !== command.attachment.id)) throw new DemoError('supersededSelection')
           file = preparedFile(who, application.id, 'identity', command.attachment)
         } else {
           const id = snapshot.documents.identity
@@ -595,16 +619,29 @@ export function createDemo(options: { evidenceTransport?: EvidenceTransport } = 
         const fresh = editable(latest, who, command.applicationId)
         if (fresh.status !== application.status || fresh.workspace?.snapshot.fields.fullName !== snapshot.fields.fullName || fresh.workspace.snapshot.documents.identity !== snapshot.documents.identity || selections.get(`${who}/${application.id}/identity`)?.token !== active?.token) throw new DemoError('staleWorkspace')
         if (actualHash !== file.hash) throw new DemoError('damaged')
-        return { source, declaration, binding: {
+        const selection: SelectedEvidence = { source, declaration, binding: {
           datasetId: data.meta.datasetId, applicationId: application.id, slot: command.slot, audience: command.audience, context: command.context,
-          authorityGeneration: captured, workspaceRevision: application.workspace.revision,
-          dependencyKey: JSON.stringify([data.meta.datasetId, application.id, application.status, file.id, actualHash, declaration, snapshot.fields.fullName, selectionToken, captured]),
+          contextId: 'draft', roundId: null, authorityGeneration: captured, sharedRevision: application.sharedRevision, workspaceRevision: application.workspace.revision,
+          durable: !!application.workspace.savedAt && snapshot.documents.identity === file.id && name === snapshot.fields.fullName,
+          dependencyKey: '',
         } }
+        selection.binding.dependencyKey = evidenceDependencyKey(selection)
+        return selection
       })
-      const handle = createAssistance(resolve, options.evidenceTransport, () => { assistance.delete(handle) })
+      const authorizeClear = (): Promise<Result<SelectedEvidence['binding']>> => attempt(async () => {
+        const parsed = schema.safeParse(selectedInput)
+        if (!parsed.success || !who) throw new DemoError('unavailable')
+        const data = await read()
+        authority(captured, who, data.meta.datasetId, data)
+        const application = editable(data, who, parsed.data.applicationId)
+        if (application.status !== 'draft' || !application.workspace) throw new DemoError('unavailable')
+        return { datasetId: data.meta.datasetId, applicationId: application.id, slot: parsed.data.slot, audience: parsed.data.audience, context: parsed.data.context, contextId: 'draft', roundId: null, authorityGeneration: captured, sharedRevision: application.sharedRevision, workspaceRevision: application.workspace.revision, durable: false, dependencyKey: '' }
+      })
+      const handle = createAssistance(resolve, options.evidenceTransport, analysisStorage, authorizeClear, () => { assistance.delete(handle) })
       assistance.add(handle)
       return handle.api
     },
+    analysisAvailability: () => ({ cleanup: analysisCleanup }),
     listSavedDemonstrations: async () => success(savedExamples()),
     selectSavedDemonstration: input => attempt(async () => {
       const selection: SavedSelection = structuredClone(input)
@@ -800,7 +837,7 @@ export function createDemo(options: { evidenceTransport?: EvidenceTransport } = 
           let seed: Dataset
           try { seed = await prepareSeed() } catch { throw new DemoError('resources') }
           if (captured !== generation) throw new DemoError('sessionExpired')
-          raw = await transact(db, current => {
+          raw = await transactFinancing(db, current => {
             if (captured !== generation) throw new DemoError('sessionExpired')
             return current === undefined ? seed : validateDataset(current)
           })
@@ -825,6 +862,7 @@ export function createDemo(options: { evidenceTransport?: EvidenceTransport } = 
         armExpiry()
         connect()
         storageFailure = null
+        analysisStorage.start(); analysisCleanup = 'pending'; void cleanAnalysis()
         return contextFrom(data)
       }).then(result => {
         if (!result.ok && captured === generation) {
@@ -925,7 +963,7 @@ export function createDemo(options: { evidenceTransport?: EvidenceTransport } = 
       window.removeEventListener('storage', storageHint)
       listening = false
       newDrafts.clear(); preparations.clear(); selections.clear(); controls = { slow: false, failure: null }
-      resetStorage.clear()
+      resetStorage.clear(); analysisStorage.close()
       subscribers.clear()
     },
   }

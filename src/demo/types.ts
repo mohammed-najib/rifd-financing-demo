@@ -13,7 +13,7 @@ export type Context = { datasetId: string; preferences: Preferences; session: Se
 export type CommitHint = { datasetId: string; kind: 'preferences'; revision: number }
   | { datasetId: string; kind: 'workspace' | 'application'; applicationId: string; revision: number }
   | { datasetId: string; kind: 'notification'; notificationId: string; revision: number }
-  | { datasetId: string; kind: 'reset' }
+  | { datasetId: string; kind: 'reset' | 'analysis' }
 export type DocumentView = { slot: DocumentSlot; file: { id: string; name: string; mime: string; size: number; hash: string } | null }
 export type ApplicationSummary = {
   id: string; product: ProductId; status: ApplicationStatus; fullName: string; businessName: string;
@@ -97,6 +97,7 @@ export type Preparation = {
 }
 export type Controls = { slow: boolean; failure: 'upload' | 'save' | 'submission' | 'storage' | null }
 export type Demo = {
+  analysisAvailability(): { cleanup: 'pending' | 'complete' | 'unavailable' };
   createEvidenceAssistance(input: import('../evidence-assistance/contract').EvidenceInput): import('../evidence-assistance/contract').EvidenceAssistance;
   listSavedDemonstrations(): Promise<Result<import('./saved-demonstrations').SavedExample[]>>;
   selectSavedDemonstration(input: import('./saved-demonstrations').SavedSelection): Promise<Result<import('./saved-demonstrations').OpenedSavedDemonstration>>;

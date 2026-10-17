@@ -397,6 +397,7 @@ export function App() {
         {identity && <a href={home} onClick={event => { event.preventDefault(); go(home) }}>{identity.role === 'reviewer' ? t('staffApplications') : t('applications')}</a>}
         {identity?.role === 'applicant' && <a href="/notifications" onClick={event => { event.preventDefault(); go('/notifications') }}>{notificationText.title[language]}</a>}
       </nav>
+      {demo.analysisAvailability().cleanup === 'unavailable' && <p role="status">{resetText.analysisCleanup[language]}</p>}
       <div className="session-controls">
         {identity && <span className="identity-name font-semibold leading-[1.6] narrow:me-auto narrow:text-[13px]">{identity.name[language]}<small>{identity.role === 'reviewer' ? t('reviewer') : t('applicant')}</small></span>}
         <button aria-disabled={busy || !!languageConflict || !context && !startupError} onClick={() => {

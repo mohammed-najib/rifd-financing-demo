@@ -59,7 +59,8 @@ test('source-only findings survive missing declarations, uncertainty and unavail
   expect(result.uncertain.result?.findings).toEqual({ category: 'undetermined', readability: 'undetermined', namePresence: 'undetermined', nameSupport: 'undetermined' })
   expect(result.absent.result?.findings).toMatchObject({ namePresence: 'absent', nameSupport: 'not_found' })
   expect(result.comparisonFailed.result?.findings).toMatchObject({ category: 'identity', namePresence: 'present', nameSupport: 'unavailable' })
-  expect(result.usageFailed).toMatchObject({ status: 'unavailable', reason: 'invalid-response', result: null })
+  expect(result.usageFailed).toMatchObject({ status: 'unavailable', reason: 'invalid-response' })
+  expect(result.usageFailed.result?.id).toBe(result.comparisonFailed.result?.id)
 })
 
 test('actual PNG, oriented JPEG and proven one-page PDF retain complete raster geometry', async ({ page }) => {
@@ -159,8 +160,8 @@ test('cancel, retry, edits, replacement, sign-out and disposal cannot publish la
   })
   expect(result.cancelled).toMatchObject({ status: 'cancelled', result: null })
   expect(result.retried.status).toBe('completed')
-  expect(result.edited).toMatchObject({ status: 'unavailable', reason: 'stale', result: null })
-  expect(result.replacement).toMatchObject({ status: 'unavailable', result: null })
+  expect(result.edited).toMatchObject({ status: 'unavailable', reason: 'stale', result: { stale: true, findings: { nameSupport: 'unavailable' } } })
+  expect(result.replacement).toMatchObject({ status: 'unavailable', reason: 'stale', result: { stale: true, findings: { nameSupport: 'unavailable' } } })
   expect(result.lostAuthority).toMatchObject({ status: 'unavailable', reason: 'unauthorized', result: null })
   expect(result.disposed).toMatchObject({ status: 'disposed', result: null })
   expect(new Set(result.runIds).size).toBe(result.runIds.length)

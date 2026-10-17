@@ -280,7 +280,7 @@
     @page { size: A4; margin: 15mm; }
     :root { font-size: 10pt; color: var(--color-ink); background: white; }
     body { background: white; }
-    .header, .sidebar, .disclosure, dialog, .print-controls, main > :not(.print-summary) { display: none !important; }
+    .header, .sidebar, .disclosure, dialog, .print-controls, .evidence-assistance, main > :not(.print-summary) { display: none !important; }
     .header + div { display: block !important; max-width: none !important; margin: 0 !important; padding: 0 !important; }
     .print-summary { max-width: none; margin: 0; }
     .print-summary h1 { font-size: 21pt; }
@@ -294,3 +294,4 @@
     .print-summary p, .print-summary dd { orphans: 3; widows: 3; }
   }
 }
+

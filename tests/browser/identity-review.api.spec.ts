@@ -28,16 +28,18 @@ test('negative presence requires readable compatible evidence and an empty answe
     const fixture = nativeIdentity()
     let native: unknown = { ...fixture, answers: { ...fixture.answers, namePresence: { type: 'noul', noul: 0.01 }, readability: { ...fixture.answers.readability, score: 0, probabilities: { '0': 1, '1': 0, '2': 0 } } } }
     const { demo } = await identityDemo({ async evaluate() { return native } })
-    const first = demo.createEvidenceAssistance(identityInput); await first.run()
+    const first = demo.createEvidenceAssistance(identityInput); await first.run(); const unreadable = first.read(); first.dispose()
     native = { ...fixture, answers: { ...fixture.answers, namePresence: { type: 'noul', noul: 0.01 }, category: { ...fixture.answers.category, choice: 'business', probabilities: { ...fixture.answers.category.probabilities, identity: 0, business: 1 } } } }
-    const incompatible = demo.createEvidenceAssistance(identityInput); await incompatible.run()
+    const incompatible = demo.createEvidenceAssistance(identityInput); await incompatible.run(); const incompatibleState = incompatible.read(); incompatible.dispose()
     native = { ...fixture, answers: {} }
     const second = demo.createEvidenceAssistance(identityInput); await second.run()
-    return { unreadable: first.read(), incompatible: incompatible.read(), empty: second.read() }
+    return { unreadable, incompatible: incompatibleState, empty: second.read() }
   })
   expect(result.unreadable.result?.findings).toMatchObject({ readability: 'unreadable', namePresence: 'undetermined', nameSupport: 'undetermined' })
   expect(result.incompatible.result?.findings).toMatchObject({ category: 'business', namePresence: 'undetermined', nameSupport: 'undetermined' })
-  expect(result.empty).toMatchObject({ status: 'unavailable', reason: 'invalid-response', result: null, coverage: { successful: [], failed: [1], unchecked: [1] } })
+  expect(result.empty).toMatchObject({ status: 'unavailable', reason: 'invalid-response' })
+  expect(result.empty.result?.id).toBe(result.incompatible.result?.id)
+  expect(result.empty.coverage).toEqual(result.incompatible.coverage)
 })
 
 test('cancellation at the dispatch boundary sends no provider request', async ({ page }) => {
