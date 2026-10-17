@@ -154,6 +154,8 @@
   .sidebar .active { @apply block rounded-control bg-summary px-[15px] py-[13px] font-semibold no-underline narrow:py-[9px]; }
   .sidebar p:last-child { @apply mt-[25px] text-[13px] text-muted compact:hidden; }
   .sidebar .eyebrow { @apply compact:m-0; }
+  .identity-card { @apply border-border; transition: border-color 200ms, box-shadow 200ms, transform 200ms; }
+  .identity-card:is(:hover, :focus-visible) { transform: translateY(-3px); border-color: #8d806a; box-shadow: 0 12px 26px rgb(17 47 40 / .05); filter: none; }
   .identity-card strong { @apply text-[19px]; }
   .identity-card > span:nth-child(3) { @apply col-start-2 text-[13px] text-muted; }
   .application-card h2 { @apply mb-[5px] narrow:text-[20px]; }
@@ -227,7 +229,10 @@
     .site-workspace { padding-top: 28px; padding-bottom: 28px; }
     .site-workspace-products { padding-top: 0; }
   }
-  @media (prefers-reduced-motion: reduce) { button, .button, .panel { transition: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    button, .button, .panel, .identity-card { transition: none; }
+    .identity-card:is(:hover, :focus-visible) { transform: none; }
+  }
 }
 
 @layer components {
