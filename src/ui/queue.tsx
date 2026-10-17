@@ -8,6 +8,7 @@ import { ApplicationRows } from './application-rows'
 import { errors, statuses, text } from './i18n'
 import { queueText } from './queue-copy'
 import { EmptyQueue, ReadFailure } from './feedback'
+import { Select } from './select'
 
 export function queueHref(query: QueueQuery) {
   return `/staff/applications${defaultStringifySearch({ search: query.search, status: query.status, product: query.product, assignment: query.assignment, sort: query.sort, page: query.page })}`
@@ -90,7 +91,7 @@ export function StaffApplicationQueue({ demo, context, language, input, href, re
     q(value.sort),
   ].join(' · ')
   const disabled = saving || !!refused
-  const control = 'mt-1.5 w-full max-w-full rounded-[8px] border border-solid border-control-border bg-white p-2.5 text-inherit aria-disabled:cursor-wait aria-disabled:opacity-65'
+  const control = 'mt-1.5 w-full max-w-full rounded-control border border-solid border-control-border bg-surface p-2.5 text-inherit aria-disabled:cursor-wait aria-disabled:opacity-65'
 
   return <>
     <p className="eyebrow">{language === 'ar' ? 'مساحة العمل' : 'Workspace'}</p><h1 tabIndex={-1}>{t('staffApplications')}</h1><p className="intro">{t('staffIntro')}</p>
@@ -103,10 +104,10 @@ export function StaffApplicationQueue({ demo, context, language, input, href, re
       <label className="block" htmlFor="queue-search">{q('search')}<input className={control} id="queue-search" type="search" value={query.search} aria-describedby="queue-search-hint" onChange={event => change({ search: event.target.value, page: 1 })} /></label>
       <p className="mt-1.5 text-[12px] text-muted" id="queue-search-hint">{q('searchHint')}</p>
       <div className="grid grid-cols-4 gap-4 compact:grid-cols-2 narrow:grid-cols-1">
-        <label htmlFor="queue-status">{q('status')}<select className={control} id="queue-status" aria-disabled={disabled} value={query.status} onChange={event => { if (!disabled) change({ status: event.target.value as QueuePreferences['status'], page: 1 }, true) }}>{queuePreferencesSchema.shape.status.options.map(status => <option value={status} key={status}>{status === 'all' ? q('all') : statuses[status][language]}</option>)}</select></label>
-        <label htmlFor="queue-product">{q('product')}<select className={control} id="queue-product" aria-disabled={disabled} value={query.product} onChange={event => { if (!disabled) change({ product: event.target.value as QueuePreferences['product'], page: 1 }, true) }}>{queuePreferencesSchema.shape.product.options.map(product => <option value={product} key={product}>{product === 'all' ? q('all') : products[product].name[language]}</option>)}</select></label>
-        <label htmlFor="queue-assignment">{q('assignment')}<select className={control} id="queue-assignment" aria-disabled={disabled} value={query.assignment} onChange={event => { if (!disabled) change({ assignment: event.target.value as QueuePreferences['assignment'], page: 1 }, true) }}>{queuePreferencesSchema.shape.assignment.options.map(assignment => <option value={assignment} key={assignment}>{assignment === 'all' ? q('all') : assignment === 'you' ? t('assignedToYou') : assignment === 'unassigned' ? t('unassigned') : q('colleague')}</option>)}</select></label>
-        <label htmlFor="queue-sort">{q('sort')}<select className={control} id="queue-sort" aria-disabled={disabled} value={query.sort} onChange={event => { if (!disabled) change({ sort: event.target.value as QueuePreferences['sort'] }, true) }}>{queuePreferencesSchema.shape.sort.options.map(sort => <option value={sort} key={sort}>{q(sort)}</option>)}</select></label>
+        <div><label htmlFor="queue-status">{q('status')}</label><Select className="mt-1.5" label={q('status')} id="queue-status" aria-disabled={disabled} value={query.status} onValueChange={value => change({ status: value as QueuePreferences['status'], page: 1 }, true)} options={queuePreferencesSchema.shape.status.options.map(status => ({ value: status, label: status === 'all' ? q('all') : statuses[status][language] }))} /></div>
+        <div><label htmlFor="queue-product">{q('product')}</label><Select className="mt-1.5" label={q('product')} id="queue-product" aria-disabled={disabled} value={query.product} onValueChange={value => change({ product: value as QueuePreferences['product'], page: 1 }, true)} options={queuePreferencesSchema.shape.product.options.map(product => ({ value: product, label: product === 'all' ? q('all') : products[product].name[language] }))} /></div>
+        <div><label htmlFor="queue-assignment">{q('assignment')}</label><Select className="mt-1.5" label={q('assignment')} id="queue-assignment" aria-disabled={disabled} value={query.assignment} onValueChange={value => change({ assignment: value as QueuePreferences['assignment'], page: 1 }, true)} options={queuePreferencesSchema.shape.assignment.options.map(assignment => ({ value: assignment, label: assignment === 'all' ? q('all') : assignment === 'you' ? t('assignedToYou') : assignment === 'unassigned' ? t('unassigned') : q('colleague') }))} /></div>
+        <div><label htmlFor="queue-sort">{q('sort')}</label><Select className="mt-1.5" label={q('sort')} id="queue-sort" aria-disabled={disabled} value={query.sort} onValueChange={value => change({ sort: value as QueuePreferences['sort'] }, true)} options={queuePreferencesSchema.shape.sort.options.map(sort => ({ value: sort, label: q(sort) }))} /></div>
       </div>
       <div className="actions mb-0"><button className="secondary" onClick={() => change({ search: '', page: 1 })}>{q('clear')}</button><button className="secondary" aria-disabled={disabled} onClick={() => { if (!disabled) change({ status: 'all', product: 'all', assignment: 'all', page: 1 }, true) }}>{q('reset')}</button></div>
       <p className="mt-3 mb-0 text-[13px] text-muted" role="status">{saving ? q('saving') : saved ? q('saved') : ''}</p>

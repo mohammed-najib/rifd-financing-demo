@@ -158,7 +158,7 @@ test('expiry removes note-saving permission from departure before visiting publi
   await expect(page.getByRole('button', { name: 'Salma Nasser', exact: true })).toBeVisible()
   await page.getByRole('link', { name: 'Financing products', exact: true }).click()
   await expect(page.getByRole('dialog')).toHaveCount(0)
-  await expect(page.getByRole('heading', { name: 'Financing products', exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: /Your business\./ })).toBeVisible()
 })
 
 test('receipt inspection preserves a replacement reason edited after uncertain saving', async ({ page }) => {

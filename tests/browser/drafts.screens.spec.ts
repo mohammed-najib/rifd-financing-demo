@@ -1,3 +1,4 @@
+import { chooseOption } from './select'
 import { expect, test, type Page } from '@playwright/test'
 
 async function openDraft(page: Page, english = true) {
@@ -122,7 +123,7 @@ test('typing after Save begins survives the captured save and remains unsaved', 
 test('Arabic preparation and save failures retain the selection, ready file and previous saved file', async ({ page }) => {
   await openDraft(page, false)
   await page.getByText('أدوات العرض التجريبي', { exact: true }).click()
-  await page.getByLabel('الإخفاق التالي', { exact: true }).selectOption('upload')
+  await chooseOption(page.getByLabel('الإخفاق التالي', { exact: true }), 'upload')
   await showStep(page, 'documents')
   await purchase(page).getByRole('button', { name: 'استخدام النموذج', exact: true }).click()
   await showStep(page, 'documents')
@@ -139,7 +140,7 @@ test('Arabic preparation and save failures retain the selection, ready file and 
   await purchase(page).getByRole('button', { name: 'إعادة تجهيز الاختيار', exact: true }).click()
   await showStep(page, 'documents')
   await expect(page.getByText('جاهز للحفظ', { exact: true })).toBeVisible()
-  await page.getByLabel('الإخفاق التالي', { exact: true }).selectOption('save')
+  await chooseOption(page.getByLabel('الإخفاق التالي', { exact: true }), 'save')
   await page.getByRole('button', { name: 'حفظ التقدم', exact: true }).click()
   await expect(page.getByText('لم يُحفظ', { exact: true })).toBeVisible()
   await showStep(page, 'documents')

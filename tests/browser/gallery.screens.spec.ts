@@ -1,3 +1,4 @@
+import { chooseOption } from './select'
 import { expect, test } from '@playwright/test'
 
 test.setTimeout(120_000)
@@ -20,7 +21,7 @@ test('the static production stylesheet supplies Tailwind layout, tokens and inva
       await page.setViewportSize({ width, height: 900 })
       await expect(grid).toHaveCSS('display', 'grid')
       expect(await grid.evaluate(element => getComputedStyle(element).gridTemplateColumns.split(' ').length)).toBe(width === 767 ? 1 : 2)
-      await expect(page.locator('html')).toHaveCSS('color', 'rgb(25, 47, 44)')
+      await expect(page.locator('html')).toHaveCSS('color', 'rgb(50, 46, 40)')
     }
   }
 })
@@ -86,10 +87,10 @@ test('gallery fields, feedback, queue views and keyboard dialog work in both dir
     await expect(page.getByRole('textbox', { name: language === 'ar' ? 'رقم الجوال' : 'Mobile', exact: true })).toBeFocused()
     expect(await page.locator(':focus').evaluate(element => getComputedStyle(element).outlineStyle)).toBe('solid')
     const saves = page.getByRole('region', { name: language === 'ar' ? 'الحفظ والاسترداد' : 'Save and recovery', exact: true })
-    await saves.getByRole('combobox').selectOption('saving')
+    await chooseOption(saves.getByRole('combobox'), 'saving')
     await expect(saves.getByRole('button')).toBeDisabled()
     await expect(saves.getByRole('status')).toHaveText(language === 'ar' ? 'جارٍ الحفظ' : 'Saving')
-    await saves.getByRole('combobox').selectOption('unknown')
+    await chooseOption(saves.getByRole('combobox'), 'unknown')
     await expect(saves.getByRole('alert')).toContainText(language === 'ar' ? 'افحص' : 'Inspect')
     await saves.getByRole('button', { name: language === 'ar' ? 'فحص نتيجة الحفظ' : 'Inspect save outcome', exact: true }).click()
     await expect(saves.getByRole('status')).toHaveText(language === 'ar' ? 'محفوظ' : 'Saved')

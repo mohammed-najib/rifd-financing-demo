@@ -1,6 +1,8 @@
 @layer theme, base, components, utilities;
 @import 'tailwindcss/theme.css' layer(theme);
 @import 'tailwindcss/utilities.css' layer(utilities) source('../');
+@import './select.css' layer(components);
+@import './products.css' layer(components);
 
 /* Preserve the existing inclusive responsive cutoffs. */
 @custom-variant compact (@media (max-width: 1199px));
@@ -12,19 +14,23 @@
   --breakpoint-*: initial;
   --font-sans: 'Noto Sans Arabic', 'Noto Sans', sans-serif;
   --font-latin: 'Noto Sans', sans-serif;
-  --color-ink: #192f2c;
-  --color-canvas: #f5f7f4;
+  --color-ink: #322e28;
+  --color-canvas: #f4efe6;
+  --color-surface: #fffdf8;
   --color-accent: #0b6458;
-  --color-border: #d8e1da;
-  --color-summary: #e4efea;
-  --color-summary-border: #ccddd3;
-  --color-muted: #60746f;
-  --color-control-border: #97aaa2;
-  --color-control-surface: #f1f5f1;
-  --color-secondary-border: #bbccc4;
-  --color-footer: #edf2ed;
-  --color-table-heading: #eff4ee;
-  --color-focus: #d39130;
+  --color-border: #e0d8ca;
+  --color-summary: #eee9dd;
+  --color-summary-border: #d2c8b6;
+  --color-muted: #70685b;
+  --color-control-border: #b9ad99;
+  --color-control-surface: #eee9dd;
+  --color-secondary-border: #d2c8b6;
+  --color-footer: #f4efe6;
+  --color-table-heading: #eee9dd;
+  --color-focus: #0b6458;
+  --radius-card: 8px;
+  --radius-control: 4px;
+  --radius-icon: 6px;
   --color-danger-border: #c46b5b;
   --color-danger-surface: #fdf1ed;
   --color-danger-text: #923d30;
@@ -82,6 +88,7 @@
     line-height: 1.8;
     font-size: 15px;
   }
+  :root:lang(en) { font-family: var(--font-latin); }
 
   * { @apply box-border; }
   /* Keep the startup margin inside the body when the workspace replaces it. */
@@ -93,7 +100,8 @@
   a { @apply text-accent underline-offset-4; }
 
   button, .button {
-    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-[9px] border border-solid border-accent bg-accent px-[18px] py-[9px] font-semibold text-white no-underline;
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-control border border-solid border-accent bg-accent px-[18px] py-[9px] font-semibold text-white no-underline;
+    transition: background-color 180ms, box-shadow 180ms, transform 180ms;
   }
   button + button, .button + button { @apply ms-2.5; }
   /* Retain hover feedback on the same devices as the original CSS. */
@@ -101,8 +109,8 @@
   :focus-visible { @apply outline-[3px] outline-solid outline-focus outline-offset-4; }
   h1:focus { outline: none; }
 
-  h1 { @apply mt-0 mb-[15px] text-[clamp(25px,3vw,36px)] leading-[1.5] font-bold wrap-anywhere; }
-  h2 { @apply mt-0 mb-3.5 text-[21px] leading-[1.7] narrow:text-[19px]; }
+  h1 { @apply mt-0 mb-[15px] text-[clamp(28px,3vw,40px)] leading-[1.5] font-semibold wrap-anywhere; letter-spacing: -.6px; }
+  h2 { @apply mt-0 mb-3.5 text-[21px] leading-[1.7] font-semibold narrow:text-[19px]; }
   h3 { @apply mt-[22px] mb-2 text-[17px]; }
   p { @apply mt-0 mb-3.5; }
   small { @apply block text-[12px] text-muted; }
@@ -113,7 +121,7 @@
 
   progress { @apply w-full accent-accent; }
   dialog {
-    @apply max-h-[90vh] max-w-[calc(100vw-30px)] overflow-auto rounded-[15px] border border-solid border-border p-6 text-inherit;
+    @apply max-h-[90vh] max-w-[calc(100vw-30px)] overflow-auto rounded-card border border-solid border-border bg-surface p-6 text-inherit;
   }
   dialog::backdrop { background: rgb(15 35 30 / .65); }
 
@@ -127,8 +135,8 @@
 
 @layer components {
   /* Shared skins and descendant rules; individual layouts use JSX utilities. */
-  .panel { @apply rounded-[15px] border border-solid border-border bg-white p-[26px] narrow:p-5; }
-  .summary { @apply mb-6 rounded-[15px] border border-solid border-summary-border bg-summary p-6 narrow:p-5; }
+  .panel { @apply rounded-card border border-solid border-border bg-surface p-[26px] narrow:p-5; }
+  .summary { @apply mb-6 rounded-card border border-solid border-summary-border bg-summary p-6 narrow:p-5; }
   .brand { @apply inline-flex items-center gap-3 whitespace-nowrap text-[27px] leading-[1.5] font-bold text-accent no-underline narrow:text-[24px]; }
   .brand small { @apply text-[11px] font-normal; }
   .eyebrow { @apply mb-2 text-[13px] font-semibold text-accent; }
@@ -143,7 +151,7 @@
   .header nav a { @apply font-semibold no-underline; }
   .session-controls button { @apply m-0 min-h-[42px] border-border bg-white px-3 py-[7px] text-[13px] text-accent narrow:px-[9px] narrow:text-[12px]; }
   .identity-name small { @apply font-normal; }
-  .sidebar .active { @apply block rounded-[9px] bg-summary px-[15px] py-[13px] font-semibold no-underline narrow:py-[9px]; }
+  .sidebar .active { @apply block rounded-control bg-summary px-[15px] py-[13px] font-semibold no-underline narrow:py-[9px]; }
   .sidebar p:last-child { @apply mt-[25px] text-[13px] text-muted compact:hidden; }
   .sidebar .eyebrow { @apply compact:m-0; }
   .identity-card strong { @apply text-[19px]; }
@@ -157,7 +165,7 @@
   .facts dt { @apply text-[12px] text-muted; }
   .facts dd { @apply mx-0 mt-[2px] mb-0 font-semibold wrap-anywhere; }
   .information { @apply narrow:grid-cols-1; }
-  .queue-counts > div { @apply rounded-[13px] border border-solid border-border bg-white px-5 py-4 narrow:px-[15px] narrow:py-3; }
+  .queue-counts > div { @apply rounded-card border border-solid border-border bg-surface px-5 py-4 narrow:px-[15px] narrow:py-3; }
   .queue-counts strong { @apply block text-[27px] text-accent narrow:text-[24px]; }
   .queue-counts span { @apply text-[12px]; }
   .detail-heading h1 { @apply m-0 narrow:text-[23px]; }
@@ -175,18 +183,18 @@
   .timeline > li { @apply ms-1 border-0 border-s-2 border-solid border-summary-border ps-[18px] pt-0 pb-5 text-[13px]; }
   .timeline strong { @apply block; }
 
-  .review-textarea { @apply w-full max-w-full min-h-[130px] resize-y rounded-[8px] border border-solid border-control-border bg-white p-2.5 text-inherit; }
+  .review-textarea { @apply w-full max-w-full min-h-[130px] resize-y rounded-control border border-solid border-control-border bg-surface p-2.5 text-inherit; }
 
   :is(.draft-editor, .application-field) label { @apply mt-3 mb-1.5 block font-semibold; }
   :is(.draft-editor, .application-field) :is(textarea, select, input[type=file], input[type=text]) {
-    @apply w-full max-w-full rounded-[8px] border border-solid border-control-border bg-white p-2.5 text-inherit;
+    @apply w-full max-w-full rounded-control border border-solid border-control-border bg-surface p-2.5 text-inherit;
   }
   .draft-editor [aria-current=step] { @apply bg-accent text-white; }
   :is(.draft-editor, .application-field) :is(input, textarea, select)[aria-invalid=true] { @apply border-danger-border; }
   :is(.draft-editor, .application-field) textarea { @apply min-h-[130px] resize-y; }
   .sample-picker label { @apply m-0 w-full; }
-  .sample-picker select { @apply w-auto min-w-0 flex-[1_1_250px]; }
-  .draft-feedback { @apply my-[18px] rounded-[9px] bg-control-surface p-4 wrap-anywhere; }
+  .sample-picker .select-trigger { @apply w-auto min-w-0 flex-[1_1_250px]; }
+  .draft-feedback { @apply my-[18px] rounded-card bg-control-surface p-4 wrap-anywhere; }
   .demo-controls summary { @apply cursor-pointer font-semibold; }
   .demo-controls label:has(input) { @apply flex items-center gap-3; }
   .demo-controls select { @apply w-full; }
@@ -194,6 +202,32 @@
   .startup .brand { @apply mb-[35px]; }
   .startup h1 { @apply text-[25px]; }
   .startup p { @apply text-[14px] text-muted; }
+
+  .site-header { display: flex; align-items: center; flex-wrap: wrap; gap: 30px; min-height: 96px; padding: 20px max(5%, calc((100vw - 1240px) / 2)); border-bottom: 1px solid var(--color-border); background: var(--color-surface); }
+  .site-header .brand { gap: 13px; letter-spacing: -.7px; }
+  .site-header .brand small { font-size: 10px; letter-spacing: .25px; }
+  .site-header nav { gap: 24px; margin-inline-start: auto; }
+  .site-header nav a { font-size: 12px; color: var(--color-muted); transition: color 160ms; }
+  .site-header nav a:hover, .site-header nav a[aria-current=page] { color: var(--color-accent); }
+  .site-header nav > button { order: 5; min-height: 34px; padding: 4px 10px; border-color: var(--color-border); background: transparent; color: var(--color-muted); font-size: 11px; }
+  .site-header .session-controls { display: flex; flex-wrap: wrap; align-items: center; margin-inline-start: 0; gap: 8px; }
+  .site-header .session-controls button { min-height: 36px; background: var(--color-surface); font-size: 11px; }
+  .site-header .identity-name { font-size: 12px; }
+  .site-workspace { max-width: 1380px; margin: 0 auto; min-height: 70vh; padding: 42px 5% 60px; }
+  .site-workspace-products { padding-top: 0; padding-bottom: 48px; }
+  .site-footer { padding: 28px 5% 40px; border-top: 1px solid var(--color-border); background: var(--color-canvas); color: var(--color-muted); font-size: 11px; }
+  .site-footer p { max-width: 1240px; }
+  @media (max-width: 1199px) { .site-header { gap: 20px; } }
+  @media (max-width: 767px) {
+    .site-header { padding: 18px 5%; gap: 18px; }
+    .site-header nav { order: 3; width: 100%; gap: 16px; margin: 0; }
+    .site-header nav a { font-size: 11px; }
+    .site-header nav > button { margin-inline-start: auto; font-size: 10px; }
+    .site-header .session-controls { width: auto; margin-inline-start: auto; }
+    .site-workspace { padding-top: 28px; padding-bottom: 28px; }
+    .site-workspace-products { padding-top: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) { button, .button, .panel { transition: none; } }
 }
 
 @layer components {

@@ -1,3 +1,4 @@
+import { chooseOption } from './select'
 import { expect, test, type Page } from '@playwright/test'
 import { loseNextWriteCompletion } from './storage-faults'
 
@@ -21,7 +22,7 @@ for (const language of ['ar', 'en'] as const) for (const target of ['controls', 
   const controls = editor.locator('summary').filter({ hasText: ar ? 'أدوات العرض التجريبي' : 'Demo controls' })
   await controls.click()
   await editor.getByRole('checkbox').check()
-  await editor.getByLabel(ar ? 'الإخفاق التالي' : 'Next failure', { exact: true }).selectOption('upload')
+  await chooseOption(editor.getByLabel(ar ? 'الإخفاق التالي' : 'Next failure', { exact: true }), 'upload')
   await editor.locator('input[type=file]').setInputFiles({ name: 'DEMO-pointer.png', mimeType: 'image/png', buffer: Buffer.from('fictional failed selection') })
   const retry = editor.getByRole('button', { name: ar ? 'إعادة تجهيز الاختيار' : 'Retry preparation', exact: true })
   await expect(retry).toBeVisible()
@@ -80,14 +81,14 @@ test('failed preparation and saving retain the old file and ready replacement fo
   await start(page)
   const editor = page.getByRole('region', { name: 'Respond to corrections', exact: true })
   await editor.getByText('Demo controls', { exact: true }).click()
-  await editor.getByLabel('Next failure', { exact: true }).selectOption('upload')
+  await chooseOption(editor.getByLabel('Next failure', { exact: true }), 'upload')
   await editor.locator('input[type=file]').setInputFiles({ name: 'DEMO-retry.png', mimeType: 'image/png', buffer: Buffer.from('retry private bytes') })
   await expect(editor.getByRole('button', { name: 'Retry preparation', exact: true })).toBeVisible()
   await expect(editor.getByRole('button', { name: 'Preview saved file', exact: true })).toBeVisible()
   await editor.getByRole('button', { name: 'Retry preparation', exact: true }).click()
   await expect(editor.getByRole('button', { name: 'Preview ready file', exact: true })).toBeVisible()
   await editor.getByRole('textbox', { name: 'Financing amount', exact: true }).fill('450000')
-  await editor.getByLabel('Next failure', { exact: true }).selectOption('save')
+  await chooseOption(editor.getByLabel('Next failure', { exact: true }), 'save')
   await editor.getByRole('button', { name: 'Save progress', exact: true }).click()
   await expect(editor.getByRole('alert')).toBeVisible()
   await expect(editor.getByRole('button', { name: 'Preview ready file', exact: true })).toBeVisible()

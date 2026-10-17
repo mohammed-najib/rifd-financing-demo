@@ -95,7 +95,7 @@ export function CorrectionRequest({ demo, datasetId, view, language, retained, r
       {buffer.error && <p role="alert">{errors[buffer.error][language]}</p>}
       {(stale || buffer.intent || buffer.error) && <button disabled={busy} onClick={() => void inspect()}>{buffer.error === 'staleRecord' ? assignmentText.latest[language] : t(buffer.intent ? 'outcome' : 'latest')}</button>}
       {(allowed || correctionDirty(buffer)) && <>
-        {(['field', 'document'] as const).map(kind => <fieldset key={kind} className="m-0 my-5 min-w-0 rounded-[10px] border border-solid border-border p-4"><legend>{t(kind === 'field' ? 'fields' : 'documents')}</legend>
+        {(['field', 'document'] as const).map(kind => <fieldset key={kind} className="m-0 my-5 min-w-0 rounded-card border border-solid border-border p-4"><legend>{t(kind === 'field' ? 'fields' : 'documents')}</legend>
           {options.filter(option => option.kind === kind).map(option => {
             const target = buffer.targets.find(target => key(target) === key(option))
             return <div className="mb-4" key={key(option)}><label className="flex items-center gap-3"><input type="checkbox" checked={!!target} disabled={blocked} onChange={event => {

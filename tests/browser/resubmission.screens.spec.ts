@@ -1,3 +1,4 @@
+import { chooseOption } from './select'
 import { expect, test, type Page } from '@playwright/test'
 import { loseNextWriteCompletion } from './storage-faults'
 
@@ -50,7 +51,7 @@ test('a failed or uncertain resubmission retains prepared evidence and requires 
   await editor.locator('input[type=file]').setInputFiles({ name: 'DEMO-retry.png', mimeType: 'image/png', buffer: Buffer.from('fictional resubmit retry') })
   await expect(editor.getByRole('button', { name: 'Preview ready file', exact: true })).toBeVisible()
   await editor.getByText('Demo controls', { exact: true }).click()
-  await editor.getByLabel('Next failure', { exact: true }).selectOption('submission')
+  await chooseOption(editor.getByLabel('Next failure', { exact: true }), 'submission')
   await editor.getByRole('button', { name: 'Resubmit corrections', exact: true }).click()
   await expect(editor.getByRole('alert')).toBeVisible()
   await expect(editor.getByRole('textbox')).toHaveValue('450000')

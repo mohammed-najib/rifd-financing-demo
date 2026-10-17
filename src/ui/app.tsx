@@ -29,6 +29,7 @@ import { ResetDialog, resetText } from './reset'
 import { ComponentGallery } from './gallery'
 import { galleryText } from './gallery-copy'
 import { LoadingPanel } from './feedback'
+import { Products } from './products'
 
 type Screen = { kind: 'home' | 'chooser' | 'products' | 'applicantList' | 'staffList' | 'newDraft' | 'reset' | 'gallery' | 'unavailable' | 'notifications' } | { kind: 'applicantDetail' | 'staffDetail' | 'staffRequest' | 'staffDecision' | 'applicantPrint' | 'staffPrint' | 'applicantRepayment' | 'staffRepayment'; id: string }
 function resolveScreen(path: string): Screen {
@@ -67,6 +68,7 @@ export function App() {
   const search = useRouterState({ select: state => state.location.search }) as Record<string, unknown>
   const step = resolveStep(typeof search.step === 'string' ? search.step : undefined)
   const chosenProduct: ProductId = search.product === 'equipment' ? 'equipment' : 'inventory'
+  const chosenTerm = products[chosenProduct].terms.includes(Number(search.term)) ? Number(search.term) : undefined
   const path = useRouterState({ select: state => state.location.pathname })
   const href = useRouterState({ select: state => state.location.href })
   const searchStr = useRouterState({ select: state => state.location.searchStr })
@@ -385,16 +387,16 @@ export function App() {
   const isStaff = identity?.role === 'reviewer' && !isChooser && screen.kind !== 'products' && screen.kind !== 'gallery' && screen.kind !== 'reset'
   const unavailable = screen.kind === 'unavailable' || error === 'unavailable'
   return <div data-workspace-ready={routeReady ? 'true' : undefined}>
-    <header className="header flex flex-wrap items-center gap-[30px] border-0 border-b border-solid border-border bg-white px-[4%] py-5 compact:gap-5 narrow:gap-[15px] narrow:px-[5%] narrow:py-4">
+    <header className="header site-header">
       <a className="brand" href="/" onClick={event => { event.preventDefault(); go('/') }}><Mark /><span>{language === 'ar' ? 'رِفد' : 'RIFD'}<small>{language === 'ar' ? 'عرض تمويل تجريبي' : 'Financing demo'}</small></span></a>
       <nav aria-label={language === 'ar' ? 'التنقل الرئيسي' : 'Main navigation'}>
         <button disabled={busy} onClick={() => setResetOpen(true)}>{resetText.title[language]}</button>
-        <a href="/components" onClick={event => { event.preventDefault(); go('/components') }}>{galleryText.title[language]}</a>
-        <a href="/products" onClick={event => { event.preventDefault(); go('/products') }}>{t('products')}</a>
+        <a href="/components" aria-current={screen.kind === 'gallery' ? 'page' : undefined} onClick={event => { event.preventDefault(); go('/components') }}>{galleryText.title[language]}</a>
+        <a href="/products" aria-current={screen.kind === 'products' ? 'page' : undefined} onClick={event => { event.preventDefault(); go('/products') }}>{t('products')}</a>
         {identity && <a href={home} onClick={event => { event.preventDefault(); go(home) }}>{identity.role === 'reviewer' ? t('staffApplications') : t('applications')}</a>}
         {identity?.role === 'applicant' && <a href="/notifications" onClick={event => { event.preventDefault(); go('/notifications') }}>{notificationText.title[language]}</a>}
       </nav>
-      <div className="session-controls ms-auto flex flex-wrap items-center gap-3 compact:ms-0 narrow:w-full narrow:gap-2.5">
+      <div className="session-controls">
         {identity && <span className="identity-name font-semibold leading-[1.6] narrow:me-auto narrow:text-[13px]">{identity.name[language]}<small>{identity.role === 'reviewer' ? t('reviewer') : t('applicant')}</small></span>}
         <button aria-disabled={busy || !!languageConflict || !context && !startupError} onClick={() => {
           if (busy || languageConflict || !context && !startupError) return
@@ -404,7 +406,7 @@ export function App() {
         {identity && <><button disabled={busy} onClick={() => go('/sign-in')}>{t('switchIdentity')}</button><button disabled={busy} onClick={() => guard(() => { void signOut() })}>{t('signOut')}</button><button onClick={() => demo.expireSession()}>{t('expireSession')}</button></>}
       </div>
     </header>
-    <div className={`mx-auto min-h-screen max-w-[1440px] px-[4%] pt-[42px] pb-[60px] narrow:px-[5%] narrow:pt-7 narrow:pb-10 ${isStaff ? 'grid content-start grid-cols-[190px_minmax(0,1fr)] gap-8 compact:grid-cols-1' : ''}`}>
+    <div className={`site-workspace ${screen.kind === 'products' ? 'site-workspace-products' : ''} ${isStaff ? 'grid content-start grid-cols-[190px_minmax(0,1fr)] gap-8 compact:grid-cols-1' : ''}`}>
       {isStaff && <aside className="sidebar py-5 compact:flex compact:flex-wrap compact:items-center compact:gap-5 compact:p-0 narrow:gap-3"><p className="eyebrow">{t('reviewer')}</p><nav aria-label={t('staffApplications')}><a className="active" href="/staff/applications" onClick={event => { event.preventDefault(); go('/staff/applications') }}>{t('staffApplications')}</a></nav><p>{t('staffIntro')}</p></aside>}
       <main aria-busy={busy || !routeReady && !startupError}>
         {languageConflict && <section className="summary mb-6" aria-label={t('preferenceConflict')}>
@@ -416,13 +418,13 @@ export function App() {
         </section>}
         {screen.kind === 'reset' ? <section className="panel"><Heading>{resetText.title[language]}</Heading><p>{resetText.warning[language]}</p><button disabled={busy} onClick={() => setResetOpen(true)}>{resetText.title[language]}</button></section>
           : screen.kind === 'gallery' ? <ComponentGallery language={language} />
-          : screen.kind === 'products' ? <Products language={language} choose={product => void go(`/applications/new?product=${product}`)} />
+          : screen.kind === 'products' ? <Products language={language} choose={(product, term) => void go(`/applications/new?product=${product}&term=${term}`)} />
           : startupError ? <section className="panel"><Heading>{t('startupError')}</Heading><p role="alert">{errors[startupError][language]}</p><button onClick={() => void retryStartup()}>{t('retry')}</button><button onClick={() => setResetOpen(true)}>{resetText.title[language]}</button><a className="button secondary" href="/products" onClick={event => { event.preventDefault(); go('/products') }}>{t('products')}</a></section>
           : unavailable ? <section className="panel"><Heading>{t('unavailable')}</Heading><p>{t('unavailableDescription')}</p><a className="button" href={home} onClick={event => { event.preventDefault(); go(home) }}>{t('home')}</a><button onClick={() => go('/sign-in')}>{t('switchIdentity')}</button></section>
           : isChooser ? <section className="mx-auto mt-[15px] mb-10 max-w-[970px] narrow:mt-[5px] narrow:mb-5">
             <p className="eyebrow">{language === 'ar' ? 'ابدأ الاستكشاف' : 'Explore the demo'}</p><Heading>{t('chooseIdentity')}</Heading><p className="intro">{t('chooserIntro')}</p>
             {recovery.current && <p className="summary" role="status">{t('recoverSession')}</p>}
-            <div className="grid grid-cols-2 gap-5 narrow:grid-cols-1 narrow:gap-3.5">{demoIdentities.map(person => <button className="identity-card grid min-h-[140px] grid-cols-[52px_1fr_20px] items-center gap-x-[18px] gap-y-[2px] rounded-[15px] border-border bg-white p-[26px] text-start text-ink narrow:min-h-[110px] narrow:p-5" key={person.id} disabled={busy} onClick={() => void selectIdentity(person.id as ActorId)} aria-label={person.name[language]}><span className="row-[1/3] flex size-[52px] items-center justify-center rounded-[50%] bg-summary text-[22px] text-accent" aria-hidden="true">{person.name[language].slice(0, 1)}</span><strong>{person.name[language]}</strong><span>{person.role === 'reviewer' ? t('reviewer') : t('applicant')}</span><span className="col-start-3 row-[1/3] text-[24px] text-accent" aria-hidden="true">{language === 'ar' ? '←' : '→'}</span></button>)}</div>
+            <div className="grid grid-cols-2 gap-5 narrow:grid-cols-1 narrow:gap-3.5">{demoIdentities.map(person => <button className="identity-card grid min-h-[140px] grid-cols-[52px_1fr_20px] items-center gap-x-[18px] gap-y-[2px] rounded-card border-border bg-surface p-[26px] text-start text-ink narrow:min-h-[110px] narrow:p-5" key={person.id} disabled={busy} onClick={() => void selectIdentity(person.id as ActorId)} aria-label={person.name[language]}><span className="row-[1/3] flex size-[52px] items-center justify-center rounded-[50%] bg-summary text-[22px] text-accent" aria-hidden="true">{person.name[language].slice(0, 1)}</span><strong>{person.name[language]}</strong><span>{person.role === 'reviewer' ? t('reviewer') : t('applicant')}</span><span className="col-start-3 row-[1/3] text-[24px] text-accent" aria-hidden="true">{language === 'ar' ? '←' : '→'}</span></button>)}</div>
             <p className="my-[22px] text-[13px] text-muted">{t('sliceNotice')}</p>
           </section>
           : !routeReady ? <LoadingPanel language={language} />
@@ -437,7 +439,7 @@ export function App() {
           : screen.kind === 'staffList' && context ? <StaffApplicationQueue key={`${context.datasetId}/${identityId}/${sessionId}`} demo={demo} context={context} language={language} input={search} href={href} reload={reload} go={go} acceptContext={acceptContext} />
           : list ? <ApplicationList list={list} language={language} go={go} />
           : view && (screen.kind === 'staffRepayment' || screen.kind === 'applicantRepayment') ? <RepaymentOverview view={view} language={language} queueSearch={screen.kind === 'staffRepayment' ? searchStr : ''} go={go} />
-          : view ? <ApplicationDetail key={`${context?.datasetId}/${identityId}/${sessionId}/${view.id}`} demo={demo} view={view} language={language} queueSearch={['staffDetail', 'staffRequest', 'staffDecision'].includes(screen.kind) ? searchStr : ''} requesting={screen.kind === 'staffRequest' || screen.kind === 'staffDecision'} confirmed={submittedId === view.id} redirectedCorrection={resolvedCorrectionId === view.id} redirectedRepayment={resolvedRepaymentId === view.id} go={go}>{view.role === 'reviewer' && context?.session && <StaleWriteControl demo={demo} datasetId={context.datasetId} view={view} language={language} hold={() => { heldStaffView.current = { path, sessionId } }} release={() => { heldStaffView.current = null }} changed={changeStaffView} departure={value => staffDeparture(value, true)} />}{view.role === 'reviewer' && context?.session && screen.kind === 'staffDecision' && <Decision demo={demo} datasetId={context.datasetId} sessionId={context.session.sessionId} view={view} language={language} queueSearch={searchStr} go={go} retained={decisionBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => rememberBuffer(decisionBuffers.current, context, view.id, buffer)} changed={changeStaffView} departure={staffDeparture} />}{view.role === 'reviewer' && context && screen.kind === 'staffRequest' && <CorrectionRequest demo={demo} datasetId={context.datasetId} view={view} language={language} queueSearch={searchStr} go={go} retained={correctionBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => rememberBuffer(correctionBuffers.current, context, view.id, buffer)} changed={changeStaffView} departure={staffDeparture} />}{view.role === 'reviewer' && context && screen.kind !== 'staffRequest' && screen.kind !== 'staffDecision' && <ReviewWorkspace demo={demo} datasetId={context.datasetId} view={view} language={language} retained={reviewBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => rememberBuffer(reviewBuffers.current, context, view.id, buffer)} changed={changeStaffView} departure={staffDeparture} />}{view.role === 'applicant' && (view.status === 'draft' || view.status === 'correctionsRequested' && path.endsWith('/corrections/current')) && context && <DraftEditor demo={demo} view={view} context={context} language={language} step={step} changeStep={step => { void go(`${path}?${screen.kind === 'newDraft' ? `product=${chosenProduct}&` : ''}step=${step}`) }} retained={draftBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => rememberBuffer(draftBuffers.current, context, view.id, buffer)} savedView={application => {
+          : view ? <ApplicationDetail key={`${context?.datasetId}/${identityId}/${sessionId}/${view.id}`} demo={demo} view={view} language={language} queueSearch={['staffDetail', 'staffRequest', 'staffDecision'].includes(screen.kind) ? searchStr : ''} requesting={screen.kind === 'staffRequest' || screen.kind === 'staffDecision'} confirmed={submittedId === view.id} redirectedCorrection={resolvedCorrectionId === view.id} redirectedRepayment={resolvedRepaymentId === view.id} go={go}>{view.role === 'reviewer' && context?.session && <StaleWriteControl demo={demo} datasetId={context.datasetId} view={view} language={language} hold={() => { heldStaffView.current = { path, sessionId } }} release={() => { heldStaffView.current = null }} changed={changeStaffView} departure={value => staffDeparture(value, true)} />}{view.role === 'reviewer' && context?.session && screen.kind === 'staffDecision' && <Decision demo={demo} datasetId={context.datasetId} sessionId={context.session.sessionId} view={view} language={language} queueSearch={searchStr} go={go} retained={decisionBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => rememberBuffer(decisionBuffers.current, context, view.id, buffer)} changed={changeStaffView} departure={staffDeparture} />}{view.role === 'reviewer' && context && screen.kind === 'staffRequest' && <CorrectionRequest demo={demo} datasetId={context.datasetId} view={view} language={language} queueSearch={searchStr} go={go} retained={correctionBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => rememberBuffer(correctionBuffers.current, context, view.id, buffer)} changed={changeStaffView} departure={staffDeparture} />}{view.role === 'reviewer' && context && screen.kind !== 'staffRequest' && screen.kind !== 'staffDecision' && <ReviewWorkspace demo={demo} datasetId={context.datasetId} view={view} language={language} retained={reviewBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => rememberBuffer(reviewBuffers.current, context, view.id, buffer)} changed={changeStaffView} departure={staffDeparture} />}{view.role === 'applicant' && (view.status === 'draft' || view.status === 'correctionsRequested' && path.endsWith('/corrections/current')) && context && <DraftEditor initialTerm={screen.kind === 'newDraft' ? chosenTerm : undefined} demo={demo} view={view} context={context} language={language} step={step} changeStep={step => { void go(`${path}?${screen.kind === 'newDraft' ? `product=${chosenProduct}${chosenTerm === undefined ? '' : `&term=${chosenTerm}`}&` : ''}step=${step}`) }} retained={draftBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => rememberBuffer(draftBuffers.current, context, view.id, buffer)} savedView={application => {
             setView(application)
             if (application.status !== 'draft' && application.status !== 'correctionsRequested') {
               draftBuffers.current.delete(`${context.datasetId}/${identityId}/${application.id}`)
@@ -453,10 +455,10 @@ export function App() {
             const buffer = draftBuffers.current.get(key)
             return buffer && draftDirty(buffer) ? <RetainedDraft demo={demo} buffer={buffer} language={language} discard={() => { draftBuffers.current.delete(key); refreshDeparture(value => value + 1) }} confirmed={() => { draftBuffers.current.delete(key); setSubmittedId(view.id); refreshDeparture(value => value + 1) }} /> : null
           })()}</ApplicationDetail> : null}
-        {error && error !== 'unavailable' && <div className="my-5 rounded-[10px] border border-solid border-danger-border bg-danger-surface px-5 py-4 text-danger-text [&_button]:mt-[15px] [&_button]:block" role="alert">{errors[error][language]}<button disabled={busy} onClick={() => setReload(value => value + 1)}>{t('retry')}</button></div>}
+        {error && error !== 'unavailable' && <div className="my-5 rounded-card border border-solid border-danger-border bg-danger-surface px-5 py-4 text-danger-text [&_button]:mt-[15px] [&_button]:block" role="alert">{errors[error][language]}<button disabled={busy} onClick={() => setReload(value => value + 1)}>{t('retry')}</button></div>}
       </main>
     </div>
-    <footer className="disclosure border-0 border-t border-solid border-border bg-footer px-[4%] py-6 text-[12px] text-muted narrow:px-[5%] narrow:py-5"><p>{t('notice')}</p><p>{t('tabSessions')}</p><p>{t('storageNotice')}</p></footer>
+    <footer className="disclosure site-footer"><p>{t('notice')}</p><p>{t('tabSessions')}</p><p>{t('storageNotice')}</p></footer>
     {resetOpen && <ResetDialog demo={demo} language={language} prepare={prepareJourney} pending={value => { resetting.current = value; if (value) contextRequest.current++; setBusy(value) }} close={() => setResetOpen(false)} completed={async result => {
       clearDatasetView(); lastDataset.current = result.datasetId
       setContext(null); setStartupError(null); setRecoveryLanguage('ar')
@@ -472,11 +474,6 @@ export function App() {
       discard={() => { departure.current?.discard(); departure.current = null; clearBuffers(); newDraftId.current = null; setLeaving(null); leaving.action() }}
       finish={() => { departure.current = null; setLeaving(null); leaving.action() }} />}
   </div>
-}
-
-function Products({ language, choose }: { language: Language; choose: (product: ProductId) => void }) {
-  const t = (key: keyof typeof text) => text[key][language]
-  return <><Heading>{t('products')}</Heading><p className="intro">{t('productIntro')}</p><div className="grid grid-cols-2 gap-[25px] narrow:grid-cols-1">{Object.values(products).map(product => <section className="panel" key={product.id}><h2>{product.name[language]}</h2><p>{product.purpose[language]}</p><dl className="facts"><div><dt>{t('minimum')}</dt><dd><bdi dir="ltr">{money(product.minimum, language)}</bdi></dd></div><div><dt>{t('maximum')}</dt><dd><bdi dir="ltr">{money(product.maximum, language)}</bdi></dd></div><div><dt>{t('term')}</dt><dd><bdi>{product.terms.join(' / ')}</bdi> {t('months')}</dd></div><div><dt>{t('markup')}</dt><dd><bdi>{product.markupPercent}%</bdi><small>{applicationText.once[language]}</small></dd></div></dl><h3>{t('documents')}</h3><ul>{(['identity', 'business', 'financial', 'purchase'] as const).map(slot => <li key={slot}>{documentLabel(slot, product.id)[language]}</li>)}</ul><p>{applicationText.eligibility[language]}</p><button onClick={() => choose(product.id)}>{applicationText.choose[language]}</button></section>)}</div></>
 }
 
 function ApplicationList({ list, language, go }: { list: ApplicationSummary[]; language: Language; go: (path: string) => void }) {

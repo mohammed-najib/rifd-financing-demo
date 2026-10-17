@@ -1,3 +1,4 @@
+import { chooseOption } from './select'
 import { expect, test, type Page } from '@playwright/test'
 
 test.describe.configure({ mode: 'parallel' })
@@ -91,7 +92,7 @@ for (const language of ['ar', 'en'] as const) test(`${language}: pending prepara
   await page.getByLabel(c.explanation, { exact: true }).fill('save before sign-out')
   await page.locator('.demo-controls summary').click()
   await page.locator('.demo-controls input[type=checkbox]').check()
-  await page.locator('#next-failure').selectOption('save')
+  await chooseOption(page.locator('#next-failure'), 'save')
   await page.getByRole('link', { name: `4. ${c.documents}`, exact: true }).click()
   const purchase = page.locator('section[aria-labelledby=purchase-heading]')
   await purchase.getByRole('button', { name: language === 'ar' ? 'استخدام النموذج' : 'Use sample', exact: true }).click()
@@ -120,12 +121,12 @@ for (const language of ['ar', 'en'] as const) test(`${language}: expiry invalida
   const c = copy[language]
   await page.clock.install()
   await openDraft(page, language)
-  await page.locator('#draft-product').selectOption('equipment')
+  await chooseOption(page.locator('#draft-product'), 'equipment')
   await expect(page.getByRole('dialog')).toBeVisible()
   await page.clock.runFor(15 * 60 * 1000 + 1)
   await page.getByRole('button', { name: c.identity, exact: true }).click()
   await expect(page.getByRole('dialog')).toHaveCount(0)
-  await expect(page.locator('#draft-product')).toHaveValue('inventory')
+  await expect(page.locator('#draft-product')).toHaveAttribute('data-value', 'inventory')
   await page.locator('.demo-controls summary').click()
   await page.locator('.demo-controls input[type=checkbox]').check()
   await page.getByRole('link', { name: `4. ${c.documents}`, exact: true }).click()

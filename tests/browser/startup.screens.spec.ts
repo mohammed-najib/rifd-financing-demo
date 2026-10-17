@@ -1,3 +1,4 @@
+import { chooseOption } from './select'
 import { expect, test } from '@playwright/test'
 import { damageDataset } from './startup-fixtures'
 
@@ -30,7 +31,7 @@ test('storage recovery stays usable in both languages and retries without replac
     await page.screenshot({ path: `docs/implementation/evidence/17/recovery-ar-${width}.png`, fullPage: true })
   }
   await page.getByRole('link', { name: 'منتجات التمويل', exact: true }).first().click()
-  await expect(page.getByRole('heading', { name: 'منتجات التمويل', exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: /مشروعك\./ })).toBeVisible()
   await page.getByRole('link', { name: 'رِفد', exact: false }).first().click()
   await page.evaluate(() => window.repairStartupFixture())
   await page.getByRole('button', { name: 'إعادة المحاولة', exact: true }).click()
@@ -119,7 +120,7 @@ for (const language of ['ar', 'en'] as const) test(`${language} loaded offline d
   await page.locator('[data-application="RIFD-2026-004"]').getByRole('link').click()
   await page.locator('a[href^="/applications/RIFD-2026-004/corrections/current"]').first().click()
   const editor = page.getByRole('region', { name: ar ? 'الرد على التصحيحات' : 'Respond to corrections', exact: true })
-  await editor.locator('#purchase-sample').selectOption({ label: 'replacement' })
+  await chooseOption(editor.locator('#purchase-sample'), { label: 'replacement' })
   await editor.getByRole('button', { name: ar ? 'استخدام النموذج' : 'Use sample', exact: true }).click()
   await expect(editor.getByText(ar ? 'جاهز للحفظ' : 'Ready to save', { exact: true })).toBeVisible()
   await editor.getByRole('button', { name: ar ? 'حفظ التقدم' : 'Save progress', exact: true }).click()

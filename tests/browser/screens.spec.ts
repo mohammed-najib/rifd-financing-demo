@@ -126,7 +126,7 @@ test('storage denial shows recovery while public product information remains ava
   await expect(page.getByRole('heading', { name: 'تعذر تجهيز العرض التجريبي' })).toBeVisible()
   await expect(page.getByRole('button', { name: 'إعادة المحاولة' })).toBeVisible()
   await page.getByRole('link', { name: 'منتجات التمويل', exact: true }).first().click()
-  await expect(page.getByRole('heading', { name: 'منتجات التمويل', exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: /مشروعك\./ })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'تمويل المخزون' })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'تمويل المعدات' })).toBeVisible()
 })

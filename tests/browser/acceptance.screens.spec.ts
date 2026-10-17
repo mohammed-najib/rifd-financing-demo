@@ -1,3 +1,4 @@
+import { chooseOption } from './select'
 import { readFile, writeFile } from 'node:fs/promises'
 import { PDFDocument } from 'pdf-lib'
 import { expect, test, type Page, type TestInfo } from '@playwright/test'
@@ -244,7 +245,7 @@ for (const language of ['ar', 'en'] as const) test(`${language} queue preference
   await expect(page.locator('[data-application]')).toHaveCount(5)
   for (const [id, value] of [['queue-product', 'inventory'], ['queue-status', 'submitted'], ['queue-assignment', 'unassigned'], ['queue-sort', 'amountDesc']]) {
     const control = page.locator(`#${id}`)
-    await control.focus(); await control.selectOption(value)
+    await control.focus(); await chooseOption(control, value)
     await expect(page.getByRole('status').filter({ hasText: language === 'ar' ? 'حُفظت عوامل التصفية والترتيب.' : 'Filters and sort saved.' })).toBeVisible()
     await expect(control).toBeFocused()
   }

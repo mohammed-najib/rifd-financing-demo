@@ -1,3 +1,4 @@
+import { chooseOption } from './select'
 import { expect, test } from '@playwright/test'
 
 async function completeSavedDraft(page: import('@playwright/test').Page, explanation = 'Fictional stock for this established small business.') {
@@ -21,7 +22,7 @@ for (const language of ['ar', 'en'] as const) test(`complete first submission, l
   await page.locator('#validation-summary').getByRole('link', { name: ar ? /اسم النشاط التجاري/ : /Business name/ }).click()
   await expect(page.locator('#field-businessName')).toBeFocused()
   await page.locator('#field-businessName').fill('نشاط مريم DEMO')
-  await page.locator('#field-activity').selectOption('production')
+  await chooseOption(page.locator('#field-activity'), 'production')
   await page.locator('#field-address').fill('Fictional Market Street, Taiz')
   await page.locator('#field-operatingSince').fill('٢٠٢٦-٠٨')
   await page.locator('#field-revenue').fill('٩٠٠٬٠٠٠')
@@ -38,13 +39,13 @@ for (const language of ['ar', 'en'] as const) test(`complete first submission, l
     await expect(section.getByText(ar ? 'جاهز للحفظ' : 'Ready to save', { exact: true })).toBeVisible()
   }
   await page.locator('.demo-controls summary').click()
-  await page.locator('#next-failure').selectOption('submission')
+  await chooseOption(page.locator('#next-failure'), 'submission')
   await page.getByRole('link', { name: ar ? '5. المراجعة' : '5. Review', exact: true }).click()
   await submit.click()
   await expect(page.getByRole('alert')).toContainText(ar ? 'فشل' : 'failed')
   await expect(page.getByRole('heading', { name: ar ? 'إعداد المسودة' : 'Prepare draft', exact: true })).toBeVisible()
   await expect(page.getByText('Fictional productive equipment for this small business.', { exact: true })).toBeVisible()
-  await page.locator('#next-failure').selectOption('')
+  await chooseOption(page.locator('#next-failure'), '')
   await page.getByLabel(ar ? 'طلبات بطيئة' : 'Slow requests', { exact: true }).check()
   await submit.click()
   await expect(submit).toBeDisabled()
@@ -79,7 +80,7 @@ test('a pending or failed replacement blocks submission even when the slot has a
   await completeSavedDraft(page)
   await page.getByRole('link', { name: '4. Documents', exact: true }).click()
   await page.locator('.demo-controls summary').click()
-  await page.locator('#next-failure').selectOption('upload')
+  await chooseOption(page.locator('#next-failure'), 'upload')
   await page.getByLabel('Slow requests', { exact: true }).check()
   const slot = page.locator('section[aria-labelledby="purchase-heading"]')
   await slot.getByRole('button', { name: 'Use sample', exact: true }).click()

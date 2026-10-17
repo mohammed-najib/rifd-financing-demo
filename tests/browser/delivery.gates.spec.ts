@@ -32,7 +32,7 @@ for (const language of ['ar', 'en'] as const) {
     if (!ar) await page.getByRole('button', { name: 'English', exact: true }).click()
     await ready(page, language)
     for (const [path, heading] of [
-      ['/products', ar ? 'منتجات التمويل' : 'Financing products'],
+      ['/products', ar ? 'مشروعك.وخطوته القادمة.' : 'Your business.Its next chapter.'],
       ['/components', ar ? 'مكونات الواجهة' : 'Interface components'],
       ['/demo/reset', ar ? 'إعادة ضبط العرض' : 'Reset demo'],
       ['/unavailable-route?product=equipment', ar ? 'الطلب غير متاح' : 'Application unavailable'],

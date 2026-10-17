@@ -4,7 +4,7 @@ import type { Bilingual, Language } from '../domain/model'
 import { draftText, errors, text } from './i18n'
 import { containDialogFocus } from './dialog'
 
-const filePreviewClassName = 'block h-[55vh] w-full border border-solid border-border bg-white object-contain'
+const filePreviewClassName = 'block h-[55vh] w-full border border-solid border-border bg-surface object-contain'
 
 export function DocumentPreview({ demo, applicationId, fileId, attachment, label, language, close }: {
   demo: Demo; applicationId: string; fileId?: string; attachment?: PreparedAttachment; label: Bilingual; language: Language; close: () => void;

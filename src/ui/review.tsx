@@ -148,7 +148,7 @@ export function ReviewWorkspace({ demo, datasetId, view, language, retained, rem
         <section className="panel"><h2 id="review-checks" tabIndex={-1}>{text.checks[language]}</h2>{baseline && <p>{t('resetChecks')}: {changedReviewChecks(baseline, view.snapshot).map(check => reviewChecks[check][language]).join('، ') || '0'}</p>}{(Object.keys(reviewDependencies) as ReviewCheck[]).map(check => {
           const canPass = check === 'evidence' ? allAccepted : check === 'purpose' || rules[check].passes
           const dependencies = reviewDependencies[check]
-          return <fieldset key={check} className="m-0 mb-5 min-w-0 rounded-[10px] border border-solid border-border p-4"><legend>{reviewChecks[check][language]}</legend><strong>{outcomes[view.checks![check]][language]}</strong>
+          return <fieldset key={check} className="m-0 mb-5 min-w-0 rounded-card border border-solid border-border p-4"><legend>{reviewChecks[check][language]}</legend><strong>{outcomes[view.checks![check]][language]}</strong>
             <p>{t(check === 'operatingHistory' ? 'operating' : check)}</p>
             {check === 'operatingHistory' && <p>{t('months')}: <bdi>{rules.operatingHistory.months}</bdi></p>}
             {check === 'purpose' && <p>{products[view.product].purpose[language]}</p>}

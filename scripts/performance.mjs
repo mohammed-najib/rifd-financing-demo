@@ -17,7 +17,7 @@ catch (error) {
 }
 const origin = 'http://127.0.0.1:4173'
 const routes = [
-  { name: 'products', path: '/products', identity: null, heading: { ar: 'منتجات التمويل', en: 'Financing products' } },
+  { name: 'products', path: '/products', identity: null, heading: { ar: 'مشروعك.وخطوته القادمة.', en: 'Your business.Its next chapter.' } },
   { name: 'applicant', path: '/applications', identity: { ar: 'مريم سالم', en: 'Mariam Salem' }, heading: { ar: 'طلباتي', en: 'My applications' } },
   { name: 'queue', path: '/staff/applications', identity: { ar: 'سلمى ناصر', en: 'Salma Nasser' }, heading: { ar: 'قائمة الطلبات', en: 'Application queue' } },
   { name: 'review', path: '/staff/applications/RIFD-2026-007', identity: { ar: 'سلمى ناصر', en: 'Salma Nasser' }, heading: { ar: 'RIFD-2026-007', en: 'RIFD-2026-007' } },

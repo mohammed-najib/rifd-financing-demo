@@ -9,6 +9,7 @@ import { DepartureDialog } from './departure'
 import { DraftSaveFeedback, EmptyQueue, LoadingPanel, ReadFailure, type SaveStatus } from './feedback'
 import { galleryText } from './gallery-copy'
 import { draftText, outcomes, statuses } from './i18n'
+import { Select } from './select'
 
 const initialFields: Fields = {
   fullName: 'مريم سالم Mariam Salem', mobile: '+967 777 123 456', city: 'صنعاء', email: 'mariam@example.test',
@@ -70,7 +71,7 @@ export function ComponentGallery({ language }: { language: Language }) {
         </div>
       </section>
       <section className="panel" aria-labelledby="gallery-saves"><h2 id="gallery-saves">{g('saves')}</h2>
-        <label htmlFor="gallery-save-state">{g('saveState')}</label><select className="ms-3 max-w-full rounded-[8px] border border-solid border-control-border bg-white p-2.5 text-inherit narrow:ms-0" id="gallery-save-state" value={saveStatus} onChange={event => setSaveStatus(event.target.value as SaveStatus)}>{(['unsaved', 'saving', 'saved', 'failed', 'unknown'] as const).map(status => <option key={status} value={status}>{draftText[status][language]}</option>)}</select>
+        <label htmlFor="gallery-save-state">{g('saveState')}</label><Select className="my-3" label={g('saveState')} id="gallery-save-state" value={saveStatus} onValueChange={value => setSaveStatus(value as SaveStatus)} options={(['unsaved', 'saving', 'saved', 'failed', 'unknown'] as const).map(status => ({ value: status, label: draftText[status][language] }))} />
         <DraftSaveFeedback status={saveStatus} savedAt={saveStatus === 'unsaved' ? null : '2026-10-14T10:00:00Z'} error={saveStatus === 'failed' ? 'requestFailed' : saveStatus === 'unknown' ? 'outcomeUnknown' : null} language={language} />
         <button disabled={saveStatus === 'saving'} onClick={() => setSaveStatus('saved')}>{draftText[saveStatus === 'unknown' ? 'inspectOutcome' : 'save'][language]}</button>
       </section>

@@ -1,3 +1,4 @@
+import { chooseOption } from './select'
 import { expect, test } from '@playwright/test'
 import { damageDataset } from './startup-fixtures'
 import { loseNextWriteCompletion } from './storage-faults'
@@ -60,7 +61,7 @@ test('cancel and aborted reset retain unfinished input and ready files, then suc
   await purchase.getByRole('button', { name: 'Use sample', exact: true }).click()
   await expect(page.getByText('Ready to save', { exact: true })).toBeVisible()
   await page.getByText('Demo controls', { exact: true }).click()
-  await page.locator('#next-failure').selectOption('storage')
+  await chooseOption(page.locator('#next-failure'), 'storage')
   await page.getByRole('button', { name: 'Reset demo', exact: true }).click()
   await dialog.getByRole('button', { name: 'Replace all demo data', exact: true }).click()
   await expect(dialog.getByRole('alert')).toBeVisible({ timeout: 30_000 })
