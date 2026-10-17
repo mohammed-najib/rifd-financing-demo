@@ -9,9 +9,6 @@
 .products-hero h1 em { display: block; color: var(--color-accent); font-style: normal; }
 .products-hero p { max-width: 460px; margin-bottom: 28px; color: var(--color-muted); font-size: 15px; line-height: 1.9; }
 .products-page :is(button, .button) { font-size: 12px; }
-.products-page :is(button, .button):not(.select-trigger) { box-shadow: 0 3px 4px rgb(11 100 88 / .04); }
-.products-page :is(button, .button):not(.select-trigger):hover { transform: translateY(-2px); box-shadow: 0 7px 18px rgb(11 100 88 / .12); }
-.products-page :is(button, .button):not(.select-trigger):active { transform: translateY(0); }
 .products-hero .button { gap: 25px; padding: 13px 21px; }
 .growth-label > span { width: 5px; height: 5px; border-radius: 50%; background: var(--color-accent); }
 .growth-art { position: relative; isolation: isolate; min-height: 350px; overflow: hidden; border: 1px solid #c9d2b8; border-radius: var(--radius-card); background: #e3e8d9; }
@@ -30,8 +27,7 @@
 .products-heading h2 { margin: 6px 0 0; font-size: 30px; line-height: 1.5; letter-spacing: -.8px; }
 .products-heading > p { max-width: 300px; margin: 0 0 4px; font-size: 12px; color: var(--color-muted); }
 .products-catalogue { scroll-margin-top: 30px; }
-.product-card { padding: 28px; border: 1px solid var(--color-border); border-radius: var(--radius-card); background: var(--color-surface); transition: border-color 200ms, box-shadow 200ms, transform 200ms; }
-.product-card:hover { transform: translateY(-3px); border-color: #8d806a; box-shadow: 0 12px 26px rgb(17 47 40 / .05); }
+.product-card { padding: 28px; border: 1px solid var(--color-border); border-radius: var(--radius-card); background: var(--color-surface); }
 .product-top { display: flex; align-items: center; gap: 12px; }
 .product-icon { display: grid; place-items: center; width: 49px; height: 49px; color: var(--color-accent); background: var(--color-summary); border-radius: var(--radius-icon); }
 .product-card-equipment .product-icon { color: #89543d; background: #f5e7db; }
@@ -99,6 +95,5 @@
 @keyframes products-grow { from { transform: scaleY(.25); opacity: 0; } to { transform: scaleY(1); opacity: 1; } }
 @media (prefers-reduced-motion: reduce) {
   .products-page, .growth-bars i { animation: none; }
-  .products-page *, .product-card { transition: none; }
-  .product-card:hover, .products-page :is(button, .button):not(.select-trigger):hover { transform: none; }
+  .products-page * { transition: none; }
 }

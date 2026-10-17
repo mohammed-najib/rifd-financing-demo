@@ -5,7 +5,8 @@
   box-shadow: none; font: inherit; text-align: start; cursor: pointer; vertical-align: middle;
   transition: border-color 160ms, box-shadow 160ms;
 }
-.select-trigger:hover { border-color: #8d806a; box-shadow: none; transform: none; filter: none; }
+.select-trigger:where(:not(:disabled, [aria-disabled=true])):hover { border-color: #8d806a; background: var(--color-summary); box-shadow: 0 0 0 2px rgb(11 100 88 / .08); }
+.select-trigger:is(:hover, :focus-visible, :active) { transform: none; filter: none; }
 .select-trigger:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
 .select-trigger[aria-expanded=true] { border-color: var(--color-accent); box-shadow: 0 0 0 3px rgb(11 100 88 / .08); }
 .select-trigger[aria-invalid=true] { border-color: var(--color-danger-border); }

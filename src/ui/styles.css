@@ -101,11 +101,18 @@
 
   button, .button {
     @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-control border border-solid border-accent bg-accent px-[18px] py-[9px] font-semibold text-white no-underline;
-    transition: background-color 180ms, box-shadow 180ms, transform 180ms;
+    transition: background-color 180ms, border-color 180ms, box-shadow 180ms, transform 180ms, filter 180ms;
   }
   button + button, .button + button { @apply ms-2.5; }
-  /* Retain hover feedback on the same devices as the original CSS. */
-  button:hover, .button:hover { filter: brightness(.96); }
+  :where(button, .button):not(:disabled, [aria-disabled='true']):is(:hover, :focus-visible) {
+    transform: translateY(-2px);
+    box-shadow: 0 7px 18px rgb(11 100 88 / .14);
+    filter: brightness(.94);
+  }
+  :where(button, .button):not(:disabled, [aria-disabled='true']):active {
+    transform: translateY(0);
+    box-shadow: 0 2px 5px rgb(11 100 88 / .12);
+  }
   :focus-visible { @apply outline-[3px] outline-solid outline-focus outline-offset-4; }
   h1:focus { outline: none; }
 
@@ -142,6 +149,7 @@
   .eyebrow { @apply mb-2 text-[13px] font-semibold text-accent; }
   .intro { @apply mb-[30px] max-w-[780px] text-[16px] text-muted narrow:mb-[22px] narrow:text-[14px]; }
   .button.secondary { @apply border-secondary-border bg-transparent text-accent; }
+  .button.secondary:not([aria-disabled='true']):is(:hover, :focus-visible) { background: var(--color-summary); border-color: var(--color-accent); }
   .status { @apply inline-block rounded-[20px] px-[11px] py-1 text-[12px] font-semibold whitespace-nowrap; }
   td .status { @apply px-2 py-[3px] text-[11px]; }
   .actions { @apply my-4 flex flex-wrap items-center gap-3; }
@@ -154,8 +162,9 @@
   .sidebar .active { @apply block rounded-control bg-summary px-[15px] py-[13px] font-semibold no-underline narrow:py-[9px]; }
   .sidebar p:last-child { @apply mt-[25px] text-[13px] text-muted compact:hidden; }
   .sidebar .eyebrow { @apply compact:m-0; }
-  .identity-card { @apply border-border; transition: border-color 200ms, box-shadow 200ms, transform 200ms; }
-  .identity-card:is(:hover, :focus-visible) { transform: translateY(-3px); border-color: #8d806a; box-shadow: 0 12px 26px rgb(17 47 40 / .05); filter: none; }
+  .identity-card { @apply border-border; }
+  .product-card, .identity-card, .application-card { transition: border-color 200ms, box-shadow 200ms, transform 200ms; }
+  .product-card:hover, .identity-card:enabled:is(:hover, :focus-visible), .application-card:is(:hover, :focus-within) { transform: translateY(-3px); border-color: #8d806a; box-shadow: 0 12px 26px rgb(17 47 40 / .05); filter: none; }
   .identity-card strong { @apply text-[19px]; }
   .identity-card > span:nth-child(3) { @apply col-start-2 text-[13px] text-muted; }
   .application-card h2 { @apply mb-[5px] narrow:text-[20px]; }
@@ -230,8 +239,9 @@
     .site-workspace-products { padding-top: 0; }
   }
   @media (prefers-reduced-motion: reduce) {
-    button, .button, .panel, .identity-card { transition: none; }
-    .identity-card:is(:hover, :focus-visible) { transform: none; }
+    button, .button, .panel, .identity-card, .product-card, .application-card { transition: none; }
+    button, .button { transform: none; }
+    .product-card:hover, .identity-card:enabled:is(:hover, :focus-visible), .application-card:is(:hover, :focus-within) { transform: none; }
   }
 }
 
