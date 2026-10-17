@@ -40,6 +40,7 @@ export type PublicRound = Omit<Application['rounds'][number], 'targets' | 'respo
 export type ApplicantView = CommonView & { role: 'applicant'; workspace: Application['workspace']; workspaceDocuments: DocumentView[]; rounds: PublicRound[] }
 export type StaffView = CommonView & {
   role: 'reviewer'; assignment: Bilingual | null; assignedToYou: boolean;
+  inspectionContexts: Record<DocumentSlot, string | null>;
   permissions: ReturnType<typeof reviewPermissions>;
   rounds: Application['rounds'];
   assessments: Application['assessments']; checks: Application['checks'];
@@ -73,10 +74,12 @@ export type SaveDraftOperation = {
 export type SubmitOperation = Omit<SaveDraftOperation, 'kind'> & { kind: 'submit'; expectedSharedRevision: number }
 export type SaveCorrectionsOperation = Omit<SaveDraftOperation, 'kind'> & { kind: 'saveCorrections'; roundId: string }
 export type ResubmitOperation = Omit<SaveCorrectionsOperation, 'kind'> & { kind: 'resubmit'; expectedSharedRevision: number }
+export type InspectionConfirmation = { kind: 'inspected'; contextToken: string; confirmed: true }
+  | { kind: 'unableToOpen'; contextToken: string }
 export type ReviewOperation = {
   datasetId: string; operationId: string; applicationId: string; expectedSharedRevision: number;
 } & ({ kind: 'claimApplication' | 'startReview' | 'unassignApplication' } | { kind: 'transferApplication'; from: 'salma' | 'khaled'; to: 'salma' | 'khaled'; confirmed: true; simulated?: true }
-  | { kind: 'assessDocument'; slot: DocumentSlot; fileId: string; status: 'accepted' | 'needsReplacement'; reason: Bilingual | null }
+  | { kind: 'assessDocument'; slot: DocumentSlot; fileId: string; status: 'accepted' | 'needsReplacement'; reason: Bilingual | null; inspection: InspectionConfirmation }
   | { kind: 'recordCheck'; check: ReviewCheck; outcome: 'unchecked' | 'passed' | 'failed' }
   | { kind: 'saveNote'; text: Bilingual }
   | { kind: 'verifyCorrection'; roundId: string; field: keyof Fields; verified: boolean }

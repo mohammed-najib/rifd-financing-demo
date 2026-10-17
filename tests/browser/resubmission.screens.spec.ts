@@ -36,6 +36,7 @@ for (const language of ['ar', 'en'] as const) test(`${language} resubmission pub
   await expect(verification.getByRole('button', { name: ar ? 'إلغاء التحقق من الحقل' : 'Undo field verification', exact: true })).toBeFocused()
   const documents = page.getByRole('heading', { name: ar ? 'المستندات' : 'Documents', exact: true }).locator('..')
   const plan = documents.getByRole('heading', { name: ar ? 'خطة شراء المخزون' : 'Stock purchase plan', exact: true }).locator('..')
+  await plan.getByRole('checkbox', { name: ar ? 'أؤكد أنني فحصت المستند الحالي' : 'I confirm I inspected the current source', exact: true }).check()
   await plan.getByRole('button', { name: ar ? 'قبول المستند' : 'Accept document', exact: true }).click()
   await expect(verification.getByText(ar ? 'تم التحقق' : 'Verified', { exact: true })).toHaveCount(2)
   if (test.info().project.name === 'chrome') for (const width of [390, 1440]) {
@@ -77,6 +78,7 @@ for (const language of ['ar', 'en'] as const) test(`${language} another request 
   await expect(page).toHaveURL(/\/staff\/applications$/)
   await page.goto('/staff/applications/RIFD-2026-004')
   const plan = page.getByRole('heading', { name: ar ? 'خطة شراء المخزون' : 'Stock purchase plan', exact: true }).locator('..')
+  await plan.getByRole('checkbox', { name: ar ? 'أؤكد أنني فحصت المستند الحالي' : 'I confirm I inspected the current source', exact: true }).check()
   await plan.getByRole('button', { name: ar ? 'يحتاج إلى استبدال' : 'Needs replacement', exact: true }).click()
   await page.getByRole('textbox', { name: ar ? 'سبب الاستبدال' : 'Replacement reason', exact: true }).fill('The first plan still lacks item costs.')
   await page.getByRole('button', { name: ar ? 'حفظ التقييم' : 'Save assessment', exact: true }).click()

@@ -45,7 +45,7 @@ test('every stale staff write is refused without a receipt or application and ap
     const edits = [
       { kind: 'claimApplication' }, { kind: 'unassignApplication' }, { kind: 'startReview' },
       { kind: 'transferApplication', from: 'salma', to: 'khaled', confirmed: true },
-      { kind: 'assessDocument', slot: 'identity', fileId: before.value.snapshot.documents.identity, status: 'needsReplacement', reason: { ar: 'سبب غير مطبق', en: 'Unapplied reason' } },
+      { kind: 'assessDocument', slot: 'identity', fileId: before.value.snapshot.documents.identity, inspection: { kind: 'inspected', confirmed: true, contextToken: before.value.role === 'reviewer' ? before.value.inspectionContexts.identity! : 'unavailable' }, status: 'needsReplacement', reason: { ar: 'سبب غير مطبق', en: 'Unapplied reason' } },
       { kind: 'recordCheck', check: 'purpose', outcome: 'failed' },
       { kind: 'saveNote', text: { ar: 'ملاحظة غير مطبقة', en: 'Unapplied note' } },
       { kind: 'verifyCorrection', roundId: 'earlier-round', field: 'amount', verified: true },

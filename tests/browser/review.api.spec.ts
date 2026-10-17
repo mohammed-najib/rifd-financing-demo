@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test'
 import { loseNextWriteCompletion, refuseCommitNotices } from './storage-faults'
+import { makeHistoricalAssessmentReceipt } from './review-fixtures'
 
 test.describe.configure({ mode: 'parallel' })
 async function staff(page: Page) {
@@ -13,6 +14,172 @@ async function staff(page: Page) {
   })
 }
 
+test('opening a source does not confirm inspection and direct assessment bypasses have no effects', async ({ page }) => {
+  const datasetId = await staff(page)
+  const result = await page.evaluate(async datasetId => {
+    const demo = window.demo
+    const before = await demo.readApplication('RIFD-2026-007')
+    if (!before.ok || before.value.role !== 'reviewer') throw new Error('No record')
+    const fileId = before.value.snapshot.documents.identity!
+    const source = await demo.readFile(before.value.id, fileId)
+    const outcome = await demo.execute({ kind: 'assessDocument', datasetId, operationId: 'bypass', applicationId: before.value.id, expectedSharedRevision: before.value.sharedRevision, slot: 'identity', fileId, status: 'accepted', reason: null } as import('../../src/demo').ReviewOperation)
+    return { before, source: source.ok, outcome, after: await demo.readApplication(before.value.id) }
+  }, datasetId)
+  expect(result.source).toBe(true)
+  expect(result.outcome).toMatchObject({ ok: false, error: { kind: 'validation' } })
+  expect(result.after).toEqual(result.before)
+})
+
+test('confirmation survives unrelated notes only with a fresh revision and cannot cross source contexts', async ({ page }) => {
+  const datasetId = await staff(page)
+  const result = await page.evaluate(async datasetId => {
+    const demo = window.demo
+    const before = await demo.readApplication('RIFD-2026-007')
+    const other = await demo.readApplication('RIFD-2026-003')
+    if (!before.ok || before.value.role !== 'reviewer' || !other.ok || other.value.role !== 'reviewer') throw new Error('No review')
+    const command = { kind: 'assessDocument' as const, datasetId, applicationId: before.value.id, operationId: 'inspected', expectedSharedRevision: before.value.sharedRevision, slot: 'identity' as const, fileId: before.value.snapshot.documents.identity!, status: 'accepted' as const, reason: null, inspection: { kind: 'inspected' as const, confirmed: true as const, contextToken: before.value.inspectionContexts.identity! } }
+    const note = await demo.execute({ kind: 'saveNote', datasetId, applicationId: before.value.id, operationId: 'unrelated-note', expectedSharedRevision: before.value.sharedRevision, text: { ar: 'سياق داخلي', en: 'Unrelated staff context' } })
+    const stale = await demo.execute(command)
+    const current = await demo.readApplication(before.value.id)
+    if (!current.ok || current.value.role !== 'reviewer') throw new Error('No current review')
+    const base = { ...command, expectedSharedRevision: current.value.sharedRevision }
+    const refusals = []
+    for (const inspection of [
+      { kind: 'inspected', confirmed: false, contextToken: command.inspection.contextToken },
+      { kind: 'inspected', confirmed: true, contextToken: current.value.inspectionContexts.business },
+      { kind: 'inspected', confirmed: true, contextToken: other.value.inspectionContexts.identity },
+      { kind: 'inspected', confirmed: true, contextToken: 'invented' },
+    ]) refusals.push(await demo.execute({ ...base, inspection } as import('../../src/demo').ReviewOperation))
+    const unchanged = await demo.readApplication(before.value.id)
+    const assessed = await demo.execute(base)
+    const replay = await demo.execute({ ...base, expectedSharedRevision: 999 })
+    const changedIntent = await demo.execute({ ...base, inspection: { kind: 'unableToOpen', contextToken: command.inspection.contextToken } })
+    const { inspection: omitted, ...legacy } = base
+    void omitted
+    const stripped = await demo.execute(legacy as import('../../src/demo').ReviewOperation)
+    return { note, stale, current, refusals, unchanged, assessed, replay, changedIntent, stripped, before }
+  }, datasetId)
+  expect(result.note.ok).toBe(true)
+  expect(result.stale).toMatchObject({ error: { kind: 'staleRecord' } })
+  for (const refusal of result.refusals) expect(refusal).toMatchObject({ error: { kind: 'validation' } })
+  expect(result.unchanged).toEqual(result.current)
+  if (!result.current.ok || result.current.value.role !== 'reviewer' || !result.before.ok || result.before.value.role !== 'reviewer') throw new Error('No review')
+  expect(result.current.value.inspectionContexts).toEqual(result.before.value.inspectionContexts)
+  expect(result.assessed).toMatchObject({ ok: true, value: { application: { assessments: { identity: { status: 'accepted' } } } } })
+  expect(result.replay).toEqual(result.assessed)
+  expect(result.changedIntent).toMatchObject({ error: { kind: 'identifierMisuse' } })
+  expect(result.stripped).toMatchObject({ error: { kind: 'identifierMisuse' } })
+})
+
+test('reassignment away and back requires renewed confirmation even after reading the latest revision', async ({ page }) => {
+  const datasetId = await staff(page)
+  const result = await page.evaluate(async datasetId => {
+    const demo = window.demo
+    const before = await demo.readApplication('RIFD-2026-007')
+    if (!before.ok || before.value.role !== 'reviewer') throw new Error('No review')
+    const committedCommand = { kind: 'assessDocument' as const, datasetId, applicationId: before.value.id, operationId: 'assessment-before-transfer', expectedSharedRevision: before.value.sharedRevision, slot: 'identity' as const, fileId: before.value.snapshot.documents.identity!, status: 'accepted' as const, reason: null, inspection: { kind: 'inspected' as const, confirmed: true as const, contextToken: before.value.inspectionContexts.identity! } }
+    const committed = await demo.execute(committedCommand)
+    if (!committed.ok) throw new Error('No initial assessment')
+    let revision = committed.value.application.sharedRevision
+    for (const [from, to] of [['salma', 'khaled'], ['khaled', 'salma']] as const) {
+      const transfer = await demo.execute({ kind: 'transferApplication', datasetId, applicationId: before.value.id, operationId: `${from}-${to}`, expectedSharedRevision: revision, from, to, confirmed: true })
+      if (!transfer.ok) throw new Error('No transfer')
+      revision = transfer.value.application.sharedRevision
+    }
+    const current = await demo.readApplication(before.value.id)
+    if (!current.ok || current.value.role !== 'reviewer') throw new Error('No current review')
+    const command = { kind: 'assessDocument' as const, datasetId, applicationId: before.value.id, operationId: 'renewed-inspection', expectedSharedRevision: revision, slot: 'identity' as const, fileId: current.value.snapshot.documents.identity!, status: 'accepted' as const, reason: null, inspection: { kind: 'inspected' as const, confirmed: true as const, contextToken: before.value.inspectionContexts.identity! } }
+    const refused = await demo.execute(command)
+    const replay = await demo.execute(committedCommand)
+    const unchanged = await demo.readApplication(before.value.id)
+    const renewed = await demo.execute({ ...command, inspection: { ...command.inspection, contextToken: current.value.inspectionContexts.identity! } })
+    return { before, current, refused, unchanged, renewed, committed, replay }
+  }, datasetId)
+  expect(result.refused).toMatchObject({ error: { kind: 'validation' } })
+  expect(result.unchanged).toEqual(result.current)
+  expect(result.renewed.ok).toBe(true)
+  expect(result.replay).toMatchObject({ ok: true, value: { receipt: result.committed.ok ? result.committed.value.receipt : null } })
+})
+
+test('an explained unable-to-open source permits only replacement and replays without a second assessment', async ({ page }) => {
+  const datasetId = await staff(page)
+  const result = await page.evaluate(async datasetId => {
+    const demo = window.demo
+    const before = await demo.readApplication('RIFD-2026-007')
+    if (!before.ok || before.value.role !== 'reviewer') throw new Error('No review')
+    const command = { kind: 'assessDocument' as const, datasetId, applicationId: before.value.id, operationId: 'unopenable', expectedSharedRevision: before.value.sharedRevision, slot: 'financial' as const, fileId: before.value.snapshot.documents.financial!, status: 'needsReplacement' as const, reason: { ar: 'تعذر فتح ملف الملخص.', en: 'The summary file could not be opened.' }, inspection: { kind: 'unableToOpen' as const, contextToken: before.value.inspectionContexts.financial! } }
+    const refusals = []
+    for (const edit of [{ status: 'accepted', reason: null }, { reason: null }, { reason: { ar: ' ', en: ' ' } }, { reason: { ar: 'تعذر فتح الملف', en: '' } }, { inspection: { kind: 'unableToOpen', contextToken: 'old-context' } }]) refusals.push(await demo.execute({ ...command, ...edit } as import('../../src/demo').ReviewOperation))
+    const unchanged = await demo.readApplication(before.value.id)
+    const saved = await demo.execute(command)
+    const replay = await demo.execute(command)
+    const inspected = await demo.inspectOperation(command)
+    return { before, refusals, unchanged, saved, replay, inspected, after: await demo.readApplication(before.value.id) }
+  }, datasetId)
+  for (const refusal of result.refusals) expect(refusal).toMatchObject({ error: { kind: 'validation' } })
+  expect(result.unchanged).toEqual(result.before)
+  expect(result.saved).toMatchObject({ ok: true, value: { application: { assessments: { financial: { status: 'needsReplacement', reason: { en: 'The summary file could not be opened.' } } }, checks: { evidence: 'unchecked' } } } })
+  expect(result.replay).toEqual(result.saved)
+  expect(result.inspected).toMatchObject({ value: { status: 'committed' } })
+  if (!result.before.ok || result.before.value.role !== 'reviewer' || !result.after.ok || result.after.value.role !== 'reviewer') throw new Error('No review')
+  expect(result.after.value.activity).toHaveLength(result.before.value.activity.length + 1)
+})
+
+test('historical assessments and exact legacy receipts stay readable without authorizing new unconfirmed writes', async ({ page }) => {
+  const datasetId = await staff(page)
+  const command = await page.evaluate(async datasetId => {
+    const before = await window.demo.readApplication('RIFD-2026-007')
+    if (!before.ok || before.value.role !== 'reviewer') throw new Error('No review')
+    const command = { kind: 'assessDocument' as const, datasetId, applicationId: before.value.id, operationId: 'historical-assessment', expectedSharedRevision: before.value.sharedRevision, slot: 'identity' as const, fileId: before.value.snapshot.documents.identity!, status: 'accepted' as const, reason: null, inspection: { kind: 'inspected' as const, confirmed: true as const, contextToken: before.value.inspectionContexts.identity! } }
+    const saved = await window.demo.execute(command)
+    if (!saved.ok) throw new Error('No assessment')
+    return command
+  }, datasetId)
+  await page.evaluate(makeHistoricalAssessmentReceipt, command.operationId)
+  await page.reload(); await page.waitForFunction(() => window.demo)
+  const result = await page.evaluate(async command => {
+    const demo = window.demo
+    const startup = await demo.startup()
+    const before = await demo.readApplication(command.applicationId)
+    const { inspection, ...legacy } = command
+    void inspection
+    const oldCommand = legacy as import('../../src/demo').ReviewOperation
+    const replay = await demo.execute(oldCommand)
+    const inspected = await demo.inspectOperation(oldCommand)
+    const ambiguous = await demo.execute(command)
+    const freshLegacy = await demo.execute({ ...oldCommand, operationId: 'fresh-legacy', expectedSharedRevision: before.ok ? before.value.sharedRevision : 1 })
+    return { startup, before, replay, inspected, ambiguous, freshLegacy, after: await demo.readApplication(command.applicationId) }
+  }, command)
+  expect(result.startup.ok).toBe(true)
+  expect(result.replay).toMatchObject({ ok: true, value: { application: result.before.ok ? result.before.value : null } })
+  expect(result.inspected).toMatchObject({ value: { status: 'committed' } })
+  expect(result.ambiguous).toMatchObject({ error: { kind: 'identifierMisuse' } })
+  expect(result.freshLegacy).toMatchObject({ error: { kind: 'validation' } })
+  expect(result.after).toEqual(result.before)
+})
+
+test('reset invalidates inspection even when a new dataset has the same application and document slot', async ({ page }) => {
+  const datasetId = await staff(page)
+  const result = await page.evaluate(async datasetId => {
+    const demo = window.demo
+    const before = await demo.readApplication('RIFD-2026-007')
+    const resetContext = await demo.inspectReset()
+    if (!before.ok || before.value.role !== 'reviewer' || !resetContext.ok) throw new Error('No review')
+    const reset = await demo.execute({ kind: 'resetDemo', context: resetContext.value, operationId: 'reset-inspection', confirmed: true })
+    if (!reset.ok) throw new Error('No reset')
+    await demo.signIn('salma')
+    const current = await demo.readApplication(before.value.id)
+    if (!current.ok || current.value.role !== 'reviewer') throw new Error('No new review')
+    const command = { kind: 'assessDocument' as const, datasetId, applicationId: before.value.id, operationId: 'pre-reset-inspection', expectedSharedRevision: current.value.sharedRevision, slot: 'identity' as const, fileId: current.value.snapshot.documents.identity!, status: 'accepted' as const, reason: null, inspection: { kind: 'inspected' as const, confirmed: true as const, contextToken: before.value.inspectionContexts.identity! } }
+    const oldDataset = await demo.execute(command)
+    const oldConfirmation = await demo.execute({ ...command, datasetId: reset.value.datasetId })
+    return { current, oldDataset, oldConfirmation, after: await demo.readApplication(before.value.id) }
+  }, datasetId)
+  expect(result.oldDataset).toMatchObject({ error: { kind: 'supersededDataset' } })
+  expect(result.oldConfirmation).toMatchObject({ error: { kind: 'validation' } })
+  expect(result.after).toEqual(result.current)
+})
+
 test('assessments and all five checks persist independently of public status and history', async ({ page }) => {
   const datasetId = await staff(page)
   await page.evaluate(refuseCommitNotices)
@@ -25,8 +192,8 @@ test('assessments and all five checks persist independently of public status and
     const outcomes = []
     for (const slot of ['identity', 'business', 'financial', 'purchase'] as const) {
       const view = await demo.readApplication(applicationId)
-      if (!view.ok) throw new Error('Missing record')
-      const outcome = await demo.execute({ kind: 'assessDocument', datasetId, operationId: slot, applicationId, expectedSharedRevision: revision, slot, fileId: view.value.snapshot.documents[slot]!, status: 'accepted', reason: null })
+      if (!view.ok || view.value.role !== 'reviewer') throw new Error('Missing record')
+      const outcome = await demo.execute({ kind: 'assessDocument', datasetId, operationId: slot, applicationId, expectedSharedRevision: revision, slot, fileId: view.value.snapshot.documents[slot]!, inspection: { kind: 'inspected', confirmed: true, contextToken: view.value.inspectionContexts[slot]! }, status: 'accepted', reason: null })
       outcomes.push(outcome)
       if (outcome.ok) revision = outcome.value.application.sharedRevision
     }
@@ -54,10 +221,10 @@ for (const kind of ['assessDocument', 'recordCheck', 'saveNote'] as const) test(
       const demo = window.demo
       const applicationId = `RIFD-2026-${number}`
       const before = await demo.readApplication(applicationId)
-      if (!before.ok) throw new Error('No record')
+      if (!before.ok || before.value.role !== 'reviewer') throw new Error('No record')
       const base = { datasetId, applicationId, operationId: `${kind}-${number}`, expectedSharedRevision: before.value.sharedRevision }
       const command: import('../../src/demo').ReviewOperation = kind === 'assessDocument'
-        ? { ...base, kind, slot: 'identity', fileId: before.value.snapshot.documents.identity!, status: 'accepted', reason: null }
+        ? { ...base, kind, slot: 'identity', fileId: before.value.snapshot.documents.identity!, inspection: { kind: 'inspected', confirmed: true, contextToken: before.value.inspectionContexts.identity! }, status: 'accepted', reason: null }
         : kind === 'recordCheck' ? { ...base, kind, check: 'purpose', outcome: 'failed' }
         : { ...base, kind, text: { ar: 'سياق خاص', en: 'Private context' } }
       const outcome = await demo.execute(command)
@@ -82,10 +249,10 @@ for (const kind of ['assessDocument', 'recordCheck', 'saveNote'] as const) test(
   const datasetId = await staff(page)
   const command = await page.evaluate(async ({ datasetId, kind }) => {
     const result = await window.demo.readApplication('RIFD-2026-007')
-    if (!result.ok) throw new Error('No record')
+    if (!result.ok || result.value.role !== 'reviewer') throw new Error('No record')
     const base = { datasetId, applicationId: result.value.id, operationId: 'atomic-review', expectedSharedRevision: result.value.sharedRevision }
     return (kind === 'saveNote' ? { ...base, kind, text: { ar: 'ملاحظة', en: 'Note' } } : kind === 'recordCheck'
-      ? { ...base, kind, check: 'purpose', outcome: 'passed' } : { ...base, kind, slot: 'financial', fileId: result.value.snapshot.documents.financial!, status: 'needsReplacement', reason: { ar: 'غير مقروء', en: 'Unreadable' } }) as import('../../src/demo').ReviewOperation
+      ? { ...base, kind, check: 'purpose', outcome: 'passed' } : { ...base, kind, slot: 'financial', fileId: result.value.snapshot.documents.financial!, inspection: { kind: 'inspected', confirmed: true, contextToken: result.value.inspectionContexts.financial! }, status: 'needsReplacement', reason: { ar: 'غير مقروء', en: 'Unreadable' } }) as import('../../src/demo').ReviewOperation
   }, { datasetId, kind })
   const aborted = await page.evaluate(async command => {
     const demo = window.demo
@@ -127,13 +294,13 @@ test('requires current evidence, a replacement reason and all accepted documents
     const applicationId = 'RIFD-2026-003'
     await demo.execute({ kind: 'startReview', datasetId, applicationId, operationId: 'start', expectedSharedRevision: 1 })
     const before = await demo.readApplication(applicationId)
-    if (!before.ok) throw new Error('No record')
+    if (!before.ok || before.value.role !== 'reviewer') throw new Error('No record')
     const base = { datasetId, applicationId, expectedSharedRevision: before.value.sharedRevision }
     const commands: import('../../src/demo').ReviewOperation[] = [
       { ...base, kind: 'recordCheck', operationId: 'evidence', check: 'evidence', outcome: 'passed' },
-      { ...base, kind: 'assessDocument', operationId: 'missing', slot: 'financial', fileId: 'invented', status: 'accepted', reason: null },
-      { ...base, kind: 'assessDocument', operationId: 'wrong-file', slot: 'identity', fileId: before.value.snapshot.documents.business!, status: 'accepted', reason: null },
-      { ...base, kind: 'assessDocument', operationId: 'no-reason', slot: 'identity', fileId: before.value.snapshot.documents.identity!, status: 'needsReplacement', reason: null },
+      { ...base, kind: 'assessDocument', operationId: 'missing', slot: 'financial', fileId: 'invented', inspection: { kind: 'inspected', confirmed: true, contextToken: 'missing' }, status: 'accepted', reason: null },
+      { ...base, kind: 'assessDocument', operationId: 'wrong-file', slot: 'identity', fileId: before.value.snapshot.documents.business!, inspection: { kind: 'inspected', confirmed: true, contextToken: before.value.inspectionContexts.identity! }, status: 'accepted', reason: null },
+      { ...base, kind: 'assessDocument', operationId: 'no-reason', slot: 'identity', fileId: before.value.snapshot.documents.identity!, inspection: { kind: 'inspected', confirmed: true, contextToken: before.value.inspectionContexts.identity! }, status: 'needsReplacement', reason: null },
       { ...base, kind: 'saveNote', operationId: 'empty-note', text: { ar: ' ', en: ' ' } },
     ]
     const outcomes = []
@@ -230,7 +397,7 @@ test('unsigned and applicant writes are refused, and reassignment invalidates an
   const datasetId = await staff(page)
   const command = await page.evaluate(async datasetId => {
     const result = await window.demo.readApplication('RIFD-2026-007')
-    if (!result.ok) throw new Error('No record')
+    if (!result.ok || result.value.role !== 'reviewer') throw new Error('No record')
     return { kind: 'saveNote' as const, datasetId, applicationId: result.value.id, expectedSharedRevision: result.value.sharedRevision, operationId: 'held-note', text: { ar: 'خاص', en: 'Private' } }
   }, datasetId)
   const denied = await page.evaluate(async command => {

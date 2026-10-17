@@ -37,7 +37,24 @@ rule. Screens refresh them on committed notices and activation. Open transfer
 confirmations bind to the inspected revision and close when it changes. Refused
 or uncertain actions disable further writes until explicit receipt/current-record
 inspection. Confirmed aborts also allow an explicit retry of the retained intent.
-The protected screen's existing session key clears confirmations on expiry.
+The protected screen's session key clears assignment confirmations on expiry.
+
+Document assessment also requires an explicit `inspection` input. Staff reads
+return a versioned context token for each supplied source. The token binds the
+reviewer, dataset, application, slot, stored file identity and SHA-256 hash,
+relevant declarations, publication events and assignment events. The review
+transaction compares it with the current authorized state. Reassignment away and
+back and resubmission invalidate it; an unrelated note does not. Expected shared
+revisions still apply. Source preview never confirms inspection. The alternate
+`unableToOpen` input permits only Needs replacement with a nonempty explanation
+in both languages. Screens collect this separately from inspection and assessment.
+
+Assessment fingerprints include the inspection input. Commands without it are
+parsed only for exact replay or inspection of an existing historical receipt.
+They cannot create a new assessment. Reusing an operation identifier across old
+and new intents fails without effects. Stored assessments and receipts retain
+their existing financing schema; historical assessments acquire no inspection
+claim.
 
 The public `Demo` interface returns `Result<T>` with finite error kinds and translation keys. `setLanguage` and reviewer-only `setQueuePreferences` carry the dataset, operation identifier, preference revision and desired values. `inspectPreferenceOperation` checks the actor-scoped receipt and reads the current committed context. `newDraft` creates a tab-local, owner-scoped in-memory draft and performs no durable write. Its UUID-based application reference stays stable after saving, while the seed references retain their short numeric suffixes. Workspace revision zero identifies unsaved creation. `saveDraft` carries the dataset, application, operation identifier, workspace revision, raw form/product and saved or prepared document choices. It has no database replacement, arbitrary patch, caller-supplied actor or submission bypass. Session operations capture identity in the current tab. Future applicant and reviewer mutations must add their own typed commands and complete effects here.
 

@@ -76,7 +76,8 @@ test('confirmed transfers retain correction work and stay absent from applicant 
   if (!result.before.ok || !result.transferred.ok) throw new Error('Transfer failed')
   const before = result.before.value as import('../../src/demo/types').StaffView
   const after = result.transferred.value.application as import('../../src/demo/types').StaffView
-  expect({ ...after, sharedRevision: before.sharedRevision, assignment: before.assignment, assignedToYou: before.assignedToYou, permissions: before.permissions, activity: before.activity }).toEqual(before)
+  expect({ ...after, sharedRevision: before.sharedRevision, assignment: before.assignment, assignedToYou: before.assignedToYou, permissions: before.permissions, activity: before.activity, inspectionContexts: before.inspectionContexts }).toEqual(before)
+  expect(after.inspectionContexts).not.toEqual(before.inspectionContexts)
   expect(after.activity.slice(0, -1)).toEqual(before.activity)
   expect(after.activity.at(-1)).toMatchObject({ kind: 'assigned', actor: 'salma', description: { en: 'Application transferred from Salma Nasser to Khaled Ali.' } })
   if (!result.applicant.ok || !result.afterApplicant.ok) throw new Error('Applicant cannot read')
@@ -366,6 +367,8 @@ test('a replacement dataset refuses a delayed assignment before any receipt or a
   }, context.datasetId)
   expect(result.refused).toMatchObject({ error: { kind: 'supersededDataset' } })
   expect(result.invalidated).toMatchObject({ error: { kind: 'supersededDataset' } })
-  expect(result.after).toEqual(result.before)
+  if (!result.before.ok || result.before.value.role !== 'reviewer' || !result.after.ok || result.after.value.role !== 'reviewer') throw new Error('No review')
+  expect({ ...result.after.value, inspectionContexts: result.before.value.inspectionContexts }).toEqual(result.before.value)
+  expect(result.after.value.inspectionContexts).not.toEqual(result.before.value.inspectionContexts)
   expect(result.oldReceipt).toMatchObject({ error: { kind: 'supersededDataset' } })
 })

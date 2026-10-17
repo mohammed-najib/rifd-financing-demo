@@ -42,11 +42,17 @@ export const resubmitSchema = saveCorrectionsSchema.extend({ kind: z.literal('re
 const reviewVersion = {
   datasetId: z.string().uuid(), operationId: z.string().min(1), applicationId: z.string().min(1), expectedSharedRevision: z.number().int().positive(),
 }
+const inspectionSchema = z.discriminatedUnion('kind', [
+  z.object({ kind: z.literal('inspected'), contextToken: z.string().min(1), confirmed: z.literal(true) }).strict(),
+  z.object({ kind: z.literal('unableToOpen'), contextToken: z.string().min(1) }).strict(),
+])
 export const reviewOperationSchema = z.discriminatedUnion('kind', [z.object({
   ...reviewVersion,
   kind: z.enum(['claimApplication', 'startReview', 'unassignApplication']),
 }).strict(), z.object({ ...reviewVersion, kind: z.literal('transferApplication'), from: z.enum(['salma', 'khaled']), to: z.enum(['salma', 'khaled']), confirmed: z.literal(true), simulated: z.literal(true).optional() }).strict(),
-  z.object({ ...reviewVersion, kind: z.literal('assessDocument'), slot: slotSchema, fileId: z.string().min(1), status: z.enum(['accepted', 'needsReplacement']), reason: bilingualSchema.nullable() }).strict(),
+  // Omission is parsed only so an exact historical receipt can still be replayed.
+  // New assessments require inspection inside the authorized transaction.
+  z.object({ ...reviewVersion, kind: z.literal('assessDocument'), slot: slotSchema, fileId: z.string().min(1), status: z.enum(['accepted', 'needsReplacement']), reason: bilingualSchema.nullable(), inspection: inspectionSchema.optional() }).strict(),
   z.object({ ...reviewVersion, kind: z.literal('recordCheck'), check: z.enum(['evidence', 'operatingHistory', 'purpose', 'budget', 'capacity']), outcome: z.enum(['unchecked', 'passed', 'failed']) }).strict(),
   z.object({ ...reviewVersion, kind: z.literal('saveNote'), text: bilingualSchema }).strict(),
   z.object({ ...reviewVersion, kind: z.literal('verifyCorrection'), roundId: z.string().min(1), field: fieldsSchema.keyof(), verified: z.boolean() }).strict(),
@@ -65,11 +71,11 @@ export const preparationSchema = z.object({
   ]),
 }).strict()
 
-export function applicationFingerprint(operation: ApplicationMutation): string {
+export function applicationFingerprint(operation: ApplicationMutation | z.infer<typeof reviewOperationSchema>): string {
   if (operation.kind === 'approve' || operation.kind === 'reject') return JSON.stringify({ kind: operation.kind, applicationId: operation.applicationId, reason: operation.reason, confirmed: operation.confirmed })
   if (operation.kind === 'verifyCorrection') return JSON.stringify({ kind: operation.kind, applicationId: operation.applicationId, roundId: operation.roundId, field: operation.field, verified: operation.verified })
   if (operation.kind === 'requestCorrections') return JSON.stringify({ kind: operation.kind, applicationId: operation.applicationId, targets: operation.targets, confirmed: operation.confirmed })
-  if (operation.kind === 'assessDocument') return JSON.stringify({ kind: operation.kind, applicationId: operation.applicationId, slot: operation.slot, fileId: operation.fileId, status: operation.status, reason: operation.reason })
+  if (operation.kind === 'assessDocument') return JSON.stringify({ kind: operation.kind, applicationId: operation.applicationId, slot: operation.slot, fileId: operation.fileId, status: operation.status, reason: operation.reason, ...(operation.inspection ? { inspection: operation.inspection } : {}) })
   if (operation.kind === 'recordCheck') return JSON.stringify({ kind: operation.kind, applicationId: operation.applicationId, check: operation.check, outcome: operation.outcome })
   if (operation.kind === 'saveNote') return JSON.stringify({ kind: operation.kind, applicationId: operation.applicationId, text: operation.text })
   if (!('fields' in operation)) return JSON.stringify(operation.kind === 'transferApplication'

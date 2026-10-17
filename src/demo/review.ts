@@ -1,9 +1,10 @@
 import { currentCorrectionTargets, decisionReadiness, reviewRules } from '../domain'
 import type { Application, Bilingual } from '../domain/model'
-import type { ReviewOperation } from './types'
 import { DemoError } from './storage'
+import type { z } from 'zod'
+import type { reviewOperationSchema } from './commands'
 
-type ReviewEdit = Extract<ReviewOperation, { kind: 'assessDocument' | 'recordCheck' | 'saveNote' | 'verifyCorrection' }>
+type ReviewEdit = Extract<z.infer<typeof reviewOperationSchema>, { kind: 'assessDocument' | 'recordCheck' | 'saveNote' | 'verifyCorrection' }>
 const checks: Record<string, Bilingual> = {
   evidence: { ar: 'اتساق المستندات والبيانات', en: 'Evidence consistency' },
   operatingHistory: { ar: 'مدة مزاولة النشاط', en: 'Operating history' },
@@ -17,7 +18,7 @@ const outcomes: Record<string, Bilingual> = {
 }
 const hasText = (value: { ar: string; en: string } | null) => !!value && !!value.ar.trim() && !!value.en.trim()
 
-export function validateReviewCommand(application: Application, command: ReviewOperation) {
+export function validateReviewCommand(application: Application, command: z.infer<typeof reviewOperationSchema>) {
   if (command.kind === 'approve' || command.kind === 'reject') {
     const readiness = decisionReadiness(application)
     if (!hasText(command.reason) || !(command.kind === 'approve' ? readiness.canApprove : readiness.canReject)) throw new DemoError('validation')
@@ -25,6 +26,7 @@ export function validateReviewCommand(application: Application, command: ReviewO
     const round = application.rounds.find(round => round.id === command.roundId)
     if (!round?.response || !currentCorrectionTargets(application.rounds).some(({ roundId, target }) => roundId === command.roundId && target.kind === 'field' && target.field === command.field)) throw new DemoError('validation')
   } else if (command.kind === 'assessDocument') {
+    if (!command.inspection || command.inspection.kind === 'unableToOpen' && command.status !== 'needsReplacement') throw new DemoError('validation')
     if (!application.submitted?.documents[command.slot] || application.submitted.documents[command.slot] !== command.fileId) throw new DemoError('validation')
     if (command.status === 'needsReplacement' ? !hasText(command.reason) : command.reason !== null) throw new DemoError('validation')
   } else if (command.kind === 'recordCheck' && command.outcome === 'passed') {

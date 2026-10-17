@@ -1,7 +1,7 @@
 import { assignmentText } from './assignment-copy'
 import { useEffect, useRef, useState } from 'react'
 import type { Demo, ErrorKind, ReviewOperation } from '../demo'
-import type { StaffView } from '../demo/types'
+import type { InspectionConfirmation, StaffView } from '../demo/types'
 import { changedReviewChecks, currentCorrectionTargets, products, reviewDependencies, reviewRules, type ReviewCheck } from '../domain'
 import type { DocumentSlot, Language } from '../domain/model'
 import { AssignmentActions } from './assignment'
@@ -16,6 +16,7 @@ export type ReviewBuffer = {
   note: string; replacement: { slot: DocumentSlot; text: string } | null;
   revision: number; intent: ReviewOperation | null; error: ErrorKind | null;
   inspectAfterReclaim?: boolean;
+  inspections?: Partial<Record<DocumentSlot, InspectionConfirmation>>;
 }
 export const reviewDirty = (buffer: ReviewBuffer) => !!buffer.note || !!buffer.replacement || !!buffer.intent
 
@@ -56,6 +57,23 @@ export function ReviewWorkspace({ demo, datasetId, view, language, retained, rem
   const stale = buffer.revision !== view.sharedRevision && (reviewDirty(buffer) || buffer.inspectAfterReclaim)
   const blocked = busy || !!buffer.intent || stale
   const canReview = !blocked && !buffer.replacement
+  const inspectionFor = (slot: DocumentSlot) => {
+    const confirmation = buffer.inspections?.[slot]
+    return confirmation?.contextToken === view.inspectionContexts[slot] ? confirmation : undefined
+  }
+  const confirmInspection = (slot: DocumentSlot, kind: InspectionConfirmation['kind'], checked: boolean) => {
+    const contextToken = view.inspectionContexts[slot]
+    if (!contextToken || blocked) return
+    buffer.inspections ??= {}
+    if (!checked) delete buffer.inspections[slot]
+    else buffer.inspections[slot] = kind === 'inspected' ? { kind, contextToken, confirmed: true } : { kind, contextToken }
+    update()
+  }
+  useEffect(() => {
+    for (const slot of Object.keys(buffer.inspections ?? {}) as DocumentSlot[]) {
+      if (buffer.inspections![slot]?.contextToken !== view.inspectionContexts[slot]) delete buffer.inspections![slot]
+    }
+  }, [view.inspectionContexts])
   const completed = (command: ReviewOperation) => {
     if (command.kind === 'saveNote' && buffer.note === command.text.ar) buffer.note = ''
     if (command.kind === 'assessDocument' && command.status === 'needsReplacement' && buffer.replacement?.slot === command.slot && buffer.replacement.text === command.reason?.ar) buffer.replacement = null
@@ -133,12 +151,17 @@ export function ReviewWorkspace({ demo, datasetId, view, language, retained, rem
           <h3 id={`document-${document.slot}`}>{documentLabel(document.slot, view.product)[language]}</h3>{baseline && document.file && baseline.documents[document.slot] !== document.file.id && <p className="status">{t(baseline.documents[document.slot] ? 'replaced' : 'added')}</p>}
           <p>{document.file ? <><bdi dir="ltr" className="wrap-anywhere">{document.file.name}</bdi><br /><bdi>{document.file.mime} · {document.file.size} B</bdi><br />{text.included[language]}</> : text.missing[language]}</p>
           <p>{outcomes[view.assessments![document.slot].status][language]}{view.assessments![document.slot].reason && <span> · {view.assessments![document.slot].reason![language]}</span>}</p>
+          {document.file && view.permissions.assessDocument && <>
+            <p id={`inspection-help-${document.slot}`} role="status" aria-live="polite">{t(inspectionFor(document.slot)?.kind === 'inspected' ? 'inspectionConfirmed' : inspectionFor(document.slot)?.kind === 'unableToOpen' ? 'unableHelp' : 'inspectionRequired')}</p>
+            <label className="mb-3 flex items-start gap-2"><input type="checkbox" checked={inspectionFor(document.slot)?.kind === 'inspected'} disabled={blocked} aria-describedby={`inspection-help-${document.slot}`} onChange={event => confirmInspection(document.slot, 'inspected', event.target.checked)} />{t('confirmInspection')}</label>
+          </>}
           {document.file && <div className="actions"><button className="secondary" onClick={() => setPreview(document.file!.id)}>{language === 'ar' ? 'معاينة' : 'Preview'} {documentLabel(document.slot, view.product)[language]}</button>
-            {view.permissions.assessDocument && <><button aria-disabled={!canReview} onClick={() => { if (canReview) void run({ ...base(), kind: 'assessDocument', slot: document.slot, fileId: document.file!.id, status: 'accepted', reason: null }) }}>{t('accept')}</button>
+            {view.permissions.assessDocument && <><button aria-disabled={!canReview || inspectionFor(document.slot)?.kind !== 'inspected'} onClick={() => { const inspection = inspectionFor(document.slot); if (canReview && inspection?.kind === 'inspected') void run({ ...base(), kind: 'assessDocument', slot: document.slot, fileId: document.file!.id, status: 'accepted', reason: null, inspection }) }}>{t('accept')}</button>
               <button className="secondary" aria-disabled={!canReview} onClick={event => { if (canReview) { replacementTrigger.current = event.currentTarget; buffer.replacement = { slot: document.slot, text: '' }; update() } }}>{t('replace')}</button></>}
           </div>}
           {buffer.replacement?.slot === document.slot && <div className="mt-4"><label className="mb-1.5 block font-semibold" htmlFor="replacement-reason">{t('reason')}</label><textarea className="review-textarea" id="replacement-reason" value={buffer.replacement.text} disabled={busy} readOnly={!view.permissions.assessDocument} onChange={event => { buffer.replacement!.text = event.target.value; update() }} />
-            <div className="actions"><button disabled={!view.permissions.assessDocument} aria-disabled={blocked || !buffer.replacement.text.trim()} onClick={() => { if (!blocked && view.permissions.assessDocument && buffer.replacement!.text.trim()) void run({ ...base(), kind: 'assessDocument', slot: document.slot, fileId: document.file!.id, status: 'needsReplacement', reason: { ar: buffer.replacement!.text, en: buffer.replacement!.text } }) }}>{t('saveAssessment')}</button><button className="secondary" disabled={busy || !!buffer.intent} onClick={() => { buffer.replacement = null; update(); replacementTrigger.current?.focus() }}>{t('cancel')}</button></div>
+            <label className="mt-3 flex items-start gap-2"><input type="checkbox" checked={inspectionFor(document.slot)?.kind === 'unableToOpen'} disabled={blocked || !view.permissions.assessDocument} aria-describedby={`inspection-help-${document.slot}`} onChange={event => confirmInspection(document.slot, 'unableToOpen', event.target.checked)} />{t('unableToOpen')}</label>
+            <div className="actions"><button disabled={!view.permissions.assessDocument} aria-disabled={blocked || !buffer.replacement.text.trim() || !inspectionFor(document.slot)} onClick={() => { const inspection = inspectionFor(document.slot); if (!blocked && view.permissions.assessDocument && buffer.replacement!.text.trim() && inspection) void run({ ...base(), kind: 'assessDocument', slot: document.slot, fileId: document.file!.id, status: 'needsReplacement', reason: { ar: buffer.replacement!.text, en: buffer.replacement!.text }, inspection }) }}>{t('saveAssessment')}</button><button className="secondary" disabled={busy || !!buffer.intent} onClick={() => { buffer.replacement = null; update(); replacementTrigger.current?.focus() }}>{t('cancel')}</button></div>
           </div>}
         </section>)}</section>
         <PublicCorrections record={view} language={language} preview={{ demo, applicationId: view.id }} />

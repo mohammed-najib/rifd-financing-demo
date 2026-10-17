@@ -53,6 +53,7 @@ for (const language of ['ar', 'en'] as const) test(`${language} missing evidence
   await page.bringToFront()
   await expect(financial.getByRole('button', { name: ar ? 'قبول المستند' : 'Accept document', exact: true })).toBeVisible({ timeout: 30_000 })
   await expect(financial).toContainText(ar ? 'بانتظار التقييم' : 'Awaiting review')
+  await financial.getByRole('checkbox', { name: ar ? 'أؤكد أنني فحصت المستند الحالي' : 'I confirm I inspected the current source', exact: true }).check()
   await financial.getByRole('button', { name: ar ? 'قبول المستند' : 'Accept document', exact: true }).click()
   const verification = page.getByRole('heading', { name: ar ? 'التحقق من التصحيحات' : 'Correction verification', exact: true }).locator('..')
   await expect(verification.getByText(ar ? 'تم التحقق' : 'Verified', { exact: true })).toHaveCount(1)

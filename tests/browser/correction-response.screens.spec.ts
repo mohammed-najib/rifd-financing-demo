@@ -234,7 +234,7 @@ test('a clean retained buffer cannot prevent opening a newer current correction 
   await expect(other).toHaveURL(/\/applications\/RIFD-2026-004$/)
   await other.getByRole('button', { name: 'Switch identity', exact: true }).click()
   await other.getByRole('button', { name: 'Salma Nasser', exact: true }).click()
-  await expect(other).toHaveURL(/\/staff\/applications$/)
+  await expect(other).toHaveURL(url => url.pathname === '/staff/applications')
   await other.goto('/staff/applications/RIFD-2026-004/correction-request')
   await other.getByRole('checkbox', { name: 'Financing amount', exact: true }).check()
   await other.getByRole('textbox', { name: 'Correction reason: Financing amount', exact: true }).fill('Inspect the amount again in this fresh round.')

@@ -26,6 +26,33 @@ async function response(page: Page, id = 'RIFD-2026-004') {
   }, id)
 }
 
+test('publishing changed details and source invalidates inspection of both changed and unchanged documents', async ({ page }) => {
+  const { command } = await response(page)
+  const result = await page.evaluate(async command => {
+    const demo = window.demo
+    await demo.signIn('salma')
+    const before = await demo.readApplication(command.applicationId)
+    if (!before.ok || before.value.role !== 'reviewer') throw new Error('No review')
+    await demo.signIn('huda')
+    const published = await demo.execute(command)
+    if (!published.ok) throw new Error('No resubmission')
+    await demo.signIn('salma')
+    const current = await demo.readApplication(command.applicationId)
+    if (!current.ok || current.value.role !== 'reviewer') throw new Error('No current review')
+    const refusals = []
+    for (const slot of ['identity', 'purchase'] as const) refusals.push(await demo.execute({ kind: 'assessDocument', datasetId: command.datasetId, applicationId: command.applicationId, expectedSharedRevision: current.value.sharedRevision, operationId: `old-${slot}`, slot, fileId: current.value.snapshot.documents[slot]!, status: 'accepted', reason: null, inspection: { kind: 'inspected', confirmed: true, contextToken: before.value.inspectionContexts[slot]! } }))
+    const unchanged = await demo.readApplication(command.applicationId)
+    const renewed = await demo.execute({ kind: 'assessDocument', datasetId: command.datasetId, applicationId: command.applicationId, expectedSharedRevision: current.value.sharedRevision, operationId: 'fresh-purchase', slot: 'purchase', fileId: current.value.snapshot.documents.purchase!, status: 'accepted', reason: null, inspection: { kind: 'inspected', confirmed: true, contextToken: current.value.inspectionContexts.purchase! } })
+    return { before: before.value, current: current.value, refusals, unchanged, renewed }
+  }, command)
+  expect(result.current.snapshot.fields.amount).toBe('450000')
+  expect(result.current.snapshot.documents.identity).toBe(result.before.snapshot.documents.identity)
+  expect(result.current.documents.find(document => document.slot === 'purchase')!.file!.hash).not.toBe(result.before.documents.find(document => document.slot === 'purchase')!.file!.hash)
+  for (const refusal of result.refusals) expect(refusal).toMatchObject({ error: { kind: 'validation' } })
+  expect(result.unchanged).toEqual({ ok: true, value: result.current })
+  expect(result.renewed.ok).toBe(true)
+})
+
 test('publishes Huda’s complete response once, preserves review context and resets exactly four dependent checks', async ({ page, context }) => {
   const setup = await response(page)
   await page.evaluate(refuseCommitNotices)
@@ -64,9 +91,9 @@ test('field verification is separate from accepting evidence and a later round s
     const unrequested = await review({ kind: 'verifyCorrection', roundId: command.roundId, field: 'mobile', verified: true })
     const verified = await review({ kind: 'verifyCorrection', roundId: command.roundId, field: 'amount', verified: true })
     const fileId = (await read()).snapshot.documents.purchase!
-    await review({ kind: 'assessDocument', slot: 'purchase', fileId, status: 'accepted', reason: null })
+    await review({ kind: 'assessDocument', slot: 'purchase', fileId, inspection: { kind: 'inspected', confirmed: true, contextToken: (await read()).inspectionContexts.purchase! }, status: 'accepted', reason: null })
     const accepted = await read()
-    await review({ kind: 'assessDocument', slot: 'purchase', fileId, status: 'needsReplacement', reason: { ar: 'مستند غير مناسب', en: 'Still unsuitable evidence' } })
+    await review({ kind: 'assessDocument', slot: 'purchase', fileId, inspection: { kind: 'inspected', confirmed: true, contextToken: (await read()).inspectionContexts.purchase! }, status: 'needsReplacement', reason: { ar: 'مستند غير مناسب', en: 'Still unsuitable evidence' } })
     const insufficient = await read()
     await review({ kind: 'requestCorrections', confirmed: true, targets: [{ kind: 'document', slot: 'purchase', reason: { ar: 'أضف تفاصيل', en: 'Include purchase details' } }] })
     const next = await read()
@@ -79,7 +106,7 @@ test('field verification is separate from accepting evidence and a later round s
     if (!prepared.ok) throw new Error('No file')
     const published = await demo.execute({ ...command, operationId: 'second-resubmit', roundId: workspace.roundId!, expectedSharedRevision: own.value.sharedRevision, expectedWorkspaceRevision: workspace.revision, fields: workspace.snapshot.fields, documents: { ...command.documents, purchase: { kind: 'prepared', attachment: prepared.value } } })
     await demo.signIn('salma')
-    await review({ kind: 'assessDocument', slot: 'purchase', fileId: prepared.value.id, status: 'accepted', reason: null })
+    await review({ kind: 'assessDocument', slot: 'purchase', fileId: prepared.value.id, inspection: { kind: 'inspected', confirmed: true, contextToken: (await read()).inspectionContexts.purchase! }, status: 'accepted', reason: null })
     return { unrequested, verified, accepted, insufficient, next, paused, published, final: await read(), applicant: own.value }
   }, command)
   expect(result.unrequested).toMatchObject({ error: { kind: 'validation' } })

@@ -160,7 +160,7 @@ test('request rollback, uncertain completion and replay never duplicate rounds, 
     const blocked = [
       await demo.execute({ ...command, ...base, operationId: 'second-request' }),
       await demo.execute({ ...base, kind: 'recordCheck', operationId: 'paused-check', check: 'purpose', outcome: 'failed' }),
-      await demo.execute({ ...base, kind: 'assessDocument', operationId: 'paused-assessment', slot: 'identity', fileId: view.value.snapshot.documents.identity!, status: 'accepted', reason: null }),
+      await demo.execute({ ...base, kind: 'assessDocument', operationId: 'paused-assessment', slot: 'identity', fileId: view.value.snapshot.documents.identity!, inspection: { kind: 'inspected', confirmed: true, contextToken: view.value.role === 'reviewer' ? view.value.inspectionContexts.identity! : 'unavailable' }, status: 'accepted', reason: null }),
     ]
     const note = await demo.execute({ ...base, kind: 'saveNote', operationId: 'permitted-note', text: { ar: 'ملاحظة خاصة.', en: 'Private pending context.' } })
     await demo.signIn('mariam')

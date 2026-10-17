@@ -84,7 +84,11 @@ try {
   await scene(4, 'claim', 7, 'الاستلام لا يبدأ المراجعة', 'Claiming preserves Submitted status', 'سلمى / Salma', '001', async () => { await go('/staff/applications/RIFD-2026-001'); await b('استلام الطلب').click(); await expect(b('بدء المراجعة')).toBeEnabled() })
   await scene(4, 'start-review', 7, 'بدء المراجعة فعل مستقل', 'Start review is a separate explicit action', 'سلمى / Salma', '001', async () => { await b('بدء المراجعة').click(); await expect(b('قبول المستند').first()).toBeVisible() })
   // Prepare approval through the actual review controls, retained in the long take.
-  for (const label of ['إثبات هوية المتقدم', 'إثبات النشاط التجاري', 'ملخص الإيرادات والمصروفات', 'خطة شراء المخزون']) await page.getByRole('region', { name: label, exact: true }).getByRole('button', { name: 'قبول المستند', exact: true }).click()
+  for (const label of ['إثبات هوية المتقدم', 'إثبات النشاط التجاري', 'ملخص الإيرادات والمصروفات', 'خطة شراء المخزون']) {
+    const document = page.getByRole('region', { name: label, exact: true })
+    await document.getByRole('checkbox', { name: 'أؤكد أنني فحصت المستند الحالي', exact: true }).check()
+    await document.getByRole('button', { name: 'قبول المستند', exact: true }).click()
+  }
   await passChecks(['اتساق المستندات والبيانات', 'مدة مزاولة النشاط', 'ملاءمة الغرض لمنتج التمويل', 'توافق مبلغ التمويل مع تكلفة الشراء', 'القدرة التوضيحية على السداد'])
   await scene(5, 'internal-note', 4, 'ملاحظات داخلية محفوظة لا تظهر للمتقدم', 'Saved internal notes stay private to staff', 'سلمى / Salma', '007', async () => {
     await go('/staff/applications/RIFD-2026-007'); await page.getByLabel('ملاحظة داخلية', { exact: true }).fill('ملاحظة داخلية تجريبية لا تظهر للمتقدم.'); await b('حفظ الملاحظة').click(); await expect(page.getByText('ملاحظة داخلية تجريبية لا تظهر للمتقدم.', { exact: true })).toBeVisible()
@@ -102,7 +106,7 @@ try {
   await scene(5, 'resubmit', 7, 'نشر التغييرات المطلوبة معا', 'Resubmission publishes all requested changes together', 'هدى / Huda', '004', async () => { await editor.getByRole('button', { name: 'إعادة تقديم التصحيحات', exact: true }).click(); await expect(page.getByRole('status').filter({ hasText: 'أُعيد تقديم التصحيحات' })).toBeVisible() })
   await switchTo('سلمى ناصر')
   await scene(5, 'changed-targets', 8, 'تغير المبلغ والملف عن المرجع الثابت', 'Changed amount and plan are compared with the fixed baseline', 'سلمى / Salma', '004', async () => { await go('/staff/applications/RIFD-2026-004'); const heading = page.getByRole('heading', { name: 'التحقق من التصحيحات', exact: true }); await heading.scrollIntoViewIfNeeded(); await expect(heading.locator('..')).toContainText('تغير عن المرجع') })
-  await scene(5, 'rechecks', 6, 'تحقق من التغييرات ثم أعد الفحوص التابعة', 'Verify the changes, then repeat the affected checks', 'سلمى / Salma', '004', async () => { await b('التحقق من تغيير الحقل').click(); await page.getByRole('region', { name: 'خطة شراء المخزون', exact: true }).getByRole('button', { name: 'قبول المستند', exact: true }).click(); await passChecks(['اتساق المستندات والبيانات', 'ملاءمة الغرض لمنتج التمويل', 'توافق مبلغ التمويل مع تكلفة الشراء', 'القدرة التوضيحية على السداد']) })
+  await scene(5, 'rechecks', 6, 'تحقق من التغييرات ثم أعد الفحوص التابعة', 'Verify the changes, then repeat the affected checks', 'سلمى / Salma', '004', async () => { await b('التحقق من تغيير الحقل').click(); await page.getByRole('region', { name: 'خطة شراء المخزون', exact: true }).getByRole('checkbox', { name: 'أؤكد أنني فحصت المستند الحالي', exact: true }).check(); await page.getByRole('region', { name: 'خطة شراء المخزون', exact: true }).getByRole('button', { name: 'قبول المستند', exact: true }).click(); await passChecks(['اتساق المستندات والبيانات', 'ملاءمة الغرض لمنتج التمويل', 'توافق مبلغ التمويل مع تكلفة الشراء', 'القدرة التوضيحية على السداد']) })
   await go('/staff/applications/RIFD-2026-001/decision')
   const reason = page.getByLabel('سبب القرار الظاهر للمتقدم', { exact: true })
   await reason.fill('استوفى الطلب جميع المعايير المطلوبة.')

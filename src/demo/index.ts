@@ -10,6 +10,7 @@ import { prepareSeed } from './seed'
 import { DemoError, openStorage, readStored, transact, validateDataset } from './storage'
 import { projectQueue } from './queue'
 import { applyReviewCommand, validateReviewCommand } from './review'
+import { inspectionContext } from './inspection'
 import { activeCorrection, correctionDocument, validateCorrectionSave, validateResubmission } from './corrections'
 import type { ApplicantView, ApplicationMutation, ApplicationOperation, ApplicationView, CommitHint, Context, Controls, Demo, ErrorKind, LanguageOperation, MutationResult, NotificationReadOperation, NotificationReadResult, PreferenceOperation, PreparedAttachment, QueuePreferenceOperation, Result, ReviewOperation, SaveCorrectionsOperation, SaveDraftOperation, Session, SubmitOperation, ResubmitOperation } from './types'
 export type { ApplicationOperation, ApplicationSummary, ApplicationView, CommitHint, Context, Controls, Demo, DemoOperation, DraftDocuments, ErrorKind, LanguageOperation, MutationResult, NotificationDestination, NotificationReadOperation, NotificationReadResult, OperationInspection, PreferenceInspection, PreferenceOperation, PreparedAttachment, Preparation, PrintSummary, QueuePreferenceOperation, QueueQuery, StaffQueue, Result, ReviewOperation, SaveCorrectionsOperation, SaveDraftOperation, SubmitOperation, ResubmitOperation, ResetContext, ResetOperation, ResetResult, ResetInspection } from './types'
@@ -205,7 +206,7 @@ export function createDemo(): Demo {
       }),
     }
     return who === 'salma'
-      ? { ...common, role: 'reviewer', rounds: application.rounds, assignment: data.identities.find(identity => identity.id === application.assignee)?.name ?? null, assignedToYou: application.assignee === who, permissions: reviewPermissions(who, application), assessments: application.assessments, checks: application.checks, notes: application.notes, activity: application.activity }
+      ? { ...common, role: 'reviewer', inspectionContexts: Object.fromEntries(slots.map(slot => [slot, inspectionContext(data, who, application, slot)])) as Record<typeof slots[number], string | null>, rounds: application.rounds, assignment: data.identities.find(identity => identity.id === application.assignee)?.name ?? null, assignedToYou: application.assignee === who, permissions: reviewPermissions(who, application), assessments: application.assessments, checks: application.checks, notes: application.notes, activity: application.activity }
       : {
         ...common, role: 'applicant', workspace: application.workspace,
         workspaceDocuments: slots.map(slot => {
@@ -229,7 +230,7 @@ export function createDemo(): Demo {
     if (!prepared || prepared.actor !== who || prepared.datasetId !== datasetId || prepared.file.applicationId !== id || prepared.file.slot !== slot || JSON.stringify(reference) !== JSON.stringify(prepared.reference)) throw new DemoError('validation', slot as StoredFile['slot'])
     return prepared.file
   }
-  const applicationReceipt = (data: Dataset, who: ActorId, operation: ApplicationMutation) => {
+  const applicationReceipt = (data: Dataset, who: ActorId, operation: ApplicationMutation | z.infer<typeof reviewOperationSchema>) => {
     const receipt = data.mutationReceipts.find(receipt => receipt.actor === who && receipt.operationId === operation.operationId)
     if (data.receipts.some(receipt => receipt.actor === who && receipt.operationId === operation.operationId) || receipt && receipt.fingerprint !== applicationFingerprint(operation)) throw new DemoError('identifierMisuse')
     return receipt
@@ -303,6 +304,7 @@ export function createDemo(): Demo {
         if (application.sharedRevision !== command.expectedSharedRevision) throw new DemoError('staleRecord')
         if (who !== 'salma' || ['startReview', 'assessDocument', 'recordCheck', 'saveNote', 'requestCorrections', 'verifyCorrection', 'approve', 'reject'].includes(command.kind) && application.assignee !== who) throw new DemoError('permissionDenied')
         if (!reviewPermissions(who, application)[command.kind]) throw new DemoError('invalidState')
+        if (command.kind === 'assessDocument' && (!command.inspection || command.inspection.contextToken !== inspectionContext(current, who, application, command.slot))) throw new DemoError('validation')
         if (command.kind === 'transferApplication') {
           if (application.assignee !== command.from || command.from === command.to) throw new DemoError('invalidState')
           if (command.simulated && (application.status !== 'underReview' || command.from !== 'salma' || command.to !== 'khaled')) throw new DemoError('invalidState')

@@ -165,6 +165,7 @@ for (const language of ['ar', 'en'] as const) test(`${language} first submission
   await page.getByRole('button', { name: ar ? 'استلام الطلب' : 'Claim application', exact: true }).click()
   await page.getByRole('button', { name: ar ? 'بدء المراجعة' : 'Start review', exact: true }).click()
   for (const label of ar ? ['إثبات هوية المتقدم', 'إثبات النشاط التجاري', 'ملخص الإيرادات والمصروفات', 'خطة شراء المخزون'] : ['Applicant identity evidence', 'Business evidence', 'Revenue and expense summary', 'Stock purchase plan']) {
+    await page.getByRole('region', { name: label, exact: true }).getByRole('checkbox', { name: ar ? 'أؤكد أنني فحصت المستند الحالي' : 'I confirm I inspected the current source', exact: true }).check()
     await page.getByRole('region', { name: label, exact: true }).getByRole('button', { name: ar ? 'قبول المستند' : 'Accept document', exact: true }).click()
   }
   for (const label of ar ? ['اتساق المستندات والبيانات', 'مدة مزاولة النشاط', 'ملاءمة الغرض لمنتج التمويل', 'توافق مبلغ التمويل مع تكلفة الشراء', 'القدرة التوضيحية على السداد'] : ['Evidence consistency', 'Operating history', 'Product purpose fit', 'Purchase budget coverage', 'Repayment capacity']) {

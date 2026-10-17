@@ -24,7 +24,7 @@ async function ready(page: Page, id = 'RIFD-2026-007') {
     }
     if (!view.assignedToYou) await run({ kind: 'claimApplication' })
     if (view.status === 'submitted') await run({ kind: 'startReview' })
-    for (const document of view.documents) await run({ kind: 'assessDocument', slot: document.slot, fileId: document.file?.id, status: 'accepted', reason: null })
+    for (const document of view.documents) await run({ kind: 'assessDocument', slot: document.slot, fileId: document.file?.id, inspection: { kind: 'inspected', confirmed: true, contextToken: view.inspectionContexts[document.slot]! }, status: 'accepted', reason: null })
     for (const check of ['evidence', 'operatingHistory', 'purpose', 'budget', 'capacity']) await run({ kind: 'recordCheck', check, outcome: 'passed' })
     return { view, command: { kind: 'approve' as const, datasetId: context.value.datasetId, applicationId: id, operationId: 'decision', expectedSharedRevision: view.sharedRevision, confirmed: true as const, confirmationSessionId: context.value.session.sessionId, reason: { ar: 'استوفى الطلب معايير التمويل.', en: 'The application meets the financing criteria.' } } }
   }, id)
@@ -255,7 +255,7 @@ for (const kind of ['approve', 'reject'] as const) test(`${kind} rollback, unkno
     if (!replay.ok || replay.value.application.role !== 'reviewer') throw new Error('No outcome')
     const view = replay.value.application
     const base = { datasetId: command.datasetId, applicationId: view.id, expectedSharedRevision: view.sharedRevision, operationId: 'locked' }
-    const edits: Record<string, unknown>[] = [{ kind: 'recordCheck', check: 'purpose', outcome: 'passed' }, { kind: 'assessDocument', slot: 'identity', fileId: view.snapshot.documents.identity, status: 'accepted', reason: null }, { kind: 'verifyCorrection', roundId: 'old', field: 'amount', verified: true }, { kind: 'transferApplication', from: 'salma', to: 'khaled', confirmed: true }, { kind: 'unassignApplication' }, { ...command, operationId: 'new-final', expectedSharedRevision: view.sharedRevision }, { kind: 'requestCorrections', targets: [{ kind: 'field', field: 'amount', reason: command.reason }], confirmed: true }]
+    const edits: Record<string, unknown>[] = [{ kind: 'recordCheck', check: 'purpose', outcome: 'passed' }, { kind: 'assessDocument', slot: 'identity', fileId: view.snapshot.documents.identity, inspection: { kind: 'inspected', confirmed: true, contextToken: view.inspectionContexts.identity! }, status: 'accepted', reason: null }, { kind: 'verifyCorrection', roundId: 'old', field: 'amount', verified: true }, { kind: 'transferApplication', from: 'salma', to: 'khaled', confirmed: true }, { kind: 'unassignApplication' }, { ...command, operationId: 'new-final', expectedSharedRevision: view.sharedRevision }, { kind: 'requestCorrections', targets: [{ kind: 'field', field: 'amount', reason: command.reason }], confirmed: true }]
     const refused = []
     for (const edit of edits) refused.push(await demo.execute({ ...base, ...edit } as ReviewOperation))
     const note = await demo.execute({ ...base, kind: 'saveNote', operationId: 'final-note', text: { ar: 'ملاحظة خاصة بعد القرار', en: 'Private note after the decision' } })
@@ -294,11 +294,11 @@ test('every document and check can block approval, and evidence failure alone ne
       await edit({ kind: 'recordCheck', check, outcome: 'passed' })
     }
     const view = await demo.readApplication(command.applicationId)
-    if (!view.ok) throw new Error('No review')
+    if (!view.ok || view.value.role !== 'reviewer') throw new Error('No review')
     for (const slot of ['identity', 'business', 'financial', 'purchase'] as const) {
-      await edit({ kind: 'assessDocument', slot, fileId: view.value.snapshot.documents[slot], status: 'needsReplacement', reason: command.reason })
+      await edit({ kind: 'assessDocument', slot, fileId: view.value.snapshot.documents[slot], inspection: { kind: 'inspected', confirmed: true, contextToken: view.value.inspectionContexts[slot]! }, status: 'needsReplacement', reason: command.reason })
       decisions.push(await demo.execute({ ...command, expectedSharedRevision: revision }))
-      await edit({ kind: 'assessDocument', slot, fileId: view.value.snapshot.documents[slot], status: 'accepted', reason: null })
+      await edit({ kind: 'assessDocument', slot, fileId: view.value.snapshot.documents[slot], inspection: { kind: 'inspected', confirmed: true, contextToken: view.value.inspectionContexts[slot]! }, status: 'accepted', reason: null })
     }
     await edit({ kind: 'recordCheck', check: 'evidence', outcome: 'failed' })
     const rejected = await demo.execute({ ...command, kind: 'reject', expectedSharedRevision: revision })
