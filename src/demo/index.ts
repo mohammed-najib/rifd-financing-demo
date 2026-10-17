@@ -2,7 +2,7 @@ import { z } from 'zod'
 import { canReadApplication, changedReviewChecks, domainDate, emptyDocuments, initialEvidenceMonths, foldDigits, freezeRepayment, parseWholeYER, products, reviewPermissions, submissionMonth, validateFields, validateFileEnvelope } from '../domain'
 import { actorIdSchema, fieldsSchema, productIdSchema, slots, type ActorId, type Application, type Dataset, type Fields, type StoredFile } from '../domain/model'
 import { fileFromBytes, makeFile, prepareFonts, yieldToInput } from './evidence'
-import { applicationMutationSchema, applicationOperationSchema, commitHintSchema, applicationFingerprint, notificationReadSchema, preferenceOperationSchema, preparationSchema, reviewOperationSchema, resetOperationSchema } from './commands'
+import { applicationMutationSchema, applicationOperationSchema, commitHintSchema, applicationFingerprint, notificationReadSchema, preferenceOperationSchema, preparationSchema, preparedSchema, reviewOperationSchema, resetOperationSchema } from './commands'
 import type { ResetOperation, ResetResult } from './types'
 import { createResetStorage } from './reset'
 import { identities } from './seed-manifest'
@@ -13,6 +13,8 @@ import { applyReviewCommand, validateReviewCommand } from './review'
 import { inspectionContext } from './inspection'
 import { hashBytes, matchesSavedContext, openSavedExample, savedExamples, type SavedSelection } from './saved-demonstrations'
 import { activeCorrection, correctionDocument, validateCorrectionFields, validateCorrectionSave, validateResubmission } from './corrections'
+import { createAssistance } from '../evidence-assistance/controller'
+import type { EvidenceInput, EvidenceTransport, SelectedEvidence } from '../evidence-assistance/contract'
 import type { ApplicantView, ApplicationMutation, ApplicationOperation, ApplicationView, CommitHint, Context, Controls, Demo, ErrorKind, LanguageOperation, MutationResult, NotificationReadOperation, NotificationReadResult, PreferenceOperation, PreparedAttachment, QueuePreferenceOperation, Result, ReviewOperation, SaveCorrectionsOperation, SaveDraftOperation, Session, SubmitOperation, ResubmitOperation } from './types'
 export type { ApplicationOperation, ApplicationSummary, ApplicationView, CommitHint, Context, Controls, Demo, DemoOperation, DraftDocuments, ErrorKind, LanguageOperation, MutationResult, NotificationDestination, NotificationReadOperation, NotificationReadResult, OperationInspection, PreferenceInspection, PreferenceOperation, PreparedAttachment, Preparation, PrintSummary, QueuePreferenceOperation, QueueQuery, StaffQueue, Result, ReviewOperation, SaveCorrectionsOperation, SaveDraftOperation, SubmitOperation, ResubmitOperation, ResetContext, ResetOperation, ResetResult, ResetInspection } from './types'
 
@@ -24,7 +26,7 @@ const success = <T>(value: T): Result<T> => ({ ok: true, value })
 const failure = <T>(kind: ErrorKind): Result<T> => ({ ok: false, error: { kind, key: `error.${kind}` } })
 
 // Construction has no browser side effects. startup is called only after client mounting.
-export function createDemo(): Demo {
+export function createDemo(options: { evidenceTransport?: EvidenceTransport } = {}): Demo {
   let db: IDBDatabase | null = null
   let datasetId: string | null = null
   let session: Session | null = null
@@ -35,10 +37,13 @@ export function createDemo(): Demo {
   let storageFailure: ErrorKind | null = 'startup'
   let listening = false
   const subscribers = new Set<(session: Session | null) => void>()
+  const assistance = new Set<ReturnType<typeof createAssistance>>()
+  const invalidateAssistance = () => { for (const handle of assistance) handle.invalidate('unauthorized') }
   const newDrafts = new Map<string, Application>()
   let controls: Controls = { slow: false, failure: null }
   const resetStorage = createResetStorage()
   const acceptDataset = (id: string) => {
+    invalidateAssistance()
     newDrafts.clear(); preparations.clear(); selections.clear(); resetStorage.clear()
     controls = { slow: false, failure: null }
     datasetId = id; session = null; generation++; armExpiry()
@@ -52,8 +57,12 @@ export function createDemo(): Demo {
   }
   const preparations = new Map<string, { actor: ActorId; datasetId: string; file: StoredFile; product: Application['product']; reference: PreparedAttachment }>()
   const selections = new Map<string, { token: string; status: 'preparing' | 'ready' | 'failed'; attachmentId?: string }>()
-  const emit = () => { for (const listener of subscribers) { try { listener(session ? { ...session } : null) } catch { /* Observers cannot change committed outcomes. */ } } }
+  const emit = () => {
+    for (const handle of assistance) void handle.revalidate()
+    for (const listener of subscribers) { try { listener(session ? { ...session } : null) } catch { /* Observers cannot change committed outcomes. */ } }
+  }
   const loseStorage = (kind: ErrorKind) => {
+    invalidateAssistance()
     storageFailure = kind
     db?.close(); db = null
     session = null; generation++; armExpiry(); emit()
@@ -73,6 +82,7 @@ export function createDemo(): Demo {
     }
   }
   const writeSession = (next: Session | null) => {
+    invalidateAssistance()
     try { if (next) sessionStorage.setItem(sessionKey, JSON.stringify(next)); else sessionStorage.removeItem(sessionKey) }
     catch { loseStorage('storage'); throw new DemoError('storage') }
     session = next
@@ -547,6 +557,54 @@ export function createDemo(): Demo {
     }
   }).sort((a, b) => (b.submittedAt ?? '').localeCompare(a.submittedAt ?? '') || a.id.localeCompare(b.id))
   return {
+    createEvidenceAssistance: input => {
+      const selectedInput: EvidenceInput = structuredClone(input)
+      const captured = generation
+      const who = session?.identity
+      const schema = z.object({ action: z.literal('check-document'), applicationId: z.string().min(1), slot: z.literal('identity'), audience: z.literal('applicant'), context: z.literal('draft'), fileId: z.string().nullable().optional(), attachment: preparedSchema.optional(), declaredName: z.string().optional() }).strict()
+      const resolve = (): Promise<Result<SelectedEvidence>> => attempt(async () => {
+        const parsed = schema.safeParse(selectedInput)
+        if (!parsed.success) throw new DemoError('validation')
+        const command = parsed.data
+        const data = await read()
+        if (!who) throw new DemoError('sessionExpired')
+        authority(captured, who, data.meta.datasetId, data)
+        const application = editable(data, who, command.applicationId)
+        if (application.owner !== who || application.status !== 'draft' || !application.workspace) throw new DemoError('unavailable')
+        const snapshot = application.workspace.snapshot
+        let file: StoredFile | undefined
+        let selectionToken: string | null = null
+        const active = selections.get(`${who}/${application.id}/identity`)
+        if (command.attachment) {
+          if (active?.status !== 'ready' || active.attachmentId !== command.attachment.id) throw new DemoError('supersededSelection')
+          selectionToken = active.token
+          file = preparedFile(who, application.id, 'identity', command.attachment)
+        } else {
+          const id = snapshot.documents.identity
+          if (!id || command.fileId !== undefined && command.fileId !== id || active && (active.status !== 'ready' || active.attachmentId !== id)) throw new DemoError('supersededSelection')
+          file = data.files.find(file => file.id === id && file.applicationId === application.id && file.slot === 'identity')
+        }
+        if (!file) throw new DemoError('unavailable')
+        const name = command.declaredName ?? snapshot.fields.fullName
+        const length = name.trim().length > 200 ? 101 : [...name.trim()].length
+        const declaration: SelectedEvidence['declaration'] = { fullName: length >= 2 && length <= 100 ? name : null, status: !length ? 'missing' : length < 2 || length > 100 ? 'invalid' : 'valid' }
+        const source = { id: file.id, ...fileResult(file) }
+        const actualHash = await hashBytes(source.bytes)
+        const latest = await read()
+        authority(captured, who, data.meta.datasetId, latest)
+        const fresh = editable(latest, who, command.applicationId)
+        if (fresh.status !== application.status || fresh.workspace?.snapshot.fields.fullName !== snapshot.fields.fullName || fresh.workspace.snapshot.documents.identity !== snapshot.documents.identity || selections.get(`${who}/${application.id}/identity`)?.token !== active?.token) throw new DemoError('staleWorkspace')
+        if (actualHash !== file.hash) throw new DemoError('damaged')
+        return { source, declaration, binding: {
+          datasetId: data.meta.datasetId, applicationId: application.id, slot: command.slot, audience: command.audience, context: command.context,
+          authorityGeneration: captured, workspaceRevision: application.workspace.revision,
+          dependencyKey: JSON.stringify([data.meta.datasetId, application.id, application.status, file.id, actualHash, declaration, snapshot.fields.fullName, selectionToken, captured]),
+        } }
+      })
+      const handle = createAssistance(resolve, options.evidenceTransport, () => { assistance.delete(handle) })
+      assistance.add(handle)
+      return handle.api
+    },
     listSavedDemonstrations: async () => success(savedExamples()),
     selectSavedDemonstration: input => attempt(async () => {
       const selection: SavedSelection = structuredClone(input)
@@ -651,6 +709,7 @@ export function createDemo(): Demo {
       const key = `${who}/${command.applicationId}/${command.slot}`
       const token = crypto.randomUUID()
       selections.set(key, { token, status: 'preparing' })
+      for (const handle of assistance) void handle.revalidate()
       try {
         const data = await read()
         authority(captured, who, command.datasetId, data)
@@ -702,6 +761,7 @@ export function createDemo(): Demo {
     }),
     cancelPreparation: (id, slot) => {
       for (const key of selections.keys()) if (key.endsWith(`/${id}/${slot}`)) selections.delete(key)
+      for (const handle of assistance) void handle.revalidate()
     },
     readPrepared: (id, reference) => protectedRead((data, who) => {
       const application = editable(data, who, id)
@@ -852,6 +912,7 @@ export function createDemo(): Demo {
     }),
     subscribe(listener) { subscribers.add(listener); return () => { subscribers.delete(listener) } },
     dispose() {
+      for (const handle of [...assistance]) handle.api.dispose()
       generation++
       if (timer) clearTimeout(timer)
       db?.close(); db = null; datasetId = null; startupPromise = null

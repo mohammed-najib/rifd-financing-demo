@@ -97,6 +97,7 @@ export type Preparation = {
 }
 export type Controls = { slow: boolean; failure: 'upload' | 'save' | 'submission' | 'storage' | null }
 export type Demo = {
+  createEvidenceAssistance(input: import('../evidence-assistance/contract').EvidenceInput): import('../evidence-assistance/contract').EvidenceAssistance;
   listSavedDemonstrations(): Promise<Result<import('./saved-demonstrations').SavedExample[]>>;
   selectSavedDemonstration(input: import('./saved-demonstrations').SavedSelection): Promise<Result<import('./saved-demonstrations').OpenedSavedDemonstration>>;
   inspectReset(): Promise<Result<ResetContext>>;

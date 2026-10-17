@@ -23,3 +23,28 @@ Committed data and language are shared within an origin/profile. Sessions are ta
 Tailwind CSS 4.3.3 compiles through its pinned Vite plugin. `src/ui/styles.css` declares Guided A tokens with `@theme`, local Noto WOFF2 fonts and explicit base styles. Source detection includes production `src` only. Preflight is omitted. Logical utilities support RTL/LTR, with custom compact/narrow boundaries at 1199/767px. The [styling contract](../README.md#styling), [migration comparison](implementation/tailwind-v4.md) and [measured release](implementation/22-evidence.md#final-results) document preserved appearance and generated asset sizes.
 
 The [acceptance checklist](acceptance/README.md) separates automated behavior, ordinary-browser manual work, print inspection, performance and hosted checks. Browser-only persistence, no real authentication or payment processing, and fresh-offline launch remain explicit limits.
+
+Draft identity assistance uses `Demo.createEvidenceAssistance`. The handle owns an
+explicit inspect/run/cancel lifecycle and temporary results. Authorized reads bind
+actual source bytes, declared-name context and authority/dependency generations.
+Completion rechecks those dependencies. Replacement, relevant edits, sign-out,
+reset and view disposal cannot publish late findings. Language changes do not run
+analysis. Assistance never writes financing data.
+
+`src/evidence-assistance` separates the shared contracts, fixed question/display
+policy, cancellable browser preparation and controller. Preparation uses one
+terminable worker for a complete PNG/JPEG or proven one-page PDF. PDF.js 5.4.296,
+its worker and resources are pinned together. Install/dev/build copy the matching
+resources into ignored `public/pdfjs`; production builds retain them as static
+assets. Source/raster hashes, orientation, padding and transforms accompany each
+result. The pinned JPEG decoder rejects truncated scans that browser decoding
+would repair silently. Incomplete, encrypted, oversized or multipage sources remain available
+through ordinary inspection but cannot produce one-page findings.
+
+The controller reserves the shape of a two-stage plan for later bound verification;
+this slice evaluates only the combined page/declaration stage. It retains native
+answers, distributions, fractional readability, usage and timestamps in provenance.
+Ordinary runtime has no provider transport and reports live analysis unavailable.
+Only test entry points inject deterministic or fake HTTP transports with dummy
+credentials. Separate analysis storage, service admission, native SDK integration
+and automatic highlights belong to subsequent tickets.
