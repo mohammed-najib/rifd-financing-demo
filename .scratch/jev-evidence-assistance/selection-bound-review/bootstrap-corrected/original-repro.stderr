@@ -1,0 +1,10 @@
+file:///tmp/jev-bootstrap-final-review-7xi0z12i/.scratch/worktrees/jev-bootstrap-binding/experiment/validation-controls/revision-loader.mjs:18
+ if(path.startsWith('..')||manifest.files[path]!==bootstrapSha256||actual!==bootstrapSha256)throw Error('Fixed bootstrap identity changed or absent');
+                                                                                                  ^
+
+Error: Fixed bootstrap identity changed or absent
+    at assertBootstrap (file:///tmp/jev-bootstrap-final-review-7xi0z12i/.scratch/worktrees/jev-bootstrap-binding/experiment/validation-controls/revision-loader.mjs:18:99)
+    at ReviewedOfflineRunner.adoptManifest (file:///tmp/jev-bootstrap-final-review-7xi0z12i/.scratch/worktrees/jev-bootstrap-binding/experiment/validation-controls/reviewed-runner.mjs:68:3)
+    at file:///tmp/jev-bootstrap-final-review-7xi0z12i/.scratch/worktrees/jev-bootstrap-binding/experiment/validation-controls/bootstrap-fixed-repro.mjs:21:10
+
+Node.js v26.7.0

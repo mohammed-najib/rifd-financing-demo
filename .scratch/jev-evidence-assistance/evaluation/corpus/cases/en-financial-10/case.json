@@ -1,0 +1,199 @@
+{
+  "id": "en-financial-10",
+  "sourceFamily": "en-financial-10",
+  "language": "en",
+  "slot": "financial",
+  "index": 10,
+  "kind": "unexpected_period",
+  "split": "evaluation",
+  "context": {
+    "slot": "financial",
+    "language": "en",
+    "product": null,
+    "initialSubmissionMonth": "2026-10",
+    "expectedCompletedMonths": [
+      "2026-07",
+      "2026-08",
+      "2026-09"
+    ],
+    "comparisons": {
+      "period": "July to September 2026",
+      "averageRevenue": "163200 YER",
+      "averageExpenses": "81600 YER"
+    }
+  },
+  "expected": {
+    "category": "financial",
+    "support": {
+      "period": "different",
+      "averageRevenue": "cannot_determine",
+      "averageExpenses": "cannot_determine"
+    },
+    "pages": [
+      {
+        "page": 1,
+        "readability": 2,
+        "targets": {
+          "period": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.06,
+                "right": 0.29833984375,
+                "top": 0.21205357142857142,
+                "bottom": 0.24387555803571428
+              }
+            ]
+          },
+          "revenue0": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "revenue1": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "revenue2": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "expenses0": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "expenses1": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "expenses2": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "averageRevenue": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.06,
+                "right": 0.2162890625,
+                "top": 0.6995535714285714,
+                "bottom": 0.7313755580357143
+              }
+            ]
+          },
+          "averageExpenses": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.06,
+                "right": 0.19984375,
+                "top": 0.7691964285714286,
+                "bottom": 0.8010184151785714
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "rationale": "The printed averages concern a different reporting period. Matching amounts alone do not support the declared averages for the required July-September period."
+  },
+  "pages": [
+    {
+      "rows": [
+        {
+          "id": "period",
+          "label": "Reporting period",
+          "value": "April to June 2026"
+        },
+        {
+          "id": "revenue0",
+          "label": "April 2026 revenue",
+          "value": "162200 YER"
+        },
+        {
+          "id": "revenue1",
+          "label": "May 2026 revenue",
+          "value": "163200 YER"
+        },
+        {
+          "id": "revenue2",
+          "label": "June 2026 revenue",
+          "value": "164200 YER"
+        },
+        {
+          "id": "expenses0",
+          "label": "April 2026 operating expenses",
+          "value": "81100 YER"
+        },
+        {
+          "id": "expenses1",
+          "label": "May 2026 operating expenses",
+          "value": "81600 YER"
+        },
+        {
+          "id": "expenses2",
+          "label": "June 2026 operating expenses",
+          "value": "82100 YER"
+        },
+        {
+          "id": "averageRevenue",
+          "label": "Average monthly revenue",
+          "value": "163200 YER"
+        },
+        {
+          "id": "averageExpenses",
+          "label": "Average monthly operating expenses",
+          "value": "81600 YER"
+        }
+      ],
+      "unreadable": false,
+      "partial": false,
+      "blank": false,
+      "note": ""
+    }
+  ],
+  "category": "financial",
+  "rotation": 0,
+  "status": "unrun",
+  "humanChecked": false,
+  "source": {
+    "path": "corpus/cases/en-financial-10/source.png",
+    "sha256": "8a9f5fe315e7f94a62882f98d599c9f44409e20a44275e2ccda261f5b2721c63",
+    "bytes": 68512
+  },
+  "preparation": [
+    {
+      "width": 1120,
+      "height": 1568,
+      "sourceWidth": 800,
+      "sourceHeight": 1120,
+      "rotation": 0,
+      "padding": {
+        "left": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      "scale": 1.4,
+      "durationMs": 60.10000002384186,
+      "page": 1,
+      "path": "corpus/cases/en-financial-10/page-1.png",
+      "sha256": "edc43d517e9772bd5bb79938c6317289c49a2dc538290127ca30f53f8497f5d6",
+      "byteLength": 234917,
+      "renderer": "Chromium createImageBitmap/canvas",
+      "preparationVersion": "full-page-pdfjs-5.4.296-v1"
+    }
+  ],
+  "preparationTotalMs": 295.44696699999986,
+  "preparationMeasuredMs": 60.10000002384186,
+  "contextSha256": "99347ad58765669b53de96cf5dbe8cfb4fd6feafcef4da2d9a9086e165b06051",
+  "expectedSha256": "711f2fd4ce2f38e5473fc76b669016c8a32dd727b5f84130992b2261a7838856"
+}

@@ -1,0 +1,240 @@
+{
+  "id": "en-financial-09",
+  "sourceFamily": "en-financial-09",
+  "language": "en",
+  "slot": "financial",
+  "index": 9,
+  "kind": "rotated_page",
+  "split": "development",
+  "context": {
+    "slot": "financial",
+    "language": "en",
+    "product": null,
+    "initialSubmissionMonth": "2026-10",
+    "expectedCompletedMonths": [
+      "2026-07",
+      "2026-08",
+      "2026-09"
+    ],
+    "comparisons": {
+      "period": "July to September 2026",
+      "averageRevenue": "162500 YER",
+      "averageExpenses": "81250 YER"
+    }
+  },
+  "expected": {
+    "category": "financial",
+    "support": {
+      "period": "consistent",
+      "averageRevenue": "consistent",
+      "averageExpenses": "consistent"
+    },
+    "pages": [
+      {
+        "page": 1,
+        "readability": 2,
+        "targets": {
+          "period": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.7561244419642857,
+                "right": 0.7879464285714286,
+                "top": 0.06,
+                "bottom": 0.3726171875
+              }
+            ]
+          },
+          "revenue0": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.6864815848214285,
+                "right": 0.7183035714285715,
+                "top": 0.06,
+                "bottom": 0.2162890625
+              }
+            ]
+          },
+          "revenue1": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.6168387276785714,
+                "right": 0.6486607142857144,
+                "top": 0.06,
+                "bottom": 0.2162890625
+              }
+            ]
+          },
+          "revenue2": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.5471958705357143,
+                "right": 0.5790178571428571,
+                "top": 0.06,
+                "bottom": 0.2162890625
+              }
+            ]
+          },
+          "expenses0": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.47755301339285716,
+                "right": 0.509375,
+                "top": 0.06,
+                "bottom": 0.19984375
+              }
+            ]
+          },
+          "expenses1": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.40791015625000004,
+                "right": 0.4397321428571429,
+                "top": 0.06,
+                "bottom": 0.19984375
+              }
+            ]
+          },
+          "expenses2": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.3382672991071428,
+                "right": 0.3700892857142857,
+                "top": 0.06,
+                "bottom": 0.19984375
+              }
+            ]
+          },
+          "averageRevenue": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.2686244419642857,
+                "right": 0.30044642857142856,
+                "top": 0.06,
+                "bottom": 0.2162890625
+              }
+            ]
+          },
+          "averageExpenses": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.19898158482142858,
+                "right": 0.23080357142857144,
+                "top": 0.06,
+                "bottom": 0.19984375
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "pages": [
+    {
+      "rows": [
+        {
+          "id": "period",
+          "label": "Reporting period",
+          "value": "July to September 2026"
+        },
+        {
+          "id": "revenue0",
+          "label": "July 2026 revenue",
+          "value": "161500 YER"
+        },
+        {
+          "id": "revenue1",
+          "label": "August 2026 revenue",
+          "value": "162500 YER"
+        },
+        {
+          "id": "revenue2",
+          "label": "September 2026 revenue",
+          "value": "163500 YER"
+        },
+        {
+          "id": "expenses0",
+          "label": "July 2026 operating expenses",
+          "value": "80750 YER"
+        },
+        {
+          "id": "expenses1",
+          "label": "August 2026 operating expenses",
+          "value": "81250 YER"
+        },
+        {
+          "id": "expenses2",
+          "label": "September 2026 operating expenses",
+          "value": "81750 YER"
+        },
+        {
+          "id": "averageRevenue",
+          "label": "Average monthly revenue",
+          "value": "162500 YER"
+        },
+        {
+          "id": "averageExpenses",
+          "label": "Average monthly operating expenses",
+          "value": "81250 YER"
+        }
+      ],
+      "unreadable": false,
+      "partial": false,
+      "blank": false,
+      "note": ""
+    }
+  ],
+  "category": "financial",
+  "rotation": 90,
+  "status": "unrun",
+  "humanChecked": false,
+  "source": {
+    "path": "corpus/cases/en-financial-09/source.png",
+    "sha256": "c4040b24121fec9e4c91e5a901e36f7fcb9ce20bfbc61da1240a7179994bb61f",
+    "bytes": 91768
+  },
+  "preparation": [
+    {
+      "width": 1568,
+      "height": 1120,
+      "sourceWidth": 1120,
+      "sourceHeight": 800,
+      "rotation": 0,
+      "padding": {
+        "left": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      "scale": 1.4,
+      "durationMs": 63.30000001192093,
+      "page": 1,
+      "path": "corpus/cases/en-financial-09/page-1.png",
+      "sha256": "63eeb25eb9bcfd7978d1dfedc822b06fd6335cbd2f1122928aa22d0db6ffddde",
+      "byteLength": 245458,
+      "renderer": "Chromium createImageBitmap/canvas",
+      "preparationVersion": "full-page-pdfjs-5.4.296-v1"
+    }
+  ],
+  "preparationTotalMs": 352.9516520000034,
+  "preparationMeasuredMs": 63.30000001192093,
+  "contextSha256": "79727ff8a032f87275b1058d05d0fca967a359b2abcf60ec53b7495088b01169",
+  "expectedSha256": "bc3517e666587cb798d4db19bddc936100d3e279b64bb6450634031f8563d5c7"
+}

@@ -1,0 +1,512 @@
+{
+  "id": "ar-financial-01",
+  "sourceFamily": "ar-financial-01",
+  "language": "ar",
+  "slot": "financial",
+  "index": 1,
+  "kind": "four_page_conflict",
+  "split": "development",
+  "context": {
+    "slot": "financial",
+    "language": "ar",
+    "product": null,
+    "initialSubmissionMonth": "2026-10",
+    "expectedCompletedMonths": [
+      "2026-07",
+      "2026-08",
+      "2026-09"
+    ],
+    "comparisons": {
+      "period": "يوليو إلى سبتمبر ٢٠٢٦",
+      "averageRevenue": "١١٦٩٠٠ ريال",
+      "averageExpenses": "٥٨٤٥٠ ريال"
+    }
+  },
+  "expected": {
+    "category": "financial",
+    "support": {
+      "period": "consistent",
+      "averageRevenue": "conflicting",
+      "averageExpenses": "consistent"
+    },
+    "pages": [
+      {
+        "page": 1,
+        "readability": 2,
+        "targets": {
+          "period": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.68138671875,
+                "right": 0.94,
+                "top": 0.21205357142857142,
+                "bottom": 0.24387555803571428
+              }
+            ]
+          },
+          "revenue0": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.78720703125,
+                "right": 0.94,
+                "top": 0.28169642857142857,
+                "bottom": 0.31351841517857143
+              }
+            ]
+          },
+          "revenue1": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "revenue2": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "expenses0": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.80365234375,
+                "right": 0.94,
+                "top": 0.3513392857142857,
+                "bottom": 0.38316127232142855
+              }
+            ]
+          },
+          "expenses1": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "expenses2": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "averageRevenue": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.78720703125,
+                "right": 0.94,
+                "top": 0.42098214285714286,
+                "bottom": 0.4528041294642857
+              }
+            ]
+          },
+          "averageExpenses": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          }
+        }
+      },
+      {
+        "page": 2,
+        "readability": 2,
+        "targets": {
+          "period": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.68138671875,
+                "right": 0.94,
+                "top": 0.21205357142857142,
+                "bottom": 0.24387555803571428
+              }
+            ]
+          },
+          "revenue0": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "revenue1": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.78720703125,
+                "right": 0.94,
+                "top": 0.28169642857142857,
+                "bottom": 0.31351841517857143
+              }
+            ]
+          },
+          "revenue2": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "expenses0": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "expenses1": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.80365234375,
+                "right": 0.94,
+                "top": 0.3513392857142857,
+                "bottom": 0.38316127232142855
+              }
+            ]
+          },
+          "expenses2": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "averageRevenue": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "averageExpenses": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          }
+        }
+      },
+      {
+        "page": 3,
+        "readability": 2,
+        "targets": {
+          "period": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.68138671875,
+                "right": 0.94,
+                "top": 0.21205357142857142,
+                "bottom": 0.24387555803571428
+              }
+            ]
+          },
+          "revenue0": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "revenue1": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "revenue2": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.78720703125,
+                "right": 0.94,
+                "top": 0.28169642857142857,
+                "bottom": 0.31351841517857143
+              }
+            ]
+          },
+          "expenses0": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "expenses1": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "expenses2": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.80365234375,
+                "right": 0.94,
+                "top": 0.3513392857142857,
+                "bottom": 0.38316127232142855
+              }
+            ]
+          },
+          "averageRevenue": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "averageExpenses": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          }
+        }
+      },
+      {
+        "page": 4,
+        "readability": 2,
+        "targets": {
+          "period": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.68138671875,
+                "right": 0.94,
+                "top": 0.21205357142857142,
+                "bottom": 0.24387555803571428
+              }
+            ]
+          },
+          "revenue0": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "revenue1": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "revenue2": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "expenses0": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "expenses1": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "expenses2": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "averageRevenue": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.78720703125,
+                "right": 0.94,
+                "top": 0.28169642857142857,
+                "bottom": 0.31351841517857143
+              }
+            ]
+          },
+          "averageExpenses": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.80365234375,
+                "right": 0.94,
+                "top": 0.3513392857142857,
+                "bottom": 0.38316127232142855
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "pages": [
+    {
+      "rows": [
+        {
+          "id": "period",
+          "label": "الفترة المالية",
+          "value": "يوليو إلى سبتمبر ٢٠٢٦"
+        },
+        {
+          "id": "revenue0",
+          "label": "إيرادات يوليو ٢٠٢٦",
+          "value": "١١٥٩٠٠ ريال"
+        },
+        {
+          "id": "expenses0",
+          "label": "مصروفات يوليو ٢٠٢٦",
+          "value": "٥٧٩٥٠ ريال"
+        },
+        {
+          "id": "averageRevenue",
+          "label": "متوسط الإيرادات الشهرية",
+          "value": "١١٦٩٠٠ ريال"
+        }
+      ]
+    },
+    {
+      "rows": [
+        {
+          "id": "period",
+          "label": "الفترة المالية",
+          "value": "يوليو إلى سبتمبر ٢٠٢٦"
+        },
+        {
+          "id": "revenue1",
+          "label": "إيرادات أغسطس ٢٠٢٦",
+          "value": "١١٦٩٠٠ ريال"
+        },
+        {
+          "id": "expenses1",
+          "label": "مصروفات أغسطس ٢٠٢٦",
+          "value": "٥٨٤٥٠ ريال"
+        }
+      ]
+    },
+    {
+      "rows": [
+        {
+          "id": "period",
+          "label": "الفترة المالية",
+          "value": "يوليو إلى سبتمبر ٢٠٢٦"
+        },
+        {
+          "id": "revenue2",
+          "label": "إيرادات سبتمبر ٢٠٢٦",
+          "value": "١١٧٩٠٠ ريال"
+        },
+        {
+          "id": "expenses2",
+          "label": "مصروفات سبتمبر ٢٠٢٦",
+          "value": "٥٨٩٥٠ ريال"
+        }
+      ]
+    },
+    {
+      "rows": [
+        {
+          "id": "period",
+          "label": "الفترة المالية",
+          "value": "يوليو إلى سبتمبر ٢٠٢٦"
+        },
+        {
+          "id": "averageRevenue",
+          "label": "متوسط الإيرادات الشهرية",
+          "value": "١٣٣٩٠٠ ريال"
+        },
+        {
+          "id": "averageExpenses",
+          "label": "متوسط المصروفات الشهرية",
+          "value": "٥٨٤٥٠ ريال"
+        }
+      ]
+    }
+  ],
+  "category": "financial",
+  "rotation": 0,
+  "status": "unrun",
+  "humanChecked": false,
+  "source": {
+    "path": "corpus/cases/ar-financial-01/source.pdf",
+    "sha256": "7f51d84db93eef0f4b3794fcc8f513fe89ab57ce13b72aad983ad0067e1777bf",
+    "bytes": 69026
+  },
+  "preparation": [
+    {
+      "width": 1120,
+      "height": 1568,
+      "sourceWidth": 600,
+      "sourceHeight": 840,
+      "rotation": 0,
+      "padding": {
+        "left": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      "scale": 1.8666666666666667,
+      "durationMs": 343.60000002384186,
+      "page": 1,
+      "path": "corpus/cases/ar-financial-01/page-1.png",
+      "sha256": "d4b3d78d13a3bc4e8c94abec637166e473a640ac8c02c9e84eef21022dc70371",
+      "byteLength": 105571,
+      "renderer": "pdfjs-dist@5.4.296",
+      "preparationVersion": "full-page-pdfjs-5.4.296-v1"
+    },
+    {
+      "width": 1120,
+      "height": 1568,
+      "sourceWidth": 600,
+      "sourceHeight": 840,
+      "rotation": 0,
+      "padding": {
+        "left": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      "scale": 1.8666666666666667,
+      "durationMs": 236.19999998807907,
+      "page": 2,
+      "path": "corpus/cases/ar-financial-01/page-2.png",
+      "sha256": "706ccaca1bf76177093648ade3a96e70dc7ea4be82368ec4435a8a3d2192586a",
+      "byteLength": 98106,
+      "renderer": "pdfjs-dist@5.4.296",
+      "preparationVersion": "full-page-pdfjs-5.4.296-v1"
+    },
+    {
+      "width": 1120,
+      "height": 1568,
+      "sourceWidth": 600,
+      "sourceHeight": 840,
+      "rotation": 0,
+      "padding": {
+        "left": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      "scale": 1.8666666666666667,
+      "durationMs": 265.7000000178814,
+      "page": 3,
+      "path": "corpus/cases/ar-financial-01/page-3.png",
+      "sha256": "0f8e40de54ceac784decfab94dbde792497a1359dc4f1bdfa0010b8225f7fb94",
+      "byteLength": 97123,
+      "renderer": "pdfjs-dist@5.4.296",
+      "preparationVersion": "full-page-pdfjs-5.4.296-v1"
+    },
+    {
+      "width": 1120,
+      "height": 1568,
+      "sourceWidth": 600,
+      "sourceHeight": 840,
+      "rotation": 0,
+      "padding": {
+        "left": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      "scale": 1.8666666666666667,
+      "durationMs": 246.89999997615814,
+      "page": 4,
+      "path": "corpus/cases/ar-financial-01/page-4.png",
+      "sha256": "7217087b5f56ebaecb22ad1744594a338ed21646e94ffd37b39480326a05e696",
+      "byteLength": 100591,
+      "renderer": "pdfjs-dist@5.4.296",
+      "preparationVersion": "full-page-pdfjs-5.4.296-v1"
+    }
+  ],
+  "preparationTotalMs": 1342.701869999999,
+  "preparationMeasuredMs": 1092.4000000059605,
+  "contextSha256": "32079766d35d552c63e403a402d234b37f07f977c9d0a38e704d0bd1f12267a1",
+  "expectedSha256": "97f4241a00c943d672547e8a05cfe6814769ae29d60eaa32ea030bd23ae5d139"
+}

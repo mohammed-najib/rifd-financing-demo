@@ -1,0 +1,2 @@
+{"phase":"after-cancellation","error":"This operation was aborted","ledgerHalted":false,"runnerFailed":false,"runStatus":"reserved","calls":0,"ledgerPath":"/tmp/jev-preflight-CJza7U/ledger.json"}
+{"phase":"retry-with-same-canonical-input","fakeAttempts":2,"haltReason":null,"calls":2,"providerAttempts":0}

@@ -1,0 +1,48 @@
+✔ one SDK call carries image and Box; TanStack preserves native distributions and fractional semantics (83.424035ms)
+✔ concurrent reversed completion keeps invocation-local captures and response IDs (10.828674ms)
+✔ unknown or invalid usage null preserves capture and fails availability (8.103608ms)
+✔ unknown or invalid usage undefined preserves capture and fails availability (8.966268ms)
+✔ unknown or invalid usage -1 preserves capture and fails availability (3.221233ms)
+✔ unknown or invalid usage NaN preserves capture and fails availability (2.907835ms)
+✔ malformed badBox fails without a repair request (4.555777ms)
+✔ malformed wrongType fails without a repair request (3.182141ms)
+✔ malformed missingAnswer fails without a repair request (2.738063ms)
+✔ malformed badDistribution fails without a repair request (3.50931ms)
+✔ malformed badModel fails without a repair request (2.541366ms)
+✔ malformed badLegend fails without a repair request (3.379949ms)
+✔ malformed nonJson fails without a repair request (2.186567ms)
+✔ retryable error makes one dispatch only (1.404846ms)
+✔ cancellation aborts the active transport without a repeat or claimed remote refund (1.588042ms)
+✔ pre-dispatch cancellation makes zero transport calls (0.654298ms)
+✔ deadline starts before SDK work and aborts one active dispatch (21.139264ms)
+✔ an explicit transport is required even if a real key exists in the shell (0.747863ms)
+✔ financial fixed suite has nine targets, 29 native questions and one image (4.019769ms)
+✔ four-page comparison uploads four distinct full-page assets in one SDK call (4.53582ms)
+✖ the live body guard measures the SDK multipart Blob before allowing dispatch (3.632286ms)
+ℹ tests 21
+ℹ suites 0
+ℹ pass 20
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1515.140824
+
+✖ failing tests:
+
+test at bridge.test.mjs:101:1
+✖ the live body guard measures the SDK multipart Blob before allowing dispatch (3.632286ms)
+  AssertionError [ERR_ASSERTION]: The actual SDK body must pass the local guard
+  
+  false !== true
+  
+      at TestContext.<anonymous> (file:///home/mdnb/Dev/Projects/project_impress_bank/.scratch/worktrees/jev-feasibility/experiment/bridge.test.mjs:110:30)
+      at async Test.run (node:internal/test_runner/test:1404:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

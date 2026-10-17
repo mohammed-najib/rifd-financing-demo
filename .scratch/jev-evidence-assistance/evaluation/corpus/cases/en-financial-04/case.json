@@ -1,0 +1,177 @@
+{
+  "id": "en-financial-04",
+  "sourceFamily": "en-financial-04",
+  "language": "en",
+  "slot": "financial",
+  "index": 4,
+  "kind": "unreadable",
+  "split": "evaluation",
+  "context": {
+    "slot": "financial",
+    "language": "en",
+    "product": null,
+    "initialSubmissionMonth": "2026-10",
+    "expectedCompletedMonths": [
+      "2026-07",
+      "2026-08",
+      "2026-09"
+    ],
+    "comparisons": {
+      "period": "July to September 2026",
+      "averageRevenue": "159000 YER",
+      "averageExpenses": "79500 YER"
+    }
+  },
+  "expected": {
+    "category": "financial",
+    "support": {
+      "period": "cannot_determine",
+      "averageRevenue": "cannot_determine",
+      "averageExpenses": "cannot_determine"
+    },
+    "pages": [
+      {
+        "page": 1,
+        "readability": 0,
+        "targets": {
+          "period": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "revenue0": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "revenue1": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "revenue2": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "expenses0": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "expenses1": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "expenses2": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "averageRevenue": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "averageExpenses": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          }
+        }
+      }
+    ]
+  },
+  "pages": [
+    {
+      "rows": [
+        {
+          "id": "period",
+          "label": "Reporting period",
+          "value": "July to September 2026"
+        },
+        {
+          "id": "revenue0",
+          "label": "July 2026 revenue",
+          "value": "158000 YER"
+        },
+        {
+          "id": "revenue1",
+          "label": "August 2026 revenue",
+          "value": "159000 YER"
+        },
+        {
+          "id": "revenue2",
+          "label": "September 2026 revenue",
+          "value": "160000 YER"
+        },
+        {
+          "id": "expenses0",
+          "label": "July 2026 operating expenses",
+          "value": "79000 YER"
+        },
+        {
+          "id": "expenses1",
+          "label": "August 2026 operating expenses",
+          "value": "79500 YER"
+        },
+        {
+          "id": "expenses2",
+          "label": "September 2026 operating expenses",
+          "value": "80000 YER"
+        },
+        {
+          "id": "averageRevenue",
+          "label": "Average monthly revenue",
+          "value": "159000 YER"
+        },
+        {
+          "id": "averageExpenses",
+          "label": "Average monthly operating expenses",
+          "value": "79500 YER"
+        }
+      ],
+      "unreadable": true,
+      "partial": false,
+      "blank": false,
+      "note": ""
+    }
+  ],
+  "category": "financial",
+  "rotation": 0,
+  "status": "unrun",
+  "humanChecked": false,
+  "source": {
+    "path": "corpus/cases/en-financial-04/source.png",
+    "sha256": "3c3444318493fc7bbf3a75112a49d9bbfa0de563b638af4745cafd26cfba0cfd",
+    "bytes": 93323
+  },
+  "preparation": [
+    {
+      "width": 1120,
+      "height": 1568,
+      "sourceWidth": 800,
+      "sourceHeight": 1120,
+      "rotation": 0,
+      "padding": {
+        "left": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      "scale": 1.4,
+      "durationMs": 82.2000000178814,
+      "page": 1,
+      "path": "corpus/cases/en-financial-04/page-1.png",
+      "sha256": "70a84a77f651ea32f3da5b21fece388ab3fbf8026b727f058bcca7151a83aaf6",
+      "byteLength": 255643,
+      "renderer": "Chromium createImageBitmap/canvas",
+      "preparationVersion": "full-page-pdfjs-5.4.296-v1"
+    }
+  ],
+  "preparationTotalMs": 358.2627990000001,
+  "preparationMeasuredMs": 82.2000000178814,
+  "contextSha256": "4f7ae36045c9d1064a8f15d49e259f131525cdd8eb23d766a29cbea49cf16cd8",
+  "expectedSha256": "05a7b323b27a5f3f6f1d65270397ae36c086402616e7d771a52befc78c91a9bc"
+}

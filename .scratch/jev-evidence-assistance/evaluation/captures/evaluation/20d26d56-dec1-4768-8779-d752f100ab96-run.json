@@ -1,0 +1,51 @@
+{
+  "caseId": "ar-purchase-04",
+  "phase": "evaluation",
+  "probe": false,
+  "runId": "20d26d56-dec1-4768-8779-d752f100ab96",
+  "plannedAttempts": 2,
+  "stageCount": 2,
+  "pageCount": 1,
+  "preparationMs": 218.62868600000002,
+  "localCompletionMs": 1607.1343589999997,
+  "providerRunMs": 1358.2529470000009,
+  "presentation": "CLI capture only; application presentation unmeasured",
+  "stages": [
+    {
+      "path": "captures/evaluation/20d26d56-dec1-4768-8779-d752f100ab96-1.json",
+      "kind": "page-1",
+      "ok": true,
+      "coverage": {
+        "selectedPages": [
+          1
+        ],
+        "analyzedPages": [
+          1
+        ],
+        "complete": false
+      }
+    },
+    {
+      "path": "captures/evaluation/20d26d56-dec1-4768-8779-d752f100ab96-2.json",
+      "kind": "comparison",
+      "ok": true,
+      "coverage": {
+        "selectedPages": [
+          1
+        ],
+        "analyzedPages": [
+          1
+        ],
+        "complete": true
+      }
+    }
+  ],
+  "versions": {
+    "model": "jev-1.14.0",
+    "sdk": "0.7.0",
+    "tanstack": "0.69.0",
+    "mapping": "native-bridge-v1",
+    "questions": "evidence-questions-v1",
+    "preparation": "full-page-pdfjs-5.4.296-v1"
+  }
+}

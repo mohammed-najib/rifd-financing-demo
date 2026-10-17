@@ -1,0 +1,40 @@
+{
+  "version": "offline-repair-provenance-v1",
+  "completedAt": "2026-10-17T11:13:03.404238+00:00",
+  "branch": "experiment/jev-offline-repair",
+  "worktree": "/home/mdnb/Dev/Projects/project_impress_bank/.scratch/worktrees/jev-offline-repair",
+  "parentCommit": "93ffb208ce37ac1d159cf8db2b68fcdb5dbd128a",
+  "codeAndVerificationCommit": "2929d96f6ce761076c31b451d27b72650256a1ee",
+  "reportCommit": "5cd371857b6880c86be1fb9ff261c6f98824d7c3",
+  "providerAttempts": 0,
+  "operatorCredentialFilesRead": false,
+  "liveDispatchAuthorized": false,
+  "node": "v26.7.0",
+  "reportSha256": "6216a367acf81a3653e9150ebe4a4cab1bd70081cef46aa4aaf76737b475106b",
+  "proposalSha256": "910d4171a1174b3d278077f7963017d9fef14e40de61a05f732845d47f75a127",
+  "artifactInventorySha256": "9e701aceb42ac125331e545492ef3caf298b23cd4f901540894f3c0e96ed5f3a",
+  "versions": {
+    "experiment": "0.2.0",
+    "mapping": "native-bridge-v2-location-isolation",
+    "questions": "evidence-questions-v2-repair",
+    "displayPolicy": "candidate-display-v2-inspection",
+    "model": "jev-1.14.0",
+    "sdk": "0.7.0",
+    "tanstack": "0.69.0",
+    "preparation": "full-page-pdfjs-5.4.296-v1"
+  },
+  "verification": {
+    "testsPassed": 36,
+    "boundedChecksPassed": 19,
+    "retainedStagesReplayed": 20,
+    "stagesRecoveringIndependentJudgments": 3,
+    "originalSealedFilesVerified": 397,
+    "providerContextFitEstablished": false,
+    "newSemanticQualityEstablished": false
+  },
+  "commands": [
+    "node verify.mjs",
+    "node offline-check.mjs"
+  ],
+  "originalExperimentHeadUnchanged": true
+}

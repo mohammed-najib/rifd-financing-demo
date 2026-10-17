@@ -1,0 +1,40 @@
+TAP version 13
+# Subtest: USD parsing preserves exact nanodollars and refuses unknown/rounded inputs
+ok 1 - USD parsing preserves exact nanodollars and refuses unknown/rounded inputs
+  ---
+  duration_ms: 1.451845
+  type: 'test'
+  ...
+# Subtest: complete proposal preserves both accepted monetary boundaries
+ok 2 - complete proposal preserves both accepted monetary boundaries
+  ---
+  duration_ms: 0.578405
+  type: 'test'
+  ...
+# Subtest: private-key boundary rejects the workspace and misleading dot-prefixed children
+ok 3 - private-key boundary rejects the workspace and misleading dot-prefixed children
+  ---
+  duration_ms: 0.191321
+  type: 'test'
+  ...
+# Subtest: encrypted Ed25519 key requires its passphrase; tampering or expiry invalidates signatures
+ok 4 - encrypted Ed25519 key requires its passphrase; tampering or expiry invalidates signatures
+  ---
+  duration_ms: 10.625374
+  type: 'test'
+  ...
+# Subtest: materialization fills only current account evidence and expiry; existing source review is preserved
+ok 5 - materialization fills only current account evidence and expiry; existing source review is preserved
+  ---
+  duration_ms: 0.891064
+  type: 'test'
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 44.546648

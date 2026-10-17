@@ -1,0 +1,228 @@
+{
+  "id": "ar-financial-03",
+  "sourceFamily": "ar-financial-03",
+  "language": "ar",
+  "slot": "financial",
+  "index": 3,
+  "kind": "absent_target",
+  "split": "development",
+  "context": {
+    "slot": "financial",
+    "language": "ar",
+    "product": null,
+    "initialSubmissionMonth": "2026-10",
+    "expectedCompletedMonths": [
+      "2026-07",
+      "2026-08",
+      "2026-09"
+    ],
+    "comparisons": {
+      "period": "يوليو إلى سبتمبر ٢٠٢٦",
+      "averageRevenue": "١١٨٣٠٠ ريال",
+      "averageExpenses": "٥٩١٥٠ ريال"
+    }
+  },
+  "expected": {
+    "category": "financial",
+    "support": {
+      "period": "consistent",
+      "averageRevenue": "consistent",
+      "averageExpenses": "consistent"
+    },
+    "pages": [
+      {
+        "page": 1,
+        "readability": 2,
+        "targets": {
+          "period": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "revenue0": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.78720703125,
+                "right": 0.94,
+                "top": 0.21205357142857142,
+                "bottom": 0.24387555803571428
+              }
+            ]
+          },
+          "revenue1": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.78720703125,
+                "right": 0.94,
+                "top": 0.28169642857142857,
+                "bottom": 0.31351841517857143
+              }
+            ]
+          },
+          "revenue2": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.78720703125,
+                "right": 0.94,
+                "top": 0.3513392857142857,
+                "bottom": 0.38316127232142855
+              }
+            ]
+          },
+          "expenses0": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.80365234375,
+                "right": 0.94,
+                "top": 0.42098214285714286,
+                "bottom": 0.4528041294642857
+              }
+            ]
+          },
+          "expenses1": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.80365234375,
+                "right": 0.94,
+                "top": 0.490625,
+                "bottom": 0.5224469866071428
+              }
+            ]
+          },
+          "expenses2": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.80365234375,
+                "right": 0.94,
+                "top": 0.5602678571428571,
+                "bottom": 0.59208984375
+              }
+            ]
+          },
+          "averageRevenue": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.78720703125,
+                "right": 0.94,
+                "top": 0.6299107142857143,
+                "bottom": 0.6617327008928572
+              }
+            ]
+          },
+          "averageExpenses": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.80365234375,
+                "right": 0.94,
+                "top": 0.6995535714285714,
+                "bottom": 0.7313755580357143
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "pages": [
+    {
+      "rows": [
+        {
+          "id": "revenue0",
+          "label": "إيرادات يوليو ٢٠٢٦",
+          "value": "١١٧٣٠٠ ريال"
+        },
+        {
+          "id": "revenue1",
+          "label": "إيرادات أغسطس ٢٠٢٦",
+          "value": "١١٨٣٠٠ ريال"
+        },
+        {
+          "id": "revenue2",
+          "label": "إيرادات سبتمبر ٢٠٢٦",
+          "value": "١١٩٣٠٠ ريال"
+        },
+        {
+          "id": "expenses0",
+          "label": "مصروفات يوليو ٢٠٢٦",
+          "value": "٥٨٦٥٠ ريال"
+        },
+        {
+          "id": "expenses1",
+          "label": "مصروفات أغسطس ٢٠٢٦",
+          "value": "٥٩١٥٠ ريال"
+        },
+        {
+          "id": "expenses2",
+          "label": "مصروفات سبتمبر ٢٠٢٦",
+          "value": "٥٩٦٥٠ ريال"
+        },
+        {
+          "id": "averageRevenue",
+          "label": "متوسط الإيرادات الشهرية",
+          "value": "١١٨٣٠٠ ريال"
+        },
+        {
+          "id": "averageExpenses",
+          "label": "متوسط المصروفات الشهرية",
+          "value": "٥٩١٥٠ ريال"
+        }
+      ],
+      "unreadable": false,
+      "partial": false,
+      "blank": false,
+      "note": ""
+    }
+  ],
+  "category": "financial",
+  "rotation": 0,
+  "status": "unrun",
+  "humanChecked": false,
+  "source": {
+    "path": "corpus/cases/ar-financial-03/source.png",
+    "sha256": "8f9a50850d80b73ab4f1cd7373b073950ee37a576cfa922338c13aa96d4bf35a",
+    "bytes": 55363
+  },
+  "preparation": [
+    {
+      "width": 1120,
+      "height": 1568,
+      "sourceWidth": 800,
+      "sourceHeight": 1120,
+      "rotation": 0,
+      "padding": {
+        "left": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      "scale": 1.4,
+      "durationMs": 51.19999998807907,
+      "page": 1,
+      "path": "corpus/cases/ar-financial-03/page-1.png",
+      "sha256": "4ad0e3c7061a8723c6f924cde4776566512b697e9cb6a7447406a70d72e966f3",
+      "byteLength": 190310,
+      "renderer": "Chromium createImageBitmap/canvas",
+      "preparationVersion": "full-page-pdfjs-5.4.296-v1"
+    }
+  ],
+  "preparationTotalMs": 269.9318970000004,
+  "preparationMeasuredMs": 51.19999998807907,
+  "contextSha256": "cc1bf4d59679417b63d70a05fba04d48fc6d2dc445d3ccc43633ac4e2cf50852",
+  "expectedSha256": "2478bbe7c128497052337649dd6bdab3309eb97077ddf8ddc6cd0ef9745472a8"
+}

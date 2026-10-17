@@ -1,0 +1,1350 @@
+{
+  "version": "native-run-capture-v1",
+  "runId": "development-pass-1/ar-identity-01",
+  "startedAt": "2026-10-17T17:27:21.661Z",
+  "completedAt": "2026-10-17T17:27:26.196Z",
+  "cold": true,
+  "preparationMs": 0.9778950000036275,
+  "manifestDigest": "7e5670c39b6ce877df05bd6c3641a1a6b6f30630754bda554fe21f31c909758e",
+  "result": {
+    "cropWorkerCodeProofs": [
+      {
+        "graphDigest": "472cb770feffc305df3e9be442b3cc88ff7f3af742dfcea31aaea8e74c14dc80",
+        "bootstrapIdentity": {
+          "path": ".scratch/worktrees/jev-selection-execution/experiment/validation-controls/revision-loader.mjs",
+          "sha256": "ab4709cc7eeb7ab650fea48c4a1751958f5b7f4b137597fca96e9b42666d0a48"
+        },
+        "loaded": {
+          ".scratch/worktrees/jev-selection-execution/experiment/validation-controls/revision-loader.mjs": "ab4709cc7eeb7ab650fea48c4a1751958f5b7f4b137597fca96e9b42666d0a48",
+          ".scratch/worktrees/jev-selection-execution/experiment/validation-controls/crop-worker.mjs": "54bdcf483d96630ef35a87c98f1ccc96135ad7124fb511d1cb8b04ce3e22e247",
+          ".scratch/worktrees/jev-selection-execution/experiment/validation-controls/png.mjs": "72943e97e54ea6901d36439de85d462556b42cd8a53ae4d59463debd0374d594",
+          ".scratch/worktrees/jev-selection-execution/experiment/validation-controls/contracts.mjs": "7dd90155a98cb084e72322ec89af4a51ffdc1e6d7f400afba7bfeb72290afccf"
+        }
+      }
+    ],
+    "providerAttempts": 2,
+    "fakeAttempts": 0,
+    "planned": 2,
+    "sequence": [
+      {
+        "kind": "combined",
+        "page": 1
+      },
+      {
+        "kind": "verification",
+        "page": 1
+      }
+    ],
+    "stages": [
+      {
+        "kind": "combined",
+        "page": 1,
+        "coverage": {
+          "originalPageCount": 1,
+          "pageCountEstablished": true,
+          "pageCountEstablishedBy": "PNG IHDR",
+          "selectedPages": [
+            1
+          ],
+          "selection": "all",
+          "analyzedPages": [
+            1
+          ],
+          "requestPages": [
+            1
+          ]
+        },
+        "observedAt": "2026-10-17T17:27:25.291Z",
+        "result": {
+          "ok": true,
+          "native": {
+            "model": "jev-1.14.0",
+            "answers": {
+              "category": {
+                "type": "choice",
+                "choice": "identity",
+                "confidence": 0.97,
+                "probabilities": {
+                  "identity": 0.97,
+                  "business": 0,
+                  "financial": 0,
+                  "stock": 0,
+                  "equipment": 0,
+                  "other": 0.02,
+                  "mixed": 0,
+                  "cannot_determine": 0.01
+                }
+              },
+              "readability": {
+                "type": "score",
+                "score": 1.94,
+                "confidence": 0.91,
+                "legend": {
+                  "0": "Relevant text cannot be read reliably.",
+                  "1": "Some relevant text is readable, but details are obscured.",
+                  "2": "Relevant text and digits are clearly readable."
+                },
+                "probabilities": {
+                  "0": 0.01,
+                  "1": 0.04,
+                  "2": 0.95
+                }
+              },
+              "name_presence": {
+                "type": "noul",
+                "noul": 0.99
+              },
+              "name_multiplicity": {
+                "type": "choice",
+                "choice": "single",
+                "confidence": 0.98,
+                "probabilities": {
+                  "single": 0.99,
+                  "repeated": 0.01,
+                  "ambiguous": 0
+                }
+              },
+              "name": {
+                "type": "choice",
+                "choice": "consistent",
+                "confidence": 0.94,
+                "probabilities": {
+                  "consistent": 0.95,
+                  "different": 0.05,
+                  "not_found": 0,
+                  "conflicting": 0,
+                  "cannot_determine": 0
+                }
+              },
+              "name_box": {
+                "type": "box",
+                "box": {
+                  "top": 0.19,
+                  "bottom": 0.25,
+                  "left": 0.69,
+                  "right": 0.94
+                },
+                "confidence": 0.72
+              }
+            },
+            "usage": {
+              "input_tokens": 6644,
+              "output_tokens": 223
+            }
+          },
+          "mapped": {
+            "category": {
+              "type": "choice",
+              "value": "identity",
+              "probability": 0.97,
+              "confidence": 0.97,
+              "probabilities": {
+                "identity": 0.97,
+                "business": 0,
+                "financial": 0,
+                "stock": 0,
+                "equipment": 0,
+                "other": 0.02,
+                "mixed": 0,
+                "cannot_determine": 0.01
+              }
+            },
+            "readability": {
+              "type": "score",
+              "value": "Relevant text and digits are clearly readable.",
+              "probability": 0.95,
+              "confidence": 0.91,
+              "score": 1.94,
+              "legend": {
+                "0": "Relevant text cannot be read reliably.",
+                "1": "Some relevant text is readable, but details are obscured.",
+                "2": "Relevant text and digits are clearly readable."
+              },
+              "probabilities": {
+                "0": 0.01,
+                "1": 0.04,
+                "2": 0.95
+              }
+            },
+            "name_presence": {
+              "type": "boolean",
+              "value": true,
+              "probability": 0.99
+            },
+            "name_multiplicity": {
+              "type": "choice",
+              "value": "single",
+              "probability": 0.99,
+              "confidence": 0.98,
+              "probabilities": {
+                "single": 0.99,
+                "repeated": 0.01,
+                "ambiguous": 0
+              }
+            },
+            "name": {
+              "type": "choice",
+              "value": "consistent",
+              "probability": 0.95,
+              "confidence": 0.94,
+              "probabilities": {
+                "consistent": 0.95,
+                "different": 0.05,
+                "not_found": 0,
+                "conflicting": 0,
+                "cannot_determine": 0
+              }
+            },
+            "meta": {
+              "model": "jev-1.14.0",
+              "usage": {
+                "inputTokens": 6644,
+                "outputTokens": 223,
+                "totalTokens": 6867
+              },
+              "id": "req_01a14ae773d87c9cb62ebe98aebb1fd8"
+            }
+          },
+          "locations": {
+            "name_box": {
+              "available": true,
+              "box": {
+                "top": 0.19,
+                "bottom": 0.25,
+                "left": 0.69,
+                "right": 0.94
+              },
+              "confidence": 0.72
+            }
+          },
+          "boxes": {
+            "name_box": {
+              "type": "box",
+              "box": {
+                "top": 0.19,
+                "bottom": 0.25,
+                "left": 0.69,
+                "right": 0.94
+              },
+              "confidence": 0.72
+            }
+          },
+          "requestId": "req_01a14ae773d87c9cb62ebe98aebb1fd8",
+          "status": 200,
+          "calls": 1,
+          "durationMs": 1752.9434920000058,
+          "versions": {
+            "design": "fixed-bootstrap-validation-v6",
+            "loading": "immutable-bootstrap-module-graphs-v2",
+            "rehearsal": "offline-rehearsal-only-v1",
+            "authorization": "exact-ledger-authorization-v2",
+            "model": "jev-1.14.0",
+            "sdk": "0.7.0",
+            "tanstack": "0.69.0",
+            "mapping": "native-bridge-v4-deadlines",
+            "questions": "evidence-questions-v3-automatic",
+            "preparation": "full-page-admission-v2",
+            "crop": "lossless-boundary-pad-v1",
+            "binding": "exact-target-binding-v1",
+            "deadline": "monotonic-supervised-v1",
+            "execution": "canonical-execution-input-v2",
+            "review": "exact-case-review-v2",
+            "freeze": "reviewed-graph-selection-freeze-v4",
+            "metrics": "independent-harm-metrics-v2",
+            "selector": "exact-opportunity-factor-selector-v3",
+            "policy": "candidate-display-v4-target-bound",
+            "roster": "expanded-roster-draft-v3-independent-four-page",
+            "ledger": "protected-validation-ledger-v6-reviewed-handoff"
+          }
+        }
+      },
+      {
+        "kind": "verification",
+        "page": 1,
+        "coverage": {
+          "originalPageCount": 1,
+          "pageCountEstablished": true,
+          "pageCountEstablishedBy": "PNG IHDR",
+          "selectedPages": [
+            1
+          ],
+          "selection": "all",
+          "analyzedPages": [
+            1
+          ],
+          "requestPages": [
+            1
+          ]
+        },
+        "observedAt": "2026-10-17T17:27:26.175Z",
+        "result": {
+          "ok": true,
+          "native": {
+            "model": "jev-1.14.0",
+            "answers": {
+              "name_left": {
+                "type": "noul",
+                "noul": 0.62
+              },
+              "name_top": {
+                "type": "noul",
+                "noul": 0.36
+              },
+              "name_right": {
+                "type": "noul",
+                "noul": 0.49
+              },
+              "name_bottom": {
+                "type": "noul",
+                "noul": 0.2
+              },
+              "name_association": {
+                "type": "noul",
+                "noul": 0.94
+              },
+              "name_competing": {
+                "type": "noul",
+                "noul": 0.26
+              }
+            },
+            "usage": {
+              "input_tokens": 7561,
+              "output_tokens": 109
+            }
+          },
+          "mapped": {
+            "name_left": {
+              "type": "boolean",
+              "value": true,
+              "probability": 0.62
+            },
+            "name_top": {
+              "type": "boolean",
+              "value": false,
+              "probability": 0.36
+            },
+            "name_right": {
+              "type": "boolean",
+              "value": false,
+              "probability": 0.49
+            },
+            "name_bottom": {
+              "type": "boolean",
+              "value": false,
+              "probability": 0.2
+            },
+            "name_association": {
+              "type": "boolean",
+              "value": true,
+              "probability": 0.94
+            },
+            "name_competing": {
+              "type": "boolean",
+              "value": false,
+              "probability": 0.26
+            },
+            "meta": {
+              "model": "jev-1.14.0",
+              "usage": {
+                "inputTokens": 7561,
+                "outputTokens": 109,
+                "totalTokens": 7670
+              },
+              "id": "req_01a14ae77753713b91569507e30ca69e"
+            }
+          },
+          "locations": {},
+          "boxes": {},
+          "requestId": "req_01a14ae77753713b91569507e30ca69e",
+          "status": 200,
+          "calls": 1,
+          "durationMs": 666.408866999991,
+          "versions": {
+            "design": "fixed-bootstrap-validation-v6",
+            "loading": "immutable-bootstrap-module-graphs-v2",
+            "rehearsal": "offline-rehearsal-only-v1",
+            "authorization": "exact-ledger-authorization-v2",
+            "model": "jev-1.14.0",
+            "sdk": "0.7.0",
+            "tanstack": "0.69.0",
+            "mapping": "native-bridge-v4-deadlines",
+            "questions": "evidence-questions-v3-automatic",
+            "preparation": "full-page-admission-v2",
+            "crop": "lossless-boundary-pad-v1",
+            "binding": "exact-target-binding-v1",
+            "deadline": "monotonic-supervised-v1",
+            "execution": "canonical-execution-input-v2",
+            "review": "exact-case-review-v2",
+            "freeze": "reviewed-graph-selection-freeze-v4",
+            "metrics": "independent-harm-metrics-v2",
+            "selector": "exact-opportunity-factor-selector-v3",
+            "policy": "candidate-display-v4-target-bound",
+            "roster": "expanded-roster-draft-v3-independent-four-page",
+            "ledger": "protected-validation-ledger-v6-reviewed-handoff"
+          }
+        }
+      }
+    ],
+    "coverage": {
+      "originalPageCount": 1,
+      "pageCountEstablished": true,
+      "pageCountEstablishedBy": "PNG IHDR",
+      "selectedPages": [
+        1
+      ],
+      "selection": "all",
+      "analyzedPages": [
+        1
+      ]
+    },
+    "haltReason": null,
+    "inputBinding": "1ce677ec9c9f616ac8351dd244d2ee9c6b6eff78a2f43172c817a7e45b9da34b",
+    "versions": {
+      "design": "fixed-bootstrap-validation-v6",
+      "loading": "immutable-bootstrap-module-graphs-v2",
+      "rehearsal": "offline-rehearsal-only-v1",
+      "authorization": "exact-ledger-authorization-v2",
+      "model": "jev-1.14.0",
+      "sdk": "0.7.0",
+      "tanstack": "0.69.0",
+      "mapping": "native-bridge-v4-deadlines",
+      "questions": "evidence-questions-v3-automatic",
+      "preparation": "full-page-admission-v2",
+      "crop": "lossless-boundary-pad-v1",
+      "binding": "exact-target-binding-v1",
+      "deadline": "monotonic-supervised-v1",
+      "execution": "canonical-execution-input-v2",
+      "review": "exact-case-review-v2",
+      "freeze": "reviewed-graph-selection-freeze-v4",
+      "metrics": "independent-harm-metrics-v2",
+      "selector": "exact-opportunity-factor-selector-v3",
+      "policy": "candidate-display-v4-target-bound",
+      "roster": "expanded-roster-draft-v3-independent-four-page",
+      "ledger": "protected-validation-ledger-v6-reviewed-handoff"
+    },
+    "cropMs": 199.5594989999954,
+    "durationMs": 2836.1457570000057,
+    "pageFindings": [
+      {
+        "page": 1,
+        "status": "checked",
+        "category": "cannot_determine",
+        "readability": null
+      }
+    ],
+    "support": {
+      "name": {
+        "status": "undetermined",
+        "outcome": "cannot_determine",
+        "reason": "usability or requested reporting period unestablished"
+      }
+    },
+    "locations": [
+      {
+        "status": "inspection",
+        "page": 1,
+        "target": "name",
+        "overlay": null,
+        "reason": "incomplete or unusable original source",
+        "inspection": {
+          "page": 1,
+          "target": "name",
+          "action": "افتح صفحة المصدر وافحص الحقل المحدد."
+        }
+      }
+    ],
+    "verification": [
+      [
+        1,
+        {
+          "answers": {
+            "name_left": {
+              "type": "noul",
+              "noul": 0.62
+            },
+            "name_top": {
+              "type": "noul",
+              "noul": 0.36
+            },
+            "name_right": {
+              "type": "noul",
+              "noul": 0.49
+            },
+            "name_bottom": {
+              "type": "noul",
+              "noul": 0.2
+            },
+            "name_association": {
+              "type": "noul",
+              "noul": 0.94
+            },
+            "name_competing": {
+              "type": "noul",
+              "noul": 0.26
+            }
+          },
+          "binding": "1ce677ec9c9f616ac8351dd244d2ee9c6b6eff78a2f43172c817a7e45b9da34b",
+          "crops": [
+            {
+              "parentPage": 1,
+              "parentRasterSha256": "d5a6d1576aebaf4428042afec7e29a0bbdbf01c3d3f4c0dc616d7990d349f1bd",
+              "sourceSha256": "f1b255fa542cbf9dd5840c4512d67ea5f04b7c0963dc37f76df10347108c64f0",
+              "target": "name",
+              "returnedRectangle": {
+                "top": 0.19,
+                "bottom": 0.25,
+                "left": 0.69,
+                "right": 0.94
+              },
+              "cropSha256": "76162bf7074c1e679c69c80fda229b91d213e5a09cfedb62ed07cc8b14afcd10",
+              "byteLength": 12631,
+              "parentPreparation": {
+                "width": 1120,
+                "height": 1568,
+                "sourceWidth": 800,
+                "sourceHeight": 1120,
+                "rotation": 0,
+                "padding": {
+                  "left": 0,
+                  "top": 0,
+                  "right": 0,
+                  "bottom": 0
+                },
+                "scale": 1.4,
+                "durationMs": 63.10000002384186,
+                "page": 1,
+                "path": "corpus/cases/ar-identity-01/page-1.png",
+                "sha256": "d5a6d1576aebaf4428042afec7e29a0bbdbf01c3d3f4c0dc616d7990d349f1bd",
+                "byteLength": 98796,
+                "renderer": "Chromium createImageBitmap/canvas",
+                "preparationVersion": "full-page-pdfjs-5.4.296-v1"
+              },
+              "width": 281,
+              "height": 280,
+              "exact": {
+                "left": 772.8,
+                "top": 297.92,
+                "right": 1052.8,
+                "bottom": 392
+              },
+              "copied": {
+                "left": 772,
+                "top": 297,
+                "right": 1053,
+                "bottom": 392
+              },
+              "padding": {
+                "left": 0,
+                "top": 92,
+                "right": 0,
+                "bottom": 93
+              },
+              "contentBoundary": {
+                "left": 0,
+                "top": 92,
+                "right": 281,
+                "bottom": 187
+              },
+              "originalBoxBoundary": {
+                "left": 0.7999999999999545,
+                "top": 92.92000000000002,
+                "right": 280.79999999999995,
+                "bottom": 187
+              },
+              "parentToCrop": [
+                1,
+                0,
+                0,
+                1,
+                -772,
+                -205
+              ],
+              "scale": 1,
+              "format": "png-rgba8",
+              "transform": "lossless-boundary-pad-v1",
+              "orientation": "same physical axes as unchanged parent; never RTL-mirrored",
+              "runBinding": "1ce677ec9c9f616ac8351dd244d2ee9c6b6eff78a2f43172c817a7e45b9da34b",
+              "digest": "e3fdc2be8ac56fdaade2a38480ad3ccac5da38204863e2c00f15b653587903cc"
+            }
+          ],
+          "currentCrops": [
+            {
+              "parentPage": 1,
+              "parentRasterSha256": "d5a6d1576aebaf4428042afec7e29a0bbdbf01c3d3f4c0dc616d7990d349f1bd",
+              "sourceSha256": "f1b255fa542cbf9dd5840c4512d67ea5f04b7c0963dc37f76df10347108c64f0",
+              "target": "name",
+              "returnedRectangle": {
+                "top": 0.19,
+                "bottom": 0.25,
+                "left": 0.69,
+                "right": 0.94
+              },
+              "cropSha256": "76162bf7074c1e679c69c80fda229b91d213e5a09cfedb62ed07cc8b14afcd10",
+              "byteLength": 12631,
+              "parentPreparation": {
+                "width": 1120,
+                "height": 1568,
+                "sourceWidth": 800,
+                "sourceHeight": 1120,
+                "rotation": 0,
+                "padding": {
+                  "left": 0,
+                  "top": 0,
+                  "right": 0,
+                  "bottom": 0
+                },
+                "scale": 1.4,
+                "durationMs": 63.10000002384186,
+                "page": 1,
+                "path": "corpus/cases/ar-identity-01/page-1.png",
+                "sha256": "d5a6d1576aebaf4428042afec7e29a0bbdbf01c3d3f4c0dc616d7990d349f1bd",
+                "byteLength": 98796,
+                "renderer": "Chromium createImageBitmap/canvas",
+                "preparationVersion": "full-page-pdfjs-5.4.296-v1"
+              },
+              "width": 281,
+              "height": 280,
+              "exact": {
+                "left": 772.8,
+                "top": 297.92,
+                "right": 1052.8,
+                "bottom": 392
+              },
+              "copied": {
+                "left": 772,
+                "top": 297,
+                "right": 1053,
+                "bottom": 392
+              },
+              "padding": {
+                "left": 0,
+                "top": 92,
+                "right": 0,
+                "bottom": 93
+              },
+              "contentBoundary": {
+                "left": 0,
+                "top": 92,
+                "right": 281,
+                "bottom": 187
+              },
+              "originalBoxBoundary": {
+                "left": 0.7999999999999545,
+                "top": 92.92000000000002,
+                "right": 280.79999999999995,
+                "bottom": 187
+              },
+              "parentToCrop": [
+                1,
+                0,
+                0,
+                1,
+                -772,
+                -205
+              ],
+              "scale": 1,
+              "format": "png-rgba8",
+              "transform": "lossless-boundary-pad-v1",
+              "orientation": "same physical axes as unchanged parent; never RTL-mirrored"
+            }
+          ]
+        }
+      ]
+    ],
+    "replaySnapshot": {
+      "pages": [
+        {
+          "page": 1,
+          "sha256": "d5a6d1576aebaf4428042afec7e29a0bbdbf01c3d3f4c0dc616d7990d349f1bd",
+          "sourceSha256": "f1b255fa542cbf9dd5840c4512d67ea5f04b7c0963dc37f76df10347108c64f0",
+          "width": 1120,
+          "height": 1568,
+          "preparation": {
+            "width": 1120,
+            "height": 1568,
+            "sourceWidth": 800,
+            "sourceHeight": 1120,
+            "rotation": 0,
+            "padding": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            },
+            "scale": 1.4,
+            "durationMs": 63.10000002384186,
+            "page": 1,
+            "path": "corpus/cases/ar-identity-01/page-1.png",
+            "sha256": "d5a6d1576aebaf4428042afec7e29a0bbdbf01c3d3f4c0dc616d7990d349f1bd",
+            "byteLength": 98796,
+            "renderer": "Chromium createImageBitmap/canvas",
+            "preparationVersion": "full-page-pdfjs-5.4.296-v1"
+          },
+          "contentBoundary": {
+            "left": 0,
+            "top": 0,
+            "right": 1120,
+            "bottom": 1568
+          }
+        }
+      ],
+      "source": {
+        "sha256": "f1b255fa542cbf9dd5840c4512d67ea5f04b7c0963dc37f76df10347108c64f0"
+      },
+      "context": {
+        "slot": "identity",
+        "language": "ar",
+        "product": null,
+        "initialSubmissionMonth": "2026-10",
+        "expectedCompletedMonths": null,
+        "comparisons": {
+          "name": "سالم نور التجريبي 107"
+        }
+      },
+      "scope": {
+        "originalPageCount": 1,
+        "pageCountEstablished": true,
+        "pageCountEstablishedBy": "PNG IHDR",
+        "selectedPages": [
+          1
+        ],
+        "selection": "all"
+      },
+      "fingerprint": "1ce677ec9c9f616ac8351dd244d2ee9c6b6eff78a2f43172c817a7e45b9da34b",
+      "pageResults": [
+        [
+          1,
+          {
+            "ok": true,
+            "native": {
+              "model": "jev-1.14.0",
+              "answers": {
+                "category": {
+                  "type": "choice",
+                  "choice": "identity",
+                  "confidence": 0.97,
+                  "probabilities": {
+                    "identity": 0.97,
+                    "business": 0,
+                    "financial": 0,
+                    "stock": 0,
+                    "equipment": 0,
+                    "other": 0.02,
+                    "mixed": 0,
+                    "cannot_determine": 0.01
+                  }
+                },
+                "readability": {
+                  "type": "score",
+                  "score": 1.94,
+                  "confidence": 0.91,
+                  "legend": {
+                    "0": "Relevant text cannot be read reliably.",
+                    "1": "Some relevant text is readable, but details are obscured.",
+                    "2": "Relevant text and digits are clearly readable."
+                  },
+                  "probabilities": {
+                    "0": 0.01,
+                    "1": 0.04,
+                    "2": 0.95
+                  }
+                },
+                "name_presence": {
+                  "type": "noul",
+                  "noul": 0.99
+                },
+                "name_multiplicity": {
+                  "type": "choice",
+                  "choice": "single",
+                  "confidence": 0.98,
+                  "probabilities": {
+                    "single": 0.99,
+                    "repeated": 0.01,
+                    "ambiguous": 0
+                  }
+                },
+                "name": {
+                  "type": "choice",
+                  "choice": "consistent",
+                  "confidence": 0.94,
+                  "probabilities": {
+                    "consistent": 0.95,
+                    "different": 0.05,
+                    "not_found": 0,
+                    "conflicting": 0,
+                    "cannot_determine": 0
+                  }
+                },
+                "name_box": {
+                  "type": "box",
+                  "box": {
+                    "top": 0.19,
+                    "bottom": 0.25,
+                    "left": 0.69,
+                    "right": 0.94
+                  },
+                  "confidence": 0.72
+                }
+              },
+              "usage": {
+                "input_tokens": 6644,
+                "output_tokens": 223
+              }
+            },
+            "mapped": {
+              "category": {
+                "type": "choice",
+                "value": "identity",
+                "probability": 0.97,
+                "confidence": 0.97,
+                "probabilities": {
+                  "identity": 0.97,
+                  "business": 0,
+                  "financial": 0,
+                  "stock": 0,
+                  "equipment": 0,
+                  "other": 0.02,
+                  "mixed": 0,
+                  "cannot_determine": 0.01
+                }
+              },
+              "readability": {
+                "type": "score",
+                "value": "Relevant text and digits are clearly readable.",
+                "probability": 0.95,
+                "confidence": 0.91,
+                "score": 1.94,
+                "legend": {
+                  "0": "Relevant text cannot be read reliably.",
+                  "1": "Some relevant text is readable, but details are obscured.",
+                  "2": "Relevant text and digits are clearly readable."
+                },
+                "probabilities": {
+                  "0": 0.01,
+                  "1": 0.04,
+                  "2": 0.95
+                }
+              },
+              "name_presence": {
+                "type": "boolean",
+                "value": true,
+                "probability": 0.99
+              },
+              "name_multiplicity": {
+                "type": "choice",
+                "value": "single",
+                "probability": 0.99,
+                "confidence": 0.98,
+                "probabilities": {
+                  "single": 0.99,
+                  "repeated": 0.01,
+                  "ambiguous": 0
+                }
+              },
+              "name": {
+                "type": "choice",
+                "value": "consistent",
+                "probability": 0.95,
+                "confidence": 0.94,
+                "probabilities": {
+                  "consistent": 0.95,
+                  "different": 0.05,
+                  "not_found": 0,
+                  "conflicting": 0,
+                  "cannot_determine": 0
+                }
+              },
+              "meta": {
+                "model": "jev-1.14.0",
+                "usage": {
+                  "inputTokens": 6644,
+                  "outputTokens": 223,
+                  "totalTokens": 6867
+                },
+                "id": "req_01a14ae773d87c9cb62ebe98aebb1fd8"
+              }
+            },
+            "locations": {
+              "name_box": {
+                "available": true,
+                "box": {
+                  "top": 0.19,
+                  "bottom": 0.25,
+                  "left": 0.69,
+                  "right": 0.94
+                },
+                "confidence": 0.72
+              }
+            },
+            "boxes": {
+              "name_box": {
+                "type": "box",
+                "box": {
+                  "top": 0.19,
+                  "bottom": 0.25,
+                  "left": 0.69,
+                  "right": 0.94
+                },
+                "confidence": 0.72
+              }
+            },
+            "requestId": "req_01a14ae773d87c9cb62ebe98aebb1fd8",
+            "status": 200,
+            "calls": 1,
+            "durationMs": 1752.9434920000058,
+            "versions": {
+              "design": "fixed-bootstrap-validation-v6",
+              "loading": "immutable-bootstrap-module-graphs-v2",
+              "rehearsal": "offline-rehearsal-only-v1",
+              "authorization": "exact-ledger-authorization-v2",
+              "model": "jev-1.14.0",
+              "sdk": "0.7.0",
+              "tanstack": "0.69.0",
+              "mapping": "native-bridge-v4-deadlines",
+              "questions": "evidence-questions-v3-automatic",
+              "preparation": "full-page-admission-v2",
+              "crop": "lossless-boundary-pad-v1",
+              "binding": "exact-target-binding-v1",
+              "deadline": "monotonic-supervised-v1",
+              "execution": "canonical-execution-input-v2",
+              "review": "exact-case-review-v2",
+              "freeze": "reviewed-graph-selection-freeze-v4",
+              "metrics": "independent-harm-metrics-v2",
+              "selector": "exact-opportunity-factor-selector-v3",
+              "policy": "candidate-display-v4-target-bound",
+              "roster": "expanded-roster-draft-v3-independent-four-page",
+              "ledger": "protected-validation-ledger-v6-reviewed-handoff"
+            }
+          }
+        ]
+      ],
+      "comparison": {
+        "ok": true,
+        "native": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "category": {
+              "type": "choice",
+              "choice": "identity",
+              "confidence": 0.97,
+              "probabilities": {
+                "identity": 0.97,
+                "business": 0,
+                "financial": 0,
+                "stock": 0,
+                "equipment": 0,
+                "other": 0.02,
+                "mixed": 0,
+                "cannot_determine": 0.01
+              }
+            },
+            "readability": {
+              "type": "score",
+              "score": 1.94,
+              "confidence": 0.91,
+              "legend": {
+                "0": "Relevant text cannot be read reliably.",
+                "1": "Some relevant text is readable, but details are obscured.",
+                "2": "Relevant text and digits are clearly readable."
+              },
+              "probabilities": {
+                "0": 0.01,
+                "1": 0.04,
+                "2": 0.95
+              }
+            },
+            "name_presence": {
+              "type": "noul",
+              "noul": 0.99
+            },
+            "name_multiplicity": {
+              "type": "choice",
+              "choice": "single",
+              "confidence": 0.98,
+              "probabilities": {
+                "single": 0.99,
+                "repeated": 0.01,
+                "ambiguous": 0
+              }
+            },
+            "name": {
+              "type": "choice",
+              "choice": "consistent",
+              "confidence": 0.94,
+              "probabilities": {
+                "consistent": 0.95,
+                "different": 0.05,
+                "not_found": 0,
+                "conflicting": 0,
+                "cannot_determine": 0
+              }
+            },
+            "name_box": {
+              "type": "box",
+              "box": {
+                "top": 0.19,
+                "bottom": 0.25,
+                "left": 0.69,
+                "right": 0.94
+              },
+              "confidence": 0.72
+            }
+          },
+          "usage": {
+            "input_tokens": 6644,
+            "output_tokens": 223
+          }
+        },
+        "mapped": {
+          "category": {
+            "type": "choice",
+            "value": "identity",
+            "probability": 0.97,
+            "confidence": 0.97,
+            "probabilities": {
+              "identity": 0.97,
+              "business": 0,
+              "financial": 0,
+              "stock": 0,
+              "equipment": 0,
+              "other": 0.02,
+              "mixed": 0,
+              "cannot_determine": 0.01
+            }
+          },
+          "readability": {
+            "type": "score",
+            "value": "Relevant text and digits are clearly readable.",
+            "probability": 0.95,
+            "confidence": 0.91,
+            "score": 1.94,
+            "legend": {
+              "0": "Relevant text cannot be read reliably.",
+              "1": "Some relevant text is readable, but details are obscured.",
+              "2": "Relevant text and digits are clearly readable."
+            },
+            "probabilities": {
+              "0": 0.01,
+              "1": 0.04,
+              "2": 0.95
+            }
+          },
+          "name_presence": {
+            "type": "boolean",
+            "value": true,
+            "probability": 0.99
+          },
+          "name_multiplicity": {
+            "type": "choice",
+            "value": "single",
+            "probability": 0.99,
+            "confidence": 0.98,
+            "probabilities": {
+              "single": 0.99,
+              "repeated": 0.01,
+              "ambiguous": 0
+            }
+          },
+          "name": {
+            "type": "choice",
+            "value": "consistent",
+            "probability": 0.95,
+            "confidence": 0.94,
+            "probabilities": {
+              "consistent": 0.95,
+              "different": 0.05,
+              "not_found": 0,
+              "conflicting": 0,
+              "cannot_determine": 0
+            }
+          },
+          "meta": {
+            "model": "jev-1.14.0",
+            "usage": {
+              "inputTokens": 6644,
+              "outputTokens": 223,
+              "totalTokens": 6867
+            },
+            "id": "req_01a14ae773d87c9cb62ebe98aebb1fd8"
+          }
+        },
+        "locations": {
+          "name_box": {
+            "available": true,
+            "box": {
+              "top": 0.19,
+              "bottom": 0.25,
+              "left": 0.69,
+              "right": 0.94
+            },
+            "confidence": 0.72
+          }
+        },
+        "boxes": {
+          "name_box": {
+            "type": "box",
+            "box": {
+              "top": 0.19,
+              "bottom": 0.25,
+              "left": 0.69,
+              "right": 0.94
+            },
+            "confidence": 0.72
+          }
+        },
+        "requestId": "req_01a14ae773d87c9cb62ebe98aebb1fd8",
+        "status": 200,
+        "calls": 1,
+        "durationMs": 1752.9434920000058,
+        "versions": {
+          "design": "fixed-bootstrap-validation-v6",
+          "loading": "immutable-bootstrap-module-graphs-v2",
+          "rehearsal": "offline-rehearsal-only-v1",
+          "authorization": "exact-ledger-authorization-v2",
+          "model": "jev-1.14.0",
+          "sdk": "0.7.0",
+          "tanstack": "0.69.0",
+          "mapping": "native-bridge-v4-deadlines",
+          "questions": "evidence-questions-v3-automatic",
+          "preparation": "full-page-admission-v2",
+          "crop": "lossless-boundary-pad-v1",
+          "binding": "exact-target-binding-v1",
+          "deadline": "monotonic-supervised-v1",
+          "execution": "canonical-execution-input-v2",
+          "review": "exact-case-review-v2",
+          "freeze": "reviewed-graph-selection-freeze-v4",
+          "metrics": "independent-harm-metrics-v2",
+          "selector": "exact-opportunity-factor-selector-v3",
+          "policy": "candidate-display-v4-target-bound",
+          "roster": "expanded-roster-draft-v3-independent-four-page",
+          "ledger": "protected-validation-ledger-v6-reviewed-handoff"
+        }
+      },
+      "verificationByPage": [
+        [
+          1,
+          {
+            "answers": {
+              "name_left": {
+                "type": "noul",
+                "noul": 0.62
+              },
+              "name_top": {
+                "type": "noul",
+                "noul": 0.36
+              },
+              "name_right": {
+                "type": "noul",
+                "noul": 0.49
+              },
+              "name_bottom": {
+                "type": "noul",
+                "noul": 0.2
+              },
+              "name_association": {
+                "type": "noul",
+                "noul": 0.94
+              },
+              "name_competing": {
+                "type": "noul",
+                "noul": 0.26
+              }
+            },
+            "binding": "1ce677ec9c9f616ac8351dd244d2ee9c6b6eff78a2f43172c817a7e45b9da34b",
+            "crops": [
+              {
+                "parentPage": 1,
+                "parentRasterSha256": "d5a6d1576aebaf4428042afec7e29a0bbdbf01c3d3f4c0dc616d7990d349f1bd",
+                "sourceSha256": "f1b255fa542cbf9dd5840c4512d67ea5f04b7c0963dc37f76df10347108c64f0",
+                "target": "name",
+                "returnedRectangle": {
+                  "top": 0.19,
+                  "bottom": 0.25,
+                  "left": 0.69,
+                  "right": 0.94
+                },
+                "cropSha256": "76162bf7074c1e679c69c80fda229b91d213e5a09cfedb62ed07cc8b14afcd10",
+                "byteLength": 12631,
+                "parentPreparation": {
+                  "width": 1120,
+                  "height": 1568,
+                  "sourceWidth": 800,
+                  "sourceHeight": 1120,
+                  "rotation": 0,
+                  "padding": {
+                    "left": 0,
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0
+                  },
+                  "scale": 1.4,
+                  "durationMs": 63.10000002384186,
+                  "page": 1,
+                  "path": "corpus/cases/ar-identity-01/page-1.png",
+                  "sha256": "d5a6d1576aebaf4428042afec7e29a0bbdbf01c3d3f4c0dc616d7990d349f1bd",
+                  "byteLength": 98796,
+                  "renderer": "Chromium createImageBitmap/canvas",
+                  "preparationVersion": "full-page-pdfjs-5.4.296-v1"
+                },
+                "width": 281,
+                "height": 280,
+                "exact": {
+                  "left": 772.8,
+                  "top": 297.92,
+                  "right": 1052.8,
+                  "bottom": 392
+                },
+                "copied": {
+                  "left": 772,
+                  "top": 297,
+                  "right": 1053,
+                  "bottom": 392
+                },
+                "padding": {
+                  "left": 0,
+                  "top": 92,
+                  "right": 0,
+                  "bottom": 93
+                },
+                "contentBoundary": {
+                  "left": 0,
+                  "top": 92,
+                  "right": 281,
+                  "bottom": 187
+                },
+                "originalBoxBoundary": {
+                  "left": 0.7999999999999545,
+                  "top": 92.92000000000002,
+                  "right": 280.79999999999995,
+                  "bottom": 187
+                },
+                "parentToCrop": [
+                  1,
+                  0,
+                  0,
+                  1,
+                  -772,
+                  -205
+                ],
+                "scale": 1,
+                "format": "png-rgba8",
+                "transform": "lossless-boundary-pad-v1",
+                "orientation": "same physical axes as unchanged parent; never RTL-mirrored",
+                "runBinding": "1ce677ec9c9f616ac8351dd244d2ee9c6b6eff78a2f43172c817a7e45b9da34b",
+                "digest": "e3fdc2be8ac56fdaade2a38480ad3ccac5da38204863e2c00f15b653587903cc"
+              }
+            ],
+            "currentCrops": [
+              {
+                "parentPage": 1,
+                "parentRasterSha256": "d5a6d1576aebaf4428042afec7e29a0bbdbf01c3d3f4c0dc616d7990d349f1bd",
+                "sourceSha256": "f1b255fa542cbf9dd5840c4512d67ea5f04b7c0963dc37f76df10347108c64f0",
+                "target": "name",
+                "returnedRectangle": {
+                  "top": 0.19,
+                  "bottom": 0.25,
+                  "left": 0.69,
+                  "right": 0.94
+                },
+                "cropSha256": "76162bf7074c1e679c69c80fda229b91d213e5a09cfedb62ed07cc8b14afcd10",
+                "byteLength": 12631,
+                "parentPreparation": {
+                  "width": 1120,
+                  "height": 1568,
+                  "sourceWidth": 800,
+                  "sourceHeight": 1120,
+                  "rotation": 0,
+                  "padding": {
+                    "left": 0,
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0
+                  },
+                  "scale": 1.4,
+                  "durationMs": 63.10000002384186,
+                  "page": 1,
+                  "path": "corpus/cases/ar-identity-01/page-1.png",
+                  "sha256": "d5a6d1576aebaf4428042afec7e29a0bbdbf01c3d3f4c0dc616d7990d349f1bd",
+                  "byteLength": 98796,
+                  "renderer": "Chromium createImageBitmap/canvas",
+                  "preparationVersion": "full-page-pdfjs-5.4.296-v1"
+                },
+                "width": 281,
+                "height": 280,
+                "exact": {
+                  "left": 772.8,
+                  "top": 297.92,
+                  "right": 1052.8,
+                  "bottom": 392
+                },
+                "copied": {
+                  "left": 772,
+                  "top": 297,
+                  "right": 1053,
+                  "bottom": 392
+                },
+                "padding": {
+                  "left": 0,
+                  "top": 92,
+                  "right": 0,
+                  "bottom": 93
+                },
+                "contentBoundary": {
+                  "left": 0,
+                  "top": 92,
+                  "right": 281,
+                  "bottom": 187
+                },
+                "originalBoxBoundary": {
+                  "left": 0.7999999999999545,
+                  "top": 92.92000000000002,
+                  "right": 280.79999999999995,
+                  "bottom": 187
+                },
+                "parentToCrop": [
+                  1,
+                  0,
+                  0,
+                  1,
+                  -772,
+                  -205
+                ],
+                "scale": 1,
+                "format": "png-rgba8",
+                "transform": "lossless-boundary-pad-v1",
+                "orientation": "same physical axes as unchanged parent; never RTL-mirrored"
+              }
+            ]
+          }
+        ]
+      ]
+    },
+    "reviewedWorkerCode": {
+      "graphDigest": "472cb770feffc305df3e9be442b3cc88ff7f3af742dfcea31aaea8e74c14dc80",
+      "bootstrapIdentity": {
+        "path": ".scratch/worktrees/jev-selection-execution/experiment/validation-controls/revision-loader.mjs",
+        "sha256": "ab4709cc7eeb7ab650fea48c4a1751958f5b7f4b137597fca96e9b42666d0a48"
+      },
+      "loaded": {
+        ".scratch/worktrees/jev-selection-execution/experiment/validation-controls/revision-loader.mjs": "ab4709cc7eeb7ab650fea48c4a1751958f5b7f4b137597fca96e9b42666d0a48",
+        ".scratch/worktrees/jev-selection-execution/experiment/validation-controls/run-worker.mjs": "c1dea58a5d42eb962fe8be7c6ebb666d820d9cd2adc582dde3146a686bb26859",
+        ".scratch/worktrees/jev-selection-execution/experiment/validation-controls/run.mjs": "940d22dbd9989098b22ec86dc374a6de7f7d244b11502fbc3d7ac062ca2ca459",
+        ".scratch/worktrees/jev-selection-execution/experiment/validation-controls/bridge.mjs": "95496485ebf3a6fdebe2de89d2cbbf8625dc52ba7492f1c5c1a6fbe4eeaad01a",
+        ".scratch/worktrees/jev-selection-execution/experiment/request-size.mjs": "8024d12e506a10439653a13d5f638c22c01c2e46dfa5c6787c072aa3c9e4b683",
+        ".scratch/worktrees/jev-selection-execution/experiment/validation-controls/contracts.mjs": "7dd90155a98cb084e72322ec89af4a51ffdc1e6d7f400afba7bfeb72290afccf",
+        ".scratch/worktrees/jev-selection-execution/experiment/validation-controls/png.mjs": "72943e97e54ea6901d36439de85d462556b42cd8a53ae4d59463debd0374d594",
+        ".scratch/worktrees/jev-selection-execution/experiment/validation-controls/questions.mjs": "e2cba0bfbd2fe7cf754e29dd9f9662cc47e46da68362fc69794c69110d99b2af",
+        ".scratch/worktrees/jev-selection-execution/experiment/questions.mjs": "1c312768ff22c8a072f83f309588cdaeee412a944baf10afab864339d03b554c",
+        ".scratch/worktrees/jev-selection-execution/experiment/validation-controls/admission.mjs": "333093ae7d5610eb5c864ca620cd4257d25bd1f042a21ffc9f2d9004cdd9f0b3",
+        ".scratch/worktrees/jev-selection-execution/experiment/validation-controls/crops.mjs": "7996ef8f712ab2e1260c45d0be8dab863ee6cf883a6494837dbad2b5d7972af6",
+        ".scratch/worktrees/jev-selection-execution/experiment/validation-controls/worker-environment.mjs": "dc3ad24d5ee6c2b4ba937795ea4bcf15e6e144f682649406278fd66735fd02e6",
+        ".scratch/worktrees/jev-selection-execution/experiment/validation-controls/policy.mjs": "41af75e3f2ed638ddba0388573de362437f81be03a8bbd9b993eedff045eb01e",
+        ".scratch/worktrees/jev-selection-execution/experiment/display-policy.mjs": "d416293e0435b441a4c212ecdd086702a2c3b923b8cbfa5da3dfd047fd8e1bc4",
+        ".scratch/worktrees/jev-selection-execution/experiment/validation-controls/ledger.mjs": "8d42de5a1f5a705d43e7979ab80d000415a6ebbe4c4f2a8ebb6d6ee47a283fa2"
+      }
+    },
+    "offlineRehearsal": false,
+    "calibrationEstablished": false,
+    "codeGraphDigest": "472cb770feffc305df3e9be442b3cc88ff7f3af742dfcea31aaea8e74c14dc80"
+  }
+}

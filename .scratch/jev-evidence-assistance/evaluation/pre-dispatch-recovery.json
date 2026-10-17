@@ -1,0 +1,23 @@
+{
+  "id": "recovery-31255cce-a84f-4333-bc7b-b1514ed08254",
+  "phase": "development",
+  "auditedAt": "2026-10-17T04:48:53.395184+00:00",
+  "ledgerSha256": "5b146b077ad2e19a90e67160323c57a29ec56356a017d144d3fe753a56f36076",
+  "providerDispatches": 0,
+  "sdkTransportInvocations": 7,
+  "problem": "SDK encoded multipart body is a Blob. The initial local guard read byteLength and rejected it before dispatch.",
+  "recovery": "Reuse the original ten known-unsent reserved slots. Preserve all original local-failure captures. No ledger reset, replacement provider attempt or increase in allowance.",
+  "evidence": {
+    "captures/development/48f57bf9-0de2-4ba2-899a-7c97db8ba24e-1.json": "a8e1599da542826387df3ca2c13adbc6d42b8f971b062d1e35e85e9c788599f4",
+    "captures/development/48f57bf9-0de2-4ba2-899a-7c97db8ba24e-2.json": "8549f811d9539f7e5156963ba631657c879ec3baf07aab5a923e207d28f22962",
+    "captures/development/48f57bf9-0de2-4ba2-899a-7c97db8ba24e-3.json": "afad082064975c7ea0c77378529675da366ce734e1b12f5b65582b744a3902a2",
+    "captures/development/48f57bf9-0de2-4ba2-899a-7c97db8ba24e-4.json": "1f77e0e558698dc4127a14ff0e18d57c74a3c3aefa621a15bf5af26fc582e089",
+    "captures/development/48f57bf9-0de2-4ba2-899a-7c97db8ba24e-run.json": "a32f095b80711482d661c58596fe0339ee114a2e5b5d49d658fbdf8f01950b2f",
+    "captures/development/50037c2f-260f-4cd8-93e4-170cc9b32907-1.json": "2217743cf5504c9b8043644bc26906582f7cfb15bb74b7ec9444216440d6e2f3",
+    "captures/development/db7b5543-8be1-4319-8c63-8782fcba7a44-1.json": "db35df0e177e04cb596950da84701f7299212879fac95a11f49f89ad933e5d9b",
+    "captures/development/50037c2f-260f-4cd8-93e4-170cc9b32907-run.json": "538ce3e0e01bb028a2ded7151058e49201a9eb3775ab438cb1a0a05d132570bb",
+    "captures/development/db7b5543-8be1-4319-8c63-8782fcba7a44-run.json": "1133db572f4403c8d06f5367cf6d859253bd9a1dd4ef319137320761ec4382a6",
+    "captures/development/2a1cf37d-ec0d-4993-8189-37ae113248ed-1.json": "fdfbd3c6c282eadbb3b91d9a132246f03f65b5fc810b57230f61611a5cb68c31",
+    "captures/development/2a1cf37d-ec0d-4993-8189-37ae113248ed-run.json": "5b589f05e2f025aff6c43cf80cce1c73a71b95e668537b9027c5f51c1ebf2f09"
+  }
+}

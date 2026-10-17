@@ -1,0 +1,126 @@
+{
+  "id": "en-purchase-06",
+  "sourceFamily": "en-purchase-06",
+  "language": "en",
+  "slot": "purchase",
+  "index": 6,
+  "kind": "conflicting_entries",
+  "split": "evaluation",
+  "context": {
+    "slot": "purchase",
+    "language": "en",
+    "product": "equipment",
+    "initialSubmissionMonth": "2026-10",
+    "expectedCompletedMonths": null,
+    "comparisons": {
+      "description": "Purchase display shelving for fictional shop 635",
+      "budget": "363500 YER"
+    }
+  },
+  "expected": {
+    "category": "equipment",
+    "support": {
+      "description": "conflicting",
+      "budget": "consistent"
+    },
+    "pages": [
+      {
+        "page": 1,
+        "readability": 2,
+        "targets": {
+          "description": {
+            "present": true,
+            "multiplicity": "repeated",
+            "regions": [
+              {
+                "left": 0.06,
+                "right": 0.69912109375,
+                "top": 0.21205357142857142,
+                "bottom": 0.24387555803571428
+              },
+              {
+                "left": 0.06,
+                "right": 0.5528515625,
+                "top": 0.3513392857142857,
+                "bottom": 0.38316127232142855
+              }
+            ]
+          },
+          "budget": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.06,
+                "right": 0.2162890625,
+                "top": 0.28169642857142857,
+                "bottom": 0.31351841517857143
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "pages": [
+    {
+      "rows": [
+        {
+          "id": "description",
+          "label": "Purchase description",
+          "value": "Purchase display shelving for fictional shop 635"
+        },
+        {
+          "id": "budget",
+          "label": "Total purchase budget",
+          "value": "363500 YER"
+        },
+        {
+          "id": "description",
+          "label": "Purchase description",
+          "value": "A completely different fictional value"
+        }
+      ],
+      "unreadable": false,
+      "partial": false,
+      "blank": false,
+      "note": ""
+    }
+  ],
+  "category": "equipment",
+  "rotation": 0,
+  "status": "unrun",
+  "humanChecked": false,
+  "source": {
+    "path": "corpus/cases/en-purchase-06/source.png",
+    "sha256": "a35f95cec9e7ccb5e08ac80e8e34e0c3062f266c5fa399fe67a40e5e57c47696",
+    "bytes": 42741
+  },
+  "preparation": [
+    {
+      "width": 1120,
+      "height": 1568,
+      "sourceWidth": 800,
+      "sourceHeight": 1120,
+      "rotation": 0,
+      "padding": {
+        "left": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      "scale": 1.4,
+      "durationMs": 93,
+      "page": 1,
+      "path": "corpus/cases/en-purchase-06/page-1.png",
+      "sha256": "6c189bbdb927aa056a58f60823791c657e5d82dd7c8c3f8a9df91506405d9eff",
+      "byteLength": 161377,
+      "renderer": "Chromium createImageBitmap/canvas",
+      "preparationVersion": "full-page-pdfjs-5.4.296-v1"
+    }
+  ],
+  "preparationTotalMs": 278.1292519999988,
+  "preparationMeasuredMs": 93,
+  "contextSha256": "0c03ee79f554d3f5f23b234cc609018cd77ccf0d2c27813654bcbf57dc529400",
+  "expectedSha256": "59c766bfa4ec0af9d633ad6242beb67878d4485efb1681997aea438137842d8d"
+}

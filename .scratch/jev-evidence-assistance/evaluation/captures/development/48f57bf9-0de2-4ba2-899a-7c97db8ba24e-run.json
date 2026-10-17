@@ -1,0 +1,91 @@
+{
+  "caseId": "ar-financial-01",
+  "phase": "development",
+  "probe": false,
+  "runId": "48f57bf9-0de2-4ba2-899a-7c97db8ba24e",
+  "plannedAttempts": 5,
+  "stageCount": 4,
+  "pageCount": 4,
+  "preparationMs": 1528.019655,
+  "localCompletionMs": 1580.370726,
+  "providerRunMs": 19.80957599999965,
+  "presentation": "CLI capture only; application presentation unmeasured",
+  "stages": [
+    {
+      "path": "captures/development/48f57bf9-0de2-4ba2-899a-7c97db8ba24e-1.json",
+      "kind": "page-1",
+      "ok": false,
+      "coverage": {
+        "selectedPages": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "analyzedPages": [
+          1
+        ],
+        "complete": false
+      }
+    },
+    {
+      "path": "captures/development/48f57bf9-0de2-4ba2-899a-7c97db8ba24e-2.json",
+      "kind": "page-2",
+      "ok": false,
+      "coverage": {
+        "selectedPages": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "analyzedPages": [
+          2
+        ],
+        "complete": false
+      }
+    },
+    {
+      "path": "captures/development/48f57bf9-0de2-4ba2-899a-7c97db8ba24e-3.json",
+      "kind": "page-3",
+      "ok": false,
+      "coverage": {
+        "selectedPages": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "analyzedPages": [
+          3
+        ],
+        "complete": false
+      }
+    },
+    {
+      "path": "captures/development/48f57bf9-0de2-4ba2-899a-7c97db8ba24e-4.json",
+      "kind": "page-4",
+      "ok": false,
+      "coverage": {
+        "selectedPages": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "analyzedPages": [
+          4
+        ],
+        "complete": false
+      }
+    }
+  ],
+  "versions": {
+    "model": "jev-1.14.0",
+    "sdk": "0.7.0",
+    "tanstack": "0.69.0",
+    "mapping": "native-bridge-v1",
+    "questions": "evidence-questions-v1",
+    "preparation": "full-page-pdfjs-5.4.296-v1"
+  }
+}

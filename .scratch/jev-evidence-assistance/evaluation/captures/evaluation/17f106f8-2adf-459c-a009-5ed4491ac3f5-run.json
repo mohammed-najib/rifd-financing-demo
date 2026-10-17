@@ -1,0 +1,51 @@
+{
+  "caseId": "en-financial-10",
+  "phase": "evaluation",
+  "probe": false,
+  "runId": "17f106f8-2adf-459c-a009-5ed4491ac3f5",
+  "plannedAttempts": 2,
+  "stageCount": 2,
+  "pageCount": 1,
+  "preparationMs": 303.03485699999965,
+  "localCompletionMs": 2057.0470289999994,
+  "providerRunMs": 1731.602035,
+  "presentation": "CLI capture only; application presentation unmeasured",
+  "stages": [
+    {
+      "path": "captures/evaluation/17f106f8-2adf-459c-a009-5ed4491ac3f5-1.json",
+      "kind": "page-1",
+      "ok": true,
+      "coverage": {
+        "selectedPages": [
+          1
+        ],
+        "analyzedPages": [
+          1
+        ],
+        "complete": false
+      }
+    },
+    {
+      "path": "captures/evaluation/17f106f8-2adf-459c-a009-5ed4491ac3f5-2.json",
+      "kind": "comparison",
+      "ok": true,
+      "coverage": {
+        "selectedPages": [
+          1
+        ],
+        "analyzedPages": [
+          1
+        ],
+        "complete": true
+      }
+    }
+  ],
+  "versions": {
+    "model": "jev-1.14.0",
+    "sdk": "0.7.0",
+    "tanstack": "0.69.0",
+    "mapping": "native-bridge-v1",
+    "questions": "evidence-questions-v1",
+    "preparation": "full-page-pdfjs-5.4.296-v1"
+  }
+}

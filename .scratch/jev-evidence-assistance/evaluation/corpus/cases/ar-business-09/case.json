@@ -1,0 +1,134 @@
+{
+  "id": "ar-business-09",
+  "sourceFamily": "ar-business-09",
+  "language": "ar",
+  "slot": "business",
+  "index": 9,
+  "kind": "rotated_page",
+  "split": "development",
+  "context": {
+    "slot": "business",
+    "language": "ar",
+    "product": null,
+    "initialSubmissionMonth": "2026-10",
+    "expectedCompletedMonths": null,
+    "comparisons": {
+      "businessName": "متجر الندى التجريبي 194",
+      "address": "شارع الربيع التجريبي، مبنى 194",
+      "startMonth": "2022-04"
+    }
+  },
+  "expected": {
+    "category": "business",
+    "support": {
+      "businessName": "consistent",
+      "address": "consistent",
+      "startMonth": "consistent"
+    },
+    "pages": [
+      {
+        "page": 1,
+        "readability": 2,
+        "targets": {
+          "businessName": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.7561244419642857,
+                "right": 0.7879464285714286,
+                "top": 0.657890625,
+                "bottom": 0.94
+              }
+            ]
+          },
+          "address": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.6864815848214285,
+                "right": 0.7183035714285715,
+                "top": 0.58724609375,
+                "bottom": 0.94
+              }
+            ]
+          },
+          "startMonth": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.6168387276785714,
+                "right": 0.6486607142857144,
+                "top": 0.8320703125,
+                "bottom": 0.94
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "pages": [
+    {
+      "rows": [
+        {
+          "id": "businessName",
+          "label": "اسم النشاط",
+          "value": "متجر الندى التجريبي 194"
+        },
+        {
+          "id": "address",
+          "label": "عنوان النشاط",
+          "value": "شارع الربيع التجريبي، مبنى 194"
+        },
+        {
+          "id": "startMonth",
+          "label": "النشاط قائم منذ",
+          "value": "2022-04"
+        }
+      ],
+      "unreadable": false,
+      "partial": false,
+      "blank": false,
+      "note": ""
+    }
+  ],
+  "category": "business",
+  "rotation": 90,
+  "status": "unrun",
+  "humanChecked": false,
+  "source": {
+    "path": "corpus/cases/ar-business-09/source.png",
+    "sha256": "755cd1e29e6c1430e9156c3a37617a9d854ae980880d350f2dd68a2531ae085f",
+    "bytes": 64321
+  },
+  "preparation": [
+    {
+      "width": 1568,
+      "height": 1120,
+      "sourceWidth": 1120,
+      "sourceHeight": 800,
+      "rotation": 0,
+      "padding": {
+        "left": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      "scale": 1.4,
+      "durationMs": 51.19999998807907,
+      "page": 1,
+      "path": "corpus/cases/ar-business-09/page-1.png",
+      "sha256": "d4eebbe07116f6223497d13716e39446cec5c4f58135c07bd194048d8ac1a0e1",
+      "byteLength": 135504,
+      "renderer": "Chromium createImageBitmap/canvas",
+      "preparationVersion": "full-page-pdfjs-5.4.296-v1"
+    }
+  ],
+  "preparationTotalMs": 310.5184440000003,
+  "preparationMeasuredMs": 51.19999998807907,
+  "contextSha256": "ad2bb9b74352cef67d4af718ef37318752e77609a4877e53e9116dd4d5036624",
+  "expectedSha256": "fbc7c85504aca9ec32b7201adfc1dce658636a14578d2a593e0b1a374779f636"
+}

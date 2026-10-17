@@ -1,0 +1,122 @@
+{
+  "id": "ar-business-03",
+  "sourceFamily": "ar-business-03",
+  "language": "ar",
+  "slot": "business",
+  "index": 3,
+  "kind": "absent_target",
+  "split": "development",
+  "context": {
+    "slot": "business",
+    "language": "ar",
+    "product": null,
+    "initialSubmissionMonth": "2026-10",
+    "expectedCompletedMonths": null,
+    "comparisons": {
+      "businessName": "متجر الندى التجريبي 152",
+      "address": "شارع الربيع التجريبي، مبنى 152",
+      "startMonth": "2022-04"
+    }
+  },
+  "expected": {
+    "category": "business",
+    "support": {
+      "businessName": "not_found",
+      "address": "consistent",
+      "startMonth": "consistent"
+    },
+    "pages": [
+      {
+        "page": 1,
+        "readability": 2,
+        "targets": {
+          "businessName": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "address": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.58724609375,
+                "right": 0.94,
+                "top": 0.21205357142857142,
+                "bottom": 0.24387555803571428
+              }
+            ]
+          },
+          "startMonth": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.8320703125,
+                "right": 0.94,
+                "top": 0.28169642857142857,
+                "bottom": 0.31351841517857143
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "pages": [
+    {
+      "rows": [
+        {
+          "id": "address",
+          "label": "عنوان النشاط",
+          "value": "شارع الربيع التجريبي، مبنى 152"
+        },
+        {
+          "id": "startMonth",
+          "label": "النشاط قائم منذ",
+          "value": "2022-04"
+        }
+      ],
+      "unreadable": false,
+      "partial": false,
+      "blank": false,
+      "note": ""
+    }
+  ],
+  "category": "business",
+  "rotation": 0,
+  "status": "unrun",
+  "humanChecked": false,
+  "source": {
+    "path": "corpus/cases/ar-business-03/source.png",
+    "sha256": "04a5baee21b76e380e03b528e5e0224425b742da81dd7c8ecc653bef3448274c",
+    "bytes": 29119
+  },
+  "preparation": [
+    {
+      "width": 1120,
+      "height": 1568,
+      "sourceWidth": 800,
+      "sourceHeight": 1120,
+      "rotation": 0,
+      "padding": {
+        "left": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      "scale": 1.4,
+      "durationMs": 40.599999994039536,
+      "page": 1,
+      "path": "corpus/cases/ar-business-03/page-1.png",
+      "sha256": "eef28225cde20e0251691490d782b3d6a6d0fb38700d63a551f168b609842ac6",
+      "byteLength": 116259,
+      "renderer": "Chromium createImageBitmap/canvas",
+      "preparationVersion": "full-page-pdfjs-5.4.296-v1"
+    }
+  ],
+  "preparationTotalMs": 194.63696399999935,
+  "preparationMeasuredMs": 40.599999994039536,
+  "contextSha256": "8323e3fb1f521eaa32cff13e2d46e4abdd3c228dcabd1e3ac944cc59b73141b6",
+  "expectedSha256": "de92603de3e2fd02918967350efb7f1b4148d1b3c3b629f6ccb3211d80d53dcc"
+}

@@ -1,0 +1,107 @@
+{
+  "id": "ar-identity-06",
+  "sourceFamily": "ar-identity-06",
+  "language": "ar",
+  "slot": "identity",
+  "index": 6,
+  "kind": "conflicting_entries",
+  "split": "evaluation",
+  "context": {
+    "slot": "identity",
+    "language": "ar",
+    "product": null,
+    "initialSubmissionMonth": "2026-10",
+    "expectedCompletedMonths": null,
+    "comparisons": {
+      "name": "سالم نور التجريبي 142"
+    }
+  },
+  "expected": {
+    "category": "identity",
+    "support": {
+      "name": "conflicting"
+    },
+    "pages": [
+      {
+        "page": 1,
+        "readability": 2,
+        "targets": {
+          "name": {
+            "present": true,
+            "multiplicity": "repeated",
+            "regions": [
+              {
+                "left": 0.68833984375,
+                "right": 0.94,
+                "top": 0.21205357142857142,
+                "bottom": 0.24387555803571428
+              },
+              {
+                "left": 0.6448046875,
+                "right": 0.94,
+                "top": 0.28169642857142857,
+                "bottom": 0.31351841517857143
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "pages": [
+    {
+      "rows": [
+        {
+          "id": "name",
+          "label": "اسم مقدم الطلب",
+          "value": "سالم نور التجريبي 142"
+        },
+        {
+          "id": "name",
+          "label": "اسم مقدم الطلب",
+          "value": "قيمة تجريبية مختلفة تماماً"
+        }
+      ],
+      "unreadable": false,
+      "partial": false,
+      "blank": false,
+      "note": ""
+    }
+  ],
+  "category": "identity",
+  "rotation": 0,
+  "status": "unrun",
+  "humanChecked": false,
+  "source": {
+    "path": "corpus/cases/ar-identity-06/source.png",
+    "sha256": "f7e1dfe4ddd70dea43cfc691bb25de8d7982c1a26f3267983251d6e33e3d77f3",
+    "bytes": 31334
+  },
+  "preparation": [
+    {
+      "width": 1120,
+      "height": 1568,
+      "sourceWidth": 800,
+      "sourceHeight": 1120,
+      "rotation": 0,
+      "padding": {
+        "left": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      "scale": 1.4,
+      "durationMs": 46.5,
+      "page": 1,
+      "path": "corpus/cases/ar-identity-06/page-1.png",
+      "sha256": "cdcd14c79da66f2414e7c00b8b18a8add9035e11db2370376c03e7242c860dc2",
+      "byteLength": 119208,
+      "renderer": "Chromium createImageBitmap/canvas",
+      "preparationVersion": "full-page-pdfjs-5.4.296-v1"
+    }
+  ],
+  "preparationTotalMs": 220.45317499999965,
+  "preparationMeasuredMs": 46.5,
+  "contextSha256": "f7e9c545eebd38cd0b71db2a0cb3161309aa7edaec305adb68beec51c1ec5046",
+  "expectedSha256": "1cd1abe1e5337f2a2f59f9284854a0f2a22dd11a1fbd646f887c037450a043e3"
+}

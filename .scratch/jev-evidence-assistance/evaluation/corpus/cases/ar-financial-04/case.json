@@ -1,0 +1,177 @@
+{
+  "id": "ar-financial-04",
+  "sourceFamily": "ar-financial-04",
+  "language": "ar",
+  "slot": "financial",
+  "index": 4,
+  "kind": "unreadable",
+  "split": "evaluation",
+  "context": {
+    "slot": "financial",
+    "language": "ar",
+    "product": null,
+    "initialSubmissionMonth": "2026-10",
+    "expectedCompletedMonths": [
+      "2026-07",
+      "2026-08",
+      "2026-09"
+    ],
+    "comparisons": {
+      "period": "يوليو إلى سبتمبر ٢٠٢٦",
+      "averageRevenue": "١١٩٠٠٠ ريال",
+      "averageExpenses": "٥٩٥٠٠ ريال"
+    }
+  },
+  "expected": {
+    "category": "financial",
+    "support": {
+      "period": "cannot_determine",
+      "averageRevenue": "cannot_determine",
+      "averageExpenses": "cannot_determine"
+    },
+    "pages": [
+      {
+        "page": 1,
+        "readability": 0,
+        "targets": {
+          "period": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "revenue0": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "revenue1": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "revenue2": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "expenses0": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "expenses1": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "expenses2": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "averageRevenue": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "averageExpenses": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          }
+        }
+      }
+    ]
+  },
+  "pages": [
+    {
+      "rows": [
+        {
+          "id": "period",
+          "label": "الفترة المالية",
+          "value": "يوليو إلى سبتمبر ٢٠٢٦"
+        },
+        {
+          "id": "revenue0",
+          "label": "إيرادات يوليو ٢٠٢٦",
+          "value": "١١٨٠٠٠ ريال"
+        },
+        {
+          "id": "revenue1",
+          "label": "إيرادات أغسطس ٢٠٢٦",
+          "value": "١١٩٠٠٠ ريال"
+        },
+        {
+          "id": "revenue2",
+          "label": "إيرادات سبتمبر ٢٠٢٦",
+          "value": "١٢٠٠٠٠ ريال"
+        },
+        {
+          "id": "expenses0",
+          "label": "مصروفات يوليو ٢٠٢٦",
+          "value": "٥٩٠٠٠ ريال"
+        },
+        {
+          "id": "expenses1",
+          "label": "مصروفات أغسطس ٢٠٢٦",
+          "value": "٥٩٥٠٠ ريال"
+        },
+        {
+          "id": "expenses2",
+          "label": "مصروفات سبتمبر ٢٠٢٦",
+          "value": "٦٠٠٠٠ ريال"
+        },
+        {
+          "id": "averageRevenue",
+          "label": "متوسط الإيرادات الشهرية",
+          "value": "١١٩٠٠٠ ريال"
+        },
+        {
+          "id": "averageExpenses",
+          "label": "متوسط المصروفات الشهرية",
+          "value": "٥٩٥٠٠ ريال"
+        }
+      ],
+      "unreadable": true,
+      "partial": false,
+      "blank": false,
+      "note": ""
+    }
+  ],
+  "category": "financial",
+  "rotation": 0,
+  "status": "unrun",
+  "humanChecked": false,
+  "source": {
+    "path": "corpus/cases/ar-financial-04/source.png",
+    "sha256": "a8b819aef9bfaf690ce9149294081bcb7c8c1ec22863a5716afba22757a3badb",
+    "bytes": 79023
+  },
+  "preparation": [
+    {
+      "width": 1120,
+      "height": 1568,
+      "sourceWidth": 800,
+      "sourceHeight": 1120,
+      "rotation": 0,
+      "padding": {
+        "left": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      "scale": 1.4,
+      "durationMs": 65.5,
+      "page": 1,
+      "path": "corpus/cases/ar-financial-04/page-1.png",
+      "sha256": "116d279cf820421fea212b9b7e466d0f8c89044e5dd603de007b272e88308a31",
+      "byteLength": 211865,
+      "renderer": "Chromium createImageBitmap/canvas",
+      "preparationVersion": "full-page-pdfjs-5.4.296-v1"
+    }
+  ],
+  "preparationTotalMs": 312.17104199999994,
+  "preparationMeasuredMs": 65.5,
+  "contextSha256": "1dcc07a1d7fc5e3931ed424df82c3aca0c85b5a21a3551631991c40f0574c588",
+  "expectedSha256": "05a7b323b27a5f3f6f1d65270397ae36c086402616e7d771a52befc78c91a9bc"
+}

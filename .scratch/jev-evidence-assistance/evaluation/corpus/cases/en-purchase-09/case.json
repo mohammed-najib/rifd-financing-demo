@@ -1,0 +1,115 @@
+{
+  "id": "en-purchase-09",
+  "sourceFamily": "en-purchase-09",
+  "language": "en",
+  "slot": "purchase",
+  "index": 9,
+  "kind": "rotated_page",
+  "split": "development",
+  "context": {
+    "slot": "purchase",
+    "language": "en",
+    "product": "inventory",
+    "initialSubmissionMonth": "2026-10",
+    "expectedCompletedMonths": null,
+    "comparisons": {
+      "description": "Purchase notebook stock for fictional shop 656",
+      "budget": "365600 YER"
+    }
+  },
+  "expected": {
+    "category": "stock",
+    "support": {
+      "description": "consistent",
+      "budget": "consistent"
+    },
+    "pages": [
+      {
+        "page": 1,
+        "readability": 2,
+        "targets": {
+          "description": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.7561244419642857,
+                "right": 0.7879464285714286,
+                "top": 0.06,
+                "bottom": 0.6919921875
+              }
+            ]
+          },
+          "budget": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.6864815848214285,
+                "right": 0.7183035714285715,
+                "top": 0.06,
+                "bottom": 0.2162890625
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "pages": [
+    {
+      "rows": [
+        {
+          "id": "description",
+          "label": "Purchase description",
+          "value": "Purchase notebook stock for fictional shop 656"
+        },
+        {
+          "id": "budget",
+          "label": "Total purchase budget",
+          "value": "365600 YER"
+        }
+      ],
+      "unreadable": false,
+      "partial": false,
+      "blank": false,
+      "note": ""
+    }
+  ],
+  "category": "stock",
+  "rotation": 90,
+  "status": "unrun",
+  "humanChecked": false,
+  "source": {
+    "path": "corpus/cases/en-purchase-09/source.png",
+    "sha256": "79678e84bf3ce368622200d4d0de5515bc5f58d676580e0f7d821d8ef52723d1",
+    "bytes": 66620
+  },
+  "preparation": [
+    {
+      "width": 1568,
+      "height": 1120,
+      "sourceWidth": 1120,
+      "sourceHeight": 800,
+      "rotation": 0,
+      "padding": {
+        "left": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      "scale": 1.4,
+      "durationMs": 48.599999994039536,
+      "page": 1,
+      "path": "corpus/cases/en-purchase-09/page-1.png",
+      "sha256": "564eae537e62da3c4405e5e203004b5ea54875b4299aa1a15551291a5f822021",
+      "byteLength": 147657,
+      "renderer": "Chromium createImageBitmap/canvas",
+      "preparationVersion": "full-page-pdfjs-5.4.296-v1"
+    }
+  ],
+  "preparationTotalMs": 265.152822,
+  "preparationMeasuredMs": 48.599999994039536,
+  "contextSha256": "99b0afd90e6f9a4e20333c7760cb95817f2c41206e1905cafc147e978e423005",
+  "expectedSha256": "d77e721e2e36dc1afaa57b2b635ccd378ecb4cf074ee1269bf30414af433a0e3"
+}

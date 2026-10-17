@@ -1,0 +1,31 @@
+{
+  "version": "corrected-bootstrap-live-review-v1",
+  "sourceArtifactCommit": "16c17095c78436ebd76f2c679ea81cf66b6f817d",
+  "manifestDigest": "342bf15db67622205ef4c187a1ee2201d4bdf5f099136596a537f6e42a7df155",
+  "technicalReview": {
+    "blockingDefectsFound": false,
+    "sealedRegressionsVerified": 62,
+    "freshTargetedTestsPassed": 8,
+    "originalFailureNowRejected": true,
+    "manifestFilesVerified": 5236,
+    "dependencyFilesVerified": 4715,
+    "linksVerified": 89,
+    "sealedFilesVerified": 134,
+    "allActualCutoffsUnset": true,
+    "sourceLabelContextRasterFamilyCarryforwardChecked": 149,
+    "selectorPolicySelectionBindingAndLedgerBytesUnchangedFromPreviousReview": true
+  },
+  "userConfirmationsCarriedForward": true,
+  "existingSignedRuntimeReceiptsFabricated": false,
+  "humanAcceptanceAndPaidDecision": "awaiting explicit user answer to this concrete proposal",
+  "providerInferenceAttempts": 0,
+  "sealedPackageModified": false,
+  "filesSha256": {
+    "decision-binding.json": "7c6333581107faf11fc0dddfd2a20d787c1be082f86417d048f125498d693994",
+    "execution-proposal.json": "98b8f9153c9aab4bc7b51c0f247cf34887ec7e89d859dd68d4e51b20604d869f",
+    "original-readonly-verification.json": "dd4c2d87decfb3793a46fe37537d5057b475db8625af5128eddc7c2b6134c749",
+    "original-repro-result.json": "94343b41ebdba58a0bfd3233ed314f076502c1ed9da0b380edc6600a445b1d5a",
+    "original-repro.stderr": "223ab005513777e6fc3d0fc952b666d3cdcf675f4221e6e7baffdaa177d7c60b",
+    "targeted-tests.tap": "7fdcf8ca3b35a145abb5d984e794cfe3e5c7d63ca10e64e5fcc12d7fdd84193a"
+  }
+}

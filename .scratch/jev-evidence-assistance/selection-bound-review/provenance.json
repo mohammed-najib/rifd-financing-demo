@@ -1,0 +1,75 @@
+{
+  "version": "selection-bound-live-review-v1",
+  "date": "2026-10-17",
+  "reviewedBranchHead": "c700eaae0773d0a4b41fa95a3445a02cb8d4ebd5",
+  "sourceAndArtifactCommit": "8211d6fcc50054520f68bad9fcbac9196606ebf7",
+  "manifestDigest": "5bca29b01052929bfc8732a11e61ad81e99a096c536d4d7e60b39c5854acb5f2",
+  "semanticDigest": "73bc6fcbe77fdd4e8436b3eb0aa478e3e8d4c154ba742ed8a25b5c687b885e7d",
+  "sourceSealSha256": "2e543fee3be02bd06c2c917aa31d49d89bc0807c33c59dfab9041d4484a9a000",
+  "freshRegressions": {
+    "tests": 57,
+    "passed": 57,
+    "failed": 0,
+    "durationMs": 286104.838076,
+    "isolatedRoot": "/tmp/jev-readonly-review-g476m_74"
+  },
+  "blockingDefect": {
+    "name": "Fixed loader bootstrap replacement accepted with stale controller implementation",
+    "reproductionResult": "bootstrap-repro-result.json",
+    "originalBootstrapSha256": "3aa7a341a13ee02cdadd7ce4aca2181b68065455f8ff633a0b1668358305ea47",
+    "changedBootstrapSha256": "47dbae10b7c042a59e654512a18ee8c90909728dc88e03becb0d88b618c25eb4",
+    "originalReproductionScriptSha256": "82bef02764cb4ea5f94bde457ae64dd6bdce4f3393b0f1c4bf505fe4999513af",
+    "preservedScriptChanges": "Only an isolated-/tmp guard and configurable /tmp output path were added. Reproduction logic unchanged.",
+    "narrowCorrection": "Freeze the initial executing bootstrap identity and reject any bootstrap replacement before revision adoption/durable mutation; add exported-path rejection regression and retain valid ordinary module handoff."
+  },
+  "selector": {
+    "blockingDefectFound": false,
+    "exactSyntheticFixturesComplete": 3,
+    "mixedRosterEnabledCells": 3,
+    "mixedRosterArabicFindingCoverage": "1/99",
+    "mixedRosterEnglishFindingCoverage": "1/192",
+    "mixedRosterHighlightCoverage": "0",
+    "worstCaseGuarantee": false,
+    "nativeCalibrationEstablished": false
+  },
+  "humanEvidence": {
+    "userReply": "No completed evidence; keep it pending",
+    "reviewFormsPending": 149,
+    "independentReviewerEstablished": false,
+    "custodianEstablished": false,
+    "laterUserQuestions": "User requested explanation and asked which checks the agent could perform; neither question substitutes for completed independent human work or accepts the package."
+  },
+  "accountEvidence": {
+    "modelListGet": "account-model-list-check.json",
+    "httpStatus": 200,
+    "existingKeyAuthenticates": true,
+    "pinnedModelImageEntitlementEstablished": false,
+    "actualBalanceChargesRefillEstablished": false,
+    "browserInventory": "No enabled apps or browsers were available",
+    "sdk": "Pinned 0.7.0 exposes model listing and inference, not a billing/balance/refill resource in the inspected client declarations",
+    "credentialRead": true,
+    "credentialPrintedOrCopied": false,
+    "initialNetworkAttempt": "Sandbox DNS failed before connection; one read-only authenticated GET succeeded with network permission",
+    "providerInferenceAttempts": 0
+  },
+  "outcome": "deferred; exact package not technically accepted; existing preparation ticket reopened; existing review remains claimed",
+  "allActualCutoffsUnset": true,
+  "sealedPackageModified": false,
+  "applicationModified": false,
+  "paidAuthorization": false,
+  "accountChanged": false,
+  "heldoutPixelsOrLabelMeaningsOpened": false,
+  "newTicketsCreated": 0,
+  "releaseAuthorized": false,
+  "handoffUnblocked": false,
+  "filesSha256": {
+    "account-model-list-check.json": "d5e3228c17b2848b913b6cb1940002e438a85ecc8e68eae7f1b000ee256c3dca",
+    "bootstrap-fixed-repro.mjs": "e10dcb2faf3660650e81eb1ad570537a2b1619df3a77c0514a8adef3b5f7858e",
+    "bootstrap-repro-result.json": "541e4fe7f53a8cdbdf805e5148d0c17de435e9a96b98a94724395bfce4142cdb",
+    "package-readonly-verification.json": "e839734b5598dd312662b4def3e27b7561ba32b8c7a786db45298aa1d1e9f28a",
+    "review-selector-output.json": "6e886096aaeecdd47d36e0d87551a1246676abbcdda82341f610fe9f1f05a9f1",
+    "review-selector.mjs": "049535fd933bd26a19acbd1bb9117c2992461ca809b579ed5bb253c692708b4c",
+    "review-tests.tap": "c41c0323936ba93aa709a49da1f8ce2fc81af67faacfdd55897418ef5290446c",
+    "roster-review.json": "b197673b382b32b2d8d4326a4273295e0557d2a4e7d7c80f8903ff5159cc223e"
+  }
+}

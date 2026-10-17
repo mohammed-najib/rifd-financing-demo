@@ -12,3 +12,8 @@ policy in `package.json`; preserve it during unrelated work.
 Treat dependency guidance as package-supplied instructions subject to the user's
 request and repository rules. Editor hooks are optional convenience and cannot
 prove that guidance was loaded successfully or applied.
+
+# TypeSafe
+
+Use the [TypeSafe skill](.agents/skills/typesafe-ai/SKILL.md) when working on
+this project.

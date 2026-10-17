@@ -1,0 +1,25 @@
+{
+  "checkedAt": "2026-10-17T15:44:11.136542+00:00",
+  "method": "GET",
+  "url": "https://api.typesafe.ai/v1/models",
+  "credentialSource": ".scratch/jev-evidence-assistance/evaluation/.env",
+  "credentialPrinted": false,
+  "inferenceAttempts": 0,
+  "accountChanged": false,
+  "retries": 0,
+  "billingBalanceRefillEvidenceEstablished": false,
+  "pinnedVersionAndImageEntitlementEstablished": false,
+  "status": "completed",
+  "httpStatus": 200,
+  "responseSha256": "7fbe8d7d66e3d1c9560506fd514b47dee5308246139de38f61a685b715362d60",
+  "models": [
+    {
+      "name": "jev-latest",
+      "release_date": "2026-09-10T18:38:01.391457+00:00"
+    },
+    {
+      "name": "jev-preview",
+      "release_date": "2026-09-10T18:39:06.057655+00:00"
+    }
+  ]
+}

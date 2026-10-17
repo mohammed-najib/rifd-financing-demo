@@ -1,0 +1,83 @@
+{
+  "id": "en-identity-03",
+  "sourceFamily": "en-identity-03",
+  "language": "en",
+  "slot": "identity",
+  "index": 3,
+  "kind": "absent_target",
+  "split": "development",
+  "context": {
+    "slot": "identity",
+    "language": "en",
+    "product": null,
+    "initialSubmissionMonth": "2026-10",
+    "expectedCompletedMonths": null,
+    "comparisons": {
+      "name": "Mira Vale Fictional 521"
+    }
+  },
+  "expected": {
+    "category": "identity",
+    "support": {
+      "name": "not_found"
+    },
+    "pages": [
+      {
+        "page": 1,
+        "readability": 2,
+        "targets": {
+          "name": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          }
+        }
+      }
+    ]
+  },
+  "pages": [
+    {
+      "rows": [],
+      "unreadable": false,
+      "partial": false,
+      "blank": false,
+      "note": ""
+    }
+  ],
+  "category": "identity",
+  "rotation": 0,
+  "status": "unrun",
+  "humanChecked": false,
+  "source": {
+    "path": "corpus/cases/en-identity-03/source.png",
+    "sha256": "08273dd0ad7870971d30c81d97420c7422cd7d4ed2925b48d94c55e2b8b563c2",
+    "bytes": 19177
+  },
+  "preparation": [
+    {
+      "width": 1120,
+      "height": 1568,
+      "sourceWidth": 800,
+      "sourceHeight": 1120,
+      "rotation": 0,
+      "padding": {
+        "left": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      "scale": 1.4,
+      "durationMs": 41,
+      "page": 1,
+      "path": "corpus/cases/en-identity-03/page-1.png",
+      "sha256": "7e31870fc5350d962b00d97da6aa90f5402468c8e5f290acd66dbe297533fbbc",
+      "byteLength": 87044,
+      "renderer": "Chromium createImageBitmap/canvas",
+      "preparationVersion": "full-page-pdfjs-5.4.296-v1"
+    }
+  ],
+  "preparationTotalMs": 190.13256700000056,
+  "preparationMeasuredMs": 41,
+  "contextSha256": "36c547b1e63c0a11d9cf10bdb38586db0514d2d5afa799bc9274daf522c9eed4",
+  "expectedSha256": "eed5fcef32045aa3dac555e903a8b46e011a68e2b0dd0e80f3e28a3b0cf49410"
+}

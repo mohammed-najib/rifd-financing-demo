@@ -1,0 +1,83 @@
+{
+  "id": "ar-identity-03",
+  "sourceFamily": "ar-identity-03",
+  "language": "ar",
+  "slot": "identity",
+  "index": 3,
+  "kind": "absent_target",
+  "split": "development",
+  "context": {
+    "slot": "identity",
+    "language": "ar",
+    "product": null,
+    "initialSubmissionMonth": "2026-10",
+    "expectedCompletedMonths": null,
+    "comparisons": {
+      "name": "سالم نور التجريبي 121"
+    }
+  },
+  "expected": {
+    "category": "identity",
+    "support": {
+      "name": "not_found"
+    },
+    "pages": [
+      {
+        "page": 1,
+        "readability": 2,
+        "targets": {
+          "name": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          }
+        }
+      }
+    ]
+  },
+  "pages": [
+    {
+      "rows": [],
+      "unreadable": false,
+      "partial": false,
+      "blank": false,
+      "note": ""
+    }
+  ],
+  "category": "identity",
+  "rotation": 0,
+  "status": "unrun",
+  "humanChecked": false,
+  "source": {
+    "path": "corpus/cases/ar-identity-03/source.png",
+    "sha256": "07b597757dbc61303394d83a27fc998aea836e8319b3af2d86235f1049a09d8d",
+    "bytes": 19061
+  },
+  "preparation": [
+    {
+      "width": 1120,
+      "height": 1568,
+      "sourceWidth": 800,
+      "sourceHeight": 1120,
+      "rotation": 0,
+      "padding": {
+        "left": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      "scale": 1.4,
+      "durationMs": 49.400000005960464,
+      "page": 1,
+      "path": "corpus/cases/ar-identity-03/page-1.png",
+      "sha256": "89ff97a82efd8397ed18a60e8ba18ecf0d1d2f7ca4bd75434ee1e6ea81c6b5b1",
+      "byteLength": 83196,
+      "renderer": "Chromium createImageBitmap/canvas",
+      "preparationVersion": "full-page-pdfjs-5.4.296-v1"
+    }
+  ],
+  "preparationTotalMs": 211.04690400000004,
+  "preparationMeasuredMs": 49.400000005960464,
+  "contextSha256": "b175cc18a2f055ae2cd42c0e812ac112487519825cf104f4a2e20f21cab12403",
+  "expectedSha256": "eed5fcef32045aa3dac555e903a8b46e011a68e2b0dd0e80f3e28a3b0cf49410"
+}

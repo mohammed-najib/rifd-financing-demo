@@ -1,0 +1,145 @@
+{
+  "id": "ar-business-05",
+  "sourceFamily": "ar-business-05",
+  "language": "ar",
+  "slot": "business",
+  "index": 5,
+  "kind": "repeated_value",
+  "split": "development",
+  "context": {
+    "slot": "business",
+    "language": "ar",
+    "product": null,
+    "initialSubmissionMonth": "2026-10",
+    "expectedCompletedMonths": null,
+    "comparisons": {
+      "businessName": "متجر الندى التجريبي 166",
+      "address": "شارع الربيع التجريبي، مبنى 166",
+      "startMonth": "2022-04"
+    }
+  },
+  "expected": {
+    "category": "business",
+    "support": {
+      "businessName": "consistent",
+      "address": "consistent",
+      "startMonth": "consistent"
+    },
+    "pages": [
+      {
+        "page": 1,
+        "readability": 2,
+        "targets": {
+          "businessName": {
+            "present": true,
+            "multiplicity": "repeated",
+            "regions": [
+              {
+                "left": 0.657890625,
+                "right": 0.94,
+                "top": 0.21205357142857142,
+                "bottom": 0.24387555803571428
+              },
+              {
+                "left": 0.657890625,
+                "right": 0.94,
+                "top": 0.42098214285714286,
+                "bottom": 0.4528041294642857
+              }
+            ]
+          },
+          "address": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.58724609375,
+                "right": 0.94,
+                "top": 0.28169642857142857,
+                "bottom": 0.31351841517857143
+              }
+            ]
+          },
+          "startMonth": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.8320703125,
+                "right": 0.94,
+                "top": 0.3513392857142857,
+                "bottom": 0.38316127232142855
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "pages": [
+    {
+      "rows": [
+        {
+          "id": "businessName",
+          "label": "اسم النشاط",
+          "value": "متجر الندى التجريبي 166"
+        },
+        {
+          "id": "address",
+          "label": "عنوان النشاط",
+          "value": "شارع الربيع التجريبي، مبنى 166"
+        },
+        {
+          "id": "startMonth",
+          "label": "النشاط قائم منذ",
+          "value": "2022-04"
+        },
+        {
+          "id": "businessName",
+          "label": "اسم النشاط",
+          "value": "متجر الندى التجريبي 166"
+        }
+      ],
+      "unreadable": false,
+      "partial": false,
+      "blank": false,
+      "note": ""
+    }
+  ],
+  "category": "business",
+  "rotation": 0,
+  "status": "unrun",
+  "humanChecked": false,
+  "source": {
+    "path": "corpus/cases/ar-business-05/source.png",
+    "sha256": "5e9066372086659d73e4d0f1187da7e21b96e2539d9d280011a8a1b49a270514",
+    "bytes": 38741
+  },
+  "preparation": [
+    {
+      "width": 1120,
+      "height": 1568,
+      "sourceWidth": 800,
+      "sourceHeight": 1120,
+      "rotation": 0,
+      "padding": {
+        "left": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      "scale": 1.4,
+      "durationMs": 50.69999998807907,
+      "page": 1,
+      "path": "corpus/cases/ar-business-05/page-1.png",
+      "sha256": "001cdb703f0bdd997e8361b0e8f56cb53b5b4889c9c9ba76aa034c7fb74e400f",
+      "byteLength": 147152,
+      "renderer": "Chromium createImageBitmap/canvas",
+      "preparationVersion": "full-page-pdfjs-5.4.296-v1"
+    }
+  ],
+  "preparationTotalMs": 242.3824540000005,
+  "preparationMeasuredMs": 50.69999998807907,
+  "contextSha256": "530deb7d236f2bf0a8f892ad3210a54ee09e7815795e55e232a1a76c5551a432",
+  "expectedSha256": "4f1c673a64b4c62e9d018002a10c999e45f5e274f5a6fdca2af81faaeceead0b"
+}

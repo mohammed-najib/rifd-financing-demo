@@ -1,0 +1,101 @@
+{
+  "id": "ar-purchase-04",
+  "sourceFamily": "ar-purchase-04",
+  "language": "ar",
+  "slot": "purchase",
+  "index": 4,
+  "kind": "unreadable",
+  "split": "evaluation",
+  "context": {
+    "slot": "purchase",
+    "language": "ar",
+    "product": "equipment",
+    "initialSubmissionMonth": "2026-10",
+    "expectedCompletedMonths": null,
+    "comparisons": {
+      "description": "شراء أرفف عرض للمحل التجريبي 221",
+      "budget": "٣٢٢١٠٠ ريال"
+    }
+  },
+  "expected": {
+    "category": "equipment",
+    "support": {
+      "description": "cannot_determine",
+      "budget": "cannot_determine"
+    },
+    "pages": [
+      {
+        "page": 1,
+        "readability": 0,
+        "targets": {
+          "description": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "budget": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          }
+        }
+      }
+    ]
+  },
+  "pages": [
+    {
+      "rows": [
+        {
+          "id": "description",
+          "label": "وصف المشتريات",
+          "value": "شراء أرفف عرض للمحل التجريبي 221"
+        },
+        {
+          "id": "budget",
+          "label": "إجمالي الميزانية",
+          "value": "٣٢٢١٠٠ ريال"
+        }
+      ],
+      "unreadable": true,
+      "partial": false,
+      "blank": false,
+      "note": ""
+    }
+  ],
+  "category": "equipment",
+  "rotation": 0,
+  "status": "unrun",
+  "humanChecked": false,
+  "source": {
+    "path": "corpus/cases/ar-purchase-04/source.png",
+    "sha256": "a1a3004af85c33ff30fc182e8cbfc76d4e2ad7dd24446de1f34fd766724db32e",
+    "bytes": 36162
+  },
+  "preparation": [
+    {
+      "width": 1120,
+      "height": 1568,
+      "sourceWidth": 800,
+      "sourceHeight": 1120,
+      "rotation": 0,
+      "padding": {
+        "left": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      "scale": 1.4,
+      "durationMs": 42.70000001788139,
+      "page": 1,
+      "path": "corpus/cases/ar-purchase-04/page-1.png",
+      "sha256": "daa0c6d43802a5e568fee5487e4c04ca3b7364b4cb38a3b8136cfb3b846cc02c",
+      "byteLength": 119621,
+      "renderer": "Chromium createImageBitmap/canvas",
+      "preparationVersion": "full-page-pdfjs-5.4.296-v1"
+    }
+  ],
+  "preparationTotalMs": 219.0042859999994,
+  "preparationMeasuredMs": 42.70000001788139,
+  "contextSha256": "0215fe59bdb336a250f721ce32d789538edfe655f960afa869c7f7c3a41d0c43",
+  "expectedSha256": "005f6b2e9ef6e74679993da8058b2ca54fe2f7757284a975dad89ade79baf96b"
+}

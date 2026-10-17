@@ -1,0 +1,109 @@
+{
+  "caseId": "ar-financial-01",
+  "phase": "development",
+  "probe": false,
+  "runId": "48f57bf9-0de2-4ba2-899a-7c97db8ba24e",
+  "plannedAttempts": 5,
+  "stageCount": 5,
+  "pageCount": 4,
+  "preparationMs": 1460.129625,
+  "localCompletionMs": 7049.633712000001,
+  "providerRunMs": 5576.031151,
+  "presentation": "CLI capture only; application presentation unmeasured",
+  "stages": [
+    {
+      "path": "captures/development/recovery-31255cce-a84f-4333-bc7b-b1514ed08254-48f57bf9-0de2-4ba2-899a-7c97db8ba24e-1.json",
+      "kind": "page-1",
+      "ok": true,
+      "coverage": {
+        "selectedPages": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "analyzedPages": [
+          1
+        ],
+        "complete": false
+      }
+    },
+    {
+      "path": "captures/development/recovery-31255cce-a84f-4333-bc7b-b1514ed08254-48f57bf9-0de2-4ba2-899a-7c97db8ba24e-2.json",
+      "kind": "page-2",
+      "ok": true,
+      "coverage": {
+        "selectedPages": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "analyzedPages": [
+          2
+        ],
+        "complete": false
+      }
+    },
+    {
+      "path": "captures/development/recovery-31255cce-a84f-4333-bc7b-b1514ed08254-48f57bf9-0de2-4ba2-899a-7c97db8ba24e-3.json",
+      "kind": "page-3",
+      "ok": false,
+      "coverage": {
+        "selectedPages": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "analyzedPages": [
+          3
+        ],
+        "complete": false
+      }
+    },
+    {
+      "path": "captures/development/recovery-31255cce-a84f-4333-bc7b-b1514ed08254-48f57bf9-0de2-4ba2-899a-7c97db8ba24e-4.json",
+      "kind": "page-4",
+      "ok": false,
+      "coverage": {
+        "selectedPages": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "analyzedPages": [
+          4
+        ],
+        "complete": false
+      }
+    },
+    {
+      "path": "captures/development/recovery-31255cce-a84f-4333-bc7b-b1514ed08254-48f57bf9-0de2-4ba2-899a-7c97db8ba24e-5.json",
+      "kind": "comparison",
+      "ok": true,
+      "coverage": {
+        "selectedPages": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "analyzedPages": [
+          1,
+          2
+        ],
+        "complete": false
+      }
+    }
+  ],
+  "versions": {
+    "model": "jev-1.14.0",
+    "sdk": "0.7.0",
+    "tanstack": "0.69.0",
+    "mapping": "native-bridge-v1",
+    "questions": "evidence-questions-v1",
+    "preparation": "full-page-pdfjs-5.4.296-v1"
+  }
+}

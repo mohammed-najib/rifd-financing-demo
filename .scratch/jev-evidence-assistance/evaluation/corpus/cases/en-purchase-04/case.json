@@ -1,0 +1,101 @@
+{
+  "id": "en-purchase-04",
+  "sourceFamily": "en-purchase-04",
+  "language": "en",
+  "slot": "purchase",
+  "index": 4,
+  "kind": "unreadable",
+  "split": "evaluation",
+  "context": {
+    "slot": "purchase",
+    "language": "en",
+    "product": "equipment",
+    "initialSubmissionMonth": "2026-10",
+    "expectedCompletedMonths": null,
+    "comparisons": {
+      "description": "Purchase display shelving for fictional shop 621",
+      "budget": "362100 YER"
+    }
+  },
+  "expected": {
+    "category": "equipment",
+    "support": {
+      "description": "cannot_determine",
+      "budget": "cannot_determine"
+    },
+    "pages": [
+      {
+        "page": 1,
+        "readability": 0,
+        "targets": {
+          "description": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "budget": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          }
+        }
+      }
+    ]
+  },
+  "pages": [
+    {
+      "rows": [
+        {
+          "id": "description",
+          "label": "Purchase description",
+          "value": "Purchase display shelving for fictional shop 621"
+        },
+        {
+          "id": "budget",
+          "label": "Total purchase budget",
+          "value": "362100 YER"
+        }
+      ],
+      "unreadable": true,
+      "partial": false,
+      "blank": false,
+      "note": ""
+    }
+  ],
+  "category": "equipment",
+  "rotation": 0,
+  "status": "unrun",
+  "humanChecked": false,
+  "source": {
+    "path": "corpus/cases/en-purchase-04/source.png",
+    "sha256": "b075d1fed72764eb3cfb43064935050e6c297db72836ec64954ff8d8dd1136fa",
+    "bytes": 39731
+  },
+  "preparation": [
+    {
+      "width": 1120,
+      "height": 1568,
+      "sourceWidth": 800,
+      "sourceHeight": 1120,
+      "rotation": 0,
+      "padding": {
+        "left": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      "scale": 1.4,
+      "durationMs": 47.19999998807907,
+      "page": 1,
+      "path": "corpus/cases/en-purchase-04/page-1.png",
+      "sha256": "c6b52f6d65b0b4812d37bdd33426b0228c6b374ba1ba9076e07a73a278987163",
+      "byteLength": 132720,
+      "renderer": "Chromium createImageBitmap/canvas",
+      "preparationVersion": "full-page-pdfjs-5.4.296-v1"
+    }
+  ],
+  "preparationTotalMs": 223.52869199999986,
+  "preparationMeasuredMs": 47.19999998807907,
+  "contextSha256": "423bd2b7317f10b0cbd695349382f8079c74ad166e3c35e27f15ac469a4c05dc",
+  "expectedSha256": "005f6b2e9ef6e74679993da8058b2ca54fe2f7757284a975dad89ade79baf96b"
+}

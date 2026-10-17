@@ -1,0 +1,96 @@
+{
+  "id": "en-purchase-07",
+  "sourceFamily": "en-purchase-07",
+  "language": "en",
+  "slot": "purchase",
+  "index": 7,
+  "kind": "unrelated_document",
+  "split": "evaluation",
+  "context": {
+    "slot": "purchase",
+    "language": "en",
+    "product": "inventory",
+    "initialSubmissionMonth": "2026-10",
+    "expectedCompletedMonths": null,
+    "comparisons": {
+      "description": "Purchase notebook stock for fictional shop 642",
+      "budget": "364200 YER"
+    }
+  },
+  "expected": {
+    "category": "other",
+    "support": {
+      "description": "not_found",
+      "budget": "not_found"
+    },
+    "pages": [
+      {
+        "page": 1,
+        "readability": 2,
+        "targets": {
+          "description": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "budget": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          }
+        }
+      }
+    ]
+  },
+  "pages": [
+    {
+      "rows": [
+        {
+          "id": "unrelated",
+          "label": "Content",
+          "value": "Fictional invitation to a music concert"
+        }
+      ],
+      "unreadable": false,
+      "partial": false,
+      "blank": false,
+      "note": ""
+    }
+  ],
+  "category": "stock",
+  "rotation": 0,
+  "status": "unrun",
+  "humanChecked": false,
+  "source": {
+    "path": "corpus/cases/en-purchase-07/source.png",
+    "sha256": "a4ed3bfe928ebb048315a5d027ffd3b7c369267ce84fa3f3e2d390a58e4683ac",
+    "bytes": 24360
+  },
+  "preparation": [
+    {
+      "width": 1120,
+      "height": 1568,
+      "sourceWidth": 800,
+      "sourceHeight": 1120,
+      "rotation": 0,
+      "padding": {
+        "left": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      "scale": 1.4,
+      "durationMs": 50.70000001788139,
+      "page": 1,
+      "path": "corpus/cases/en-purchase-07/page-1.png",
+      "sha256": "0b3249adf3d3ed727290e6610528638f67fedd4d96ef06c2ef89a847b6d613e6",
+      "byteLength": 109164,
+      "renderer": "Chromium createImageBitmap/canvas",
+      "preparationVersion": "full-page-pdfjs-5.4.296-v1"
+    }
+  ],
+  "preparationTotalMs": 213.53866199999902,
+  "preparationMeasuredMs": 50.70000001788139,
+  "contextSha256": "95fc6e04975e588029954204891f8df052118fbd5e2c3d484c3bc32879c01ab4",
+  "expectedSha256": "d90167fc39338419b49a5139946140759201615acd3c851e7b529d0749e05b06"
+}

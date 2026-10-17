@@ -1,0 +1,107 @@
+{
+  "id": "en-identity-06",
+  "sourceFamily": "en-identity-06",
+  "language": "en",
+  "slot": "identity",
+  "index": 6,
+  "kind": "conflicting_entries",
+  "split": "evaluation",
+  "context": {
+    "slot": "identity",
+    "language": "en",
+    "product": null,
+    "initialSubmissionMonth": "2026-10",
+    "expectedCompletedMonths": null,
+    "comparisons": {
+      "name": "Mira Vale Fictional 542"
+    }
+  },
+  "expected": {
+    "category": "identity",
+    "support": {
+      "name": "conflicting"
+    },
+    "pages": [
+      {
+        "page": 1,
+        "readability": 2,
+        "targets": {
+          "name": {
+            "present": true,
+            "multiplicity": "repeated",
+            "regions": [
+              {
+                "left": 0.06,
+                "right": 0.36177734375,
+                "top": 0.21205357142857142,
+                "bottom": 0.24387555803571428
+              },
+              {
+                "left": 0.06,
+                "right": 0.5528515625,
+                "top": 0.28169642857142857,
+                "bottom": 0.31351841517857143
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "pages": [
+    {
+      "rows": [
+        {
+          "id": "name",
+          "label": "Applicant name",
+          "value": "Mira Vale Fictional 542"
+        },
+        {
+          "id": "name",
+          "label": "Applicant name",
+          "value": "A completely different fictional value"
+        }
+      ],
+      "unreadable": false,
+      "partial": false,
+      "blank": false,
+      "note": ""
+    }
+  ],
+  "category": "identity",
+  "rotation": 0,
+  "status": "unrun",
+  "humanChecked": false,
+  "source": {
+    "path": "corpus/cases/en-identity-06/source.png",
+    "sha256": "343fe27d4dbea80b49172d698b3267bea096dea26fbf0e2a4c8f09a785ab2f62",
+    "bytes": 33230
+  },
+  "preparation": [
+    {
+      "width": 1120,
+      "height": 1568,
+      "sourceWidth": 800,
+      "sourceHeight": 1120,
+      "rotation": 0,
+      "padding": {
+        "left": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      "scale": 1.4,
+      "durationMs": 63.400000005960464,
+      "page": 1,
+      "path": "corpus/cases/en-identity-06/page-1.png",
+      "sha256": "30a087e72c90b9c81f5b98e6b5a962b4761d8bebee1a3946180d9943b5bcc4be",
+      "byteLength": 130120,
+      "renderer": "Chromium createImageBitmap/canvas",
+      "preparationVersion": "full-page-pdfjs-5.4.296-v1"
+    }
+  ],
+  "preparationTotalMs": 231.98535600000105,
+  "preparationMeasuredMs": 63.400000005960464,
+  "contextSha256": "db89192912684cd770b214ba3a1a57e43f7463e51b2835d4a32a3e4e5f49aab0",
+  "expectedSha256": "37fb91826ae3b5990205c7e9115ea0c2704c582790fc67cc24c4713a95b3f401"
+}

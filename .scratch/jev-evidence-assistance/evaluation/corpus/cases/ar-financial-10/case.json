@@ -1,0 +1,199 @@
+{
+  "id": "ar-financial-10",
+  "sourceFamily": "ar-financial-10",
+  "language": "ar",
+  "slot": "financial",
+  "index": 10,
+  "kind": "unexpected_period",
+  "split": "evaluation",
+  "context": {
+    "slot": "financial",
+    "language": "ar",
+    "product": null,
+    "initialSubmissionMonth": "2026-10",
+    "expectedCompletedMonths": [
+      "2026-07",
+      "2026-08",
+      "2026-09"
+    ],
+    "comparisons": {
+      "period": "يوليو إلى سبتمبر ٢٠٢٦",
+      "averageRevenue": "١٢٣٢٠٠ ريال",
+      "averageExpenses": "٦١٦٠٠ ريال"
+    }
+  },
+  "expected": {
+    "category": "financial",
+    "support": {
+      "period": "different",
+      "averageRevenue": "cannot_determine",
+      "averageExpenses": "cannot_determine"
+    },
+    "pages": [
+      {
+        "page": 1,
+        "readability": 2,
+        "targets": {
+          "period": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.70751953125,
+                "right": 0.94,
+                "top": 0.21205357142857142,
+                "bottom": 0.24387555803571428
+              }
+            ]
+          },
+          "revenue0": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "revenue1": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "revenue2": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "expenses0": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "expenses1": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "expenses2": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "averageRevenue": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.78720703125,
+                "right": 0.94,
+                "top": 0.6995535714285714,
+                "bottom": 0.7313755580357143
+              }
+            ]
+          },
+          "averageExpenses": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.80365234375,
+                "right": 0.94,
+                "top": 0.7691964285714286,
+                "bottom": 0.8010184151785714
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "rationale": "The printed averages concern a different reporting period. Matching amounts alone do not support the declared averages for the required July-September period."
+  },
+  "pages": [
+    {
+      "rows": [
+        {
+          "id": "period",
+          "label": "الفترة المالية",
+          "value": "أبريل إلى يونيو ٢٠٢٦"
+        },
+        {
+          "id": "revenue0",
+          "label": "إيرادات أبريل ٢٠٢٦",
+          "value": "١٢٢٢٠٠ ريال"
+        },
+        {
+          "id": "revenue1",
+          "label": "إيرادات مايو ٢٠٢٦",
+          "value": "١٢٣٢٠٠ ريال"
+        },
+        {
+          "id": "revenue2",
+          "label": "إيرادات يونيو ٢٠٢٦",
+          "value": "١٢٤٢٠٠ ريال"
+        },
+        {
+          "id": "expenses0",
+          "label": "مصروفات أبريل ٢٠٢٦",
+          "value": "٦١١٠٠ ريال"
+        },
+        {
+          "id": "expenses1",
+          "label": "مصروفات مايو ٢٠٢٦",
+          "value": "٦١٦٠٠ ريال"
+        },
+        {
+          "id": "expenses2",
+          "label": "مصروفات يونيو ٢٠٢٦",
+          "value": "٦٢١٠٠ ريال"
+        },
+        {
+          "id": "averageRevenue",
+          "label": "متوسط الإيرادات الشهرية",
+          "value": "١٢٣٢٠٠ ريال"
+        },
+        {
+          "id": "averageExpenses",
+          "label": "متوسط المصروفات الشهرية",
+          "value": "٦١٦٠٠ ريال"
+        }
+      ],
+      "unreadable": false,
+      "partial": false,
+      "blank": false,
+      "note": ""
+    }
+  ],
+  "category": "financial",
+  "rotation": 0,
+  "status": "unrun",
+  "humanChecked": false,
+  "source": {
+    "path": "corpus/cases/ar-financial-10/source.png",
+    "sha256": "39d8bd992e8ad478d0a9eef38f63924b2c00488f4bf7e05344adfea6384c1eb1",
+    "bytes": 57064
+  },
+  "preparation": [
+    {
+      "width": 1120,
+      "height": 1568,
+      "sourceWidth": 800,
+      "sourceHeight": 1120,
+      "rotation": 0,
+      "padding": {
+        "left": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      "scale": 1.4,
+      "durationMs": 58.79999998211861,
+      "page": 1,
+      "path": "corpus/cases/ar-financial-10/page-1.png",
+      "sha256": "8aebf338c74b185d21725a6b2816ec80116e8537db2ec8130f45fe1a8d3ebc03",
+      "byteLength": 198209,
+      "renderer": "Chromium createImageBitmap/canvas",
+      "preparationVersion": "full-page-pdfjs-5.4.296-v1"
+    }
+  ],
+  "preparationTotalMs": 294.7211349999998,
+  "preparationMeasuredMs": 58.79999998211861,
+  "contextSha256": "5ddb376f1e5937a0afadeddba8acf51596e117314fa6ea726a295f6c6bd79f39",
+  "expectedSha256": "57fcbdadfb305faf4c87fc6b8868038b1829eefac3b86c761673628ea9760ff5"
+}

@@ -1,0 +1,145 @@
+{
+  "id": "en-business-05",
+  "sourceFamily": "en-business-05",
+  "language": "en",
+  "slot": "business",
+  "index": 5,
+  "kind": "repeated_value",
+  "split": "development",
+  "context": {
+    "slot": "business",
+    "language": "en",
+    "product": null,
+    "initialSubmissionMonth": "2026-10",
+    "expectedCompletedMonths": null,
+    "comparisons": {
+      "businessName": "Cedar Demo Supplies 566",
+      "address": "566 Fictional Spring Street",
+      "startMonth": "2022-04"
+    }
+  },
+  "expected": {
+    "category": "business",
+    "support": {
+      "businessName": "consistent",
+      "address": "consistent",
+      "startMonth": "consistent"
+    },
+    "pages": [
+      {
+        "page": 1,
+        "readability": 2,
+        "targets": {
+          "businessName": {
+            "present": true,
+            "multiplicity": "repeated",
+            "regions": [
+              {
+                "left": 0.06,
+                "right": 0.40705078125,
+                "top": 0.21205357142857142,
+                "bottom": 0.24387555803571428
+              },
+              {
+                "left": 0.06,
+                "right": 0.40705078125,
+                "top": 0.42098214285714286,
+                "bottom": 0.4528041294642857
+              }
+            ]
+          },
+          "address": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.06,
+                "right": 0.412890625,
+                "top": 0.28169642857142857,
+                "bottom": 0.31351841517857143
+              }
+            ]
+          },
+          "startMonth": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.06,
+                "right": 0.1679296875,
+                "top": 0.3513392857142857,
+                "bottom": 0.38316127232142855
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "pages": [
+    {
+      "rows": [
+        {
+          "id": "businessName",
+          "label": "Business name",
+          "value": "Cedar Demo Supplies 566"
+        },
+        {
+          "id": "address",
+          "label": "Business address",
+          "value": "566 Fictional Spring Street"
+        },
+        {
+          "id": "startMonth",
+          "label": "Operating since",
+          "value": "2022-04"
+        },
+        {
+          "id": "businessName",
+          "label": "Business name",
+          "value": "Cedar Demo Supplies 566"
+        }
+      ],
+      "unreadable": false,
+      "partial": false,
+      "blank": false,
+      "note": ""
+    }
+  ],
+  "category": "business",
+  "rotation": 0,
+  "status": "unrun",
+  "humanChecked": false,
+  "source": {
+    "path": "corpus/cases/en-business-05/source.png",
+    "sha256": "48e70ad183d607b2b4a0fc32491e6be89b0933d254938b756659336a553ccac5",
+    "bytes": 45251
+  },
+  "preparation": [
+    {
+      "width": 1120,
+      "height": 1568,
+      "sourceWidth": 800,
+      "sourceHeight": 1120,
+      "rotation": 0,
+      "padding": {
+        "left": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      "scale": 1.4,
+      "durationMs": 67,
+      "page": 1,
+      "path": "corpus/cases/en-business-05/page-1.png",
+      "sha256": "ba3ee6997e4eb5aa0ea3e6a88ce24cb7a509bbfe722fe8e49cf92b10f54ac92e",
+      "byteLength": 166719,
+      "renderer": "Chromium createImageBitmap/canvas",
+      "preparationVersion": "full-page-pdfjs-5.4.296-v1"
+    }
+  ],
+  "preparationTotalMs": 260.5754300000008,
+  "preparationMeasuredMs": 67,
+  "contextSha256": "6f8dbf1f12586df32375ca9fa827646f857dcdd403f36a2623ff5e7d635ebb39",
+  "expectedSha256": "71baa0fe8bb0515750f2e7c24fec8dd1e13ca1668011d1fdfbe88f94cd2b8bed"
+}

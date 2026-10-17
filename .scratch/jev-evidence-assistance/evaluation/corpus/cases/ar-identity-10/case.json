@@ -1,0 +1,96 @@
+{
+  "id": "ar-identity-10",
+  "sourceFamily": "ar-identity-10",
+  "language": "ar",
+  "slot": "identity",
+  "index": 10,
+  "kind": "clear_other_family",
+  "split": "evaluation",
+  "context": {
+    "slot": "identity",
+    "language": "ar",
+    "product": null,
+    "initialSubmissionMonth": "2026-10",
+    "expectedCompletedMonths": null,
+    "comparisons": {
+      "name": "سالم نور التجريبي 170"
+    }
+  },
+  "expected": {
+    "category": "identity",
+    "support": {
+      "name": "consistent"
+    },
+    "pages": [
+      {
+        "page": 1,
+        "readability": 2,
+        "targets": {
+          "name": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.68833984375,
+                "right": 0.94,
+                "top": 0.21205357142857142,
+                "bottom": 0.24387555803571428
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "pages": [
+    {
+      "rows": [
+        {
+          "id": "name",
+          "label": "اسم مقدم الطلب",
+          "value": "سالم نور التجريبي 170"
+        }
+      ],
+      "unreadable": false,
+      "partial": false,
+      "blank": false,
+      "note": ""
+    }
+  ],
+  "category": "identity",
+  "rotation": 0,
+  "status": "unrun",
+  "humanChecked": false,
+  "source": {
+    "path": "corpus/cases/ar-identity-10/source.png",
+    "sha256": "7e179df26cce3cb6ae60183829604ebd5d366043926d8786ab20f1c6e48231ef",
+    "bytes": 24939
+  },
+  "preparation": [
+    {
+      "width": 1120,
+      "height": 1568,
+      "sourceWidth": 800,
+      "sourceHeight": 1120,
+      "rotation": 0,
+      "padding": {
+        "left": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      "scale": 1.4,
+      "durationMs": 47.099999994039536,
+      "page": 1,
+      "path": "corpus/cases/ar-identity-10/page-1.png",
+      "sha256": "4f830dbe9ea5a874f0176c6538e80b6cf4173284afeb511da079d0c9784bf08e",
+      "byteLength": 98845,
+      "renderer": "Chromium createImageBitmap/canvas",
+      "preparationVersion": "full-page-pdfjs-5.4.296-v1"
+    }
+  ],
+  "preparationTotalMs": 210.584969,
+  "preparationMeasuredMs": 47.099999994039536,
+  "contextSha256": "75a88597e035250a43108b71985d3e7157084fb0aac60c1f1083aef45a4b403a",
+  "expectedSha256": "fd1484d8053bb8ef144e969e76a6dc446efd70c4e611cc262ad1512652d2011f"
+}

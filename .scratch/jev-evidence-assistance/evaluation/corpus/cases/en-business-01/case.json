@@ -1,0 +1,134 @@
+{
+  "id": "en-business-01",
+  "sourceFamily": "en-business-01",
+  "language": "en",
+  "slot": "business",
+  "index": 1,
+  "kind": "clear",
+  "split": "development",
+  "context": {
+    "slot": "business",
+    "language": "en",
+    "product": null,
+    "initialSubmissionMonth": "2026-10",
+    "expectedCompletedMonths": null,
+    "comparisons": {
+      "businessName": "Cedar Demo Supplies 538",
+      "address": "538 Fictional Spring Street",
+      "startMonth": "2022-04"
+    }
+  },
+  "expected": {
+    "category": "business",
+    "support": {
+      "businessName": "consistent",
+      "address": "consistent",
+      "startMonth": "consistent"
+    },
+    "pages": [
+      {
+        "page": 1,
+        "readability": 2,
+        "targets": {
+          "businessName": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.06,
+                "right": 0.40705078125,
+                "top": 0.21205357142857142,
+                "bottom": 0.24387555803571428
+              }
+            ]
+          },
+          "address": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.06,
+                "right": 0.412890625,
+                "top": 0.28169642857142857,
+                "bottom": 0.31351841517857143
+              }
+            ]
+          },
+          "startMonth": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.06,
+                "right": 0.1679296875,
+                "top": 0.3513392857142857,
+                "bottom": 0.38316127232142855
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "pages": [
+    {
+      "rows": [
+        {
+          "id": "businessName",
+          "label": "Business name",
+          "value": "Cedar Demo Supplies 538"
+        },
+        {
+          "id": "address",
+          "label": "Business address",
+          "value": "538 Fictional Spring Street"
+        },
+        {
+          "id": "startMonth",
+          "label": "Operating since",
+          "value": "2022-04"
+        }
+      ],
+      "unreadable": false,
+      "partial": false,
+      "blank": false,
+      "note": ""
+    }
+  ],
+  "category": "business",
+  "rotation": 0,
+  "status": "unrun",
+  "humanChecked": false,
+  "source": {
+    "path": "corpus/cases/en-business-01/source.png",
+    "sha256": "8ed4731f490e53f2d479a13abe93deeafa4218e964b4630149dc801bcf405497",
+    "bytes": 38774
+  },
+  "preparation": [
+    {
+      "width": 1120,
+      "height": 1568,
+      "sourceWidth": 800,
+      "sourceHeight": 1120,
+      "rotation": 0,
+      "padding": {
+        "left": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      "scale": 1.4,
+      "durationMs": 45.599999994039536,
+      "page": 1,
+      "path": "corpus/cases/en-business-01/page-1.png",
+      "sha256": "650b89765ba60d58f02611c5ab9769f845e77228685282fe2814a477242db4a0",
+      "byteLength": 144921,
+      "renderer": "Chromium createImageBitmap/canvas",
+      "preparationVersion": "full-page-pdfjs-5.4.296-v1"
+    }
+  ],
+  "preparationTotalMs": 213.09143700000277,
+  "preparationMeasuredMs": 45.599999994039536,
+  "contextSha256": "2757d58a6a1f186bc78a7c6b93c588414dfc0115eb25cde8e4843108ef882e66",
+  "expectedSha256": "d7a7a2f621151fd29681276ee8a5d7ba3dcfc374ec26b814cd7c68e1ffaf470f"
+}

@@ -63,6 +63,14 @@ _Avoid_: Review restart, resubmission
 A selectable fictional applicant or reviewer whose role determines the application information and actions available in the demonstration.
 _Avoid_: Verified identity, bank account
 
+**Demo visitor**:
+A person using the fictional financing demonstration, distinct from the applicant or reviewer they select within it.
+_Avoid_: Applicant, reviewer
+
+**Demo operator**:
+The person responsible for the hosted demonstration and the availability of its live evidence assistance.
+_Avoid_: Reviewer, financing decision maker
+
 **Correction target**:
 A specific application field or document slot the reviewer has asked the applicant to change, with a reason.
 
@@ -84,6 +92,66 @@ _Avoid_: Upload, attachment file
 
 **Document review status**:
 The review outcome or outstanding review need for a document slot, independent of application status and upload progress.
+
+**Document assessment**:
+A reviewer's recorded judgment about whether a supplied document is suitable for its document slot.
+_Avoid_: Evidence suggestion, financing decision
+
+**Document usability**:
+The legibility of a supplied document for examining the information required by its document slot.
+_Avoid_: Document acceptance, evidence consistency
+
+**Document category**:
+The apparent kind of supporting document, independent of the document slot in which it was supplied.
+_Avoid_: Document review status
+
+**Evidence support**:
+The relationship between information visible in supporting documents and a particular detail declared in an application.
+_Avoid_: Evidence consistency, document acceptance
+
+**Evidence region**:
+A named area on a particular supporting-document page that a person can inspect for a relevant detail.
+_Avoid_: Verified transcription
+
+**Evidence highlight**:
+An advisory visual mark locating an evidence region on a supplied document page. It is distinct from a person's source inspection, document assessment or financing decision.
+_Avoid_: Verified evidence, inspection confirmation
+
+**Evidence suggestion**:
+An advisory finding about supporting documents that an applicant or reviewer can inspect. It is separate from a reviewer's document assessment or financing decision.
+_Avoid_: Document acceptance, financing decision
+
+**Applicable evidence suggestion**:
+An evidence suggestion whose checked source, page scope, relevant context and analysis basis still match the document and application being examined.
+_Avoid_: Verified evidence, document acceptance
+
+**Stale evidence suggestion**:
+An evidence suggestion whose checked source, relevant context or analysis basis has changed, so it no longer applies to the evidence and application being examined.
+_Avoid_: Incorrect evidence, absent evidence
+
+**Experimental evidence assistance**:
+Live advisory evidence suggestions and highlights offered for demonstration with broader accuracy and reliability unverified.
+_Avoid_: Validated analysis, verified evidence
+
+**Saved demonstration**:
+A checked capture of real evidence analysis, shown with its original fictional evidence and analysis context. It is distinct from a new live analysis.
+_Avoid_: Live result, fresh analysis
+
+**Illustrative example**:
+A scripted example of evidence assistance that demonstrates possible behavior without claiming that Jev produced its findings.
+_Avoid_: Saved demonstration, live result
+
+**Analysis coverage**:
+The supplied document pages actually examined for a particular evidence suggestion, distinct from selected, failed or unchecked pages.
+_Avoid_: Whole-document verification
+
+**Source inspection**:
+A person's examination of the supplied document pages relevant to a document assessment, independent of any evidence suggestion or highlight.
+_Avoid_: AI verification, document assessment
+
+**Inspection confirmation**:
+A reviewer's explicit acknowledgement that they have inspected the current source relevant to a document assessment. It is separate from the assessment itself.
+_Avoid_: Automatic reading verification, AI acceptance
 
 **Missing**:
 A document slot with no supplied document.

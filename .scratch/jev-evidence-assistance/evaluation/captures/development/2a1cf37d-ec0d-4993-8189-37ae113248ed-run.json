@@ -1,0 +1,37 @@
+{
+  "caseId": "ar-financial-01",
+  "phase": "development",
+  "probe": true,
+  "runId": "2a1cf37d-ec0d-4993-8189-37ae113248ed",
+  "plannedAttempts": 1,
+  "stageCount": 1,
+  "pageCount": 1,
+  "preparationMs": 468.8692259999998,
+  "localCompletionMs": 487.52567899999985,
+  "providerRunMs": 2.6915979999998854,
+  "presentation": "CLI capture only; application presentation unmeasured",
+  "stages": [
+    {
+      "path": "captures/development/2a1cf37d-ec0d-4993-8189-37ae113248ed-1.json",
+      "kind": "page-4",
+      "ok": false,
+      "coverage": {
+        "selectedPages": [
+          4
+        ],
+        "analyzedPages": [
+          4
+        ],
+        "complete": false
+      }
+    }
+  ],
+  "versions": {
+    "model": "jev-1.14.0",
+    "sdk": "0.7.0",
+    "tanstack": "0.69.0",
+    "mapping": "native-bridge-v1",
+    "questions": "evidence-questions-v1",
+    "preparation": "full-page-pdfjs-5.4.296-v1"
+  }
+}

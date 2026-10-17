@@ -1,0 +1,347 @@
+{
+  "version": "checked-fictional-captures-v1",
+  "checkedAt": "2026-10-17T05:01:38.245Z",
+  "checkedBy": "Codex, against human-checked frozen expectations and source pixels",
+  "scope": "These checks do not add inference or change held-out policy scores.",
+  "captureChecks": [
+    {
+      "ordinal": 1,
+      "path": "captures/development/recovery-31255cce-a84f-4333-bc7b-b1514ed08254-48f57bf9-0de2-4ba2-899a-7c97db8ba24e-1.json",
+      "sha256": "6cd39be9269020521e037a96c33da861b63bbeff0399c0aeea9a5bf2959d958e",
+      "sourceAndContextMatched": true,
+      "questionVersionMatched": true,
+      "nativeWireMatched": true,
+      "mappedAvailable": true,
+      "model": "jev-1.14.0"
+    },
+    {
+      "ordinal": 2,
+      "path": "captures/development/recovery-31255cce-a84f-4333-bc7b-b1514ed08254-48f57bf9-0de2-4ba2-899a-7c97db8ba24e-2.json",
+      "sha256": "cb77747e8b694927cd457ccf30f264c5e5ce19626f538de950f2286633d06bd0",
+      "sourceAndContextMatched": true,
+      "questionVersionMatched": true,
+      "nativeWireMatched": true,
+      "mappedAvailable": true,
+      "model": "jev-1.14.0"
+    },
+    {
+      "ordinal": 3,
+      "path": "captures/development/recovery-31255cce-a84f-4333-bc7b-b1514ed08254-48f57bf9-0de2-4ba2-899a-7c97db8ba24e-3.json",
+      "sha256": "a1050eb466311d9e3a4388739bf87f62ab61521078304306404715df51fc51fc",
+      "sourceAndContextMatched": true,
+      "questionVersionMatched": true,
+      "nativeWireMatched": true,
+      "mappedAvailable": false,
+      "model": "jev-1.14.0"
+    },
+    {
+      "ordinal": 4,
+      "path": "captures/development/recovery-31255cce-a84f-4333-bc7b-b1514ed08254-48f57bf9-0de2-4ba2-899a-7c97db8ba24e-4.json",
+      "sha256": "918b79f86cbeb43ce2a555cdc21ecefc2c8a0f6cf827997bfa2b7103ac40d503",
+      "sourceAndContextMatched": true,
+      "questionVersionMatched": true,
+      "nativeWireMatched": true,
+      "mappedAvailable": false,
+      "model": "jev-1.14.0"
+    },
+    {
+      "ordinal": 5,
+      "path": "captures/development/recovery-31255cce-a84f-4333-bc7b-b1514ed08254-48f57bf9-0de2-4ba2-899a-7c97db8ba24e-5.json",
+      "sha256": "c8900d67bd020df9349f27b4417fd69f2858bf2d3f7df54487b9557969e769d6",
+      "sourceAndContextMatched": true,
+      "questionVersionMatched": true,
+      "nativeWireMatched": true,
+      "mappedAvailable": true,
+      "model": "jev-1.14.0"
+    },
+    {
+      "ordinal": 6,
+      "path": "captures/development/recovery-31255cce-a84f-4333-bc7b-b1514ed08254-50037c2f-260f-4cd8-93e4-170cc9b32907-1.json",
+      "sha256": "f0cde91ae79522486e37e43a4041372f5a0415b079623e4a0c6e5ce3f316e06b",
+      "sourceAndContextMatched": true,
+      "questionVersionMatched": true,
+      "nativeWireMatched": true,
+      "mappedAvailable": true,
+      "model": "jev-1.14.0"
+    },
+    {
+      "ordinal": 7,
+      "path": "captures/development/recovery-31255cce-a84f-4333-bc7b-b1514ed08254-db7b5543-8be1-4319-8c63-8782fcba7a44-1.json",
+      "sha256": "43597836498e37bc1344a465640014989218dea6b6f3952184e5267b9469d549",
+      "sourceAndContextMatched": true,
+      "questionVersionMatched": true,
+      "nativeWireMatched": true,
+      "mappedAvailable": true,
+      "model": "jev-1.14.0"
+    },
+    {
+      "ordinal": 8,
+      "path": "captures/development/recovery-31255cce-a84f-4333-bc7b-b1514ed08254-50037c2f-260f-4cd8-93e4-170cc9b32907-2.json",
+      "sha256": "ef4777892b3e3adf734f832055ffaf9589c86642ae5c334f1b4c69596ae0f81e",
+      "sourceAndContextMatched": true,
+      "questionVersionMatched": true,
+      "nativeWireMatched": true,
+      "mappedAvailable": true,
+      "model": "jev-1.14.0"
+    },
+    {
+      "ordinal": 9,
+      "path": "captures/development/recovery-31255cce-a84f-4333-bc7b-b1514ed08254-db7b5543-8be1-4319-8c63-8782fcba7a44-2.json",
+      "sha256": "16c304b7720882dcea6058b639058228478ae5a3076f5af10962e1028a62c53c",
+      "sourceAndContextMatched": true,
+      "questionVersionMatched": true,
+      "nativeWireMatched": true,
+      "mappedAvailable": true,
+      "model": "jev-1.14.0"
+    },
+    {
+      "ordinal": 10,
+      "path": "captures/development/recovery-31255cce-a84f-4333-bc7b-b1514ed08254-2a1cf37d-ec0d-4993-8189-37ae113248ed-1.json",
+      "sha256": "efa319932a9d8e45eeb3890288c6c66e61c521e57875b5a20d1b03c03c257ad9",
+      "sourceAndContextMatched": true,
+      "questionVersionMatched": true,
+      "nativeWireMatched": true,
+      "mappedAvailable": false,
+      "model": "jev-1.14.0"
+    },
+    {
+      "ordinal": 11,
+      "path": "captures/evaluation/6a30023d-93d2-48c1-b4c2-f9b4a39a5428-1.json",
+      "sha256": "4965e2c10c5b215d2bd200d0e89a6196ab88862c874edfb0ec7bbc08149ccc40",
+      "sourceAndContextMatched": true,
+      "questionVersionMatched": true,
+      "nativeWireMatched": true,
+      "mappedAvailable": true,
+      "model": "jev-1.14.0"
+    },
+    {
+      "ordinal": 12,
+      "path": "captures/evaluation/6a30023d-93d2-48c1-b4c2-f9b4a39a5428-2.json",
+      "sha256": "894267f32b18808a1e8dfddf6d2ab8989a684848f0762aec155b598077e09f21",
+      "sourceAndContextMatched": true,
+      "questionVersionMatched": true,
+      "nativeWireMatched": true,
+      "mappedAvailable": true,
+      "model": "jev-1.14.0"
+    },
+    {
+      "ordinal": 13,
+      "path": "captures/evaluation/29796a3d-7db3-41b0-bc61-f6d4ffc409e4-1.json",
+      "sha256": "ff6aba30fbcd73c4cc2351e2085364ef8a3e41f24a5523bf051c599875275fc0",
+      "sourceAndContextMatched": true,
+      "questionVersionMatched": true,
+      "nativeWireMatched": true,
+      "mappedAvailable": true,
+      "model": "jev-1.14.0"
+    },
+    {
+      "ordinal": 14,
+      "path": "captures/evaluation/29796a3d-7db3-41b0-bc61-f6d4ffc409e4-2.json",
+      "sha256": "fd926f38e45a01867f89ac6c37880393e804215a0173288159828ae6b193f11e",
+      "sourceAndContextMatched": true,
+      "questionVersionMatched": true,
+      "nativeWireMatched": true,
+      "mappedAvailable": true,
+      "model": "jev-1.14.0"
+    },
+    {
+      "ordinal": 15,
+      "path": "captures/evaluation/4349ca5a-2f0e-4d8e-b788-42f3e16c376d-1.json",
+      "sha256": "701c00bb78867265d23356210cf1f4637052d9a15c77faa5bcf783b2dfc7ac50",
+      "sourceAndContextMatched": true,
+      "questionVersionMatched": true,
+      "nativeWireMatched": true,
+      "mappedAvailable": true,
+      "model": "jev-1.14.0"
+    },
+    {
+      "ordinal": 16,
+      "path": "captures/evaluation/4349ca5a-2f0e-4d8e-b788-42f3e16c376d-2.json",
+      "sha256": "980e091685f5b6699776d4dc46976181999b94027a36cc79daca8ab93ec68d4e",
+      "sourceAndContextMatched": true,
+      "questionVersionMatched": true,
+      "nativeWireMatched": true,
+      "mappedAvailable": true,
+      "model": "jev-1.14.0"
+    },
+    {
+      "ordinal": 17,
+      "path": "captures/evaluation/17f106f8-2adf-459c-a009-5ed4491ac3f5-1.json",
+      "sha256": "54982cbe2e3ca9a6e8b55e2406fe6cb6245a333d1dd6668a6a35a12c452f4cc3",
+      "sourceAndContextMatched": true,
+      "questionVersionMatched": true,
+      "nativeWireMatched": true,
+      "mappedAvailable": true,
+      "model": "jev-1.14.0"
+    },
+    {
+      "ordinal": 18,
+      "path": "captures/evaluation/17f106f8-2adf-459c-a009-5ed4491ac3f5-2.json",
+      "sha256": "fc01c062446070b2758507be781c8e583d5beba0e08679068fa515c70625a538",
+      "sourceAndContextMatched": true,
+      "questionVersionMatched": true,
+      "nativeWireMatched": true,
+      "mappedAvailable": true,
+      "model": "jev-1.14.0"
+    },
+    {
+      "ordinal": 19,
+      "path": "captures/evaluation/20d26d56-dec1-4768-8779-d752f100ab96-1.json",
+      "sha256": "81817ffe72b03703f82ae9e520956a88357e6bb866160ff948c328ef9efa20f2",
+      "sourceAndContextMatched": true,
+      "questionVersionMatched": true,
+      "nativeWireMatched": true,
+      "mappedAvailable": true,
+      "model": "jev-1.14.0"
+    },
+    {
+      "ordinal": 20,
+      "path": "captures/evaluation/20d26d56-dec1-4768-8779-d752f100ab96-2.json",
+      "sha256": "a48b28f327ab07ed8f73e9f161b326d9159fe9fb7ee513cf7d9518f03aea2c29",
+      "sourceAndContextMatched": true,
+      "questionVersionMatched": true,
+      "nativeWireMatched": true,
+      "mappedAvailable": true,
+      "model": "jev-1.14.0"
+    }
+  ],
+  "requestIdsPresent": 20,
+  "requestIdsUnique": 20,
+  "highlights": [
+    {
+      "capture": "captures/development/recovery-31255cce-a84f-4333-bc7b-b1514ed08254-48f57bf9-0de2-4ba2-899a-7c97db8ba24e-1.json",
+      "caseId": "ar-financial-01",
+      "page": 1,
+      "target": "period",
+      "phase": "development",
+      "judgment": "certified",
+      "frozenRegionContained": true,
+      "expectedUnique": true,
+      "boxConfidence": 0.92
+    },
+    {
+      "capture": "captures/development/recovery-31255cce-a84f-4333-bc7b-b1514ed08254-48f57bf9-0de2-4ba2-899a-7c97db8ba24e-1.json",
+      "caseId": "ar-financial-01",
+      "page": 1,
+      "target": "revenue0",
+      "phase": "development",
+      "judgment": "misleading, clips amount digits",
+      "frozenRegionContained": false,
+      "expectedUnique": true,
+      "boxConfidence": 0.92
+    },
+    {
+      "capture": "captures/development/recovery-31255cce-a84f-4333-bc7b-b1514ed08254-48f57bf9-0de2-4ba2-899a-7c97db8ba24e-1.json",
+      "caseId": "ar-financial-01",
+      "page": 1,
+      "target": "expenses0",
+      "phase": "development",
+      "judgment": "misleading, clips amount digits",
+      "frozenRegionContained": false,
+      "expectedUnique": true,
+      "boxConfidence": 0.94
+    },
+    {
+      "capture": "captures/development/recovery-31255cce-a84f-4333-bc7b-b1514ed08254-48f57bf9-0de2-4ba2-899a-7c97db8ba24e-1.json",
+      "caseId": "ar-financial-01",
+      "page": 1,
+      "target": "averageRevenue",
+      "phase": "development",
+      "judgment": "misleading, clips amount digits",
+      "frozenRegionContained": false,
+      "expectedUnique": true,
+      "boxConfidence": 0.9
+    },
+    {
+      "capture": "captures/development/recovery-31255cce-a84f-4333-bc7b-b1514ed08254-50037c2f-260f-4cd8-93e4-170cc9b32907-1.json",
+      "caseId": "en-business-02",
+      "page": 1,
+      "target": "address",
+      "phase": "development",
+      "judgment": "certified",
+      "frozenRegionContained": true,
+      "expectedUnique": true,
+      "boxConfidence": 0.95
+    },
+    {
+      "capture": "captures/development/recovery-31255cce-a84f-4333-bc7b-b1514ed08254-50037c2f-260f-4cd8-93e4-170cc9b32907-1.json",
+      "caseId": "en-business-02",
+      "page": 1,
+      "target": "startMonth",
+      "phase": "development",
+      "judgment": "not certified, misses frozen region at lower boundary",
+      "frozenRegionContained": false,
+      "expectedUnique": true,
+      "boxConfidence": 0.98
+    },
+    {
+      "capture": "captures/development/recovery-31255cce-a84f-4333-bc7b-b1514ed08254-db7b5543-8be1-4319-8c63-8782fcba7a44-1.json",
+      "caseId": "en-purchase-03",
+      "page": 1,
+      "target": "budget",
+      "phase": "development",
+      "judgment": "certified",
+      "frozenRegionContained": true,
+      "expectedUnique": true,
+      "boxConfidence": 0.93
+    },
+    {
+      "capture": "captures/evaluation/6a30023d-93d2-48c1-b4c2-f9b4a39a5428-1.json",
+      "caseId": "ar-identity-06",
+      "page": 1,
+      "target": "name",
+      "phase": "evaluation",
+      "judgment": "misleading, two conflicting name entries were reported single",
+      "frozenRegionContained": false,
+      "expectedUnique": false,
+      "boxConfidence": 0.89
+    },
+    {
+      "capture": "captures/evaluation/29796a3d-7db3-41b0-bc61-f6d4ffc409e4-1.json",
+      "caseId": "en-identity-10",
+      "page": 1,
+      "target": "name",
+      "phase": "evaluation",
+      "judgment": "not certified, touches value right boundary",
+      "frozenRegionContained": false,
+      "expectedUnique": true,
+      "boxConfidence": 0.94
+    },
+    {
+      "capture": "captures/evaluation/17f106f8-2adf-459c-a009-5ed4491ac3f5-1.json",
+      "caseId": "en-financial-10",
+      "page": 1,
+      "target": "period",
+      "phase": "evaluation",
+      "judgment": "certified",
+      "frozenRegionContained": true,
+      "expectedUnique": true,
+      "boxConfidence": 0.96
+    },
+    {
+      "capture": "captures/evaluation/17f106f8-2adf-459c-a009-5ed4491ac3f5-1.json",
+      "caseId": "en-financial-10",
+      "page": 1,
+      "target": "averageRevenue",
+      "phase": "evaluation",
+      "judgment": "not certified, touches value boundary",
+      "frozenRegionContained": false,
+      "expectedUnique": true,
+      "boxConfidence": 0.99
+    },
+    {
+      "capture": "captures/evaluation/17f106f8-2adf-459c-a009-5ed4491ac3f5-1.json",
+      "caseId": "en-financial-10",
+      "page": 1,
+      "target": "averageExpenses",
+      "phase": "evaluation",
+      "judgment": "misleading, top edge crosses printed digits",
+      "frozenRegionContained": false,
+      "expectedUnique": true,
+      "boxConfidence": 0.93
+    }
+  ],
+  "certifiedHighlights": 4,
+  "visuallyMisleadingHighlights": 5,
+  "uncertifiedBoundaryHighlights": 3
+}

@@ -1,0 +1,419 @@
+{
+  "label": "Saved demonstration",
+  "captureKind": "actual Jev responses, not scripted replacements",
+  "checkedAt": "2026-10-17T05:01:38.245Z",
+  "source": {
+    "path": "corpus/cases/en-purchase-03/source.png",
+    "sha256": "859d25b261bdf30faca7ca66d058e2063a5bcc9ca9cef1a116d4de69c25e78a0",
+    "bytes": 23955
+  },
+  "context": {
+    "slot": "purchase",
+    "language": "en",
+    "product": "inventory",
+    "initialSubmissionMonth": "2026-10",
+    "expectedCompletedMonths": null,
+    "comparisons": {
+      "description": "Purchase notebook stock for fictional shop 614",
+      "budget": "361400 YER"
+    }
+  },
+  "sourceFamily": "en-purchase-03",
+  "language": "en",
+  "slot": "purchase",
+  "pages": [
+    {
+      "width": 1120,
+      "height": 1568,
+      "sourceWidth": 800,
+      "sourceHeight": 1120,
+      "rotation": 0,
+      "padding": {
+        "left": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      "scale": 1.4,
+      "durationMs": 47.20000001788139,
+      "page": 1,
+      "path": "corpus/cases/en-purchase-03/page-1.png",
+      "sha256": "3431b69b05568f117a17e7c79e3322843a46aa851a547d73c038cbba54c58b01",
+      "byteLength": 101645,
+      "renderer": "Chromium createImageBitmap/canvas",
+      "preparationVersion": "full-page-pdfjs-5.4.296-v1"
+    }
+  ],
+  "model": "jev-1.14.0",
+  "questionVersion": "evidence-questions-v1",
+  "preparationVersion": "full-page-pdfjs-5.4.296-v1",
+  "candidateDisplayPolicy": "candidate-display-v1-dev10",
+  "staticSelectionVersion": "checked-static-capture-v1",
+  "staticSelectionRule": "Retain the actual candidate findings. Permit only individually source-checked certified overlays in this saved example. This post-capture selection is not a new live policy or fresh held-out validation.",
+  "capturedAt": [
+    "2026-10-17T04:49:12.858Z",
+    "2026-10-17T04:49:13.476Z"
+  ],
+  "captures": [
+    {
+      "path": "../captures/development/recovery-31255cce-a84f-4333-bc7b-b1514ed08254-db7b5543-8be1-4319-8c63-8782fcba7a44-1.json",
+      "sha256": "43597836498e37bc1344a465640014989218dea6b6f3952184e5267b9469d549"
+    },
+    {
+      "path": "../captures/development/recovery-31255cce-a84f-4333-bc7b-b1514ed08254-db7b5543-8be1-4319-8c63-8782fcba7a44-2.json",
+      "sha256": "16c304b7720882dcea6058b639058228478ae5a3076f5af10962e1028a62c53c"
+    }
+  ],
+  "nativeAndMapped": [
+    {
+      "kind": "page-1",
+      "coverage": {
+        "selectedPages": [
+          1
+        ],
+        "analyzedPages": [
+          1
+        ],
+        "complete": false
+      },
+      "analysis": {
+        "ok": true,
+        "native": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "category": {
+              "type": "choice",
+              "choice": "stock",
+              "confidence": 0.99,
+              "probabilities": {
+                "identity": 0,
+                "business": 0.01,
+                "financial": 0,
+                "stock": 0.99,
+                "equipment": 0,
+                "other": 0,
+                "mixed": 0,
+                "cannot_determine": 0
+              }
+            },
+            "readability": {
+              "type": "score",
+              "score": 1.96,
+              "confidence": 0.94,
+              "legend": {
+                "0": "Relevant text cannot be read reliably.",
+                "1": "Some relevant text is readable, but details are obscured.",
+                "2": "Relevant text and digits are clearly readable."
+              },
+              "probabilities": {
+                "0": 0,
+                "1": 0.04,
+                "2": 0.96
+              }
+            },
+            "description_presence": {
+              "type": "noul",
+              "noul": 0.2
+            },
+            "description_multiplicity": {
+              "type": "choice",
+              "choice": "ambiguous",
+              "confidence": 0.38,
+              "probabilities": {
+                "single": 0.4,
+                "repeated": 0.01,
+                "ambiguous": 0.59
+              }
+            },
+            "budget_presence": {
+              "type": "noul",
+              "noul": 0.99
+            },
+            "budget_multiplicity": {
+              "type": "choice",
+              "choice": "single",
+              "confidence": 0.76,
+              "probabilities": {
+                "single": 0.84,
+                "repeated": 0.16,
+                "ambiguous": 0
+              }
+            },
+            "description_box": {
+              "type": "box",
+              "box": {
+                "top": 0.05,
+                "bottom": 0.44,
+                "left": 0.07,
+                "right": 0.36
+              },
+              "confidence": 0.08
+            },
+            "budget_box": {
+              "type": "box",
+              "box": {
+                "top": 0.21,
+                "bottom": 0.28,
+                "left": 0.06,
+                "right": 0.22
+              },
+              "confidence": 0.93
+            }
+          },
+          "usage": {
+            "input_tokens": 5837,
+            "output_tokens": 246
+          }
+        },
+        "mapped": {
+          "category": {
+            "type": "choice",
+            "value": "stock",
+            "probability": 0.99,
+            "confidence": 0.99,
+            "probabilities": {
+              "identity": 0,
+              "business": 0.01,
+              "financial": 0,
+              "stock": 0.99,
+              "equipment": 0,
+              "other": 0,
+              "mixed": 0,
+              "cannot_determine": 0
+            }
+          },
+          "readability": {
+            "type": "score",
+            "value": "Relevant text and digits are clearly readable.",
+            "probability": 0.96,
+            "confidence": 0.94,
+            "score": 1.96,
+            "legend": {
+              "0": "Relevant text cannot be read reliably.",
+              "1": "Some relevant text is readable, but details are obscured.",
+              "2": "Relevant text and digits are clearly readable."
+            },
+            "probabilities": {
+              "0": 0,
+              "1": 0.04,
+              "2": 0.96
+            }
+          },
+          "description_presence": {
+            "type": "boolean",
+            "value": false,
+            "probability": 0.2
+          },
+          "description_multiplicity": {
+            "type": "choice",
+            "value": "ambiguous",
+            "probability": 0.59,
+            "confidence": 0.38,
+            "probabilities": {
+              "single": 0.4,
+              "repeated": 0.01,
+              "ambiguous": 0.59
+            }
+          },
+          "budget_presence": {
+            "type": "boolean",
+            "value": true,
+            "probability": 0.99
+          },
+          "budget_multiplicity": {
+            "type": "choice",
+            "value": "single",
+            "probability": 0.84,
+            "confidence": 0.76,
+            "probabilities": {
+              "single": 0.84,
+              "repeated": 0.16,
+              "ambiguous": 0
+            }
+          },
+          "meta": {
+            "model": "jev-1.14.0",
+            "usage": {
+              "inputTokens": 5837,
+              "outputTokens": 246,
+              "totalTokens": 6083
+            },
+            "id": "req_01a148314a5a7568a98b14d35963b4e1"
+          }
+        },
+        "boxes": {
+          "description_box": {
+            "type": "box",
+            "box": {
+              "top": 0.05,
+              "bottom": 0.44,
+              "left": 0.07,
+              "right": 0.36
+            },
+            "confidence": 0.08
+          },
+          "budget_box": {
+            "type": "box",
+            "box": {
+              "top": 0.21,
+              "bottom": 0.28,
+              "left": 0.06,
+              "right": 0.22
+            },
+            "confidence": 0.93
+          }
+        },
+        "requestId": "req_01a148314a5a7568a98b14d35963b4e1",
+        "status": 200,
+        "calls": 1,
+        "durationMs": 1094.1653449999994,
+        "versions": {
+          "model": "jev-1.14.0",
+          "sdk": "0.7.0",
+          "tanstack": "0.69.0",
+          "mapping": "native-bridge-v1",
+          "questions": "evidence-questions-v1",
+          "preparation": "full-page-pdfjs-5.4.296-v1"
+        }
+      }
+    },
+    {
+      "kind": "comparison",
+      "coverage": {
+        "selectedPages": [
+          1
+        ],
+        "analyzedPages": [
+          1
+        ],
+        "complete": true
+      },
+      "analysis": {
+        "ok": true,
+        "native": {
+          "model": "jev-1.14.0",
+          "answers": {
+            "description": {
+              "type": "choice",
+              "choice": "not_found",
+              "confidence": 0.76,
+              "probabilities": {
+                "consistent": 0.02,
+                "different": 0,
+                "not_found": 0.81,
+                "conflicting": 0,
+                "cannot_determine": 0.16
+              }
+            },
+            "budget": {
+              "type": "choice",
+              "choice": "consistent",
+              "confidence": 1,
+              "probabilities": {
+                "consistent": 1,
+                "different": 0,
+                "not_found": 0,
+                "conflicting": 0,
+                "cannot_determine": 0
+              }
+            }
+          },
+          "usage": {
+            "input_tokens": 5369,
+            "output_tokens": 114
+          }
+        },
+        "mapped": {
+          "description": {
+            "type": "choice",
+            "value": "not_found",
+            "probability": 0.81,
+            "confidence": 0.76,
+            "probabilities": {
+              "consistent": 0.02,
+              "different": 0,
+              "not_found": 0.81,
+              "conflicting": 0,
+              "cannot_determine": 0.16
+            }
+          },
+          "budget": {
+            "type": "choice",
+            "value": "consistent",
+            "probability": 1,
+            "confidence": 1,
+            "probabilities": {
+              "consistent": 1,
+              "different": 0,
+              "not_found": 0,
+              "conflicting": 0,
+              "cannot_determine": 0
+            }
+          },
+          "meta": {
+            "model": "jev-1.14.0",
+            "usage": {
+              "inputTokens": 5369,
+              "outputTokens": 114,
+              "totalTokens": 5483
+            },
+            "id": "req_01a148314d9a7de68d1075424031b213"
+          }
+        },
+        "boxes": {},
+        "requestId": "req_01a148314d9a7de68d1075424031b213",
+        "status": 200,
+        "calls": 1,
+        "durationMs": 608.7675180000006,
+        "versions": {
+          "model": "jev-1.14.0",
+          "sdk": "0.7.0",
+          "tanstack": "0.69.0",
+          "mapping": "native-bridge-v1",
+          "questions": "evidence-questions-v1",
+          "preparation": "full-page-pdfjs-5.4.296-v1"
+        }
+      }
+    }
+  ],
+  "findings": {
+    "pages": [
+      {
+        "page": 1,
+        "available": true,
+        "category": "stock",
+        "readability": 2
+      }
+    ],
+    "comparisons": [
+      {
+        "field": "description",
+        "outcome": "not_found",
+        "scopeComplete": true
+      },
+      {
+        "field": "budget",
+        "outcome": "consistent",
+        "scopeComplete": true
+      }
+    ],
+    "highlights": [
+      {
+        "page": 1,
+        "target": "budget",
+        "box": {
+          "top": 0.21,
+          "bottom": 0.28,
+          "left": 0.06,
+          "right": 0.22
+        },
+        "boxConfidence": 0.93
+      }
+    ]
+  },
+  "limitations": [
+    "The purchase description is absent. Only the budget target has a checked overlay."
+  ],
+  "appIntegration": "Not installed or published in the application.",
+  "matchingRule": "Exact source/raster, context, selected-page and question/preparation/model/display-policy versions only. A changed input must be shown as a separate saved example and cannot claim fresh analysis."
+}

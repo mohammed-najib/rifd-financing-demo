@@ -1,0 +1,11 @@
+{
+  "recordedAt": "2026-10-17T17:38:15.071406+00:00",
+  "providerAttempts": 2,
+  "files": {
+    "attempt-outcomes.json": "3fbcde91b5e0a9b49749ad77b32663f0252434e5106b9b5476544367714bbdab",
+    "first-native-run.json": "907b6001ec6d8d6fd1b07f2948049a834c3f48d7c575640db30d0ab1f574f051",
+    "report.md": "9e73a99c11f5b9e648857f688a4eaf896b19027eba8037e74c846192f0ee34b9",
+    "stopped-ledger.json": "07a1439557dc0dcc4f67f4943a1e4bd35992014f03d33e67384f9a82437ee821",
+    "summary.json": "778d510db4dbb424a2319a3cdabf35eb3a621819e35801c67a3c6ff9614a2342"
+  }
+}

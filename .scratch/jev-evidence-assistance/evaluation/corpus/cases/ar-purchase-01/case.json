@@ -1,0 +1,115 @@
+{
+  "id": "ar-purchase-01",
+  "sourceFamily": "ar-purchase-01",
+  "language": "ar",
+  "slot": "purchase",
+  "index": 1,
+  "kind": "clear",
+  "split": "development",
+  "context": {
+    "slot": "purchase",
+    "language": "ar",
+    "product": "inventory",
+    "initialSubmissionMonth": "2026-10",
+    "expectedCompletedMonths": null,
+    "comparisons": {
+      "description": "شراء مخزون دفاتر للمحل التجريبي 200",
+      "budget": "٣٢٠٠٠٠ ريال"
+    }
+  },
+  "expected": {
+    "category": "stock",
+    "support": {
+      "description": "consistent",
+      "budget": "consistent"
+    },
+    "pages": [
+      {
+        "page": 1,
+        "readability": 2,
+        "targets": {
+          "description": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.50365234375,
+                "right": 0.94,
+                "top": 0.21205357142857142,
+                "bottom": 0.24387555803571428
+              }
+            ]
+          },
+          "budget": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.78720703125,
+                "right": 0.94,
+                "top": 0.28169642857142857,
+                "bottom": 0.31351841517857143
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "pages": [
+    {
+      "rows": [
+        {
+          "id": "description",
+          "label": "وصف المشتريات",
+          "value": "شراء مخزون دفاتر للمحل التجريبي 200"
+        },
+        {
+          "id": "budget",
+          "label": "إجمالي الميزانية",
+          "value": "٣٢٠٠٠٠ ريال"
+        }
+      ],
+      "unreadable": false,
+      "partial": false,
+      "blank": false,
+      "note": ""
+    }
+  ],
+  "category": "stock",
+  "rotation": 0,
+  "status": "unrun",
+  "humanChecked": false,
+  "source": {
+    "path": "corpus/cases/ar-purchase-01/source.png",
+    "sha256": "9372715989f65e3b1cc733b7b650bdcebfab26f8a048920415a479f1be5e83c7",
+    "bytes": 30618
+  },
+  "preparation": [
+    {
+      "width": 1120,
+      "height": 1568,
+      "sourceWidth": 800,
+      "sourceHeight": 1120,
+      "rotation": 0,
+      "padding": {
+        "left": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      "scale": 1.4,
+      "durationMs": 48.5,
+      "page": 1,
+      "path": "corpus/cases/ar-purchase-01/page-1.png",
+      "sha256": "37497d5cbaf59700306dd45cd88d66dea891ab0d920becc1e59c742974d773e0",
+      "byteLength": 118054,
+      "renderer": "Chromium createImageBitmap/canvas",
+      "preparationVersion": "full-page-pdfjs-5.4.296-v1"
+    }
+  ],
+  "preparationTotalMs": 221.54951900000015,
+  "preparationMeasuredMs": 48.5,
+  "contextSha256": "3a59a71b38d958a0412def10697e3938891b7063454746141f49875e77da92ed",
+  "expectedSha256": "c196a3d5c8f4df3b2bc79150ebe42694d3186ac71dd2f83bdcbe04acc2e17341"
+}

@@ -1,0 +1,240 @@
+{
+  "id": "ar-financial-09",
+  "sourceFamily": "ar-financial-09",
+  "language": "ar",
+  "slot": "financial",
+  "index": 9,
+  "kind": "rotated_page",
+  "split": "development",
+  "context": {
+    "slot": "financial",
+    "language": "ar",
+    "product": null,
+    "initialSubmissionMonth": "2026-10",
+    "expectedCompletedMonths": [
+      "2026-07",
+      "2026-08",
+      "2026-09"
+    ],
+    "comparisons": {
+      "period": "يوليو إلى سبتمبر ٢٠٢٦",
+      "averageRevenue": "١٢٢٥٠٠ ريال",
+      "averageExpenses": "٦١٢٥٠ ريال"
+    }
+  },
+  "expected": {
+    "category": "financial",
+    "support": {
+      "period": "consistent",
+      "averageRevenue": "consistent",
+      "averageExpenses": "consistent"
+    },
+    "pages": [
+      {
+        "page": 1,
+        "readability": 2,
+        "targets": {
+          "period": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.7561244419642857,
+                "right": 0.7879464285714286,
+                "top": 0.68138671875,
+                "bottom": 0.94
+              }
+            ]
+          },
+          "revenue0": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.6864815848214285,
+                "right": 0.7183035714285715,
+                "top": 0.78720703125,
+                "bottom": 0.94
+              }
+            ]
+          },
+          "revenue1": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.6168387276785714,
+                "right": 0.6486607142857144,
+                "top": 0.78720703125,
+                "bottom": 0.94
+              }
+            ]
+          },
+          "revenue2": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.5471958705357143,
+                "right": 0.5790178571428571,
+                "top": 0.78720703125,
+                "bottom": 0.94
+              }
+            ]
+          },
+          "expenses0": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.47755301339285716,
+                "right": 0.509375,
+                "top": 0.80365234375,
+                "bottom": 0.94
+              }
+            ]
+          },
+          "expenses1": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.40791015625000004,
+                "right": 0.4397321428571429,
+                "top": 0.80365234375,
+                "bottom": 0.94
+              }
+            ]
+          },
+          "expenses2": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.3382672991071428,
+                "right": 0.3700892857142857,
+                "top": 0.80365234375,
+                "bottom": 0.94
+              }
+            ]
+          },
+          "averageRevenue": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.2686244419642857,
+                "right": 0.30044642857142856,
+                "top": 0.78720703125,
+                "bottom": 0.94
+              }
+            ]
+          },
+          "averageExpenses": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.19898158482142858,
+                "right": 0.23080357142857144,
+                "top": 0.80365234375,
+                "bottom": 0.94
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "pages": [
+    {
+      "rows": [
+        {
+          "id": "period",
+          "label": "الفترة المالية",
+          "value": "يوليو إلى سبتمبر ٢٠٢٦"
+        },
+        {
+          "id": "revenue0",
+          "label": "إيرادات يوليو ٢٠٢٦",
+          "value": "١٢١٥٠٠ ريال"
+        },
+        {
+          "id": "revenue1",
+          "label": "إيرادات أغسطس ٢٠٢٦",
+          "value": "١٢٢٥٠٠ ريال"
+        },
+        {
+          "id": "revenue2",
+          "label": "إيرادات سبتمبر ٢٠٢٦",
+          "value": "١٢٣٥٠٠ ريال"
+        },
+        {
+          "id": "expenses0",
+          "label": "مصروفات يوليو ٢٠٢٦",
+          "value": "٦٠٧٥٠ ريال"
+        },
+        {
+          "id": "expenses1",
+          "label": "مصروفات أغسطس ٢٠٢٦",
+          "value": "٦١٢٥٠ ريال"
+        },
+        {
+          "id": "expenses2",
+          "label": "مصروفات سبتمبر ٢٠٢٦",
+          "value": "٦١٧٥٠ ريال"
+        },
+        {
+          "id": "averageRevenue",
+          "label": "متوسط الإيرادات الشهرية",
+          "value": "١٢٢٥٠٠ ريال"
+        },
+        {
+          "id": "averageExpenses",
+          "label": "متوسط المصروفات الشهرية",
+          "value": "٦١٢٥٠ ريال"
+        }
+      ],
+      "unreadable": false,
+      "partial": false,
+      "blank": false,
+      "note": ""
+    }
+  ],
+  "category": "financial",
+  "rotation": 90,
+  "status": "unrun",
+  "humanChecked": false,
+  "source": {
+    "path": "corpus/cases/ar-financial-09/source.png",
+    "sha256": "6f158610e203f917a8822f1a1419f127e048c840cf57cf388338ad75029977db",
+    "bytes": 78375
+  },
+  "preparation": [
+    {
+      "width": 1568,
+      "height": 1120,
+      "sourceWidth": 1120,
+      "sourceHeight": 800,
+      "rotation": 0,
+      "padding": {
+        "left": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      "scale": 1.4,
+      "durationMs": 61.70000001788139,
+      "page": 1,
+      "path": "corpus/cases/ar-financial-09/page-1.png",
+      "sha256": "50817f2c2df5e43ae173a7ba38605ea8c6b8ba898afb45e800fbffa34eadeb56",
+      "byteLength": 199771,
+      "renderer": "Chromium createImageBitmap/canvas",
+      "preparationVersion": "full-page-pdfjs-5.4.296-v1"
+    }
+  ],
+  "preparationTotalMs": 341.4493680000014,
+  "preparationMeasuredMs": 61.70000001788139,
+  "contextSha256": "b5df3c3e99d7c4974a15c3cecda144b347e9148b05c5a7ec106698f20134b7a2",
+  "expectedSha256": "02c7c68331ab7efeb2f012220563f763165b8e7c109bc7959865d225c077070a"
+}

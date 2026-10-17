@@ -1,0 +1,115 @@
+{
+  "checkedAt": "2026-10-17T04:42:16.569Z",
+  "providerDispatches": 0,
+  "cases": 10,
+  "pages": 13,
+  "renderer": "pdfjs-dist@5.4.296",
+  "browser": "Chrome/155.0.8059.39",
+  "observations": [
+    {
+      "caseId": "ar-financial-01",
+      "page": 1,
+      "matchedFrozenRaster": true,
+      "width": 1120,
+      "height": 1568,
+      "durationMs": 325.90000000596046
+    },
+    {
+      "caseId": "ar-financial-01",
+      "page": 2,
+      "matchedFrozenRaster": true,
+      "width": 1120,
+      "height": 1568,
+      "durationMs": 238.59999999403954
+    },
+    {
+      "caseId": "ar-financial-01",
+      "page": 3,
+      "matchedFrozenRaster": true,
+      "width": 1120,
+      "height": 1568,
+      "durationMs": 234.5
+    },
+    {
+      "caseId": "ar-financial-01",
+      "page": 4,
+      "matchedFrozenRaster": true,
+      "width": 1120,
+      "height": 1568,
+      "durationMs": 238.2999999821186
+    },
+    {
+      "caseId": "en-business-02",
+      "page": 1,
+      "matchedFrozenRaster": true,
+      "width": 1120,
+      "height": 1568,
+      "durationMs": 44.5
+    },
+    {
+      "caseId": "en-purchase-03",
+      "page": 1,
+      "matchedFrozenRaster": true,
+      "width": 1120,
+      "height": 1568,
+      "durationMs": 40.900000005960464
+    },
+    {
+      "caseId": "ar-identity-06",
+      "page": 1,
+      "matchedFrozenRaster": true,
+      "width": 1120,
+      "height": 1568,
+      "durationMs": 41.70000001788139
+    },
+    {
+      "caseId": "en-identity-10",
+      "page": 1,
+      "matchedFrozenRaster": true,
+      "width": 1120,
+      "height": 1568,
+      "durationMs": 50
+    },
+    {
+      "caseId": "ar-business-08",
+      "page": 1,
+      "matchedFrozenRaster": true,
+      "width": 1120,
+      "height": 1568,
+      "durationMs": 59.5
+    },
+    {
+      "caseId": "en-financial-10",
+      "page": 1,
+      "matchedFrozenRaster": true,
+      "width": 1120,
+      "height": 1568,
+      "durationMs": 52.29999998211861
+    },
+    {
+      "caseId": "ar-purchase-04",
+      "page": 1,
+      "matchedFrozenRaster": true,
+      "width": 1120,
+      "height": 1568,
+      "durationMs": 41.400000005960464
+    },
+    {
+      "caseId": "ar-identity-09",
+      "page": 1,
+      "matchedFrozenRaster": true,
+      "width": 1568,
+      "height": 1120,
+      "durationMs": 39.900000005960464
+    },
+    {
+      "caseId": "en-business-04",
+      "page": 1,
+      "matchedFrozenRaster": true,
+      "width": 1120,
+      "height": 1568,
+      "durationMs": 44
+    }
+  ],
+  "limits": "Local browser/source checks only; no mobile, provider context, latency or usability claims"
+}

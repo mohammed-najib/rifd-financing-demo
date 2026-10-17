@@ -1,0 +1,115 @@
+{
+  "id": "en-purchase-01",
+  "sourceFamily": "en-purchase-01",
+  "language": "en",
+  "slot": "purchase",
+  "index": 1,
+  "kind": "clear",
+  "split": "development",
+  "context": {
+    "slot": "purchase",
+    "language": "en",
+    "product": "inventory",
+    "initialSubmissionMonth": "2026-10",
+    "expectedCompletedMonths": null,
+    "comparisons": {
+      "description": "Purchase notebook stock for fictional shop 600",
+      "budget": "360000 YER"
+    }
+  },
+  "expected": {
+    "category": "stock",
+    "support": {
+      "description": "consistent",
+      "budget": "consistent"
+    },
+    "pages": [
+      {
+        "page": 1,
+        "readability": 2,
+        "targets": {
+          "description": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.06,
+                "right": 0.6919921875,
+                "top": 0.21205357142857142,
+                "bottom": 0.24387555803571428
+              }
+            ]
+          },
+          "budget": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.06,
+                "right": 0.2162890625,
+                "top": 0.28169642857142857,
+                "bottom": 0.31351841517857143
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "pages": [
+    {
+      "rows": [
+        {
+          "id": "description",
+          "label": "Purchase description",
+          "value": "Purchase notebook stock for fictional shop 600"
+        },
+        {
+          "id": "budget",
+          "label": "Total purchase budget",
+          "value": "360000 YER"
+        }
+      ],
+      "unreadable": false,
+      "partial": false,
+      "blank": false,
+      "note": ""
+    }
+  ],
+  "category": "stock",
+  "rotation": 0,
+  "status": "unrun",
+  "humanChecked": false,
+  "source": {
+    "path": "corpus/cases/en-purchase-01/source.png",
+    "sha256": "bc1a7ad5a3498b647f5003a542ed14984fe05096e5bc5028fb7a83b9445e2b50",
+    "bytes": 34186
+  },
+  "preparation": [
+    {
+      "width": 1120,
+      "height": 1568,
+      "sourceWidth": 800,
+      "sourceHeight": 1120,
+      "rotation": 0,
+      "padding": {
+        "left": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      "scale": 1.4,
+      "durationMs": 51.79999998211861,
+      "page": 1,
+      "path": "corpus/cases/en-purchase-01/page-1.png",
+      "sha256": "babf1366613e4a1ea543ee054b45208f96e5843197be532c7dd16ffad0ed4b4c",
+      "byteLength": 135076,
+      "renderer": "Chromium createImageBitmap/canvas",
+      "preparationVersion": "full-page-pdfjs-5.4.296-v1"
+    }
+  ],
+  "preparationTotalMs": 229.39506999999867,
+  "preparationMeasuredMs": 51.79999998211861,
+  "contextSha256": "b66f1bda695d472b780768735a31b2a543717322d6e6feee6e379897201efd7c",
+  "expectedSha256": "c2034c9f895cf50bd6520b173397e250bf5aa4c1e69fd421d5d9f2279ba32c2b"
+}

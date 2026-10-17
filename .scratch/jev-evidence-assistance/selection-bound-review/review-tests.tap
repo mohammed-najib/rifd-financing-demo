@@ -1,0 +1,352 @@
+TAP version 13
+# Subtest: preflight abort, absolute deadline and resource failure are durable zero-dispatch stops
+ok 1 - preflight abort, absolute deadline and resource failure are durable zero-dispatch stops
+  ---
+  duration_ms: 30277.482043
+  type: 'test'
+  ...
+# Subtest: preserved all-zero policy acceptance path now rejects nonexistent selection
+ok 2 - preserved all-zero policy acceptance path now rejects nonexistent selection
+  ---
+  duration_ms: 12472.264717
+  type: 'test'
+  ...
+# Subtest: durable runner captures verify a synthetic selection for inspection and reject it at adoption/freeze
+ok 3 - durable runner captures verify a synthetic selection for inspection and reject it at adoption/freeze
+  ---
+  duration_ms: 33593.281374
+  type: 'test'
+  ...
+# Subtest: a preflight stop after partial phase work preserves completed measurements and cannot continue
+ok 4 - a preflight stop after partial phase work preserves completed measurements and cannot continue
+  ---
+  duration_ms: 6840.23253
+  type: 'test'
+  ...
+# Subtest: live activation remains absent and exact metadata changes fail before any transport
+ok 5 - live activation remains absent and exact metadata changes fail before any transport
+  ---
+  duration_ms: 23881.964998
+  type: 'test'
+  ...
+# Subtest: all signed selector metadata and exact complete-case inventory remain bound
+ok 6 - all signed selector metadata and exact complete-case inventory remain bound
+  ---
+  duration_ms: 295.687213
+  type: 'test'
+  ...
+# Subtest: crop/resource failure survives partial return and blocks runner and ledger after reconciliation
+ok 7 - crop/resource failure survives partial return and blocks runner and ledger after reconciliation
+  ---
+  duration_ms: 8111.712394
+  type: 'test'
+  ...
+# Subtest: ordinary failed verification suppresses its location while independent findings survive
+ok 8 - ordinary failed verification suppresses its location while independent findings survive
+  ---
+  duration_ms: 285.495262
+  type: 'test'
+  ...
+# Subtest: computed semantic freeze, pass B completion, historical bindings and revised reviewer separation
+ok 9 - computed semantic freeze, pass B completion, historical bindings and revised reviewer separation
+  ---
+  duration_ms: 44132.68474
+  type: 'test'
+  ...
+# Subtest: one reviewed revision loads all imported module replacements and pass B executes their reviewed bytes
+ok 10 - one reviewed revision loads all imported module replacements and pass B executes their reviewed bytes
+  ---
+  duration_ms: 28674.679553
+  type: 'test'
+  ...
+# Subtest: reviewed worker code changed before import durably stops with no transport or dispatched attempt
+ok 11 - reviewed worker code changed before import durably stops with no transport or dispatched attempt
+  ---
+  duration_ms: 338.747623
+  type: 'test'
+  ...
+# Subtest: true one-page financial suite is exactly 32; selected page from longer source is never combined
+ok 12 - true one-page financial suite is exactly 32; selected page from longer source is never combined
+  ---
+  duration_ms: 1.828151
+  type: 'test'
+  ...
+# Subtest: lossless crop preserves fractional original boundary, integer copy and artificial padding without scaling
+ok 13 - lossless crop preserves fractional original boundary, integer copy and artificial padding without scaling
+  ---
+  duration_ms: 16.155177
+  type: 'test'
+  ...
+# Subtest: invalid rectangle is rejected null
+ok 14 - invalid rectangle is rejected null
+  ---
+  duration_ms: 0.210065
+  type: 'test'
+  ...
+# Subtest: invalid rectangle is rejected {"left":0,"right":0,"top":0,"bottom":1}
+ok 15 - invalid rectangle is rejected {"left":0,"right":0,"top":0,"bottom":1}
+  ---
+  duration_ms: 0.145538
+  type: 'test'
+  ...
+# Subtest: invalid rectangle is rejected {"left":-0.1,"right":1,"top":0,"bottom":1}
+ok 16 - invalid rectangle is rejected {"left":-0.1,"right":1,"top":0,"bottom":1}
+  ---
+  duration_ms: 0.091408
+  type: 'test'
+  ...
+# Subtest: invalid rectangle is rejected {"left":0,"right":1,"top":1,"bottom":0}
+ok 17 - invalid rectangle is rejected {"left":0,"right":1,"top":1,"bottom":0}
+  ---
+  duration_ms: 0.11688
+  type: 'test'
+  ...
+# Subtest: invalid rectangle is rejected {"left":0,"right":null,"top":0,"bottom":1}
+ok 18 - invalid rectangle is rejected {"left":0,"right":null,"top":0,"bottom":1}
+  ---
+  duration_ms: 0.17522
+  type: 'test'
+  ...
+# Subtest: source padding is not crop evidence
+ok 19 - source padding is not crop evidence
+  ---
+  duration_ms: 0.226571
+  type: 'test'
+  ...
+# Subtest: PNG expansion and corruption are rejected before unbounded work
+ok 20 - PNG expansion and corruption are rejected before unbounded work
+  ---
+  duration_ms: 0.347529
+  type: 'test'
+  ...
+# Subtest: worker cancellation and crop deadline dispose worker
+ok 21 - worker cancellation and crop deadline dispose worker
+  ---
+  duration_ms: 12.466548
+  type: 'test'
+  ...
+# Subtest: automatic run uses two real SDK fake calls, bound later crop and nullable confidence
+ok 22 - automatic run uses two real SDK fake calls, bound later crop and nullable confidence
+  ---
+  duration_ms: 308.459473
+  type: 'test'
+  ...
+# Subtest: unmeasured policy suppresses locations; instrumented development can collect raw verification without display
+ok 23 - unmeasured policy suppresses locations; instrumented development can collect raw verification without display
+  ---
+  duration_ms: 464.894479
+  type: 'test'
+  ...
+# Subtest: degenerate and missing Box isolate locations without failing independent first-stage answers
+ok 24 - degenerate and missing Box isolate locations without failing independent first-stage answers
+  ---
+  duration_ms: 406.570541
+  type: 'test'
+  ...
+# Subtest: verification clipping preserves valid findings and suppresses overlay
+ok 25 - verification clipping preserves valid findings and suppresses overlay
+  ---
+  duration_ms: 268.971947
+  type: 'test'
+  ...
+# Subtest: verification association preserves valid findings and suppresses overlay
+ok 26 - verification association preserves valid findings and suppresses overlay
+  ---
+  duration_ms: 274.790336
+  type: 'test'
+  ...
+# Subtest: verification competing preserves valid findings and suppresses overlay
+ok 27 - verification competing preserves valid findings and suppresses overlay
+  ---
+  duration_ms: 260.476527
+  type: 'test'
+  ...
+# Subtest: verification malformed-verification preserves valid findings and suppresses overlay
+ok 28 - verification malformed-verification preserves valid findings and suppresses overlay
+  ---
+  duration_ms: 254.944195
+  type: 'test'
+  ...
+# Subtest: strong stop unknown consumes dispatch and makes no fallback
+ok 29 - strong stop unknown consumes dispatch and makes no fallback
+  ---
+  duration_ms: 175.678564
+  type: 'test'
+  ...
+# Subtest: strong stop access consumes dispatch and makes no fallback
+ok 30 - strong stop access consumes dispatch and makes no fallback
+  ---
+  duration_ms: 176.462589
+  type: 'test'
+  ...
+# Subtest: strong stop context consumes dispatch and makes no fallback
+ok 31 - strong stop context consumes dispatch and makes no fallback
+  ---
+  duration_ms: 173.492877
+  type: 'test'
+  ...
+# Subtest: partial original scope preserves measured scoped conflict but withholds agreement/absence
+ok 32 - partial original scope preserves measured scoped conflict but withholds agreement/absence
+  ---
+  duration_ms: 0.878122
+  type: 'test'
+  ...
+# Subtest: wrong period, missing declaration, unavailable comparison and stale input remain distinct
+ok 33 - wrong period, missing declaration, unavailable comparison and stale input remain distinct
+  ---
+  duration_ms: 1.174759
+  type: 'test'
+  ...
+# Subtest: every bilingual category, readability and support outcome is executable and has a separate unset cell
+ok 34 - every bilingual category, readability and support outcome is executable and has a separate unset cell
+  ---
+  duration_ms: 13.928539
+  type: 'test'
+  ...
+# Subtest: complete phase reservation enforces exact partition, simultaneous dollar and reserve stops
+ok 35 - complete phase reservation enforces exact partition, simultaneous dollar and reserve stops
+  ---
+  duration_ms: 8.147767
+  type: 'test'
+  ...
+# Subtest: crash after durable dispatch cannot reuse attempt or start another run
+ok 36 - crash after durable dispatch cannot reuse attempt or start another run
+  ---
+  duration_ms: 4.174921
+  type: 'test'
+  ...
+# Subtest: known usage is still unreconciled accounting; fake reconciliation binds exact balance
+ok 37 - known usage is still unreconciled accounting; fake reconciliation binds exact balance
+  ---
+  duration_ms: 5.486629
+  type: 'test'
+  ...
+# Subtest: stale lock fails closed without automatic expiration
+ok 38 - stale lock fails closed without automatic expiration
+  ---
+  duration_ms: 1.5541
+  type: 'test'
+  ...
+# Subtest: frozen reservation rejects changed code/policy or input binding before dispatch
+ok 39 - frozen reservation rejects changed code/policy or input binding before dispatch
+  ---
+  duration_ms: 2.292528
+  type: 'test'
+  ...
+# Subtest: new mapping keeps concurrent reversed completions local
+ok 40 - new mapping keeps concurrent reversed completions local
+  ---
+  duration_ms: 12.371522
+  type: 'test'
+  ...
+# Subtest: actual returned rectangle and crop parent association cannot be substituted
+ok 41 - actual returned rectangle and crop parent association cannot be substituted
+  ---
+  duration_ms: 59.941316
+  type: 'test'
+  ...
+# Subtest: resource, metadata and question bounds reject before fake transport
+ok 42 - resource, metadata and question bounds reject before fake transport
+  ---
+  duration_ms: 61.786525
+  type: 'test'
+  ...
+# Subtest: physical axes and pixel content remain unchanged for rotated and RTL evidence
+ok 43 - physical axes and pixel content remain unchanged for rotated and RTL evidence
+  ---
+  duration_ms: 15.913062
+  type: 'test'
+  ...
+# Subtest: multiplicity, missing occurrence, incomplete scope and stale verification cannot display a location
+ok 44 - multiplicity, missing occurrence, incomplete scope and stale verification cannot display a location
+  ---
+  duration_ms: 7.208675
+  type: 'test'
+  ...
+# Subtest: a checked but unreadable remaining page cannot erase a witnessed usable conflict or establish agreement
+ok 45 - a checked but unreadable remaining page cannot erase a witnessed usable conflict or establish agreement
+  ---
+  duration_ms: 1.307537
+  type: 'test'
+  ...
+# Subtest: the future freeze draft fails before any credential or account action
+ok 46 - the future freeze draft fails before any credential or account action
+  ---
+  duration_ms: 1.063858
+  type: 'test'
+  ...
+# Subtest: durable phase order cannot start a later run first
+ok 47 - durable phase order cannot start a later run first
+  ---
+  duration_ms: 5.386543
+  type: 'test'
+  ...
+# Subtest: presence and agreement stay independent; a present different value cannot become a not-found finding
+ok 48 - presence and agreement stay independent; a present different value cannot become a not-found finding
+  ---
+  duration_ms: 1.826031
+  type: 'test'
+  ...
+# Subtest: old policy admits a rectangle substitution; repaired exact binding rejects each single-component substitution
+ok 49 - old policy admits a rectangle substitution; repaired exact binding rejects each single-component substitution
+  ---
+  duration_ms: 8.7118
+  type: 'test'
+  ...
+# Subtest: reporting-period guard is independent of comparison insertion order and old runner reproduces the defect
+ok 50 - reporting-period guard is independent of comparison insertion order and old runner reproduces the defect
+  ---
+  duration_ms: 654.337625
+  type: 'test'
+  ...
+# Subtest: supervised deadline cancels a pending transport and leaves unknown accounting counted
+ok 51 - supervised deadline cancels a pending transport and leaves unknown accounting counted
+  ---
+  duration_ms: 627.003702
+  type: 'test'
+  ...
+# Subtest: tiny server budget covers worker startup and input copying without transport
+ok 52 - tiny server budget covers worker startup and input copying without transport
+  ---
+  duration_ms: 7.649737
+  type: 'test'
+  ...
+# Subtest: cancellation after durable dispatch is rechecked before handoff
+ok 53 - cancellation after durable dispatch is rechecked before handoff
+  ---
+  duration_ms: 179.687295
+  type: 'test'
+  ...
+# Subtest: cancellation at the supervisor after durable mark prevents any transport entry
+ok 54 - cancellation at the supervisor after durable mark prevents any transport entry
+  ---
+  duration_ms: 169.449066
+  type: 'test'
+  ...
+# Subtest: one revised module graph, conservative cohort and reconciled pass B feed the same verified final selection
+ok 55 - one revised module graph, conservative cohort and reconciled pass B feed the same verified final selection
+  ---
+  duration_ms: 17619.760884
+  type: 'test'
+  ...
+# Subtest: explicit offline rehearsal verifies actual selection through adoption, final freeze and ordered fake evaluation
+ok 56 - explicit offline rehearsal verifies actual selection through adoption, final freeze and ordered fake evaluation
+  ---
+  duration_ms: 60318.588693
+  type: 'test'
+  ...
+# Subtest: a complete all-unset selection can freeze in rehearsal while release gates remain undetermined
+ok 57 - a complete all-unset selection can freeze in rehearsal while release gates remain undetermined
+  ---
+  duration_ms: 14144.836336
+  type: 'test'
+  ...
+1..57
+# tests 57
+# suites 0
+# pass 57
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 286104.838076

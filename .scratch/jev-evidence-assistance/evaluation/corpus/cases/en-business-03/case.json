@@ -1,0 +1,122 @@
+{
+  "id": "en-business-03",
+  "sourceFamily": "en-business-03",
+  "language": "en",
+  "slot": "business",
+  "index": 3,
+  "kind": "absent_target",
+  "split": "development",
+  "context": {
+    "slot": "business",
+    "language": "en",
+    "product": null,
+    "initialSubmissionMonth": "2026-10",
+    "expectedCompletedMonths": null,
+    "comparisons": {
+      "businessName": "Cedar Demo Supplies 552",
+      "address": "552 Fictional Spring Street",
+      "startMonth": "2022-04"
+    }
+  },
+  "expected": {
+    "category": "business",
+    "support": {
+      "businessName": "not_found",
+      "address": "consistent",
+      "startMonth": "consistent"
+    },
+    "pages": [
+      {
+        "page": 1,
+        "readability": 2,
+        "targets": {
+          "businessName": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          },
+          "address": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.06,
+                "right": 0.412890625,
+                "top": 0.21205357142857142,
+                "bottom": 0.24387555803571428
+              }
+            ]
+          },
+          "startMonth": {
+            "present": true,
+            "multiplicity": "single",
+            "regions": [
+              {
+                "left": 0.06,
+                "right": 0.1679296875,
+                "top": 0.28169642857142857,
+                "bottom": 0.31351841517857143
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "pages": [
+    {
+      "rows": [
+        {
+          "id": "address",
+          "label": "Business address",
+          "value": "552 Fictional Spring Street"
+        },
+        {
+          "id": "startMonth",
+          "label": "Operating since",
+          "value": "2022-04"
+        }
+      ],
+      "unreadable": false,
+      "partial": false,
+      "blank": false,
+      "note": ""
+    }
+  ],
+  "category": "business",
+  "rotation": 0,
+  "status": "unrun",
+  "humanChecked": false,
+  "source": {
+    "path": "corpus/cases/en-business-03/source.png",
+    "sha256": "68def790a2582abc31948c4181227e4b2fc74a2de7c4237892dafbf9a7f9ee14",
+    "bytes": 31659
+  },
+  "preparation": [
+    {
+      "width": 1120,
+      "height": 1568,
+      "sourceWidth": 800,
+      "sourceHeight": 1120,
+      "rotation": 0,
+      "padding": {
+        "left": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      "scale": 1.4,
+      "durationMs": 42.099999994039536,
+      "page": 1,
+      "path": "corpus/cases/en-business-03/page-1.png",
+      "sha256": "5b289eecb789e0cfc880001279b1aed27da93c801a0d22a4241a8720db34f440",
+      "byteLength": 125776,
+      "renderer": "Chromium createImageBitmap/canvas",
+      "preparationVersion": "full-page-pdfjs-5.4.296-v1"
+    }
+  ],
+  "preparationTotalMs": 190.56287299999894,
+  "preparationMeasuredMs": 42.099999994039536,
+  "contextSha256": "bdfe19e176424ca0d45c5fc634ed1e80c46970f49fca0787f0772f2c2467100e",
+  "expectedSha256": "ce97405f728df501224c7b298713710f89b2cb12f7511725e98508ca965371a3"
+}

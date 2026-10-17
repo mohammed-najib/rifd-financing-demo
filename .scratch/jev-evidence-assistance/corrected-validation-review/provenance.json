@@ -1,0 +1,30 @@
+{
+  "date": "2026-10-17",
+  "providerAttempts": 0,
+  "branch": "experiment/jev-validation-controls",
+  "reviewedHead": "ef7e6c98ebebbba752db0bfe78bccab17fbdc631",
+  "sourceAndArtifactCommit": "3a4604529cd8b02d3cc05570bba074b92539b73c",
+  "manifestDigest": "fc8c1bf30126e730f4e72cb1f55d090afa4e6a88284f8cc9f18fe11832f20792",
+  "sourceSeal": "2f2952ae472d157e29d1bff0d41d487357bb2cbfa1c37497e02724e8bc3b5849",
+  "checks": {
+    "packageManifestFiles": 517,
+    "sourceSealedFiles": 181,
+    "offlineRegressionsPassed": 48,
+    "shippedSelectorChecksPassed": 13,
+    "targetedBruteForceCombinations": 2401,
+    "syntheticFourPageAttempts": 9
+  },
+  "status": "FACTUAL REVIEW ONLY; human acceptance, independent checks, actual account evidence, and paid authorization absent",
+  "files": {
+    "four-page-transport.json": "75d86f1d0607edbfc957b23642b846f3a2b98d0a5475024353e6050eb6f898fa",
+    "heterogeneous.mjs": "f0a7180cffd88bfa8b75bb03cd7707651b946c6f6fbd5190f7e7c5d4c9fab7df",
+    "preflight-stop-output.jsonl": "7571f7d66effd80428782a71bafccf0a8b9c1a3669f55e3938d30cacdd8c1c15",
+    "preflight-stop-repro.mjs": "098db464bb8b2552c199db88a2603bdda58f8386eea66bdacaa6eff137d78007",
+    "selector-freeze-output.json": "dd154763d1e6a87d51fe0724525a13974d17c630a4cd321d55d46e0f2e5e254f",
+    "selector-freeze-repro.mjs": "fcbf24981307f62cf4407b4633b9b4767d7dfe804a83b6e8a0376d62c18e28ae",
+    "selector-targeted-results.json": "813bc2b20c777335a541eaf4e5c376f7f6aae56804be406159b17f0b5fc23146",
+    "selector-uniform-30000.json": "d1b223bd9f13e423cd0aa638196066b3133a779b358192f7fa05ef1192683211",
+    "selector-varied-30000.json": "e547d99a7b26bb022cf5c83eac3227bd6b42157850b0a529969015711e2f69be",
+    "targeted.mjs": "01105b963dbebb185d90ef4928be864e1b5298f29ae2d0a52dc7ee853806943b"
+  }
+}

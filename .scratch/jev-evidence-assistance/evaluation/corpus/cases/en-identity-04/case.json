@@ -1,0 +1,89 @@
+{
+  "id": "en-identity-04",
+  "sourceFamily": "en-identity-04",
+  "language": "en",
+  "slot": "identity",
+  "index": 4,
+  "kind": "unreadable",
+  "split": "evaluation",
+  "context": {
+    "slot": "identity",
+    "language": "en",
+    "product": null,
+    "initialSubmissionMonth": "2026-10",
+    "expectedCompletedMonths": null,
+    "comparisons": {
+      "name": "Mira Vale Fictional 528"
+    }
+  },
+  "expected": {
+    "category": "cannot_determine",
+    "support": {
+      "name": "cannot_determine"
+    },
+    "pages": [
+      {
+        "page": 1,
+        "readability": 0,
+        "targets": {
+          "name": {
+            "present": false,
+            "multiplicity": "ambiguous",
+            "regions": []
+          }
+        }
+      }
+    ]
+  },
+  "pages": [
+    {
+      "rows": [
+        {
+          "id": "name",
+          "label": "Applicant name",
+          "value": "Mira Vale Fictional 528"
+        }
+      ],
+      "unreadable": true,
+      "partial": false,
+      "blank": true,
+      "note": ""
+    }
+  ],
+  "category": "identity",
+  "rotation": 0,
+  "status": "unrun",
+  "humanChecked": false,
+  "source": {
+    "path": "corpus/cases/en-identity-04/source.png",
+    "sha256": "b52bde5551b14bb5cdd7978d39194a8f2f1fdb5fc3b4b3f630a227c2207740e6",
+    "bytes": 5015
+  },
+  "preparation": [
+    {
+      "width": 1120,
+      "height": 1568,
+      "sourceWidth": 800,
+      "sourceHeight": 1120,
+      "rotation": 0,
+      "padding": {
+        "left": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      "scale": 1.4,
+      "durationMs": 39.19999998807907,
+      "page": 1,
+      "path": "corpus/cases/en-identity-04/page-1.png",
+      "sha256": "ffee8988347d05938e1dcfde4c7b7aa271fe0dc7bb7dc9fc2db92287e1c7b0bf",
+      "byteLength": 40520,
+      "renderer": "Chromium createImageBitmap/canvas",
+      "preparationVersion": "full-page-pdfjs-5.4.296-v1"
+    }
+  ],
+  "preparationTotalMs": 172.94073900000149,
+  "preparationMeasuredMs": 39.19999998807907,
+  "contextSha256": "e0d8cedafb89c04acfa65f97aa0729865b4bcb4d526fae993cb29f67d7c44f49",
+  "expectedSha256": "2111485e0a632e55bd43f5336a283e0036a6c974921df8af738b8fd258cfb419"
+}

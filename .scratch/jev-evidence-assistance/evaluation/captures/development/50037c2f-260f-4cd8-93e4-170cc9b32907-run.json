@@ -1,0 +1,37 @@
+{
+  "caseId": "en-business-02",
+  "phase": "development",
+  "probe": false,
+  "runId": "50037c2f-260f-4cd8-93e4-170cc9b32907",
+  "plannedAttempts": 2,
+  "stageCount": 1,
+  "pageCount": 1,
+  "preparationMs": 235.71691800000008,
+  "localCompletionMs": 479.480286,
+  "providerRunMs": 3.2205199999998513,
+  "presentation": "CLI capture only; application presentation unmeasured",
+  "stages": [
+    {
+      "path": "captures/development/50037c2f-260f-4cd8-93e4-170cc9b32907-1.json",
+      "kind": "page-1",
+      "ok": false,
+      "coverage": {
+        "selectedPages": [
+          1
+        ],
+        "analyzedPages": [
+          1
+        ],
+        "complete": false
+      }
+    }
+  ],
+  "versions": {
+    "model": "jev-1.14.0",
+    "sdk": "0.7.0",
+    "tanstack": "0.69.0",
+    "mapping": "native-bridge-v1",
+    "questions": "evidence-questions-v1",
+    "preparation": "full-page-pdfjs-5.4.296-v1"
+  }
+}
