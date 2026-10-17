@@ -73,7 +73,7 @@ export function ComponentGallery({ language }: { language: Language }) {
       </section>
       <GalleryRecords language={language} />
       <section aria-labelledby="gallery-loading"><h2 id="gallery-loading">{g('loading')}</h2><LoadingPanel language={language} />
-        {readFailed ? <ReadFailure error="storage" language={language} retry={() => setReadFailed(false)} /> : <p role="status">{g('retryDone')}</p>}
+        {readFailed ? <ReadFailure error="storage" language={language} retry={() => setReadFailed(false)} /> : <p className="mt-5" role="status">{g('retryDone')}</p>}
         {!readFailed && <button onClick={() => setReadFailed(true)}>{g('retry')}</button>}
       </section>
       <section className="panel" aria-labelledby="gallery-dialogs"><h2 id="gallery-dialogs">{g('dialogs')}</h2><p>{g('dialogHint')}</p><button ref={dialogOpener} onClick={() => setDialogOpen(true)}>{g('openDialog')}</button><GalleryDialogExamples language={language} /></section>

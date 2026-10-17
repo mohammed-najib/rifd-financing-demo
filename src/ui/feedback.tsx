@@ -20,7 +20,7 @@ export function LoadingPanel({ language }: { language: Language }) {
 }
 
 export function ReadFailure({ error, language, retry }: { error: ErrorKind; language: Language; retry: () => void }) {
-  return <p role="alert">{errors[error][language]} <button onClick={retry}>{text.retry[language]}</button></p>
+  return <p className="mt-5" role="alert">{errors[error][language]} <button onClick={retry}>{text.retry[language]}</button></p>
 }
 
 export function EmptyQueue({ language }: { language: Language }) {
