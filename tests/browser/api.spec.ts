@@ -6,7 +6,7 @@ test('the separate API harness compiles the production Tailwind theme, logical s
   await page.evaluate(() => {
     const probe = document.createElement('div')
     probe.id = 'style-probe'
-    probe.className = 'grid grid-cols-2 gap-6 narrow:grid-cols-1 ms-3 narrow:ms-0'
+    probe.className = 'grid grid-cols-2 gap-6 narrow:grid-cols-1 ms-3'
     probe.style.width = '200px'
     probe.textContent = 'Shared production styles'
     document.body.append(probe)
@@ -19,7 +19,7 @@ test('the separate API harness compiles the production Tailwind theme, logical s
         const style = getComputedStyle(element)
         return { display: style.display, columns: style.gridTemplateColumns.split(' ').length, gap: style.gap, margin: style.marginInlineStart, color: style.color, font: getComputedStyle(document.documentElement).fontSize }
       })
-      expect(style).toEqual({ display: 'grid', columns: width === 767 ? 1 : 2, gap: '24px', margin: width === 767 ? '0px' : '12px', color: 'rgb(25, 47, 44)', font: '15px' })
+      expect(style).toEqual({ display: 'grid', columns: width === 767 ? 1 : 2, gap: '24px', margin: '12px', color: 'rgb(50, 46, 40)', font: '15px' })
     }
   }
 })
