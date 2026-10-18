@@ -40,3 +40,8 @@ export const nativePurchase = (product: 'inventory' | 'equipment' = 'inventory')
     budgetSupport: { type: 'choice', choice: 'different', confidence: 0.999, probabilities: { consistent: 0, different: 1, not_found: 0, conflict: 0, uncertain: 0 } },
   },
 })
+
+export function nativeLocatedIdentity(request: StageRequest): unknown {
+  if (request.stage === 'bound-verification') return { model: 'jev-1.14.0', answers: Object.fromEntries(Object.keys(request.questions).map(key => [key, { type: 'noul', noul: key.endsWith('Association') ? 0.99 : 0.01 }])), usage: { input_tokens: 500, output_tokens: 60 } }
+  return { ...nativeIdentity(), answers: { ...nativeIdentity().answers, fullNameBox: { type: 'box', box: { left: 0.1015, top: 0.2005, right: 0.3005, bottom: 0.2505 }, confidence: null }, fullNameMultiplicity: { type: 'choice', choice: 'single', confidence: 0.1, probabilities: { absent: 0, single: 0.99, repeated: 0.01, uncertain: 0 } } } }
+}

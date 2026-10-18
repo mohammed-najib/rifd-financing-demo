@@ -24,7 +24,7 @@ for (const product of ['inventory', 'equipment'] as const) test(`${product} purc
   expect(result.requests).toHaveLength(1)
   expect(result.requests[0].pixels).toEqual([137, 80, 78, 71, 13, 10, 26, 10])
   expect(result.requests[0].state).toMatchObject({ declaredPurchase: { product, budget: '1200000' } })
-  expect(Object.keys(result.requests[0].questions)).toEqual(['category', 'readability', 'descriptionPresence', 'descriptionSupport', 'budgetPresence', 'budgetSupport'])
+  expect(Object.keys(result.requests[0].questions)).toEqual(['category', 'readability', 'descriptionPresence', 'descriptionSupport', 'budgetPresence', 'budgetSupport', 'explanationBox', 'explanationMultiplicity', 'budgetBox', 'budgetMultiplicity'])
   for (const dependencies of Object.values(result.requests[0].dependencies)) expect(dependencies).toEqual(expect.arrayContaining(['declaration.purchase.product', 'declaration.purchase.explanation.value', 'declaration.purchase.explanation.status', 'declaration.purchase.budget.value', 'declaration.purchase.budget.status']))
 })
 
@@ -67,7 +67,7 @@ test('purchase guards distinguish absence, unrelated quotations, missing context
     return { missing, missingBudget, absent, unrelated, obscured, conflict, uncertain, partial, unavailable, multipage: handle.read(), multipageReadable: (await demo.readPrepared(purchaseInput.applicationId, multipageAttachment)).ok, multipageAttempts: requests.length - attempts, requests: requests.map(({ state, questions }) => ({ state, questions })) }
   })
   expect(result.missing.result?.findings).toMatchObject({ category: 'stock', readability: 'clear', descriptionPresence: 'present', descriptionSupport: 'missing-context', budgetPresence: 'present', budgetSupport: 'missing-context' })
-  expect(Object.keys(result.requests[0].questions)).toEqual(['category', 'readability', 'descriptionPresence', 'budgetPresence'])
+  expect(Object.keys(result.requests[0].questions)).toEqual(['category', 'readability', 'descriptionPresence', 'budgetPresence', 'explanationBox', 'explanationMultiplicity', 'budgetBox', 'budgetMultiplicity'])
   expect(result.requests[0].state).toEqual({ page: 'original-page-1', declaredPurchase: { product: 'inventory', explanation: null, budget: null } })
   expect(result.missingBudget.result?.findings).toMatchObject({ descriptionSupport: 'consistent', budgetSupport: 'missing-context' })
   expect(result.requests[1].questions).toHaveProperty('descriptionSupport')

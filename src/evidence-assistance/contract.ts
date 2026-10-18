@@ -2,8 +2,8 @@ import type { PreparedAttachment, Result } from '../demo/types'
 import type { CorrectionTarget, DocumentSlot, ProductId } from '../domain/model'
 
 export const versions = {
-  questions: 'evidence-questions-v3', preparation: 'full-page-pdfjs-5.4.296-v1',
-  mapping: 'evidence-mapping-v2', display: 'release-display-v2-experimental',
+  questions: 'evidence-questions-v4', preparation: 'full-page-pdfjs-5.4.296-v1',
+  mapping: 'evidence-mapping-v3', display: 'release-display-v2-experimental',
   defaults: 'provisional-display-defaults-v1', model: 'jev-1.14.0',
   bridge: 'fixed-evaluation-v1', sdk: 'not-connected',
 } as const
@@ -79,14 +79,14 @@ export type RasterManifest = {
   renderer: string; worker: string; resources: string; preparation: string;
 }
 export type PreparedPage = { bytes: ArrayBuffer; manifest: RasterManifest; totalPages: number }
-export type AttemptPlan = { maximumAttempts: number; stages: readonly string[]; verification: 'reserved-not-enabled' }
+export type AttemptPlan = { maximumAttempts: number; stages: readonly string[]; verification: 'lossless-boundary-pad-v1' }
 export type FixedQuestion = { type: 'choice'; instructions: string; criteria: Record<string, string> }
   | { type: 'score'; instructions: string; criteria: string[] }
-  | { type: 'noul'; instructions: string }
+  | { type: 'noul' | 'box'; instructions: string }
 export type StageRequest = {
-  runId: string; stage: 'combined-page-declaration' | 'page' | 'document-comparison'; model: typeof versions.model; plan: AttemptPlan;
-  state: { page: string; pages?: string[]; declaredFinancial?: { initialSubmissionMonth: string; expectedMonths: string[]; revenue: string | null; expenses: string | null }; declaredApplicantName?: string | null; declaredBusiness?: Record<BusinessField, string | null>; declaredPurchase?: { product: ProductId; explanation: string | null; budget: string | null }; correction?: CorrectionEvidenceContext };
-  image: PreparedPage; images?: PreparedPage[];
+  runId: string; stage: 'combined-page-declaration' | 'page' | 'document-comparison' | 'bound-verification'; model: typeof versions.model; plan: AttemptPlan;
+  state: { regions?: CropBinding[]; cropImages?: string[]; verificationPolicy?: string; page: string; pages?: string[]; declaredFinancial?: { initialSubmissionMonth: string; expectedMonths: string[]; revenue: string | null; expenses: string | null }; declaredApplicantName?: string | null; declaredBusiness?: Record<BusinessField, string | null>; declaredPurchase?: { product: ProductId; explanation: string | null; budget: string | null }; correction?: CorrectionEvidenceContext };
+  image: PreparedPage; images?: PreparedPage[]; crops?: PreparedCrop[];
   questions: Record<string, FixedQuestion>; versions: typeof versions;
   dependencies: Record<string, string[]>;
 }
@@ -96,7 +96,7 @@ export type ChoiceAnswer = { type: 'choice'; choice: string; confidence: number;
 export type ScoreAnswer = { type: 'score'; score: number; confidence: number; probabilities: Record<string, number>; legend: Record<string, string> }
 export type NoulAnswer = { type: 'noul'; noul: number }
 export type NativeAnswers = { category?: ChoiceAnswer; readability?: ScoreAnswer } & Partial<Record<PresenceKey, NoulAnswer>> & Partial<Record<SupportKey, ChoiceAnswer>>
-export type NativeCapture = { model: string; answers: NativeAnswers; receivedAnswers: Record<string, unknown>; usage: { input_tokens: number; output_tokens: number }; responseId?: string }
+export type NativeCapture = { locations?: Record<string, { box?: BoxAnswer; multiplicity?: ChoiceAnswer }>;  model: string; answers: NativeAnswers; receivedAnswers: Record<string, unknown>; usage: { input_tokens: number; output_tokens: number }; responseId?: string }
 export type Findings = {
   category: 'identity' | 'business' | 'financial' | 'stock' | 'equipment' | 'other' | 'mixed' | 'undetermined' | 'unavailable';
   readability: 'clear' | 'partial' | 'unreadable' | 'undetermined' | 'unavailable';
@@ -105,12 +105,12 @@ export type Findings = {
 export type Coverage = { totalPages: number | null; selected: number[]; prepared: number[]; dispatched: number[]; successful: number[]; failed: number[]; unreadable: number[]; unchecked: number[]; uncheckedCount: number | null }
 export type EvidenceRun = {
   schemaVersion: 1; id: string; provenanceKind: 'live-analysis'; temporary: boolean; restored: boolean; stale: boolean; expiresAt: string; coverage: Coverage; findings: Findings;
-  pages?: PageAnalysis[]; comparison?: ComparisonAnalysis;
+  pages?: PageAnalysis[]; comparison?: ComparisonAnalysis; verifications?: BoundVerification[]; locations?: EvidenceLocation[];
   stages: { page?: number; stage: string; outcome: 'successful' | 'partial' | 'unavailable' | 'skipped'; reason?: string }[];
-  provenance: { source: Omit<EvidenceSource, 'bytes'>; binding: SelectedEvidence['binding']; context: SelectedEvidence['declaration']; correction?: CorrectionEvidenceContext; versions: typeof versions; plan: AttemptPlan; request: Omit<StageRequest, 'image' | 'images'>; raster: RasterManifest; native: NativeCapture; accounting: 'reported'; startedAt: string; dispatchedAt: string; answeredAt: string; completedAt: string };
+  provenance: { source: Omit<EvidenceSource, 'bytes'>; binding: SelectedEvidence['binding']; context: SelectedEvidence['declaration']; correction?: CorrectionEvidenceContext; versions: typeof versions; plan: AttemptPlan; request: RecordedRequest; raster: RasterManifest; native: NativeCapture; accounting: 'reported'; startedAt: string; dispatchedAt: string; answeredAt: string; completedAt: string };
 }
-export type PageAnalysis = { page: number; request: Omit<StageRequest, 'image' | 'images'>; raster: RasterManifest; native: NativeCapture; findings: Findings; partial: boolean }
-export type ComparisonAnalysis = { request: Omit<StageRequest, 'image' | 'images'>; native: NativeCapture; findings: Findings; partial: boolean }
+export type PageAnalysis = { page: number; request: RecordedRequest; raster: RasterManifest; native: NativeCapture; findings: Findings; partial: boolean }
+export type ComparisonAnalysis = { request: RecordedRequest; native: NativeCapture; findings: Findings; partial: boolean }
 export type AssistanceReason = 'live-unavailable' | 'source-limit' | 'invalid-source' | 'multipage' | 'page-selection' | 'preparation-timeout' | 'prepared-limit' | 'context-limit' | 'provider-unavailable' | 'analysis-storage' | 'invalid-response' | 'stale' | 'unauthorized'
 export type AssistanceState = {
   status: 'idle' | 'preparing' | 'running' | 'completed' | 'unavailable' | 'cancelled' | 'disposed';
@@ -127,3 +127,19 @@ export type EvidenceAssistance = {
   cancel(): void;
   dispose(): void;
 }
+
+export type Rectangle = { left: number; top: number; right: number; bottom: number }
+export type BoxAnswer = { type: 'box'; box: Rectangle; confidence: number | null }
+export type LocationTarget = { id: string; name: string; presence: PresenceKey; support?: SupportKey }
+export const locationTargets = (slot: DocumentSlot): LocationTarget[] => slot === 'financial'
+  ? financialPageTargets.map(target => ({ id: target.presence.replace('Presence', ''), ...target, support: target.presence === 'periodPresence' ? 'periodSupport' : target.presence === 'revenuePresence' ? 'revenueSupport' : target.presence === 'expensesPresence' ? 'expensesSupport' : undefined }))
+  : evidenceTargets(slot).map(target => ({ id: target.field, ...target }))
+export type CropBinding = {
+  method: 'lossless-boundary-pad-v1'; sourceHash: string; rasterHash: string;
+  page: number; target: string; box: Rectangle; originalBoundary: Rectangle; enclosure: Rectangle;
+  width: number; height: number; padding: Rectangle; transform: number[]; cropHash: string;
+}
+export type PreparedCrop = { bytes: ArrayBuffer; binding: CropBinding }
+export type RecordedRequest = Omit<StageRequest, 'image' | 'images' | 'crops'>
+export type BoundVerification = { page: number; request: RecordedRequest; native: NativeCapture }
+export type EvidenceLocation = { page: number; target: string; box?: Rectangle; status: 'shown' | 'suppressed'; reason?: string }

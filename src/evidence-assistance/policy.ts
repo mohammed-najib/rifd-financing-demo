@@ -1,23 +1,26 @@
+import { readLocations, addLocationQuestions } from './locations'
 import { z } from 'zod'
-import { bounds, versions, evidenceTargets, financialPageTargets, declaredDetail, type EvidenceTarget, type Findings, type NativeCapture, type SelectedEvidence, type StageRequest, type PreparedPage, type AttemptPlan, type Coverage, type PageAnalysis, type ComparisonAnalysis, type SupportKey, type PresenceKey } from './contract'
+import { bounds, versions, evidenceTargets, financialPageTargets, declaredDetail, type Findings, type NativeCapture, type SelectedEvidence, type StageRequest, type PreparedPage, type AttemptPlan, type Coverage, type PageAnalysis, type ComparisonAnalysis, type SupportKey, type PresenceKey } from './contract'
 
 const categories = {
   identity: 'Applicant identity evidence naming a person', business: 'Business registration or business evidence',
   financial: 'Revenue and expense summary', stock: 'Stock purchase plan', equipment: 'Equipment supplier quotation',
   other: 'Another document category', mixed: 'Mixed document categories', uncertain: 'Cannot determine',
 }
-const support = (target: EvidenceTarget) => ({
-  consistent: `All readable printed ${target.name} entries appear consistent with the declaration, with no incompatible entry`,
-  different: `A readable printed ${target.name} appears different from the declaration, with no incompatible printed entries`,
-  not_found: `The printed ${target.name} is not found anywhere in the checked original page`,
-  conflict: `Incompatible ${target.name} entries are printed in the checked original page, including when one matches the declaration`,
-  uncertain: 'Cannot determine, including repeated entries with ambiguous field associations',
-})
+// The question names the field once. Repeating its long name in every choice
+// wastes the bounded metadata budget, especially with correction context.
+const support = {
+  consistent: 'Every readable printed value for this field agrees with the declaration, with no conflicting entries',
+  different: 'A readable printed value differs from the declaration, with no conflicting printed entries',
+  not_found: 'This field is not printed anywhere in the checked original pages',
+  conflict: 'Incompatible printed values for this field, including when one agrees with the declaration',
+  uncertain: 'Cannot determine, including ambiguous repeated-field associations',
+}
 export const readabilityLevels = ['Relevant text unreadable', 'Partly readable with obscured details', 'Relevant text and digits clearly readable']
 
 export function attemptPlan(totalPages: number, selected: number[]): AttemptPlan {
   const stages = totalPages === 1 ? ['combined-page-declaration', 'bound-verification'] : [...selected.map(page => `page:${page}`), 'document-comparison', ...selected.map(page => `bound-verification:${page}`)]
-  return { maximumAttempts: stages.length, stages, verification: 'reserved-not-enabled' }
+  return { maximumAttempts: stages.length, stages, verification: 'lossless-boundary-pad-v1' }
 }
 
 export function makeRequest(selection: SelectedEvidence, image: PreparedPage, runId: string, plan = attemptPlan(image.totalPages, [image.manifest.page]), images?: PreparedPage[]): StageRequest {
@@ -32,7 +35,7 @@ export function makeRequest(selection: SelectedEvidence, image: PreparedPage, ru
     questions[target.presence] = { type: 'noul', instructions: `Does the complete original page in \`page\` contain a printed ${target.name}, regardless of agreement with \`${target.statePath}\`? A different value still counts as present.` }
     dependencies[target.presence] = [...common]
     if (declaredDetail(selection.declaration, target).status === 'valid') {
-      questions[target.support] = { type: 'choice', instructions: `How does the printed ${target.name} on the complete original page in \`page\` support \`${target.statePath}\`? Inspect all occurrences, retaining repeated or incompatible entries. Do not select a matching entry while ignoring another, transcribe values, authenticate identity or determine operating history or eligibility.${selection.declaration.purchase ? ' Use `declaredPurchase.product`: inventory expects a stock purchase plan, equipment expects an equipment supplier quotation. Compare only the description or printed total budget, without itemized analysis, arithmetic, product purpose fit or financing budget coverage decisions.' : ''}`, criteria: support(target) }
+      questions[target.support] = { type: 'choice', instructions: `How does the printed ${target.name} on the complete original page in \`page\` support \`${target.statePath}\`? Inspect all occurrences, retaining repeated or incompatible entries. Do not select a matching entry while ignoring another, transcribe values, authenticate identity or determine operating history or eligibility.${selection.declaration.purchase ? ' Use `declaredPurchase.product`: inventory expects a stock purchase plan, equipment expects an equipment supplier quotation. Compare only the description or printed total budget, without itemized analysis, arithmetic, product purpose fit or financing budget coverage decisions.' : ''}`, criteria: support }
       dependencies[target.support] = [...common]
     }
   }
@@ -45,13 +48,14 @@ export function makeRequest(selection: SelectedEvidence, image: PreparedPage, ru
     dependencies.periodSupport = [...common]
     for (const target of targets) if (questions[target.support]) questions[target.support].instructions += ' Compare only explicitly printed averages associated with `declaredFinancial.expectedMonths`. If only monthly figures appear, choose uncertain. Do not calculate averages, transcribe figures or infer arithmetic.'
   }
+  addLocationQuestions(selection.binding.slot, questions, dependencies, common)
   // Every question sees the shared declarations, even source-only judgments.
   for (const question of Object.keys(dependencies)) {
     for (const target of targets) {
       const path = `declaration.${selection.declaration.purchase ? 'purchase' : selection.declaration.financial ? 'financial' : 'business'}.${target.field}`
       dependencies[question].push(...(target.field === 'fullName' ? ['declaration.fullName', 'declaration.status'] : [`${path}.value`, `${path}.status`]))
     }
-    if (selection.declaration.financial) dependencies[question].push('declaration.financial.initialSubmissionMonth', 'declaration.financial.expectedMonths')
+    if (selection.declaration.financial) dependencies[question] = ['source', 'raster', 'coverage', 'versions', 'declaration']
     if (selection.declaration.purchase) dependencies[question].push('declaration.purchase.product')
     if (selection.correction) dependencies[question].push('correction')
   }
@@ -79,7 +83,7 @@ export function makeRequest(selection: SelectedEvidence, image: PreparedPage, ru
   return request
 }
 
-export function recordRequest(request: StageRequest): Omit<StageRequest, 'image' | 'images'> {
+export function recordRequest(request: StageRequest): Omit<StageRequest, 'image' | 'images' | 'crops'> {
   return { runId: request.runId, stage: request.stage, model: request.model, plan: request.plan, state: request.state, questions: request.questions, versions: request.versions, dependencies: request.dependencies }
 }
 
@@ -91,13 +95,13 @@ const probability = z.number().min(0).max(1)
 const choice = z.object({ type: z.literal('choice'), choice: z.string(), confidence: probability, probabilities: z.record(z.string(), probability) })
 const score = z.object({ type: z.literal('score'), score: z.number().min(0).max(2), confidence: probability, probabilities: z.record(z.string(), probability), legend: z.record(z.string(), z.string()) })
 const noul = z.object({ type: z.literal('noul'), noul: probability })
-const envelope = z.object({ model: z.literal(versions.model), answers: z.record(z.string(), z.unknown()), usage: z.object({ input_tokens: z.number().int().nonnegative(), output_tokens: z.number().int().nonnegative() }), responseId: z.string().optional() })
+export const envelope = z.object({ model: z.literal(versions.model), answers: z.record(z.string(), z.unknown()), usage: z.object({ input_tokens: z.number().int().nonnegative(), output_tokens: z.number().int().nonnegative() }), responseId: z.string().optional() })
 const distribution = (probabilities: Record<string, number>, keys: string[]) => Object.keys(probabilities).length === keys.length && keys.every(key => key in probabilities) && Math.abs(Object.values(probabilities).reduce((a, b) => a + b, 0) - 1) < 0.0001
 
 export function interpret(raw: unknown, selection: SelectedEvidence, basis?: Findings): { native: NativeCapture; findings: Findings; partial: boolean } {
   const parsed = envelope.safeParse(raw)
   if (!parsed.success) throw new Error('invalid-response')
-  const native: NativeCapture = { ...parsed.data, receivedAnswers: parsed.data.answers, answers: {} }
+  const native: NativeCapture = { ...parsed.data, receivedAnswers: parsed.data.answers, answers: {}, ...(!basis ? { locations: readLocations(parsed.data.answers, selection.binding.slot) } : {}) }
   const findings: Findings = { category: basis?.category ?? 'unavailable', readability: basis?.readability ?? 'unavailable' }
   const targets = evidenceTargets(selection.binding.slot)
   const readChoice = (key: 'category' | SupportKey, criteria: Record<string, string>) => {
@@ -109,7 +113,7 @@ export function interpret(raw: unknown, selection: SelectedEvidence, basis?: Fin
     findings[target.presence] = basis?.[target.presence] ?? 'unavailable'
     const applicable = declaredDetail(selection.declaration, target).status === 'valid'
     findings[target.support] = applicable ? 'unavailable' : 'missing-context'
-    if (applicable) readChoice(target.support, support(target))
+    if (applicable) readChoice(target.support, support)
     const presence = noul.safeParse(basis ? undefined : parsed.data.answers[target.presence])
     if (presence.success) native.answers[target.presence] = presence.data
   }

@@ -79,8 +79,7 @@ operating-history arithmetic and eligibility stay in the domain rules. Every
 model-visible declaration participates in each question's dependency manifest.
 Business checks share correction permissions, reviewer source selection and
 retention without depending on unrelated applicant fields or staff notes.
-The common multipage controller also applies to business evidence. Automatic
-highlights remain a separate implementation ticket.
+The common multipage controller and named highlight targets also apply to business evidence.
 
 Purchase checks name separate description and total-budget targets. Inventory
 financing expects a stock purchase plan; Equipment financing expects a supplier
@@ -103,12 +102,12 @@ Missing declarations skip only their comparisons. Period findings precede amount
 findings, and wrong or conflicting periods suppress amount conclusions.
 
 A source proven to have exactly one page combines page and declaration work,
-reserving a second stage for later bound verification. Multipage sources dispatch
+reserving a second stage for optional bound verification. Multipage sources dispatch
 ascending page stages and at most one comparison over usable pages. A single
 selected page from a longer original retains that multipage plan. Four selected
-pages reserve at most nine attempts, including one future verification per page.
-Comparison requests include each raster once. Actual verification, service
-admission and native SDK integration belong to subsequent tickets.
+pages reserve at most nine attempts, including one verification per page.
+Comparison requests include each raster once. Service admission and the native
+SDK integration belong to subsequent tickets.
 
 Agreement and absence require complete usable coverage of the original source.
 Conflicts witnessed on usable checked pages can remain scoped warnings, with
@@ -125,6 +124,34 @@ reports live analysis unavailable. Only test entry points inject fake transports
 Actual multipage fictional PDFs and deterministic four-page plans verify browser
 behavior; native four-image context fit and representative reliability remain
 unverified.
+
+Native Box questions and companion presence and multiplicity judgments identify
+up to nine fixed named targets per page. Complete usable original-source coverage,
+field and period findings, repetition checks and the versioned experimental policy
+control whether a target can proceed to verification. Malformed Box answers leave
+independent category, readability and support findings available. Box confidence
+retains its native number or null and never controls display.
+
+One terminable crop worker per page copies each exact Box's integer enclosure
+without scaling, then adds white padding to minimum 280-pixel sides. The recorded
+`lossless-boundary-pad-v1` manifest retains fractional original edges, enclosure,
+padding, crop hash and transform. One optional verification stage includes the
+unchanged parent and at most nine crops, with six Nouls per crop. Each original-edge
+clipping probability must be at most 0.01, association at least 0.99 and competing
+value at most 0.01. Padding cannot establish containment. Combined pixel, byte,
+metadata and deadline limits stop work without resizing, retries or repair calls.
+Invalid accounting stops further dispatch while preserving usable prior findings.
+
+Verification requests bind answers to source and raster hashes, actual shared
+context, fixed definitions, original page, named target and exact crop geometry.
+Restored records recompose these checks. Before any live overlay appears, the
+source viewer reproduces both the original raster and crop and matches their
+manifests and hashes. Percentage geometry uses that exact raster's physical
+left/top axes; resizing and RTL do not change the selected region. Suppression
+leaves the named finding and ordinary source navigation available. The five known
+misleading pilot targets stay suppressed on their original source and page,
+including shifted rectangles, independently of numeric thresholds.
+The four certified static Saved overlays retain their original policy.
 
 Analysis uses the separate version-1 `rifd-evidence-analysis` IndexedDB database
 after financing startup validates the current dataset. The financing database
@@ -148,5 +175,5 @@ old-dataset and expired analysis runs during startup and activation, including
 recovery after interrupted cleanup. Public `analysisAvailability()` reports its
 status. Cross-tab hints carry dataset identifiers only; each view rereads its own
 authorized source/context. Reads never restart inference or replay a server
-answer. No live overlays are implemented yet; a later highlight restoration must
-reconstruct and verify the recorded raster before drawing anything.
+answer. Restored live overlays reconstruct and verify the recorded raster and
+crop before drawing anything.

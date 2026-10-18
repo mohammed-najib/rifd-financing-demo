@@ -1,0 +1,62 @@
+[
+  {
+    "sourceHash": "7f51d84db93eef0f4b3794fcc8f513fe89ab57ce13b72aad983ad0067e1777bf",
+    "page": 1,
+    "target": "month1Revenue",
+    "box": {
+      "top": 0.28,
+      "bottom": 0.32,
+      "left": 0.78,
+      "right": 0.91
+    },
+    "reason": "misleading, clips amount digits"
+  },
+  {
+    "sourceHash": "7f51d84db93eef0f4b3794fcc8f513fe89ab57ce13b72aad983ad0067e1777bf",
+    "page": 1,
+    "target": "month1Expenses",
+    "box": {
+      "top": 0.34,
+      "bottom": 0.38,
+      "left": 0.79,
+      "right": 0.88
+    },
+    "reason": "misleading, clips amount digits"
+  },
+  {
+    "sourceHash": "7f51d84db93eef0f4b3794fcc8f513fe89ab57ce13b72aad983ad0067e1777bf",
+    "page": 1,
+    "target": "revenue",
+    "box": {
+      "top": 0.41,
+      "bottom": 0.45,
+      "left": 0.78,
+      "right": 0.9
+    },
+    "reason": "misleading, clips amount digits"
+  },
+  {
+    "sourceHash": "f7e1dfe4ddd70dea43cfc691bb25de8d7982c1a26f3267983251d6e33e3d77f3",
+    "page": 1,
+    "target": "fullName",
+    "box": {
+      "top": 0.2,
+      "bottom": 0.26,
+      "left": 0.68,
+      "right": 0.94
+    },
+    "reason": "misleading, two conflicting name entries were reported single"
+  },
+  {
+    "sourceHash": "8a9f5fe315e7f94a62882f98d599c9f44409e20a44275e2ccda261f5b2721c63",
+    "page": 1,
+    "target": "expenses",
+    "box": {
+      "top": 0.78,
+      "bottom": 0.8,
+      "left": 0.06,
+      "right": 0.2
+    },
+    "reason": "misleading, top edge crosses printed digits"
+  }
+]

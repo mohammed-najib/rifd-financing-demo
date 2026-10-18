@@ -1,4 +1,8 @@
 export const assistanceText = {
+  inspectRegion: { ar: 'فحص موضع الحقل', en: 'Inspect field region' },
+  highlight: { ar: 'موضع الحقل المقترح', en: 'Suggested field region' },
+  highlightAvailable: { ar: 'يتوفر تحديد موضع لهذا الحقل. راجع المصدر.', en: 'A highlight is available for this field. Inspect the source.' },
+  highlightSuppressed: { ar: 'تحديد الموضع غير متاح. يمكنك فحص الحقل المسمى في المصدر.', en: 'Highlight unavailable. Inspect the named field in the source.' },
   title: { ar: 'مساعدة تجريبية', en: 'Experimental assistance' },
   notice: { ar: 'قد تكون الاقتراحات غير صحيحة. راجع المستند الأصلي.', en: 'Suggestions may be wrong. Check the original document.' },
   transmission: { ar: 'استخدم بيانات افتراضية فقط. عند توفر الخدمة، يُرسل المستند المحدد والاسم المعلن إلى خدمة التحليل. راجع السياق قبل التشغيل.', en: 'Use fictional data only. When available, the selected document and declared name are sent to the analysis service. Review the context before running.' },

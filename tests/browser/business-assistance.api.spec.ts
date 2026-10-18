@@ -26,7 +26,7 @@ test('business checking compares each detail against the supplied pixels without
   expect(result.requests).toHaveLength(1)
   expect(result.requests[0].image.bytes).toEqual([137, 80, 78, 71, 13, 10, 26, 10])
   expect(result.requests[0].state).not.toHaveProperty('declaredApplicantName')
-  expect(Object.keys(result.requests[0].questions)).toEqual(['category', 'readability', 'businessNamePresence', 'businessNameSupport', 'addressPresence', 'addressSupport', 'operatingSincePresence', 'operatingSinceSupport'])
+  expect(Object.keys(result.requests[0].questions)).toEqual(['category', 'readability', 'businessNamePresence', 'businessNameSupport', 'addressPresence', 'addressSupport', 'operatingSincePresence', 'operatingSinceSupport', 'businessNameBox', 'businessNameMultiplicity', 'addressBox', 'addressMultiplicity', 'operatingSinceBox', 'operatingSinceMultiplicity'])
 })
 
 test('missing declarations skip only dependent comparisons and guards keep wrong or ambiguous evidence undetermined', async ({ page }) => {
@@ -67,7 +67,7 @@ test('missing declarations skip only dependent comparisons and guards keep wrong
   expect(result.requests[0].questions).toHaveProperty('addressSupport')
   expect(result.requests[0].questions).not.toHaveProperty('operatingSinceSupport')
   expect(result.requests[0].state).toEqual({ page: 'original-page-1', declaredBusiness: { businessName: null, address: '12 Market Street, Aden', operatingSince: null } })
-  expect(Object.keys(result.requests[1].questions)).toEqual(['category', 'readability', 'businessNamePresence', 'addressPresence', 'operatingSincePresence'])
+  expect(Object.keys(result.requests[1].questions)).toEqual(['category', 'readability', 'businessNamePresence', 'addressPresence', 'operatingSincePresence', 'businessNameBox', 'businessNameMultiplicity', 'addressBox', 'addressMultiplicity', 'operatingSinceBox', 'operatingSinceMultiplicity'])
   expect(result.sourceOnly.result?.findings).toMatchObject({ category: 'business', readability: 'clear', businessNamePresence: 'present' })
   expect(result.absent.result?.findings).toMatchObject({ operatingSincePresence: 'absent', operatingSinceSupport: 'not_found', businessNamePresence: 'present', businessNameSupport: 'different' })
   expect(result.unrelated.result?.findings).toMatchObject({ category: 'other', businessNameSupport: 'undetermined', addressSupport: 'undetermined', operatingSincePresence: 'undetermined', operatingSinceSupport: 'undetermined' })

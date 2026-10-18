@@ -28,7 +28,7 @@ test('identity checking uses authorized source pixels and leaves financing data 
   expect(result.state.result?.provenance.native.answers.readability?.score).toBe(1.995)
   expect(result.requests).toHaveLength(1)
   expect(result.requests[0].plan.maximumAttempts).toBe(2)
-  expect(Object.keys(result.requests[0].questions)).toEqual(['category', 'readability', 'namePresence', 'nameSupport'])
+  expect(Object.keys(result.requests[0].questions)).toEqual(['category', 'readability', 'namePresence', 'nameSupport', 'fullNameBox', 'fullNameMultiplicity'])
 })
 
 test('source-only findings survive missing declarations, uncertainty and unavailable comparisons', async ({ page }) => {
@@ -54,7 +54,7 @@ test('source-only findings survive missing declarations, uncertainty and unavail
     return { missing, invalid, uncertain, absent, comparisonFailed, usageFailed, questions: requests.slice(0, 2).map(request => Object.keys(request.questions)), context: requests[0].state }
   })
   for (const state of [result.missing, result.invalid]) expect(state.result?.findings).toMatchObject({ category: 'identity', readability: 'clear', namePresence: 'present', nameSupport: 'missing-context' })
-  expect(result.questions).toEqual([['category', 'readability', 'namePresence'], ['category', 'readability', 'namePresence']])
+  expect(result.questions).toEqual([['category', 'readability', 'namePresence', 'fullNameBox', 'fullNameMultiplicity'], ['category', 'readability', 'namePresence', 'fullNameBox', 'fullNameMultiplicity']])
   expect(result.context.declaredApplicantName).toBeNull()
   expect(result.uncertain.result?.findings).toEqual({ category: 'undetermined', readability: 'undetermined', namePresence: 'undetermined', nameSupport: 'undetermined' })
   expect(result.absent.result?.findings).toMatchObject({ namePresence: 'absent', nameSupport: 'not_found' })

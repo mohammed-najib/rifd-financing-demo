@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import type { Demo } from '../demo'
 import type { Language, ProductId } from '../domain/model'
-import { declaredDetail, evidenceTargets, type AssistanceState, type BusinessField, type PurchaseField, type FinancialField, type Findings, type EvidenceAssistance, type EvidenceInput, type SelectedEvidence } from '../evidence-assistance/contract'
+import { declaredDetail, evidenceTargets, locationTargets, type AssistanceState, type BusinessField, type PurchaseField, type FinancialField, type Findings, type EvidenceAssistance, type EvidenceInput, type SelectedEvidence } from '../evidence-assistance/contract'
 import { assistanceText, detailFindingText, findingText, reasonText } from './evidence-assistance-copy'
 import { SourcePages } from './source-pages'
 import { documentLabel, fieldLabels } from './i18n'
@@ -18,6 +18,7 @@ export function EvidenceAssistancePanel({ demo, input, product, language, disabl
   const [state, setState] = useState<AssistanceState | null>(null)
   const [file, setFile] = useState<{ url: string; mime: string; name: string } | null>(null)
   const [cleared, setCleared] = useState<'success' | 'failed' | null>(null)
+  const [region, setRegion] = useState<{ page: number; target: string; serial: number } | null>(null)
   const handle = useRef<EvidenceAssistance | null>(null)
   const heading = useRef<HTMLHeadingElement>(null)
   // Matching Save changes a prepared reference into a saved file reference, but
@@ -31,7 +32,7 @@ export function EvidenceAssistancePanel({ demo, input, product, language, disabl
     let active = true
     const controller = demo.createEvidenceAssistance(selectedInput)
     handle.current = controller
-    setState(controller.read()); setSelectedPages(null); setSelection(null); setShowSource(reviewer); setRetained(false)
+    setState(controller.read()); setRegion(null); setSelectedPages(null); setSelection(null); setShowSource(reviewer); setRetained(false)
     let inspecting = false
     const inspectSelection = async () => {
       if (inspecting) return
@@ -80,7 +81,7 @@ export function EvidenceAssistancePanel({ demo, input, product, language, disabl
     {!open ? <><button disabled={disabled} onClick={() => setOpen(true)}>{t(reviewer ? 'find' : 'check')}</button>{children}</> : <>
       <p>{t(input.context === 'correction-workspace' ? financial ? 'financialCorrectionTransmission' : purchase ? 'purchaseCorrectionTransmission' : business ? 'businessCorrectionTransmission' : 'correctionTransmission' : financial ? 'financialTransmission' : purchase ? 'purchaseTransmission' : business ? 'businessTransmission' : 'transmission')}</p>
       <div className={reviewer ? 'grid grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)] items-start gap-4 compact:grid-cols-1' : 'grid grid-cols-2 items-start gap-4 narrow:grid-cols-1'}>
-      {reviewer && <div className="min-w-0" aria-label={t('source')}><h5>{t('source')}</h5>{file && selection ? <SourcePages key={selection.source.hash} source={selection.source} file={file} language={language} /> : <p role="status">{t('unavailable')}</p>}</div>}
+      {reviewer && <div className="min-w-0" aria-label={t('source')}><h5>{t('source')}</h5>{file && selection ? <SourcePages key={selection.source.hash} source={selection.source} file={file} language={language} run={state?.result} focus={region} /> : <p role="status">{t('unavailable')}</p>}</div>}
       <div className={reviewer ? 'min-w-0' : 'contents'}><div className="min-w-0"><h5>{t('context')}</h5>
         {selection ? <><p className="wrap-anywhere"><bdi>{selection.source.name}</bdi></p>{selection.declaration.financial && <p>{t('expectedMonths')}: <bdi>{selection.declaration.financial.expectedMonths.join(', ')}</bdi></p>}{selection.declaration.purchase && <p>{t('product')}: {documentLabel('purchase', selection.declaration.purchase.product)[language]}</p>}{evidenceTargets(input.slot).map(target => <p key={target.field} className="wrap-anywhere">{detailTask ? fieldLabels[target.field][language] : t('name')}: <bdi>{declaredDetail(selection.declaration, target).value ?? t(detailTask ? 'missingDetail' : 'missing')}</bdi></p>)}</> : <p role="status">{t('unavailable')}</p>}
         {selection?.correction && <><h5>{t('permittedTargets')}</h5><ul>{selection.correction.targets.map(target => <li key={target.kind === 'field' ? target.field : target.slot}><strong>{target.kind === 'field' ? fieldLabels[target.field][language] : documentLabel(target.slot, product)[language]}</strong><p className="wrap-anywhere">{target.reason[language]}</p></li>)}</ul><p>{t('correctionHint')}</p></>}
@@ -102,13 +103,17 @@ export function EvidenceAssistancePanel({ demo, input, product, language, disabl
         {state?.result && !state.result.stale && state.result.stages.some(stage => stage.outcome === 'partial') && <p role="status">{t('partialResults')}</p>}
         {state?.result && <>{JSON.stringify(state.coverage) !== JSON.stringify(state.result.coverage) && <p>{t('resultScope')}: <bdi>{state.result.coverage.successful.join(', ')}</bdi> · {t('total')}: {state.result.coverage.totalPages}</p>}<p>{t(state.result.restored ? 'previous' : state.result.temporary ? 'temporary' : 'saved')}</p>
           <p><time dateTime={state.result.provenance.completedAt}>{new Date(state.result.provenance.completedAt).toLocaleString(language)}</time> · {t('expires')} <time dateTime={state.result.expiresAt}>{new Date(state.result.expiresAt).toLocaleString(language)}</time></p><dl>{Object.entries(state.result.findings).map(([name, value]) => <div key={name}><dt>{label(name as keyof Findings)}</dt><dd>{findingsCopy[value][language]}</dd></div>)}</dl>
+          {!state.result.stale && state.result.locations?.map(location => <div key={`${location.page}-${location.target}`}>
+            <p>{t(location.status === 'shown' ? 'highlightAvailable' : 'highlightSuppressed')}</p>
+            <button disabled={!selection} onClick={() => { setShowSource(true); setRegion({ page: location.page, target: location.target, serial: Date.now() }) }}>{t('inspectRegion')}: {t(locationTargets(input.slot).find(target => target.id === location.target)!.presence)} · {t('page')} {location.page}</button>
+          </div>)}
           {multiple && !state.result.stale && state.result.pages && <><p>{t('scopedFindings')}</p>{state.result.pages.map(page => <div key={page.page}><h6>{t('page')} {page.page}</h6><p>{findingText[page.findings.category][language]} · {findingText[page.findings.readability][language]}</p></div>)}</>}
           <details onToggle={() => void handle.current?.refresh()}><summary>{t('provenance')}</summary><pre className="max-h-[400px] overflow-auto whitespace-pre-wrap wrap-anywhere text-xs" dir="ltr">{JSON.stringify(state.result, null, 2)}</pre></details>
         </>}
       </div></div>
       {reviewer && <div className="min-w-0"><h5>{t('assessment')}</h5>{children}</div>}
       </div>
-      {!reviewer && showSource && file && selection && <SourcePages key={selection.source.hash} source={selection.source} file={file} language={language} />}
+      {!reviewer && showSource && file && selection && <SourcePages key={selection.source.hash} source={selection.source} file={file} language={language} run={state?.result} focus={region} />}
       {!reviewer && <div className="actions">{edit && <button disabled={disabled || !selection} onClick={edit}>{t('edit')}</button>}{detailEdits?.map(({ field, action }) => <button key={field} disabled={disabled || !selection} onClick={action}>{t(({ businessName: 'editBusinessName', address: 'editAddress', operatingSince: 'editOperatingSince', explanation: 'editDescription', budget: 'editBudget', revenue: 'editRevenue', expenses: 'editExpenses' } as const)[field])}</button>)}{replace && <button disabled={disabled || !selection} onClick={replace}>{t('replace')}</button>}<button disabled={disabled || !selection} onClick={() => { void handle.current?.refresh(); setRetained(true) }}>{t('retain')}</button></div>}
       {retained && <p role="status">{t('retained')}</p>}
     </>}

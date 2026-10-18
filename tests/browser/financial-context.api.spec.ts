@@ -38,7 +38,9 @@ test('historical and correction financial contexts retain the actual initial sub
   const result = await page.evaluate(async () => {
     const fixtures = '/tests/browser/evidence-fixtures.ts'
     const { identityDemo } = await import(fixtures) as typeof import('./evidence-fixtures')
-    const { demo } = await identityDemo()
+    const financial = '/tests/browser/financial-evidence-fixtures.ts'
+    const { nativeFinancial } = await import(financial) as typeof import('./financial-evidence-fixtures')
+    const { demo } = await identityDemo({ async evaluate(request) { return nativeFinancial(request) } })
     await demo.signIn('salma')
     const historical = demo.createEvidenceAssistance({ action: 'find-supporting-evidence', applicationId: 'RIFD-2026-005', slot: 'financial', audience: 'reviewer', context: 'submitted' })
     const original = await historical.inspect(); historical.dispose()
@@ -47,9 +49,11 @@ test('historical and correction financial contexts retain the actual initial sub
     if (!view.ok || view.value.role !== 'applicant' || !view.value.workspace?.roundId) throw new Error('correction')
     const input = { action: 'check-document', applicationId: view.value.id, slot: 'financial', audience: 'applicant', context: 'correction-workspace', roundId: view.value.workspace.roundId } as const
     const allowed = demo.createEvidenceAssistance(input), forbidden = demo.createEvidenceAssistance({ ...input, declaredFinancial: { revenue: '999999', expenses: view.value.workspace.snapshot.fields.expenses } })
-    return { original, correction: await allowed.inspect(), forbidden: await forbidden.inspect() }
+    const correction = await allowed.inspect(); await allowed.run()
+    return { original, correction, state: allowed.read(), forbidden: await forbidden.inspect() }
   })
   expect(result.original.ok && result.original.value.declaration.financial).toMatchObject({ initialSubmissionMonth: '2026-07', expectedMonths: ['2026-04', '2026-05', '2026-06'] })
   expect(result.correction.ok && result.correction.value.declaration.financial).toMatchObject({ initialSubmissionMonth: '2026-10', expectedMonths: ['2026-07', '2026-08', '2026-09'] })
+  expect(result.state.result?.findings.category, JSON.stringify(result.state)).toBe('financial')
   expect(result.forbidden).toMatchObject({ ok: false, error: { kind: 'permissionDenied' } })
 })

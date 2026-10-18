@@ -73,3 +73,24 @@ export async function prepareEvidence(source: EvidenceSource, signal: AbortSigna
   }
   return { pages, coverage, failures }
 }
+
+// Crop encoding is terminable just like page rendering. Start supervision before
+// copying the parent pixels, and never repair a crop by scaling it.
+export function prepareCrops(page: PreparedPage, regions: Omit<import('./contract').CropBinding, 'cropHash'>[], signal: AbortSignal, milliseconds: number = bounds.pageMilliseconds): Promise<import('./contract').PreparedCrop[]> {
+  return new Promise((resolve, reject) => {
+    if (signal.aborted) { reject(new DOMException('Cancelled', 'AbortError')); return }
+    const worker = new Worker(new URL('./crop.worker.ts', import.meta.url), { type: 'module' })
+    const finish = () => { clearTimeout(timer); signal.removeEventListener('abort', abort); worker.terminate() }
+    const abort = () => { finish(); reject(new DOMException('Cancelled', 'AbortError')) }
+    const timer = setTimeout(() => { finish(); reject(new PreparationError('preparation-timeout')) }, Math.min(milliseconds, bounds.pageMilliseconds))
+    signal.addEventListener('abort', abort, { once: true })
+    worker.onerror = () => { finish(); reject(new PreparationError('invalid-source')) }
+    worker.onmessage = (event: MessageEvent<{ crops?: import('./contract').PreparedCrop[]; reason?: AssistanceReason }>) => {
+      finish()
+      if (event.data.crops) resolve(event.data.crops)
+      else reject(new PreparationError(event.data.reason ?? 'invalid-source'))
+    }
+    const bytes = page.bytes.slice(0)
+    worker.postMessage({ page: { ...page, bytes }, regions }, [bytes])
+  })
+}
