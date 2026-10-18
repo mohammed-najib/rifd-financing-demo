@@ -10,14 +10,19 @@ import { firestoreMetadata, cleanupMetadata } from '../src/live-assistance/fires
 import { trustedNetwork } from '../src/live-assistance/ingress'
 import { createLiveService } from '../src/live-assistance/service'
 import { firebaseGuestVerifier } from '../src/live-assistance/security'
+import { createJevWorkflow } from '../src/live-assistance/jev'
 
 initializeApp()
 const accountingKey = defineSecret('LIVE_ACCOUNTING_KEY')
+const providerKey = defineSecret('LIVE_TYPESAFE_API_KEY')
+// Capability is installed, but dispatch stays closed through hosted controls
+// and bounded acceptance. Enabling admission alone cannot open inference.
+const liveDispatchEnabled = false
 
 export const liveAnalysis = onRequest({
   region: 'europe-west1', memory: '512MiB', cpu: 1, minInstances: 0,
   maxInstances: 1, concurrency: 2, timeoutSeconds: 55, cors: false,
-  secrets: [accountingKey],
+  secrets: [accountingKey, providerKey],
   // Hosting and direct traffic must both pass the same verifier. No test modes,
   // emulator credentials, transport selection or public operator commands.
 }, async (request, response) => {
@@ -32,8 +37,7 @@ export const liveAnalysis = onRequest({
     const service = createLiveService({
       admission: createAdmission(firestoreMetadata(getFirestore()), accountingKey.value()),
       authorize: firebaseGuestVerifier({ auth: (token, revoked) => getAuth().verifyIdToken(token, revoked), app: token => getAppCheck().verifyToken(token) }, process.env.LIVE_FIREBASE_APP_ID),
-      // Ticket 12 installs the fixed Jev workflow here. Leaving it absent keeps
-      // all production inference closed even if the operator enables admission.
+      execute: liveDispatchEnabled ? createJevWorkflow({ apiKey: providerKey.value() }) : undefined,
     })
     const suffix = (process.env.LIVE_TRUSTED_PROXY_SUFFIX ?? '').split(',').map(value => value.trim()).filter(Boolean)
     const reply = await service({ body: request.rawBody, authorization: request.get('authorization'), appCheck: request.get('x-firebase-appcheck'), network: trustedNetwork(request.get('x-forwarded-for'), suffix), signal: abort.signal })

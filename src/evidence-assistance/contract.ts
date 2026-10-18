@@ -7,7 +7,7 @@ export const versions = {
   questions: 'evidence-questions-v4', preparation: 'full-page-pdfjs-5.4.296-v1',
   mapping: 'evidence-mapping-v3', display: 'release-display-v2-experimental',
   defaults: 'provisional-display-defaults-v1', model: 'jev-1.14.0',
-  bridge: 'fixed-evaluation-v1', sdk: 'not-connected',
+  bridge: 'tanstack-0.69.0-native-v1', sdk: 'typesafe-0.7.0',
 } as const
 
 export const bounds = {
@@ -84,7 +84,8 @@ export type PreparedPage = { bytes: ArrayBuffer; manifest: RasterManifest; total
 export type AttemptPlan = { maximumAttempts: number; stages: readonly string[]; verification: 'lossless-boundary-pad-v1' }
 export type FixedQuestion = { type: 'choice'; instructions: string; criteria: Record<string, string> }
   | { type: 'score'; instructions: string; criteria: string[] }
-  | { type: 'noul' | 'box'; instructions: string }
+  | { type: 'noul'; instructions: string }
+  | { type: 'box'; instructions: string }
 export type StageRequest = {
   runId: string; stage: 'combined-page-declaration' | 'page' | 'document-comparison' | 'bound-verification'; model: typeof versions.model; plan: AttemptPlan;
   state: { regions?: CropBinding[]; cropImages?: string[]; verificationPolicy?: string; page: string; pages?: string[]; declaredFinancial?: { initialSubmissionMonth: string; expectedMonths: string[]; revenue: string | null; expenses: string | null }; declaredApplicantName?: string | null; declaredBusiness?: Record<BusinessField, string | null>; declaredPurchase?: { product: ProductId; explanation: string | null; budget: string | null }; correction?: CorrectionEvidenceContext };
@@ -92,13 +93,14 @@ export type StageRequest = {
   questions: Record<string, FixedQuestion>; versions: typeof versions;
   dependencies: Record<string, string[]>;
 }
-// The later service bridge implements this fixed evaluation boundary. Runtime has no transport yet.
-export type EvidenceTransport = { evaluate(request: StageRequest, signal: AbortSignal): Promise<unknown>; begin?(input: RunInput, signal: AbortSignal): Promise<EvidenceTransport> }
+export type StageDispatch = { stage: StageRequest['stage']; page: number }
+export type EvidenceTransport = { evaluate(request: StageRequest, signal: AbortSignal): Promise<unknown>; begin?(input: RunInput, signal: AbortSignal): Promise<EvidenceTransport>; verificationState?(page: number): StageRequest['state'] | undefined; wasDispatched?(request: StageRequest): boolean; accounting?: 'reported' | 'unresolved' }
 export type ChoiceAnswer = { type: 'choice'; choice: string; confidence: number; probabilities: Record<string, number> }
 export type ScoreAnswer = { type: 'score'; score: number; confidence: number; probabilities: Record<string, number>; legend: Record<string, string> }
 export type NoulAnswer = { type: 'noul'; noul: number }
 export type NativeAnswers = { category?: ChoiceAnswer; readability?: ScoreAnswer } & Partial<Record<PresenceKey, NoulAnswer>> & Partial<Record<SupportKey, ChoiceAnswer>>
-export type NativeCapture = { locations?: Record<string, { box?: BoxAnswer; multiplicity?: ChoiceAnswer }>;  model: string; answers: NativeAnswers; receivedAnswers: Record<string, unknown>; usage: { input_tokens: number; output_tokens: number }; responseId?: string }
+export type BridgeCapture = { requestedModel: string; dispatchedAt: string; answeredAt: string; mapped: Record<string, unknown>; invalidAnswers: string[]; state: StageRequest['state'] }
+export type NativeCapture = { locations?: Record<string, { box?: BoxAnswer; multiplicity?: ChoiceAnswer }>; model: string; answers: NativeAnswers; receivedAnswers: Record<string, unknown>; usage: { input_tokens: number; output_tokens: number }; responseId?: string; bridge?: BridgeCapture }
 export type Findings = {
   category: 'identity' | 'business' | 'financial' | 'stock' | 'equipment' | 'other' | 'mixed' | 'undetermined' | 'unavailable';
   readability: 'clear' | 'partial' | 'unreadable' | 'undetermined' | 'unavailable';
@@ -109,7 +111,7 @@ export type EvidenceRun = {
   schemaVersion: 1; id: string; provenanceKind: 'live-analysis'; temporary: boolean; restored: boolean; stale: boolean; expiresAt: string; coverage: Coverage; findings: Findings;
   pages?: PageAnalysis[]; comparison?: ComparisonAnalysis; verifications?: BoundVerification[]; locations?: EvidenceLocation[];
   stages: { page?: number; stage: string; outcome: 'successful' | 'partial' | 'unavailable' | 'skipped'; reason?: string }[];
-  provenance: { source: Omit<EvidenceSource, 'bytes'>; binding: SelectedEvidence['binding']; context: SelectedEvidence['declaration']; correction?: CorrectionEvidenceContext; versions: typeof versions; plan: AttemptPlan; request: RecordedRequest; raster: RasterManifest; native: NativeCapture; accounting: 'reported'; startedAt: string; dispatchedAt: string; answeredAt: string; completedAt: string };
+  provenance: { source: Omit<EvidenceSource, 'bytes'>; binding: SelectedEvidence['binding']; context: SelectedEvidence['declaration']; correction?: CorrectionEvidenceContext; versions: typeof versions; plan: AttemptPlan; request: RecordedRequest; raster: RasterManifest; native: NativeCapture; accounting: 'reported' | 'unresolved'; startedAt: string; dispatchedAt: string; answeredAt: string; completedAt: string };
 }
 export type PageAnalysis = { page: number; request: RecordedRequest; raster: RasterManifest; native: NativeCapture; findings: Findings; partial: boolean }
 export type ComparisonAnalysis = { request: RecordedRequest; native: NativeCapture; findings: Findings; partial: boolean }

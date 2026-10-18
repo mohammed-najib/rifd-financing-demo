@@ -63,7 +63,7 @@ test('unknown usage halts later stages even if the workflow catches the failure'
       await work.evaluate({ ...page, stage: 'bound-verification' }, async () => async () => { dispatches++; return native }).catch(() => undefined)
     },
   })
-  expect((await service({ body: Buffer.from(JSON.stringify(input())), network: '192.0.2.1' })).body).toEqual({ status: 'unavailable', reason: 'run-stopped' })
+  expect((await service({ body: Buffer.from(JSON.stringify(input())), network: '192.0.2.1' })).body).toEqual({ status: 'unavailable', reason: 'run-stopped', dispatched: [{ stage: 'combined-page-declaration', page: 1 }] })
   expect(dispatches).toBe(1)
 })
 

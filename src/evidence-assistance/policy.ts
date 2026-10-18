@@ -1,4 +1,5 @@
-import { readLocations, addLocationQuestions } from './locations'
+import { readLocations, addLocationQuestions, boxSchema } from './locations'
+import { bridgeSchema } from './capture'
 import { z } from 'zod'
 import { bounds, versions, evidenceTargets, financialPageTargets, declaredDetail, type Findings, type NativeCapture, type SelectedEvidence, type StageRequest, type PreparedPage, type AttemptPlan, type Coverage, type PageAnalysis, type ComparisonAnalysis, type SupportKey, type PresenceKey } from './contract'
 
@@ -70,6 +71,7 @@ export function makeRequest(selection: SelectedEvidence, image: PreparedPage, ru
     state, image, ...(images ? { images: images.slice(1) } : {}), questions, versions, dependencies,
   }
   if (images) {
+    state.page = 'pages[0]'
     state.pages = images.map(page => `original-page-${page.manifest.page}`)
     for (const key of Object.keys(questions)) if (!key.endsWith('Support')) { delete questions[key]; delete dependencies[key] }
     for (const question of Object.values(questions)) question.instructions = question.instructions.replaceAll('on the complete original page in `page`', 'across all original pages in `pages`').replaceAll('checked original page', 'checked original pages').replaceAll('printed reporting period', 'reporting periods across all original pages in `pages`')
@@ -95,8 +97,26 @@ const probability = z.number().min(0).max(1)
 const choice = z.object({ type: z.literal('choice'), choice: z.string(), confidence: probability, probabilities: z.record(z.string(), probability) })
 const score = z.object({ type: z.literal('score'), score: z.number().min(0).max(2), confidence: probability, probabilities: z.record(z.string(), probability), legend: z.record(z.string(), z.string()) })
 const noul = z.object({ type: z.literal('noul'), noul: probability })
-export const envelope = z.object({ model: z.literal(versions.model), answers: z.record(z.string(), z.unknown()), usage: z.object({ input_tokens: z.number().int().nonnegative(), output_tokens: z.number().int().nonnegative() }), responseId: z.string().optional() })
+export const reportedUsage = z.object({ input_tokens: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER), output_tokens: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER) })
+export const envelope = z.object({ model: z.literal(versions.model), answers: z.record(z.string(), z.unknown()), usage: reportedUsage, responseId: z.string().optional(), bridge: bridgeSchema.optional() })
 const distribution = (probabilities: Record<string, number>, keys: string[]) => Object.keys(probabilities).length === keys.length && keys.every(key => key in probabilities) && Math.abs(Object.values(probabilities).reduce((a, b) => a + b, 0) - 1) < 0.0001
+function validChoice(raw: unknown, criteria: Record<string, string>) {
+  const answer = choice.safeParse(raw).data
+  return answer && distribution(answer.probabilities, Object.keys(criteria)) && Object.hasOwn(criteria, answer.choice) && answer.probabilities[answer.choice] === Math.max(...Object.values(answer.probabilities)) ? answer : undefined
+}
+function validScore(raw: unknown, levels: string[]) {
+  const answer = score.safeParse(raw).data
+  return answer && distribution(answer.probabilities, levels.map((_, index) => String(index))) && levels.every((level, index) => answer.legend[index] === level) && Math.abs(answer.score - Object.entries(answer.probabilities).reduce((sum, [level, probability]) => sum + Number(level) * probability, 0)) < 0.0001 ? answer : undefined
+}
+
+// Validate against the actual fixed question before TanStack maps an answer.
+// Invalid answers remain in the native capture for provenance, never policy.
+export function validatedAnswer(question: StageRequest['questions'][string], raw: unknown) {
+  if (question.type === 'box') return boxSchema.safeParse(raw).data
+  if (question.type === 'noul') return noul.safeParse(raw).data
+  if (question.type === 'choice') return validChoice(raw, question.criteria)
+  return validScore(raw, question.criteria)
+}
 
 export function interpret(raw: unknown, selection: SelectedEvidence, basis?: Findings): { native: NativeCapture; findings: Findings; partial: boolean } {
   const parsed = envelope.safeParse(raw)
@@ -105,8 +125,8 @@ export function interpret(raw: unknown, selection: SelectedEvidence, basis?: Fin
   const findings: Findings = { category: basis?.category ?? 'unavailable', readability: basis?.readability ?? 'unavailable' }
   const targets = evidenceTargets(selection.binding.slot)
   const readChoice = (key: 'category' | SupportKey, criteria: Record<string, string>) => {
-    const answer = choice.safeParse(parsed.data.answers[key])
-    if (answer.success && distribution(answer.data.probabilities, Object.keys(criteria)) && answer.data.choice in criteria && answer.data.probabilities[answer.data.choice] === Math.max(...Object.values(answer.data.probabilities))) native.answers[key] = answer.data
+    const answer = validChoice(parsed.data.answers[key], criteria)
+    if (answer) native.answers[key] = answer
   }
   if (!basis) readChoice('category', categories)
   for (const target of targets) {
@@ -126,8 +146,8 @@ export function interpret(raw: unknown, selection: SelectedEvidence, basis?: Fin
     }
     findings.periodSupport = 'unavailable'
   }
-  const readable = score.safeParse(basis ? undefined : parsed.data.answers.readability)
-  if (readable.success && distribution(readable.data.probabilities, ['0', '1', '2']) && readabilityLevels.every((level, i) => readable.data.legend[i] === level) && Math.abs(readable.data.score - Object.entries(readable.data.probabilities).reduce((sum, [level, probability]) => sum + Number(level) * probability, 0)) < 0.0001) native.answers.readability = readable.data
+  const readable = validScore(basis ? undefined : parsed.data.answers.readability, readabilityLevels)
+  if (readable) native.answers.readability = readable
   if (!Object.keys(native.answers).length) throw new Error('invalid-response')
   const category = native.answers.category
   if (category) findings.category = category.confidence >= 0.99 && category.choice !== 'uncertain' ? category.choice as Findings['category'] : 'undetermined'

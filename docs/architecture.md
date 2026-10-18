@@ -106,8 +106,10 @@ reserving a second stage for optional bound verification. Multipage sources disp
 ascending page stages and at most one comparison over usable pages. A single
 selected page from a longer original retains that multipage plan. Four selected
 pages reserve at most nine attempts, including one verification per page.
-Comparison requests include each raster once. Service admission and the native
-SDK integration belong to subsequent tickets.
+Comparison requests include each raster once. The
+[fixed server workflow](implementation/jev-workflow.md) connects admitted requests
+to the pinned TanStack AI and TypeSafe SDK integration. Production dispatch stays
+disabled pending hosted controls and bounded acceptance.
 
 Agreement and absence require complete usable coverage of the original source.
 Conflicts witnessed on usable checked pages can remain scoped warnings, with
@@ -119,8 +121,9 @@ optional during Save, submission and reviewer assessment.
 The controller retains native answers, distributions, fractional readability,
 usage, per-page manifests, fixed requests and timestamps in provenance. Restoring
 an analysis revalidates the page scope, stage plan, question definitions and
-native-to-display composition. Ordinary runtime has no provider transport and
-reports live analysis unavailable. Only test entry points inject fake transports.
+native-to-display composition. Configured live requests use the bounded endpoint;
+ordinary unconfigured development reports live analysis unavailable. Only test
+entry points inject fake transports.
 Actual multipage fictional PDFs and deterministic four-page plans verify browser
 behavior; native four-image context fit and representative reliability remain
 unverified.

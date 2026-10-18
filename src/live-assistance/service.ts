@@ -1,6 +1,6 @@
-import type { StageRequest } from '../evidence-assistance/contract'
+import type { StageRequest, StageDispatch } from '../evidence-assistance/contract'
 import { bounds, versions } from '../evidence-assistance/contract'
-import { envelope } from '../evidence-assistance/policy'
+import { envelope, reportedUsage } from '../evidence-assistance/policy'
 import { type Admission, type Reservation, LiveStop } from './admission'
 import { validateRequest, type ValidatedRequest } from './request'
 import { supervise } from './supervision'
@@ -28,6 +28,8 @@ export function createLiveService(options: {
     const run = supervise(input.signal, Math.min(options.serverMilliseconds ?? 45_000, 45_000))
     let ticket: Reservation | undefined, marking: Promise<string> | undefined
     let terminal: 'completed' | 'stopped' = 'stopped'
+    const stages: Extract<LiveReply, { status: 'completed' }>['stages'] = []
+    const dispatched: StageDispatch[] = []
     try {
       const guest = await run.wait(() => options.authorize(input.authorization, input.appCheck).catch(() => { throw new LiveStop('access-denied') }))
       if (!guest) throw new LiveStop('access-denied')
@@ -37,14 +39,13 @@ export function createLiveService(options: {
       run.check()
       // The key covers actual received bytes, canonical allowed context and all
       // question versions. It establishes equality, never source authenticity.
-      const fingerprint = options.admission.keyed('input', JSON.stringify({ ...request, pages: request.pages.map(page => ({ page: page.page, digest: options.admission.keyed('image', page.bytes.toString('base64')) })), versions }))
+      const fingerprint = options.admission.keyed('input', JSON.stringify({ ...request, pages: request.pages.map(page => ({ page: page.page, manifest: page.manifest, digest: options.admission.keyed('image', page.bytes.toString('base64')) })), versions }))
       const reservation = options.admission.reserve({ guest, network: input.network, runId: request.runId, fingerprint, attempts: request.maximumAttempts, now: now() })
       // If supervision wins while Firestore commits, stop the eventual ticket.
       void reservation.then(value => { if (run.signal.aborted && !value.duplicate) return options.admission.finish(value, 'stopped', now()) }).catch(() => undefined)
       ticket = await run.wait(() => reservation)
       if (ticket.duplicate) return { status: 200, headers, body: { status: 'duplicate', completion: ticket.status } }
       const admitted = ticket
-      const stages: Extract<LiveReply, { status: 'completed' }>['stages'] = []
       let sequence = 0, busy = false, halted = false
       let cropBytes = request.pages.reduce((sum, page) => sum + page.bytes.length, 0)
       let cropPixels = request.pages.reduce((sum, page) => sum + page.width * page.height, 0)
@@ -58,7 +59,7 @@ export function createLiveService(options: {
           if (busy || halted || sequence >= request.maximumAttempts) stopStage('run-stopped')
           const key = `${stage.stage}:${stage.image.manifest.page}`
           if (seen.has(key) || stage.runId !== request.runId || stage.model !== versions.model || JSON.stringify(stage.versions) !== JSON.stringify(versions)) stopStage('invalid-request')
-          const images = stage.images ?? [stage.image], assets = [...images, ...(stage.crops ?? [])]
+          const images = [stage.image, ...(stage.images ?? [])], assets = [...images, ...(stage.crops ?? [])]
           const questions = Object.values(stage.questions)
           if (questions.filter(question => question.type === 'box').length > 9 || Object.keys(stage.questions).filter(key => key.endsWith('Support')).length > 4) stopStage('prepared-limit')
           if (stage.stage === 'bound-verification' && (images.length !== 1 || questions.length > 54 || questions.some(question => question.type !== 'noul'))) stopStage('prepared-limit')
@@ -77,15 +78,20 @@ export function createLiveService(options: {
           seen.add(key); busy = true
           const attempt = supervise(run.signal, attemptMs)
           let connection: string | undefined
+          let invoked = false, marked: Promise<string> | undefined
           try {
             const send = await attempt.wait(() => prepare(attempt.signal))
             // Marking is conservative. An ambiguous commit consumes its entry.
-            marking = options.admission.mark(admitted, sequence++, now())
+            marked = marking = options.admission.mark(admitted, sequence++, now())
             connection = await attempt.wait(() => marking!)
             attempt.check(); run.check()
             await attempt.wait(() => options.admission.recheck(admitted, now()))
             attempt.check(); run.check()
-            const answer = await attempt.wait(send)
+            const answer = await attempt.wait(() => {
+              dispatched.push({ stage: stage.stage, page: stage.image.manifest.page }); invoked = true
+              return send()
+            })
+            if (!reportedUsage.safeParse(answer && typeof answer === 'object' && 'usage' in answer ? answer.usage : undefined).success) throw new LiveStop('accounting-unavailable')
             const parsed = envelope.safeParse(answer)
             if (!parsed.success) throw new LiveStop('invalid-response')
             stages.push({ stage: stage.stage, page: stage.image.manifest.page, answer })
@@ -93,6 +99,8 @@ export function createLiveService(options: {
             return answer
           } catch (error) {
             halted = true
+            if (connection && invoked) await options.admission.blockAccounting().catch(() => undefined)
+            else if (marked) void marked.then(id => options.admission.disconnect(id)).catch(() => undefined)
             // Unknown remote outcomes keep the connection lease and consume the
             // marked entry. No retry, later stage or assumed cancellation refund.
             throw error
@@ -103,10 +111,11 @@ export function createLiveService(options: {
       if (halted || busy) throw new LiveStop('run-stopped')
       terminal = 'completed'
       await run.wait(() => options.admission.finish(admitted, terminal, now()))
-      return { status: 200, headers, body: { status: 'completed', stages } }
+      return { status: 200, headers, body: { status: 'completed', stages, dispatched } }
     } catch (error) {
       const reason: LiveReason = error instanceof LiveStop && liveReasons.includes(error.message as LiveReason) ? error.message as LiveReason : 'service-unavailable'
-      return { status: reason === 'access-denied' ? 401 : reason === 'body-limit' ? 413 : reason === 'invalid-request' ? 400 : 503, headers, body: { status: 'unavailable', reason } }
+      if (stages.length) return { status: 200, headers, body: { status: 'completed', stages, dispatched, stoppedReason: reason } }
+      return { status: reason === 'access-denied' ? 401 : reason === 'body-limit' ? 413 : reason === 'invalid-request' ? 400 : 503, headers, body: { status: 'unavailable', reason, ...(dispatched.length ? { dispatched } : {}) } }
     } finally {
       run.dispose()
       if (ticket && !ticket.duplicate && terminal !== 'completed') {

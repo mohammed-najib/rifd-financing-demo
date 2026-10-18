@@ -1,9 +1,11 @@
 import { crc32, inflate } from 'node:zlib'
 import { promisify } from 'node:util'
-import { bounds } from '../evidence-assistance/contract'
+import { createHash } from 'node:crypto'
+import { bounds, versions, type RasterManifest } from '../evidence-assistance/contract'
 import { attemptPlan } from '../evidence-assistance/policy'
 import { liveRequestSchema } from './wire'
 import { LiveStop } from './admission'
+import { completedFinancialMonths } from '../evidence-assistance/financial'
 
 const unzip = promisify(inflate)
 function fail(reason = 'invalid-request'): never { throw new LiveStop(reason) }
@@ -47,8 +49,9 @@ export async function validateRequest(body: Buffer, signal: AbortSignal) {
   const parsed = liveRequestSchema.safeParse(value)
   if (!parsed.success) fail()
   const request = parsed.data
+  if (request.slot === 'financial' && JSON.stringify(request.declaration.financial.expectedMonths) !== JSON.stringify(completedFinancialMonths(request.declaration.financial.initialSubmissionMonth))) fail()
   const { pages, ...metadata } = request
-  if (Buffer.byteLength(JSON.stringify({ ...metadata, pages: pages.map(({ page }) => ({ page })) })) > bounds.contextBytes) fail('context-limit')
+  if (Buffer.byteLength(JSON.stringify({ ...metadata, pages: pages.map(({ page, manifest }) => ({ page, manifest })) })) > bounds.contextBytes) fail('context-limit')
   if (new Set(request.selectedPages).size !== request.selectedPages.length || request.selectedPages.some((page, i, all) => page > request.totalPages || i > 0 && page <= all[i - 1])) fail()
   if (pages.some((page, i) => !request.selectedPages.includes(page.page) || i > 0 && page.page <= pages[i - 1].page)) fail()
   if ((request.context === 'correction-workspace') !== !!request.correction || request.audience === 'reviewer' && request.context !== 'submitted' || request.audience === 'applicant' && request.context === 'submitted') fail()
@@ -60,7 +63,15 @@ export async function validateRequest(body: Buffer, signal: AbortSignal) {
     const dimensions = await readPng(bytes, signal)
     pixels += dimensions.width * dimensions.height; size += bytes.length
     if (pixels > bounds.combinedPixels || size > bounds.combinedBytes) fail('prepared-limit')
-    decoded.push({ page: page.page, bytes, ...dimensions })
+    const rasterHash = createHash('sha256').update(bytes).digest('hex')
+    const manifest: RasterManifest = page.manifest ?? {
+      page: page.page, sourceHash: rasterHash, rasterHash, ...dimensions, sourceWidth: dimensions.width, sourceHeight: dimensions.height,
+      uprightWidth: dimensions.width, uprightHeight: dimensions.height, orientation: 1, rotation: 0, scale: 1,
+      padding: { left: 0, top: 0, right: 0, bottom: 0 }, viewport: [1, 0, 0, 1, 0, 0], orientationTransform: [1, 0, 0, 1, 0, 0], transform: [1, 0, 0, 1, 0, 0],
+      renderer: 'received-png', worker: 'received-png', resources: 'received-png', preparation: versions.preparation,
+    }
+    if (manifest.page !== page.page || manifest.rasterHash !== rasterHash || manifest.width !== dimensions.width || manifest.height !== dimensions.height || Object.values(manifest.padding).some(value => !Number.isInteger(value) || value < 0) || manifest.padding.left + manifest.padding.right >= manifest.width || manifest.padding.top + manifest.padding.bottom >= manifest.height) fail()
+    decoded.push({ page: page.page, bytes, ...dimensions, manifest })
   }
   return { ...metadata, pages: decoded, maximumAttempts: attemptPlan(request.totalPages, request.selectedPages).maximumAttempts }
 }

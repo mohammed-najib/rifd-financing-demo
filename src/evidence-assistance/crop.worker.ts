@@ -1,5 +1,6 @@
 import { bounds, type PreparedPage, type PreparedCrop, type CropBinding } from './contract'
 import { cropGeometry, same } from './locations'
+import { cropPng } from './crop-png.mjs'
 
 const hash = async (bytes: ArrayBuffer) => Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', bytes)), byte => byte.toString(16).padStart(2, '0')).join('')
 self.onmessage = async (event: MessageEvent<{ page: PreparedPage; regions: Omit<CropBinding, 'cropHash'>[] }>) => {
@@ -20,7 +21,7 @@ self.onmessage = async (event: MessageEvent<{ page: PreparedPage; regions: Omit<
       context.imageSmoothingEnabled = false
       const e = region.enclosure, w = e.right - e.left, h = e.bottom - e.top
       context.drawImage(bitmap, e.left, e.top, w, h, region.padding.left, region.padding.top, w, h)
-      const crop = await (await canvas.convertToBlob({ type: 'image/png' })).arrayBuffer()
+      const crop = cropPng(region.width, region.height, context.getImageData(0, 0, region.width, region.height).data)
       bytes += crop.byteLength; pixels += region.width * region.height
       if (crop.byteLength > bounds.imageBytes || bytes > bounds.combinedBytes || pixels > bounds.combinedPixels) throw new Error('prepared-limit')
       crops.push({ bytes: crop, binding: { ...geometry, target, cropHash: await hash(crop) } })

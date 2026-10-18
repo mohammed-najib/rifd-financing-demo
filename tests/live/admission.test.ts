@@ -18,10 +18,8 @@ test('expired work leases never authorize a second dispatch of a run ID', async 
   const input = { guest: 'guest', network: '192.0.2.1', runId: 'run', fingerprint: 'same', attempts: 2, now: Date.UTC(2026, 9, 18) }
   const reservation = await admission.reserve(input)
   await admission.mark(reservation, 0, input.now)
-  const duplicate = await admission.reserve({ ...input, now: input.now + 61_000 })
-  expect(duplicate).toMatchObject({ duplicate: true })
-  await expect(admission.mark(duplicate, 0, input.now + 61_000)).rejects.toThrow('run-stopped')
-  await expect(admission.mark(reservation, 1, input.now + 61_000)).rejects.toThrow('run-stopped')
+  await expect(admission.reserve({ ...input, now: input.now + 61_000 })).rejects.toThrow('accounting-unavailable')
+  await expect(admission.mark(reservation, 1, input.now + 61_000)).rejects.toThrow('accounting-unavailable')
 })
 
 test('only unsent reservations are refunded and changed input cannot reuse an ID', async () => {
@@ -107,7 +105,7 @@ test('cleanup releases expired connection identifiers without reviving old dispa
   const ticket = await admission.reserve({ guest: 'guest', network: 'network', runId: 'run', fingerprint: 'same', attempts: 2, now })
   await admission.mark(ticket, 0, now)
   await pruneExpiredConnections(store, now + 60_000)
-  await expect(admission.mark(ticket, 0, now + 60_000)).rejects.toThrow('run-stopped')
+  await expect(admission.mark(ticket, 0, now + 60_000)).rejects.toThrow('accounting-unavailable')
   // Control cleanup is independently observable at its metadata-store boundary.
   const slots = await store.transaction(['control'], records => ({ value: (records.control as { slots: unknown[] }).slots, writes: {} }))
   expect(slots).toEqual([])

@@ -1,9 +1,10 @@
-import type { EvidenceTransport, PreparedPage, SelectedEvidence } from '../evidence-assistance/contract'
+import type { EvidenceTransport, PreparedPage, SelectedEvidence, StageDispatch } from '../evidence-assistance/contract'
 import { bounds } from '../evidence-assistance/contract'
+import { envelope } from '../evidence-assistance/policy'
 import { liveReplySchema, type LiveReason } from './wire'
 
 export class LiveAccessError extends Error {
-  constructor(public readonly reason: LiveReason) { super(reason) }
+  constructor(public readonly reason: LiveReason, public readonly dispatched?: StageDispatch[]) { super(reason) }
 }
 export type RunInput = { runId: string; selection: SelectedEvidence; pages: PreparedPage[]; selectedPages: number[]; totalPages: number }
 export type GuestCredentials = () => Promise<{ authorization: string; appCheck: string }>
@@ -28,7 +29,7 @@ export function browserLiveTransport(credentials: GuestCredentials, requestFetch
         runId: `${new Date().toISOString().slice(0, 10)}.${input.runId}`, slot: selection.binding.slot, audience: selection.binding.audience, context: selection.binding.context,
         totalPages: input.totalPages, selectedPages: input.selectedPages, declaration: selection.declaration,
         ...(selection.correction ? { correction: selection.correction } : {}),
-        pages: input.pages.map(page => ({ page: page.manifest.page, png: base64(page.bytes) })),
+        pages: input.pages.map(page => ({ page: page.manifest.page, png: base64(page.bytes), manifest: page.manifest })),
       })
       if (new TextEncoder().encode(body).byteLength > bounds.bodyBytes) throw new LiveAccessError('body-limit')
       let tokens: Awaited<ReturnType<GuestCredentials>>
@@ -42,15 +43,21 @@ export function browserLiveTransport(credentials: GuestCredentials, requestFetch
       signal.throwIfAborted()
       if (!parsed.success) throw new LiveAccessError('invalid-response')
       const reply = parsed.data
-      if (reply.status === 'unavailable') throw new LiveAccessError(reply.reason)
+      if (reply.status === 'unavailable') throw new LiveAccessError(reply.reason, reply.dispatched)
       if (reply.status === 'duplicate') throw new LiveAccessError(reply.completion === 'active' ? 'guest-active' : 'run-stopped')
       if (!response.ok) throw new LiveAccessError('service-unavailable')
       const captures = new Map(reply.stages.map(stage => [`${stage.stage}:${stage.page}`, stage.answer]))
       if (captures.size !== reply.stages.length) throw new LiveAccessError('invalid-response')
-      return { async evaluate(request, attemptSignal) {
+      const dispatches = new Set((reply.dispatched ?? reply.stages).map(stage => `${stage.stage}:${stage.page}`))
+      const unavailable = () => new Error(['invalid-response', 'context-limit', 'accounting-unavailable'].includes(reply.stoppedReason ?? '') ? reply.stoppedReason : 'provider-unavailable')
+      return { accounting: [...dispatches].some(key => !captures.has(key)) ? 'unresolved' : 'reported', wasDispatched: request => dispatches.has(`${request.stage}:${request.image.manifest.page}`), verificationState(page) {
+        if (!captures.has(`bound-verification:${page}`)) throw unavailable()
+        const answer = envelope.safeParse(captures.get(`bound-verification:${page}`))
+        return answer.success ? answer.data.bridge?.state : undefined
+      }, async evaluate(request, attemptSignal) {
         attemptSignal.throwIfAborted(); signal.throwIfAborted()
         const key = `${request.stage}:${request.image.manifest.page}`
-        if (!captures.has(key)) throw new LiveAccessError('run-stopped')
+        if (!captures.has(key)) throw unavailable()
         const answer = captures.get(key); captures.delete(key)
         return answer
       } }

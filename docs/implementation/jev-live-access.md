@@ -1,7 +1,7 @@
 # Live access and spending controls
 
 Ticket [11](../../.scratch/jev-evidence-assistance-implementation/issues/11-enforce-live-access-and-spending-limits.md)
-adds the bounded service boundary. Ticket 12 supplies the fixed Jev workflow;
+adds the bounded service boundary. [Ticket 12's integration](jev-workflow.md) supplies the fixed Jev workflow;
 ticket 13 configures and verifies hosted operation. Production dispatch remains
 disabled. No external inference or deployment is part of these checks.
 
@@ -103,7 +103,7 @@ Check the deployed service names in its filter, actual cleanup, and platform/Aut
 retention separately. Configure Identity Platform anonymous-account cleanup in
 that same hosted effort, without promising deletion exactly at 30 days.
 Live dispatch stays closed until those checks and the bounded acceptance work
-are complete. A missing workflow keeps production closed even if control is
+are complete. A compiled dispatch switch keeps production closed even if control is
 mistakenly enabled.
 
 ## Verification

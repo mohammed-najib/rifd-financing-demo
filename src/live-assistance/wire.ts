@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { bounds } from '../evidence-assistance/contract'
+import { rasterSchema } from '../evidence-assistance/record'
 
 const month = z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/)
 const text = z.string().max(4096)
@@ -13,7 +14,7 @@ const base = {
   // The UTC date bounds deduplication lifetime after metadata cleanup.
   runId: z.string().regex(/^\d{4}-\d{2}-\d{2}\.[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/), audience: z.enum(['applicant', 'reviewer']), context: z.enum(['draft', 'correction-workspace', 'submitted']),
   totalPages: z.number().int().min(1).max(100), selectedPages: z.array(z.number().int().min(1).max(100)).min(1).max(4),
-  pages: z.array(z.object({ page: z.number().int().min(1).max(100), png: z.string().max(Math.ceil(bounds.imageBytes / 3) * 4).regex(/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/) }).strict()).min(1).max(4),
+  pages: z.array(z.object({ page: z.number().int().min(1).max(100), png: z.string().max(Math.ceil(bounds.imageBytes / 3) * 4).regex(/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/), manifest: rasterSchema.optional() }).strict()).min(1).max(4),
   correction: correction.optional(),
 }
 export const liveRequestSchema = z.discriminatedUnion('slot', [
@@ -25,9 +26,10 @@ export const liveRequestSchema = z.discriminatedUnion('slot', [
 export type LiveRequest = z.infer<typeof liveRequestSchema>
 export const liveReasons = ['access-denied', 'service-disabled', 'service-unavailable', 'service-busy', 'accounting-unavailable', 'guest-active', 'guest-rate', 'guest-allowance', 'network-allowance', 'daily-allowance', 'monthly-allowance', 'run-conflict', 'run-expired', 'run-stopped', 'deadline', 'invalid-request', 'body-limit', 'context-limit', 'prepared-limit', 'invalid-response'] as const
 export type LiveReason = typeof liveReasons[number]
+const dispatches = z.array(z.object({ stage: z.enum(['combined-page-declaration', 'page', 'document-comparison', 'bound-verification']), page: z.number().int().min(1).max(100) }).strict()).max(9)
 export const liveReplySchema = z.discriminatedUnion('status', [
-  z.object({ status: z.literal('unavailable'), reason: z.enum(liveReasons) }).strict(),
+  z.object({ status: z.literal('unavailable'), reason: z.enum(liveReasons), dispatched: dispatches.optional() }).strict(),
   z.object({ status: z.literal('duplicate'), completion: z.enum(['active', 'completed', 'stopped']) }).strict(),
-  z.object({ status: z.literal('completed'), stages: z.array(z.object({ stage: z.enum(['combined-page-declaration', 'page', 'document-comparison', 'bound-verification']), page: z.number().int().min(1).max(100), answer: z.unknown() }).strict()).max(9) }).strict(),
+  z.object({ status: z.literal('completed'), stages: z.array(z.object({ stage: z.enum(['combined-page-declaration', 'page', 'document-comparison', 'bound-verification']), page: z.number().int().min(1).max(100), answer: z.unknown() }).strict()).max(9), stoppedReason: z.enum(liveReasons).optional(), dispatched: dispatches.optional() }).strict(),
 ])
 export type LiveReply = z.infer<typeof liveReplySchema>

@@ -37,8 +37,11 @@
   },
   "dependencies": {
     "@rifd/domain": "workspace:*",
+    "@tanstack/ai": "0.69.0",
     "@tanstack/react-router": "1.170.44",
     "@tanstack/react-start": "1.169.2",
+    "@typesafe-ai/sdk": "0.7.0",
+    "fflate": "0.8.3",
     "firebase": "12.4.0",
     "pdfjs-dist": "5.4.296",
     "react": "19.3.1",

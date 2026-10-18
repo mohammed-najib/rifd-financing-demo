@@ -10,7 +10,7 @@ const dayMs = 86_400_000
 const count = z.number().int().nonnegative()
 const counter = z.object({ attempts: count, expiresAt: count, subjects: z.array(z.string().max(128)).max(5000).optional() }).strict()
 const slot = z.object({ id: z.string(), until: count }).strict()
-const controlSchema = z.object({ enabled: z.boolean(), slots: z.array(slot).max(2), day: z.string().optional(), month: z.string().optional() }).strict()
+const controlSchema = z.object({ enabled: z.boolean(), slots: z.array(slot).max(2), day: z.string().optional(), month: z.string().optional(), pendingUsage: z.array(z.string()).max(2).optional(), accountingBlocked: z.boolean().optional() }).strict()
 const guestSchema = z.object({ day: z.string(), attempts: count, lastStart: count, active: z.string().nullable(), lease: count, expiresAt: count }).strict()
 const runSchema = z.object({
   fingerprint: z.string(), guest: z.string(), network: z.string(), day: z.string(), month: z.string(),
@@ -27,13 +27,14 @@ export function createAdmission(store: MetadataStore, secret: string) {
     const result = schema.safeParse(value)
     return result.success ? result.data : stop('accounting-unavailable')
   }
-  const control = (records: Record<string, unknown>) => {
+  const control = (records: Record<string, unknown>, now: number) => {
     const state = read(controlSchema, records.control)
+    if (state.accountingBlocked || state.pendingUsage?.some(id => !state.slots.some(slot => slot.id === id && slot.until > now))) stop('accounting-unavailable')
     if (!state.enabled) stop('service-disabled')
     return state
   }
   const liveRun = (records: Record<string, unknown>, ticket: Reservation, now: number) => {
-    control(records)
+    control(records, now)
     const run = read(runSchema, records[ticket.key])
     if (run.expiresAt <= now || run.status !== 'active' || run.lease <= now) stop('run-stopped')
     if (run.day !== `day-${new Date(now).toISOString().slice(0, 10)}`) stop('run-stopped')
@@ -60,7 +61,7 @@ export function createAdmission(store: MetadataStore, secret: string) {
       const previousDayKey = `day-${new Date(now - dayMs).toISOString().slice(0, 10)}`
       const keys = ['control', key, guestKey, networkKey, dayKey, monthKey, previousDayKey]
       return store.transaction<Reservation>(keys, records => {
-        const state = control(records)
+        const state = control(records, now)
         const daily = records[dayKey] === undefined ? undefined : read(counter, records[dayKey])
         const previous = records[previousDayKey] === undefined ? undefined : read(counter, records[previousDayKey])
         if (daily && !daily.subjects) stop('accounting-unavailable')
@@ -102,11 +103,14 @@ export function createAdmission(store: MetadataStore, secret: string) {
       return store.transaction(ticket.keys, records => {
         const run = liveRun(records, ticket, now)
         if (!Number.isInteger(attempt) || attempt < 0 || attempt >= run.planned || run.dispatched.includes(attempt)) stop('run-stopped')
-        const state = control(records)
+        const state = control(records, now)
         state.slots = state.slots.filter(connection => connection.until > now)
         if (state.slots.length >= 2) stop('service-busy')
         const connection = `${ticket.key}:${attempt}`
         state.slots.push({ id: connection, until: now + 60_000 })
+        // Reconciliation survives worker loss and connection-lease expiry.
+        // Only an accounted response may remove this entry.
+        state.pendingUsage = [...(state.pendingUsage ?? []), connection]
         run.dispatched.push(attempt)
         return { value: connection, writes: { control: state, [ticket.key]: run } }
       })
@@ -118,7 +122,14 @@ export function createAdmission(store: MetadataStore, secret: string) {
       await store.transaction(['control'], records => {
         const state = read(controlSchema, records.control)
         state.slots = state.slots.filter(slot => slot.id !== connection)
+        state.pendingUsage = state.pendingUsage?.filter(id => id !== connection)
         return { value: undefined, writes: { control: state } }
+      })
+    },
+    async blockAccounting() {
+      await store.transaction(['control'], records => {
+        const state = read(controlSchema, records.control)
+        return { value: undefined, writes: { control: { ...state, accountingBlocked: true } } }
       })
     },
     async finish(ticket: Reservation, status: 'completed' | 'stopped', now: number) {

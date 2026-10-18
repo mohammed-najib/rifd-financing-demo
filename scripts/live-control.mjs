@@ -15,6 +15,6 @@ try {
     transaction.update(control, { enabled: false })
   })
   const record = await control.get()
-  console.log(JSON.stringify({ exists: record.exists, enabled: record.get('enabled') === true }))
+  console.log(JSON.stringify({ exists: record.exists, enabled: record.get('enabled') === true, accountingBlocked: record.get('accountingBlocked') === true, pendingUsage: record.get('pendingUsage')?.length ?? 0 }))
   await db.terminate()
 } finally { await deleteApp(app) }
