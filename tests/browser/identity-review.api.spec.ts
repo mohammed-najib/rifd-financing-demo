@@ -39,7 +39,8 @@ test('negative presence requires readable compatible evidence and an empty answe
   expect(result.incompatible.result?.findings).toMatchObject({ category: 'business', namePresence: 'undetermined', nameSupport: 'undetermined' })
   expect(result.empty).toMatchObject({ status: 'unavailable', reason: 'invalid-response' })
   expect(result.empty.result?.id).toBe(result.incompatible.result?.id)
-  expect(result.empty.coverage).toEqual(result.incompatible.coverage)
+  expect(result.empty.coverage).toMatchObject({ successful: [], failed: [1], unchecked: [1], uncheckedCount: 1 })
+  expect(result.empty.result?.coverage).toEqual(result.incompatible.coverage)
 })
 
 test('cancellation at the dispatch boundary sends no provider request', async ({ page }) => {

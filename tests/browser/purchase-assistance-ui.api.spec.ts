@@ -99,7 +99,7 @@ for (const scenario of ['absent description', 'unrelated quotation', 'missing de
   await purchase.getByRole('button', { name: 'Check document', exact: true }).click()
   const assistance = purchase.getByRole('region', { name: 'Experimental assistance', exact: true })
   await assistance.getByRole('button', { name: 'Run check', exact: true }).click()
-  if (scenario === 'absent description') await expect(assistance.getByText('This detail was not found in the checked page', { exact: true })).toBeVisible()
+  if (scenario === 'absent description') await expect(assistance.getByText('This detail was not found in the checked pages', { exact: true })).toBeVisible()
   else if (scenario === 'unrelated quotation') {
     await expect(assistance.getByText('Appears to be an equipment quotation', { exact: true })).toBeVisible()
     await expect(assistance.getByText('Could not determine. Inspect the source.', { exact: true })).toHaveCount(2)

@@ -41,3 +41,34 @@ before restoration. Tests use actual fictional multipage PDFs and fake transport
 including preparation and comparison failures. Native four-page context fit and
 representative model reliability remain unverified. Runtime remains unavailable
 until the separate service integration. No paid inference or deployment occurred.
+
+## Verification
+
+- All 15 new browser regressions passed with actual fictional multipage PDFs and
+  fake transport. They cover distributed monthly evidence, wrong periods,
+  missing declarations, conflicting amounts, partial preparation, failed pages,
+  unavailable comparisons, context overflow, exact selection, retained coverage,
+  historical/correction months and clear/retry before ordinary submission.
+- The complete public-interface suite ran all 264 tests. It passed 262 and exposed
+  two obsolete assertions about retained-result coverage and singular page
+  wording. Both assertions were corrected and passed a focused recheck without
+  changing application code. The full and focused JSON reports are retained in
+  `artifacts/jev-multipage-financial/` in the working environment.
+- Typecheck, lint, all 105 domain tests, both packaged-skill test files and the
+  packaged-skill checks passed. The production build and CSS source-isolation
+  check passed.
+- All 12 production assistance checks passed across Chrome, Firefox and WebKit,
+  including financial PDFs, unavailable live analysis, ordinary source access and
+  Saved demonstrations. The local static preview now serves PDF.js `.mjs`
+  workers as JavaScript. Checks used isolated port 4180 and the existing WebKit
+  compatibility wrapper.
+- The shared 20-second preparation deadline, eight-second page deadline and
+  sequential worker cleanup passed using real PDF font-resource delays. A
+  missing page-specific font resource preserved the other usable page and exact
+  failed/unchecked scope. Four-page plans reserve nine attempts deterministically.
+- Arabic and English 390px financial captures were visually inspected. The
+  browser journey checks source navigation, page selection, no horizontal
+  overflow, explicit retry after clearing and ordinary Save/submission.
+- Independent Standards and Spec reviews each reported zero outstanding findings
+  after their fixes were rechecked. Native four-page context fit and representative
+  Jev reliability remain unverified.
