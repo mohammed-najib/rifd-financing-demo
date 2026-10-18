@@ -54,7 +54,7 @@ Local limits include one run start per minute, 20 attempts per guest per UTC day
 
 Usage counters, deduplication, leases and signing state survive restarts in `artifacts/local-jev/metadata.sqlite`. This database does not hold the provider key, source documents, declarations or answer archives. Keep it across restarts. Deleting it resets allowances and does not reconcile unknown usage. Vite blocks browser access to the local server files and database.
 
-The local mode does not enable hosted inference. In the current source, `functions/index.ts` sets `liveDispatchEnabled` to `false`. Historical cloud setup and readiness decisions are in the [hosted operation record](implementation/jev-hosted-operation.md). They are dated evidence, not a current instruction to activate the service.
+The local mode does not change hosted availability. `functions/index.ts` binds the dedicated provider secret, while Firestore admission independently controls dispatch. Hosted inference was enabled and checked in the [18 October release](releases/2026-10-18.md). Existing Auth, App Check, ingress, quotas and unknown-usage stops remain enforced. Historical cloud preparation is in the [hosted operation record](implementation/jev-hosted-operation.md). An operator with the existing admin credentials can close admission without resetting counters using `node scripts/live-control.mjs rifd-portfolio-mdnb disable`.
 
 For the visible workflow, see the [Arabic AI guide](ai-features.md). For actual native smoke results and their limits, see the [local test record](implementation/jev-local-development.md).
 

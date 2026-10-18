@@ -106,7 +106,7 @@ for (const language of ['ar', 'en'] as const) {
       await expect(page.locator(selector)).toBeVisible()
       if (path.includes('step=business')) await expect(page.locator('#field-businessName')).toHaveValue('متجر السهل التجريبي')
       if (path.includes('sort=amountAsc')) {
-        await expect(page.locator('#queue-sort')).toHaveValue('amountAsc')
+        await expect(page.locator('#queue-sort')).toHaveAttribute('data-value', 'amountAsc')
         await expect(page).toHaveURL(/status=underReview.*sort=amountAsc/)
       }
     }

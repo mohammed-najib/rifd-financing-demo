@@ -67,7 +67,7 @@ Web Locks coordinate financing commits/reset and analysis retention. Without the
 
 `pnpm dev:jev` starts a loopback-only local API and the app on port 5174. Signed local sessions, exact-origin checks, fixed requests and durable SQLite admission state protect the local endpoint. The provider key stays server-side. [Development](development.md#local-jev-inference) documents key setup, request allowances and restart behavior.
 
-Hosted access uses a separate Cloud Function and its own identity, App Check and transactional admission controls. Current source keeps hosted dispatch disabled. Building the app or running the local mode does not activate it. See the dated [hosted preparation record](implementation/jev-hosted-operation.md) and [workflow record](implementation/jev-workflow.md) for implementation details and unverified native reliability limits.
+Hosted access uses a separate Cloud Function and its own identity, App Check and transactional admission controls. The hosted provider is bound and admission was enabled for the [18 October release](releases/2026-10-18.md). Building the app or running the local mode does not change that admission state. See the dated [hosted preparation record](implementation/jev-hosted-operation.md) and [workflow record](implementation/jev-workflow.md) for implementation details and unverified native reliability limits.
 
 ## Presentation and delivery
 

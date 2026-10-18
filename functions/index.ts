@@ -17,19 +17,16 @@ import { supervise } from '../src/live-assistance/supervision'
 
 initializeApp()
 const accountingKey = defineSecret('LIVE_ACCOUNTING_KEY')
-// Capability is installed, but dispatch stays closed through hosted controls
-// and bounded acceptance. Enabling admission alone cannot open inference.
-const liveDispatchEnabled = false
-// Firebase validates every declared secret during deployment, even an unbound
-// one. Keep the empty provider secret undeclared during closed control checks.
+// Provider capability and transactional admission are separate controls.
+// Public runs still require valid Auth, App Check, ingress proof and allowances.
+const liveDispatchEnabled = true
 const providerKey = liveDispatchEnabled ? defineSecret('LIVE_TYPESAFE_API_KEY') : null
 
 export const liveAnalysis = onRequest({
   region: 'europe-west1', memory: '512MiB', cpu: 1, minInstances: 0,
   maxInstances: 1, concurrency: 2, timeoutSeconds: 55, cors: false,
   serviceAccount: 'rifd-live-analysis@rifd-portfolio-mdnb.iam.gserviceaccount.com',
-  // The provider secret has no version until the operator installs a dedicated
-  // key. Closed control checks must not require or expose that credential.
+  // The dedicated provider key remains bound only to this server function.
   secrets: providerKey ? [accountingKey, providerKey] : [accountingKey],
   // Hosting and direct traffic must both pass the same verifier. No test modes,
   // emulator credentials, transport selection or public operator commands.

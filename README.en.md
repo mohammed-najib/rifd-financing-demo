@@ -23,7 +23,7 @@ RIFD uses **TypeSafe's Jev** to help examine identity, business, financial and p
 - Reviewers can find supporting evidence and inspect a named field in an overlay dialog. A visual highlight appears when it passes verification.
 - Applicable findings can be saved and reopened. Saved examples let visitors explore the experience without a new model request.
 
-Real inference runs locally with `pnpm dev:jev` and requires a TypeSafe key. Starting a check sends selected pages and relevant information to TypeSafe. The hosted version may lag behind the local application. Suggestions can be wrong; the reviewer makes the decision. [Read the AI guide in Arabic](docs/ai-features.md).
+Real inference is available on the hosted website. For local inference, use `pnpm dev:jev` with your own TypeSafe key. Starting a check sends selected pages and relevant information to TypeSafe. Suggestions can be wrong; the reviewer makes the decision. [Read the AI guide in Arabic](docs/ai-features.md).
 
 ## How was it built?
 
