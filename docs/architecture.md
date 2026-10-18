@@ -24,7 +24,7 @@ Tailwind CSS 4.3.3 compiles through its pinned Vite plugin. `src/ui/styles.css` 
 
 The [acceptance checklist](acceptance/README.md) separates automated behavior, ordinary-browser manual work, print inspection, performance and hosted checks. Browser-only persistence, no real authentication or payment processing, and fresh-offline launch remain explicit limits.
 
-Draft, private correction and submitted identity and business assistance use `Demo.createEvidenceAssistance`. The handle owns an
+Draft, private correction and submitted identity, business and purchase assistance use `Demo.createEvidenceAssistance`. The handle owns an
 explicit inspect/run/cancel/refresh/clear lifecycle and retained results. Authorized reads bind
 actual source bytes, relevant declarations and authority/dependency generations.
 Completion rechecks those dependencies. Replacement, relevant edits, sign-out,
@@ -77,6 +77,17 @@ Business checks share correction permissions, reviewer source selection and
 retention without depending on unrelated applicant fields or staff notes.
 The current one-page limit also applies to business evidence; multipage support
 and automatic highlights remain separate implementation tickets.
+
+Purchase checks name separate description and total-budget targets. Inventory
+financing expects a stock purchase plan; Equipment financing expects a supplier
+quotation. Apparent category remains a finding independent of document suitability.
+Whole-rial parsing and declaration validity use the existing domain helpers;
+itemized analysis, product purpose fit and purchase budget coverage stay outside
+assistance. Every question binds the selected product and both purchase details.
+Relevant edits or product/source changes suppress old findings. Matching ordinary
+Save can retain a temporary purchase run. Correction edits remain limited to the
+requested fields, and reviewer checks use the submitted purchase evidence.
+The same complete one-page and readability/category/presence guards apply.
 
 The controller reserves the shape of a two-stage plan for later bound verification;
 this slice evaluates only the combined page/declaration stage. It retains native

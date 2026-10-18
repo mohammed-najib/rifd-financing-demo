@@ -27,17 +27,22 @@ export function makeRequest(selection: SelectedEvidence, image: PreparedPage, ru
     questions[target.presence] = { type: 'noul', instructions: `Does the complete original page in \`page\` contain a printed ${target.name}, regardless of agreement with \`${target.statePath}\`? A different value still counts as present.` }
     dependencies[target.presence] = [...common]
     if (declaredDetail(selection.declaration, target).status === 'valid') {
-      questions[target.support] = { type: 'choice', instructions: `How does the printed ${target.name} on the complete original page in \`page\` support \`${target.statePath}\`? Inspect all occurrences, retaining repeated or incompatible entries. Do not select a matching entry while ignoring another, transcribe values, authenticate identity or determine operating history or eligibility.`, criteria: support(target) }
+      questions[target.support] = { type: 'choice', instructions: `How does the printed ${target.name} on the complete original page in \`page\` support \`${target.statePath}\`? Inspect all occurrences, retaining repeated or incompatible entries. Do not select a matching entry while ignoring another, transcribe values, authenticate identity or determine operating history or eligibility.${selection.declaration.purchase ? ' Use `declaredPurchase.product`: inventory expects a stock purchase plan, equipment expects an equipment supplier quotation. Compare only the description or printed total budget, without itemized analysis, arithmetic, product purpose fit or financing budget coverage decisions.' : ''}`, criteria: support(target) }
       dependencies[target.support] = [...common]
     }
   }
   // Every question sees the shared declarations, even source-only judgments.
   for (const question of Object.keys(dependencies)) {
-    for (const target of targets) dependencies[question].push(...(target.field === 'fullName' ? ['declaration.fullName', 'declaration.status'] : [`declaration.business.${target.field}.value`, `declaration.business.${target.field}.status`]))
+    for (const target of targets) {
+      const path = `declaration.${selection.declaration.purchase ? 'purchase' : 'business'}.${target.field}`
+      dependencies[question].push(...(target.field === 'fullName' ? ['declaration.fullName', 'declaration.status'] : [`${path}.value`, `${path}.status`]))
+    }
+    if (selection.declaration.purchase) dependencies[question].push('declaration.purchase.product')
     if (selection.correction) dependencies[question].push('correction')
   }
   const state: StageRequest['state'] = { page: 'original-page-1', ...(selection.correction ? { correction: selection.correction } : {}) }
-  if (selection.declaration.business) state.declaredBusiness = { businessName: selection.declaration.business.businessName.value, address: selection.declaration.business.address.value, operatingSince: selection.declaration.business.operatingSince.value }
+  if (selection.declaration.purchase) state.declaredPurchase = { product: selection.declaration.purchase.product, explanation: selection.declaration.purchase.explanation.value, budget: selection.declaration.purchase.budget.value }
+  else if (selection.declaration.business) state.declaredBusiness = { businessName: selection.declaration.business.businessName.value, address: selection.declaration.business.address.value, operatingSince: selection.declaration.business.operatingSince.value }
   else state.declaredApplicantName = selection.declaration.fullName
   const request: StageRequest = {
     runId, stage: 'combined-page-declaration', model: versions.model,
@@ -89,7 +94,8 @@ export function interpret(raw: unknown, selection: SelectedEvidence): { native: 
     const levels = Object.entries(readability.probabilities).sort((a, b) => b[1] - a[1])
     findings.readability = levels[0][1] >= 0.99 && levels[0][1] > levels[1][1] ? (['unreadable', 'partial', 'clear'] as const)[Number(levels[0][0])] : 'undetermined'
   }
-  const usable = findings.category === selection.binding.slot && findings.readability === 'clear'
+  const expectedCategory = selection.declaration.purchase ? selection.declaration.purchase.product === 'inventory' ? 'stock' : 'equipment' : selection.binding.slot
+  const usable = findings.category === expectedCategory && findings.readability === 'clear'
   for (const target of targets) {
     const presence = native.answers[target.presence]
     if (presence) findings[target.presence] = presence.noul >= 0.99 ? 'present' : presence.noul <= 0.01 && usable ? 'absent' : 'undetermined'

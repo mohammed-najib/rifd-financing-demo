@@ -589,7 +589,7 @@ export function createDemo(options: { evidenceTransport?: EvidenceTransport } = 
       const who = session?.identity
       const task = { applicationId: z.string().min(1), slot: z.enum(slots), fileId: z.string().nullable().optional() }
       const schema = z.discriminatedUnion('action', [
-        z.object({ ...task, action: z.literal('check-document'), audience: z.literal('applicant'), context: z.enum(['draft', 'correction-workspace']), roundId: z.string().min(1).optional(), attachment: preparedSchema.optional(), declaredName: z.string().optional(), declaredBusiness: z.object({ businessName: z.string(), address: z.string(), operatingSince: z.string() }).strict().optional() }).strict(),
+        z.object({ ...task, action: z.literal('check-document'), audience: z.literal('applicant'), context: z.enum(['draft', 'correction-workspace']), roundId: z.string().min(1).optional(), attachment: preparedSchema.optional(), declaredName: z.string().optional(), declaredBusiness: z.object({ businessName: z.string(), address: z.string(), operatingSince: z.string() }).strict().optional(), declaredPurchase: z.object({ product: productIdSchema, explanation: z.string(), budget: z.string() }).strict().optional() }).strict(),
         z.object({ ...task, action: z.literal('find-supporting-evidence'), audience: z.literal('reviewer'), context: z.literal('submitted') }).strict(),
       ])
       const authorize = (data: Dataset) => {
@@ -597,7 +597,7 @@ export function createDemo(options: { evidenceTransport?: EvidenceTransport } = 
         if (!parsed.success) throw new DemoError('validation')
         const command = parsed.data
         if (!evidenceTaskSlots.includes(command.slot)) throw new DemoError('unavailable')
-        if (command.action === 'check-document' && (command.slot !== 'identity' && command.declaredName !== undefined || command.slot !== 'business' && command.declaredBusiness !== undefined)) throw new DemoError('validation')
+        if (command.action === 'check-document' && (command.slot !== 'identity' && command.declaredName !== undefined || command.slot !== 'business' && command.declaredBusiness !== undefined || command.slot !== 'purchase' && command.declaredPurchase !== undefined)) throw new DemoError('validation')
         if (!who) throw new DemoError('sessionExpired')
         authority(captured, who, data.meta.datasetId, data)
         if (command.action === 'find-supporting-evidence') {
@@ -616,6 +616,10 @@ export function createDemo(options: { evidenceTransport?: EvidenceTransport } = 
           correctionDocument(application, command.slot)
           if (command.declaredName !== undefined && command.declaredName !== application.workspace.snapshot.fields.fullName && !round.targets.some(target => target.kind === 'field' && target.field === 'fullName')) throw new DemoError('permissionDenied')
           for (const [field, value] of Object.entries(command.declaredBusiness ?? {})) if (value !== application.workspace.snapshot.fields[field as keyof Fields] && !round.targets.some(target => target.kind === 'field' && target.field === field)) throw new DemoError('permissionDenied')
+          if (command.declaredPurchase) {
+            if (command.declaredPurchase.product !== application.product) throw new DemoError('permissionDenied')
+            for (const field of ['explanation', 'budget'] as const) if (command.declaredPurchase[field] !== application.workspace.snapshot.fields[field] && !round.targets.some(target => target.kind === 'field' && target.field === field)) throw new DemoError('permissionDenied')
+          }
         }
         const correction = round ? { targets: round.targets.map(target => target.kind === 'field' ? { kind: target.kind, field: target.field, reason: target.reason } : { kind: target.kind, slot: target.slot, reason: target.reason }), initialSubmissionMonth: application.submittedAt!.slice(0, 7) } : undefined
         return { command, application, snapshot: application.workspace.snapshot, workspace: application.workspace, round, correction, reviewContext: undefined }
@@ -634,22 +638,29 @@ export function createDemo(options: { evidenceTransport?: EvidenceTransport } = 
           file = data.files.find(file => file.id === id && file.applicationId === application.id && file.slot === command.slot)
         }
         if (!file) throw new DemoError('unavailable')
-        const fields = { ...snapshot.fields, ...(command.action === 'check-document' ? command.declaredBusiness ?? (command.declaredName !== undefined ? { fullName: command.declaredName } : {}) : {}) }
-        const issues = validateFields(fields, products[application.product], application.submittedAt?.slice(0, 7) ?? submissionMonth)
+        const purchase = command.action === 'check-document' ? command.declaredPurchase : undefined
+        const product = purchase?.product ?? application.product
+        if (command.slot === 'purchase' && product !== application.product && !('attachment' in command && command.attachment)) throw new DemoError('supersededSelection')
+        if (command.slot === 'purchase' && command.action === 'check-document' && command.attachment && preparations.get(file.id)?.product !== product) throw new DemoError('supersededSelection')
+        const fields = { ...snapshot.fields, ...(command.action === 'check-document' ? command.declaredBusiness ?? (purchase ? { explanation: purchase.explanation, budget: purchase.budget } : command.declaredName !== undefined ? { fullName: command.declaredName } : {}) : {}) }
+        const issues = validateFields(fields, products[product], application.submittedAt?.slice(0, 7) ?? submissionMonth)
         const detail = (field: keyof Fields) => ({ value: issues.some(issue => issue.field === field) ? null : fields[field], status: !fields[field].trim() ? 'missing' as const : issues.some(issue => issue.field === field) ? 'invalid' as const : 'valid' as const })
-        const declaration: SelectedEvidence['declaration'] = command.slot === 'business'
+        const budget = detail('budget')
+        const declaration: SelectedEvidence['declaration'] = command.slot === 'purchase'
+          ? { purchase: { product, explanation: detail('explanation'), budget: { ...budget, value: budget.status === 'valid' ? String(parseWholeYER(fields.budget)) : null } } }
+          : command.slot === 'business'
           ? { business: { businessName: detail('businessName'), address: detail('address'), operatingSince: detail('operatingSince') } }
           : { fullName: detail('fullName').value, status: detail('fullName').status }
         const source = { id: file.id, ...fileResult(file) }
         const actualHash = await hashBytes(source.bytes)
         const latest = await read()
         const fresh = authorize(latest)
-        if (evidenceTargets(command.slot).some(target => fresh.snapshot.fields[target.field] !== snapshot.fields[target.field]) || fresh.snapshot.documents[command.slot] !== snapshot.documents[command.slot] || fresh.reviewContext !== reviewContext || JSON.stringify(fresh.correction) !== JSON.stringify(correction) || command.action === 'check-document' && selections.get(`${who}/${application.id}/${command.slot}`)?.token !== active?.token) throw new DemoError('staleWorkspace')
+        if (command.slot === 'purchase' && fresh.application.product !== application.product || evidenceTargets(command.slot).some(target => fresh.snapshot.fields[target.field] !== snapshot.fields[target.field]) || fresh.snapshot.documents[command.slot] !== snapshot.documents[command.slot] || fresh.reviewContext !== reviewContext || JSON.stringify(fresh.correction) !== JSON.stringify(correction) || command.action === 'check-document' && selections.get(`${who}/${application.id}/${command.slot}`)?.token !== active?.token) throw new DemoError('staleWorkspace')
         if (actualHash !== file.hash) throw new DemoError('damaged')
         const selection: SelectedEvidence = { source, declaration, ...(correction ? { correction } : {}), binding: {
           datasetId: data.meta.datasetId, applicationId: application.id, slot: command.slot, audience: command.audience, context: command.context,
           contextId: round?.id ?? command.context, roundId: round?.id ?? null, authorityGeneration: captured, sharedRevision: application.sharedRevision, workspaceRevision: workspace?.revision ?? 0,
-          durable: (!workspace || !!workspace.savedAt) && snapshot.documents[command.slot] === file.id && evidenceTargets(command.slot).every(target => fields[target.field] === snapshot.fields[target.field]),
+          durable: (!workspace || !!workspace.savedAt) && product === application.product && snapshot.documents[command.slot] === file.id && evidenceTargets(command.slot).every(target => fields[target.field] === snapshot.fields[target.field]),
           ...(reviewContext ? { reviewContext } : {}),
           dependencyKey: '',
         } }

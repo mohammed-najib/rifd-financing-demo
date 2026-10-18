@@ -8,6 +8,7 @@ import { ReviewWorkspace } from '../../src/ui/review'
 import { correctionApplicationId, requestIdentityCorrection, correctionCommand, prepareCorrectionIdentity } from './correction-evidence-fixtures'
 import { pdfFile } from './evidence-fixtures'
 import { requestBusinessCorrection } from './business-evidence-fixtures'
+import { requestPurchaseCorrection } from './purchase-evidence-fixtures'
 
 const demo = createDemo({ evidenceTransport: {
   async evaluate(request, signal) {
@@ -32,7 +33,8 @@ if (reviewerMode && new URLSearchParams(location.search).get('reviewer') === 'pd
 if (reviewerMode) await demo.signIn('salma')
 let view = await demo.readApplication(correctionMode || reviewerMode ? correctionApplicationId : 'RIFD-2026-001')
 if (correctionMode && view.ok && view.value.status === 'underReview') {
-  if (correctionMode === 'business') await requestBusinessCorrection(demo)
+  if (correctionMode === 'purchase') await requestPurchaseCorrection(demo)
+  else if (correctionMode === 'business') await requestBusinessCorrection(demo)
   else await requestIdentityCorrection(demo, correctionMode === 'name' ? [{ kind: 'field', field: 'fullName', reason: { ar: 'صحح الاسم المعلن.', en: 'Correct the declared name.' } }] : [])
   view = await demo.readApplication(correctionApplicationId)
 }

@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 
-for (const slot of ['identity', 'business'] as const) test(`${slot} runtime reports live unavailability and keeps ordinary source and saved examples accessible`, async ({ page }) => {
+for (const slot of ['identity', 'business', 'purchase'] as const) test(`${slot} runtime reports live unavailability and keeps ordinary source and saved examples accessible`, async ({ page }) => {
   const paidRequests: string[] = []
   page.on('request', request => { if (/typesafe|identitytoolkit|fake-provider|\/analysis/.test(request.url())) paidRequests.push(request.url()) })
   await page.setViewportSize({ width: 390, height: 900 })
@@ -15,7 +15,7 @@ for (const slot of ['identity', 'business'] as const) test(`${slot} runtime repo
   await assistance.getByRole('button', { name: 'Run check', exact: true }).click()
   await expect(assistance.getByRole('status')).toHaveText('Live analysis unavailable until the service is connected. Saved demonstrations remain available.')
   await assistance.getByRole('button', { name: 'Show current source', exact: true }).click()
-  await expect(assistance.locator(slot === 'identity' ? 'img' : 'object')).toBeVisible()
+  await expect(assistance.locator(slot === 'business' ? 'object' : 'img')).toBeVisible()
   await expect(assistance.getByRole('link', { name: 'Download file', exact: true })).toHaveAttribute('href', /^blob:/)
   await expect(page.getByRole('button', { name: 'Save progress', exact: true })).toBeEnabled()
   await expect(page.getByText('Choose a Saved demonstration', { exact: true }).first()).toBeVisible()

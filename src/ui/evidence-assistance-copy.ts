@@ -5,6 +5,9 @@ export const assistanceText = {
   correctionTransmission: { ar: 'استخدم بيانات افتراضية فقط. عند توفر الخدمة، يُرسل المستند المحدد والاسم المعلن وأسباب التصحيح وأهدافه المسموحة وشهر التقديم الأصلي إلى خدمة التحليل. راجع السياق قبل التشغيل.', en: 'Use fictional data only. When available, the selected document, declared name, correction reasons, permitted targets and initial submission month are sent to the analysis service. Review the context before running.' },
   businessTransmission: { ar: 'استخدم بيانات افتراضية فقط. عند توفر الخدمة، يُرسل المستند المحدد واسم النشاط وعنوانه وشهر بدء مزاولته المعلنة إلى خدمة التحليل. راجع السياق قبل التشغيل.', en: 'Use fictional data only. When available, the selected document and declared business name, address and operating-since month are sent to the analysis service. Review the context before running.' },
   businessCorrectionTransmission: { ar: 'استخدم بيانات افتراضية فقط. عند توفر الخدمة، يُرسل المستند المحدد ومعلومات النشاط المعلنة وأسباب التصحيح وأهدافه المسموحة وشهر التقديم الأصلي إلى خدمة التحليل. راجع السياق قبل التشغيل.', en: 'Use fictional data only. When available, the selected document, declared business details, correction reasons, permitted targets and initial submission month are sent to the analysis service. Review the context before running.' },
+  purchaseTransmission: { ar: 'استخدم بيانات افتراضية فقط. عند توفر الخدمة، يُرسل المستند المحدد ومنتج التمويل ووصف الشراء والميزانية الإجمالية المعلنة إلى خدمة التحليل. راجع السياق قبل التشغيل.', en: 'Use fictional data only. When available, the selected document, financing product, purchase description and declared total budget are sent to the analysis service. Review the context before running.' },
+  purchaseCorrectionTransmission: { ar: 'استخدم بيانات افتراضية فقط. عند توفر الخدمة، يُرسل المستند المحدد ومنتج التمويل ومعلومات الشراء المعلنة وأسباب التصحيح وأهدافه المسموحة وشهر التقديم الأصلي إلى خدمة التحليل. راجع السياق قبل التشغيل.', en: 'Use fictional data only. When available, the selected document, financing product, declared purchase details, correction reasons, permitted targets and initial submission month are sent to the analysis service. Review the context before running.' },
+  product: { ar: 'المستند المتوقع للمنتج المحدد', en: 'Expected document for selected product' },
   permittedTargets: { ar: 'أهداف التصحيح المسموحة وأسباب المراجع', en: 'Permitted correction targets and reviewer reasons' },
   correctionHint: { ar: 'الاقتراحات خاصة ولا تحقق أهداف التصحيح. يلزم تغيير صالح للمعلومات المطلوبة أو مستند بمحتوى مختلف قبل إعادة التقديم.', en: 'Suggestions stay private and do not satisfy correction targets. Resubmission still requires a valid change to requested fields or a document with different content.' },
   partialResults: { ar: 'بعض النتائج غير متاحة. راجع نطاق التحليل والمصدر.', en: 'Some findings are unavailable. Check the coverage and original source.' },
@@ -42,9 +45,12 @@ export const assistanceText = {
   businessNamePresence: { ar: 'وجود اسم النشاط المطبوع، الصفحة 1', en: 'Printed business name presence, page 1' }, businessNameSupport: { ar: 'دعم اسم النشاط المعلن، الصفحة 1', en: 'Business name support, page 1' },
   addressPresence: { ar: 'وجود عنوان النشاط المطبوع، الصفحة 1', en: 'Printed business address presence, page 1' }, addressSupport: { ar: 'دعم عنوان النشاط المعلن، الصفحة 1', en: 'Business address support, page 1' },
   operatingSincePresence: { ar: 'وجود شهر بدء مزاولة النشاط المطبوع، الصفحة 1', en: 'Printed operating-since month presence, page 1' }, operatingSinceSupport: { ar: 'دعم شهر بدء مزاولة النشاط المعلن، الصفحة 1', en: 'Operating-since month support, page 1' },
+  descriptionPresence: { ar: 'وجود وصف الشراء المطبوع، الصفحة 1', en: 'Printed purchase description presence, page 1' }, descriptionSupport: { ar: 'دعم وصف الشراء المعلن، الصفحة 1', en: 'Purchase description support, page 1' },
+  budgetPresence: { ar: 'وجود الميزانية الإجمالية المطبوعة، الصفحة 1', en: 'Printed total budget presence, page 1' }, budgetSupport: { ar: 'دعم الميزانية الإجمالية المعلنة، الصفحة 1', en: 'Total budget support, page 1' },
   provenance: { ar: 'مصدر التحليل وتفاصيله', en: 'Analysis provenance' },
   edit: { ar: 'تعديل الاسم المعلن', en: 'Edit declared name' }, replace: { ar: 'اختيار مستند بديل', en: 'Choose replacement' }, retain: { ar: 'الاحتفاظ بالمستند', en: 'Retain document' },
   editBusinessName: { ar: 'تعديل اسم النشاط', en: 'Edit business name' }, editAddress: { ar: 'تعديل عنوان النشاط', en: 'Edit business address' }, editOperatingSince: { ar: 'تعديل شهر بدء مزاولة النشاط', en: 'Edit operating-since month' },
+  editDescription: { ar: 'تعديل وصف الشراء', en: 'Edit purchase description' }, editBudget: { ar: 'تعديل الميزانية الإجمالية', en: 'Edit total budget' },
   retained: { ar: 'يمكنك الاحتفاظ بالمستند. استخدم الحفظ المعتاد لأي تعديلات.', en: 'You can retain this document. Use the ordinary Save action for any edits.' },
   unavailable: { ar: 'التحليل غير متاح. يمكنك فحص المصدر ومتابعة العمل المعتاد.', en: 'Analysis unavailable. You can inspect the source and continue ordinary work.' },
 }
@@ -55,7 +61,7 @@ export const findingText = {
   consistent: { ar: 'يبدو الاسم متفقًا مع الاسم المعلن', en: 'Printed name appears consistent with the declared name' }, different: { ar: 'يبدو الاسم المطبوع مختلفًا عن الاسم المعلن', en: 'Printed name appears different from the declared name' }, not_found: { ar: 'لم يُعثر على الاسم في الصفحة المفحوصة', en: 'Name not found in the checked page' }, conflict: { ar: 'توجد أسماء مطبوعة متعارضة', en: 'Conflicting printed name entries' }, undetermined: { ar: 'تعذر التحديد. افحص المصدر.', en: 'Could not determine. Inspect the source.' }, unavailable: assistanceText.unavailable,
   'missing-context': assistanceText.missing,
 }
-export const businessFindingText = {
+export const detailFindingText = {
   ...findingText,
   present: { ar: 'يبدو أن هذا الحقل مطبوع', en: 'A printed value appears present for this field' },
   absent: { ar: 'لم يُعثر على هذا الحقل في الصفحة المفحوصة', en: 'This field was not found in the checked page' },

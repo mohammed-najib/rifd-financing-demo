@@ -1,5 +1,5 @@
 import type { PreparedAttachment, Result } from '../demo/types'
-import type { CorrectionTarget, DocumentSlot } from '../domain/model'
+import type { CorrectionTarget, DocumentSlot, ProductId } from '../domain/model'
 
 export const versions = {
   questions: 'evidence-questions-v2', preparation: 'full-page-pdfjs-5.4.296-v1',
@@ -20,28 +20,35 @@ export type EvidenceAudience = 'applicant' | 'reviewer'
 export type EvidenceContext = 'draft' | 'correction-workspace' | 'submitted'
 export type EvidenceAction = 'check-document' | 'find-supporting-evidence'
 // Both audiences use the same implemented tasks. Add new document definitions here.
-export const evidenceTaskSlots: readonly DocumentSlot[] = ['identity', 'business']
+export const evidenceTaskSlots: readonly DocumentSlot[] = ['identity', 'business', 'purchase']
 export type BusinessField = 'businessName' | 'address' | 'operatingSince'
+export type PurchaseField = 'explanation' | 'budget'
+export type PurchaseDeclaration = { product: ProductId } & Record<PurchaseField, DeclaredDetail>
 export type DeclaredDetail = { value: string | null; status: 'valid' | 'missing' | 'invalid' }
-export type EvidenceDeclaration = { fullName: string | null; status: DeclaredDetail['status']; business?: never }
-  | { fullName?: never; status?: never; business: Record<BusinessField, DeclaredDetail> }
-export type PresenceKey = 'namePresence' | 'businessNamePresence' | 'addressPresence' | 'operatingSincePresence'
-export type SupportKey = 'nameSupport' | 'businessNameSupport' | 'addressSupport' | 'operatingSinceSupport'
+export type EvidenceDeclaration = { fullName: string | null; status: DeclaredDetail['status']; business?: never; purchase?: never }
+  | { fullName?: never; status?: never; business: Record<BusinessField, DeclaredDetail>; purchase?: never }
+  | { fullName?: never; status?: never; business?: never; purchase: PurchaseDeclaration }
+export type PresenceKey = 'namePresence' | 'businessNamePresence' | 'addressPresence' | 'operatingSincePresence' | 'descriptionPresence' | 'budgetPresence'
+export type SupportKey = 'nameSupport' | 'businessNameSupport' | 'addressSupport' | 'operatingSinceSupport' | 'descriptionSupport' | 'budgetSupport'
 // These named targets also identify the regions to locate when highlights are enabled.
-export type EvidenceTarget = { field: 'fullName' | BusinessField; name: string; presence: PresenceKey; support: SupportKey; statePath: string }
+export type EvidenceTarget = { field: 'fullName' | BusinessField | PurchaseField; name: string; presence: PresenceKey; support: SupportKey; statePath: string }
 const identityTargets: readonly EvidenceTarget[] = [{ field: 'fullName', name: 'applicant name', presence: 'namePresence', support: 'nameSupport', statePath: 'declaredApplicantName' }]
 const businessTargets: readonly EvidenceTarget[] = [
   { field: 'businessName', name: 'business name', presence: 'businessNamePresence', support: 'businessNameSupport', statePath: 'declaredBusiness.businessName' },
   { field: 'address', name: 'business address', presence: 'addressPresence', support: 'addressSupport', statePath: 'declaredBusiness.address' },
   { field: 'operatingSince', name: 'business operating-since month', presence: 'operatingSincePresence', support: 'operatingSinceSupport', statePath: 'declaredBusiness.operatingSince' },
 ]
-export const evidenceTargets = (slot: DocumentSlot): readonly EvidenceTarget[] => slot === 'identity' ? identityTargets : slot === 'business' ? businessTargets : []
+const purchaseTargets: readonly EvidenceTarget[] = [
+  { field: 'explanation', name: 'purchase description', presence: 'descriptionPresence', support: 'descriptionSupport', statePath: 'declaredPurchase.explanation' },
+  { field: 'budget', name: 'purchase total budget in whole Yemeni rials', presence: 'budgetPresence', support: 'budgetSupport', statePath: 'declaredPurchase.budget' },
+]
+export const evidenceTargets = (slot: DocumentSlot): readonly EvidenceTarget[] => slot === 'identity' ? identityTargets : slot === 'business' ? businessTargets : slot === 'purchase' ? purchaseTargets : []
 export const declaredDetail = (declaration: EvidenceDeclaration, target: EvidenceTarget): DeclaredDetail => target.field === 'fullName'
   ? { value: declaration.fullName ?? null, status: declaration.status ?? 'missing' }
-  : declaration.business?.[target.field] ?? { value: null, status: 'missing' }
+  : (target.field === 'explanation' || target.field === 'budget' ? declaration.purchase?.[target.field] : declaration.business?.[target.field]) ?? { value: null, status: 'missing' }
 export type EvidenceInput = {
   action: EvidenceAction; applicationId: string; slot: DocumentSlot; audience: EvidenceAudience; context: EvidenceContext;
-  fileId?: string | null; attachment?: PreparedAttachment; declaredName?: string; declaredBusiness?: Record<BusinessField, string>; roundId?: string;
+  fileId?: string | null; attachment?: PreparedAttachment; declaredName?: string; declaredBusiness?: Record<BusinessField, string>; declaredPurchase?: { product: ProductId; explanation: string; budget: string }; roundId?: string;
 }
 export type CorrectionEvidenceContext = { targets: CorrectionTarget[]; initialSubmissionMonth: string }
 export type EvidenceSource = { id: string; bytes: ArrayBuffer; name: string; mime: string; hash: string }
@@ -65,7 +72,7 @@ export type FixedQuestion = { type: 'choice'; instructions: string; criteria: Re
   | { type: 'noul'; instructions: string }
 export type StageRequest = {
   runId: string; stage: 'combined-page-declaration'; model: typeof versions.model; plan: AttemptPlan;
-  state: { page: string; declaredApplicantName?: string | null; declaredBusiness?: Record<BusinessField, string | null>; correction?: CorrectionEvidenceContext };
+  state: { page: string; declaredApplicantName?: string | null; declaredBusiness?: Record<BusinessField, string | null>; declaredPurchase?: { product: ProductId; explanation: string | null; budget: string | null }; correction?: CorrectionEvidenceContext };
   image: PreparedPage;
   questions: Record<string, FixedQuestion>; versions: typeof versions;
   dependencies: Record<string, string[]>;

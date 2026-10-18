@@ -29,3 +29,14 @@ export const nativeBusiness = () => ({
 export function fakeEvidenceTransport(requests: StageRequest[] = [], respond = nativeIdentity): EvidenceTransport {
   return { async evaluate(request) { requests.push(request); return respond() } }
 }
+
+export const nativePurchase = (product: 'inventory' | 'equipment' = 'inventory') => ({
+  ...nativeIdentity(),
+  answers: {
+    category: { type: 'choice', choice: product === 'inventory' ? 'stock' : 'equipment', confidence: 0.999, probabilities: { identity: 0, business: 0, financial: 0, stock: product === 'inventory' ? 1 : 0, equipment: product === 'equipment' ? 1 : 0, other: 0, mixed: 0, uncertain: 0 } },
+    readability: nativeIdentity().answers.readability,
+    descriptionPresence: { type: 'noul', noul: 0.999 }, budgetPresence: { type: 'noul', noul: 0.999 },
+    descriptionSupport: { type: 'choice', choice: 'consistent', confidence: 0.999, probabilities: { consistent: 1, different: 0, not_found: 0, conflict: 0, uncertain: 0 } },
+    budgetSupport: { type: 'choice', choice: 'different', confidence: 0.999, probabilities: { consistent: 0, different: 1, not_found: 0, conflict: 0, uncertain: 0 } },
+  },
+})
