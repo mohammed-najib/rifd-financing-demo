@@ -1,5 +1,7 @@
 # Slice 15 implementation evidence
 
+> Dated implementation record. For current setup and behavior, start with the [documentation index](../README.md). Test counts, release identifiers and operational decisions below apply to the work recorded here.
+
 Implemented [Show the frozen repayment overview](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/financing-application-and-review-implementation/issues/15-show-frozen-repayment-overview.md) against starting commit `3182d165dce1131279568f15bfc269658ac1ec84`.
 
 ## Repayment presentation

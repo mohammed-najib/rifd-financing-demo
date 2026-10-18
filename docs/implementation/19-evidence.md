@@ -1,5 +1,7 @@
 # Slice 19 implementation evidence
 
+> Dated implementation record. For current setup and behavior, start with the [documentation index](../README.md). Test counts, release identifiers and operational decisions below apply to the work recorded here.
+
 Implemented [Expose the production component gallery](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/financing-application-and-review-implementation/issues/19-production-component-gallery.md)
 against starting commit `230936d099a7d39eb33814889312ac2fbd36d875`.
 The verified implementation is `5375e74ffaf2b7450ebefb6442888f64321cbeb9`.

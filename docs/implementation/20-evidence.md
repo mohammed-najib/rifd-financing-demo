@@ -1,5 +1,7 @@
 # Slice 20 browser and reliability acceptance
 
+> Dated implementation record. For current setup and behavior, start with the [documentation index](../README.md). Test counts, release identifiers and operational decisions below apply to the work recorded here.
+
 [Issue 20](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/financing-application-and-review-implementation/issues/20-browser-and-reliability-acceptance.md)
 implements the functional part of the [accepted handoff](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/financing-application-and-review/issues/07-acceptance-and-implementation-handoff.md#answer).
 The starting commit is `85f096a52fcb0cbc709a433bf7cf858aaaca26ec`.
@@ -160,7 +162,7 @@ JSON and HTML reports. Domain cases are recorded in `test.log`.
 | Loaded offline local documents, prepared replacements, draft saves, products and staff routes in both languages | [Loaded-offline journeys](../../tests/browser/startup.screens.spec.ts) |
 | Static production shell, asset MIME, test harness exclusion and no Start runtime server | [Static HTTP assertions](../../tests/browser/screens.spec.ts), [resource loading](../../tests/browser/startup.screens.spec.ts), `build.log` and generated shell/CSS hashes |
 | Tailwind-generated styles in both servers, Guided A tokens, invalid borders, logical spacing and inclusive 767/768 boundary | [Production stylesheet screen](../../tests/browser/gallery.screens.spec.ts), [separate API stylesheet](../../tests/browser/api.spec.ts) |
-| Reproducible commands, typed asynchronous operations, finite failure controls and browser-local disclosure | [README](../../README.md#check), [architecture](architecture.md), [controls and recovery](../../tests/browser/drafts.api.spec.ts), [product/repayment screens](../../tests/browser/repayment.screens.spec.ts) |
+| Reproducible commands, typed asynchronous operations, finite failure controls and browser-local disclosure | [README](../testing.md), [architecture](architecture.md), [controls and recovery](../../tests/browser/drafts.api.spec.ts), [product/repayment screens](../../tests/browser/repayment.screens.spec.ts) |
 
 ## Mutation reliability matrix
 

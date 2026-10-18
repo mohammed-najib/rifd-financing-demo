@@ -1,5 +1,7 @@
 # Jev 1.14 model and JavaScript SDK contract
 
+> Historical research. Repository state and provider facts below describe the inspection date, not the current checkout. See the [research index](README.md) and [current architecture](../architecture.md).
+
 Accessed 2026-10-17 for "Verify the Jev model and SDK contract", part of "Plan thoughtful Jev evidence assistance". This report establishes documented behavior and published client behavior. It does not choose assistance tasks, thresholds, deployment or spending policy.
 
 ## Evidence and version pins

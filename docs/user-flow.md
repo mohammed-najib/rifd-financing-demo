@@ -1,60 +1,63 @@
-# States, roles and recovery
+<div dir="rtl">
 
-Application status is separate from assignment, document review status and correction verification. The [glossary](../GLOSSARY.md) defines these terms. The [demo guide](demo-guide.md) names identities, records and controls for each path.
+# رحلة الطلب والأدوار
+
+[فهرس التوثيق](README.md) · [دليل التجربة](demo-guide.md)
+
+للطلب حالة، وللمستند تقييم، وللمراجعة موظف مسؤول. تغيير الموظف المسؤول لا يبدأ المراجعة ولا يغيّر حالة الطلب وحده.
 
 ```mermaid
 stateDiagram-v2
-  state "Under review" as Under_review
-  state "Corrections requested" as Corrections_requested
-  [*] --> Draft: Applicant creates and explicitly saves
-  Draft --> Submitted: All valid fields and four prepared files
-  Submitted --> Under_review: Assigned reviewer starts review
-  Under_review --> Corrections_requested: Confirm targets and individual reasons
-  Corrections_requested --> Under_review: Applicant publishes all meaningful corrections
-  Under_review --> Approved: Reason, prerequisites and fresh confirmation
-  Under_review --> Rejected: Failed substantive criterion, reason and fresh confirmation
-  Approved --> [*]
-  Rejected --> [*]
+  state "مسودة" as Draft
+  state "مقدّم" as Submitted
+  state "قيد المراجعة" as Review
+  state "تصحيحات مطلوبة" as Corrections
+  state "موافق عليه" as Approved
+  state "مرفوض" as Rejected
+  [*] --> Draft
+  Draft --> Submitted: إرسال طلب مكتمل
+  Submitted --> Review: بدء المراجعة بواسطة الموظف المسؤول
+  Review --> Corrections: تأكيد طلب تصحيحات بأسباب محددة
+  Corrections --> Review: إعادة إرسال الاستجابة المكتملة
+  Review --> Approved: استيفاء الشروط وتأكيد القرار
+  Review --> Rejected: إخفاق معيار جوهري وتأكيد القرار
 ```
 
-| Boundary | Applicant | Reviewer |
-| --- | --- | --- |
-| Draft | Owner edits/saves incomplete values and files; explicit submission validates | Cannot read applicant drafts |
-| Submitted | Reads submitted information/history, prints | Reads all submitted records; claim/confirmed transfer does not start review |
-| Under review | Reads current submitted information | Assigned reviewer assesses documents, five checks, internal notes and correction targets |
-| Corrections requested | Edits only current targets; Save stays private; Resubmit publishes atomically | Reads unchanged submitted snapshot and saves authorized notes; no decision or assessments until resubmission |
-| Approved / Rejected | Reads reason/history and prints; Approved adds frozen illustration | Reads final record; assigned reviewer can save internal notes; final fields, evidence, checks and assignment stay locked |
+## من يستطيع فعل ماذا؟
 
-Only accepted documents, five Passed checks and verified outstanding targets allow approval. Missing evidence calls for corrections. Rejection requires a failed substantive criterion. Both decisions require an applicant-visible reason and a new explicit confirmation. New approvals freeze entirely Upcoming entries; historical Completed entries stay fixed.
+| الحالة | المتقدم | المراجع |
+| --- | --- | --- |
+| مسودة | يعدّل ويحفظ العمل غير المكتمل، ثم يرسله عندما يكتمل. | لا يطّلع على المسودة. |
+| مقدّم | يقرأ ما أرسله ويتابع الحالة. | يطّلع على الطلب ويستلمه، ثم يبدأ المراجعة بإجراء منفصل. |
+| قيد المراجعة | يقرأ المعلومات المقدمة والتاريخ. | الموظف المسؤول يقيّم المستندات والفحوص، ويحفظ الملاحظات أو يطلب تصحيحات. |
+| تصحيحات مطلوبة | يعدّل المطلوب فقط ويحفظ استجابته الخاصة قبل إعادة إرسالها. | يقرأ النسخة المقدمة السابقة إلى أن تُنشر الاستجابة. |
+| موافق عليه أو مرفوض | يقرأ السبب والتاريخ ويطبع الملخص. تظهر صورة السداد الافتراضية عند الموافقة. | يقرأ القرار النهائي؛ لا يعيد فتح الطلب أو تعديل القرار. |
+
+## الحفظ ليس إرسالًا
+
+اختيار الملف يجهزه. حفظ التقدم يحفظه مع العمل. في التصحيحات، تبقى الاستجابة خاصة حتى يختار المتقدم إعادة الإرسال. عندها تُنشر التغييرات معًا، ويعيد المراجع الفحوص التي تأثرت بها فقط.
 
 ```mermaid
 flowchart LR
-  Baseline[Fixed correction baseline] --> Private[Applicant private response]
-  Private -->|Save| Private
-  Private -->|All targets meaningful, Resubmit| Snapshot[New submitted snapshot]
-  Snapshot --> Changed[Highlight changed targets and reset dependent checks]
-  Changed --> Verify[Reviewer verifies targets and repeats affected checks]
-  Verify --> Decision[Fresh decision or another correction round]
+  Baseline[المعلومات المقدمة] --> Private[استجابة خاصة للتصحيحات]
+  Private -->|حفظ التقدم| Private
+  Private -->|إعادة الإرسال| Published[نسخة مقدمة محدثة]
+  Published --> Inspect[مراجعة التغييرات والتحقق منها]
+  Inspect --> Next[قرار أو جولة تصحيحات أخرى]
 ```
 
-Salma can read colleague assignments, but only the current assignee can write review results. A confirmed transfer preserves status and review work. Unassignment is permitted only before review. Khaled cannot sign in.
+الموافقة تحتاج مستندات مقبولة وخمسة فحوص ناجحة والتحقق من التصحيحات المتبقية. الرفض يحتاج إخفاق معيار مراجعة جوهري. كلا القرارين يحتاج سببًا ظاهرًا للمتقدم وتأكيدًا جديدًا.
 
-```mermaid
-flowchart TD
-  Write[Write from an old revision] --> Refused[No write effects, retain unsent text]
-  Refused --> Latest[Load latest reveals current assignment]
-  Latest --> Reclaim[Confirm reclaim if permitted]
-  Reclaim --> Inspect[Inspect current application or review]
-  Inspect --> Fresh[Choose a new action and confirm again]
-  Uncertain[Completion not observed] --> Receipt[Inspect operation outcome]
-  Receipt --> Committed[Committed receipt: show saved result]
-  Receipt --> Absent[Not committed: explicit retry]
-  Expiry[15 minutes inactive or Expire session] --> Covered[Protected content covered, same-tab buffer private]
-  Covered --> Same[Same identity signs in and inspects access]
-  Same --> Recover[Recover permitted input without replay]
-  Covered --> Other[Other identity requires explicit discard]
-  Reset[Confirmed browser-wide reset] --> Seeds[Restore 13 seeds, Arabic and preferences]
-  Seeds --> Invalidate[Invalidate old tab sessions, buffers and pending work]
-```
+## أين يدخل الذكاء الاصطناعي؟
 
-A forbidden or missing reference uses a neutral unavailable screen. There is no record-detail flash before access resolves. Startup/storage failures preserve data and offer explicit retry; failed reset preserves the prior dataset. These guarantees concern the simulated interface, not resistance to local storage inspection.
+فحص Jev مساعدة اختيارية بجانب المستند. لا ينقل الطلب إلى حالة جديدة، ولا يقبل المستند، ولا يملأ الحقول أو يقرر التمويل. يستطيع المتقدم فحص ما يجهزه، ويبحث المراجع في الأدلة المقدمة المسموح له بقراءتها. [شرح الميزة](ai-features.md).
+
+## عند التعارض أو انتهاء الجلسة
+
+إذا تغيّر الطلب أو إسناده أثناء فتحه، يرفض التطبيق الكتابة القديمة ويتيح تحميل الأحدث مع الاحتفاظ بالنص غير المرسل للفحص. أي قرار يحتاج مراجعة النسخة الحالية وتأكيدًا جديدًا.
+
+إذا انتهت الجلسة، تُغطى المعلومات المحمية. الدخول بالهوية نفسها يتيح فحص العمل المسموح واستعادته في التبويب. لا يُعاد تنفيذ الإجراء السابق تلقائيًا. إعادة ضبط العرض تستبدل البيانات في جميع تبويبات العنوان نفسه بعد تأكيد واضح.
+
+للتعريفات الدقيقة بالإنجليزية، راجع [المصطلحات](../GLOSSARY.md).
+
+</div>

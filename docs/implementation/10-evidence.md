@@ -1,5 +1,7 @@
 # Slice 10 implementation evidence
 
+> Dated implementation record. For current setup and behavior, start with the [documentation index](../README.md). Test counts, release identifiers and operational decisions below apply to the work recorded here.
+
 Implemented [Assess evidence, record review checks and save internal notes](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/financing-application-and-review-implementation/issues/10-assess-evidence-checks-and-notes.md), stories 39 to 42.
 
 ## Review behavior

@@ -1,5 +1,7 @@
 # Jev live service, access and cost options
 
+> Historical research. Repository state and provider facts below describe the inspection date, not the current checkout. See the [research index](README.md) and [current architecture](../architecture.md).
+
 Researched on 2026-10-17 for **Verify live service access and cost controls**, part of **Plan thoughtful Jev evidence assistance**. This report records facts and choices for the later human decision. It selects no deployment, access policy or budget. No inference, private-account query, provisioning or deployment was performed.
 
 ## What the project has today

@@ -1,5 +1,7 @@
 # Slice 23 Firebase Hosting release
 
+> Dated implementation record. For current setup and behavior, start with the [documentation index](../README.md). Test counts, release identifiers and operational decisions below apply to the work recorded here.
+
 The verified preview is live on the dedicated project's default site. All
 required hosted checks have passing evidence after the explicit rechecks below.
 The [release binding](evidence/23/release.json) records the final IDs, build,

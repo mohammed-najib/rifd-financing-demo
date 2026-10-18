@@ -1,5 +1,7 @@
 # Slice 12 implementation evidence
 
+> Dated implementation record. For current setup and behavior, start with the [documentation index](../README.md). Test counts, release identifiers and operational decisions below apply to the work recorded here.
+
 Implemented [Save a private correction response](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/financing-application-and-review-implementation/issues/12-save-private-correction-response.md), stories 25, 44 and 45, against starting commit `5cab564a352383dfe8898257effb4b99c6cb1940`.
 
 ## Private response

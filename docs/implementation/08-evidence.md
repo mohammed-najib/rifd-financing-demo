@@ -1,5 +1,7 @@
 # Slice 08 implementation evidence
 
+> Dated implementation record. For current setup and behavior, start with the [documentation index](../README.md). Test counts, release identifiers and operational decisions below apply to the work recorded here.
+
 Implemented [Search and organize the staff queue](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/financing-application-and-review-implementation/issues/08-search-and-organize-staff-queue.md) against the accepted stories 31 to 35 and existing Guided A styling.
 
 ## Queue behavior

@@ -1,5 +1,7 @@
 # Slice 13 implementation evidence
 
+> Dated implementation record. For current setup and behavior, start with the [documentation index](../README.md). Test counts, release identifiers and operational decisions below apply to the work recorded here.
+
 Implemented [Resubmit, verify and repeat correction rounds](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/financing-application-and-review-implementation/issues/13-resubmit-and-verify-corrections.md), stories 46 through 52, against starting commit `fc5d970ab03c02dcf54a27842a3e360c018105b1`.
 
 ## Publication

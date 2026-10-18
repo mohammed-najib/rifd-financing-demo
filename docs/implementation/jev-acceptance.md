@@ -1,5 +1,7 @@
 # Focused evidence assistance acceptance
 
+> Dated implementation record. For current setup and behavior, start with the [documentation index](../README.md). Test counts, release identifiers and operational decisions below apply to the work recorded here.
+
 The operator accepted the Arabic result remaining undetermined after an
 additional [Arabic rerun](#additional-arabic-rerun). No further collection is
 needed for that request. Actual charges remain pending and activation disabled.

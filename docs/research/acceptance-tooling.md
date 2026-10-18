@@ -1,12 +1,14 @@
 # Acceptance tooling facts
 
+> Historical research. Repository state and provider facts below describe the inspection date, not the current checkout. See the [research index](README.md) and [current architecture](../architecture.md).
+
 Accessed 2026-10-14. This note supports [Verify browser-test and static-delivery tooling](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/financing-application-and-review/issues/09-acceptance-tooling-facts.md) and the acceptance handoff. Sources are the tools' official documentation and first-party source code. Proposed protocols below are implementation inferences, not completed tests or acceptance decisions.
 
 ## Repository and decision context
 
 The repository has planning documents and archived throwaway prototypes, but no application source, dependency manifest, selected Start version, test configuration, Firebase configuration, project destination, or configured Git remote. Node, pnpm, Firebase CLI and Playwright executables are on PATH. This investigation did not install packages, authenticate, inspect credentials, start emulators, create a project, or deploy.
 
-The [browser persistence contract](browser-persistence-contract.md) supplies the storage facts. The [hosting context](bank-portfolio-context.md) supplies the static deployment constraints. The agreed interface separates pure domain rules from one browser-backed asynchronous demo module and screen-owned unfinished input. This note does not choose another persistence model.
+The [browser persistence contract](browser-persistence-contract.md) supplies the storage facts. The [hosting context](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/docs/research/bank-portfolio-context.md) supplies the static deployment constraints. The agreed interface separates pure domain rules from one browser-backed asynchronous demo module and screen-owned unfinished input. This note does not choose another persistence model.
 
 The acceptance discussion separately chose Chrome and Firefox desktop coverage, responsive checks at 360, 390, 768 and 1440px in Arabic and English, and WebKit automation as compatibility evidence. It also chose a median mobile Lighthouse performance score of at least 90 across three clean production runs, CLS at most 0.1, and pending feedback within 100ms on deliberately slow operations. These are human acceptance choices. The acceptance ticket owns their final routes, conditions and evidence.
 

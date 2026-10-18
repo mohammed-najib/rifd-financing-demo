@@ -1,5 +1,7 @@
 # Performance and static delivery gates
 
+> Dated implementation record. For current setup and behavior, start with the [documentation index](../README.md). Test counts, release identifiers and operational decisions below apply to the work recorded here.
+
 Issue 22 passed the performance and static delivery gates. All 24 Lighthouse runs
 passed, with route/language medians of 94-99 and CLS zero throughout. The final
 delivery matrix passed in Chrome, Firefox and WebKit.

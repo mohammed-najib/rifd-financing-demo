@@ -1,182 +1,76 @@
-# RIFD architecture
+# Architecture
 
-The browser runs the whole demo. Firebase Hosting serves `dist/client` with `/_shell.html` as its fallback. TanStack Start prerenders a neutral Arabic startup shell; browser-only initialization starts after mounting. Required routes need no runtime Start server. The [implementation architecture](implementation/architecture.md) documents operation types, revisions, seed fields and extension rules in detail.
+[Documentation index](README.md) · [Development](development.md) · [Detailed browser operations](implementation/architecture.md)
+
+RIFD has two distinct data paths. Financing records and files stay in the browser. An explicit AI check can send selected pages and relevant declarations to a server-side Jev workflow.
 
 ```mermaid
 flowchart TD
-  Screens[React screens and unfinished input] --> Demo[Public typed asynchronous demo interface]
-  Demo --> Domain[Pure domain rules]
-  Demo --> Store[Private IndexedDB transactions and receipts]
-  Demo --> Sessions[Tab-local simulated session]
-  Demo --> Events[Committed change notifications to other tabs]
-  Hosting[Firebase static shell and assets] --> Screens
+  Hosting[Static hosting or local Vite] --> UI[React screens]
+  UI --> Demo[Typed demo operations]
+  Demo --> Rules[Pure domain rules]
+  Demo --> Store[Browser IndexedDB and receipts]
+  UI --> Assistance[Evidence preparation and controller]
+  Assistance --> API[Local API or configured hosted endpoint]
+  API --> Admission[Authorization and usage reservation]
+  Admission --> Jev[TypeSafe Jev]
+  Jev --> Findings[Validated findings and optional verified regions]
+  Findings --> Assistance
 ```
 
-`packages/rifd-domain` owns validation, normalization, transitions, correction dependencies, decision prerequisites and whole-YER arithmetic. It accepts explicit dates and product rules; it does not access UI, storage, timers or navigation. Its packaged guidance follows [the maintainer workflow](implementation/agent-skills.md).
+## Responsibilities
 
-`src/demo` exposes role-filtered reads and complete typed operations. It owns access checks, assignment, sessions, deterministic delays/failures, preparation, durable file bytes, versions and idempotent receipts. One transaction publishes all effects of submission, correction resubmission, a final decision or reset. Expected dataset/record/round revisions prevent stale writes. The primary accepted integration seam exercises this public interface against real IndexedDB. Screens invoke the same interface; they do not assemble storage patches.
+| Module | Owns |
+| --- | --- |
+| `packages/rifd-domain` | Validation, product/review rules, correction dependencies and whole-YER repayment calculations. |
+| `src/demo` | Role-filtered reads, sessions, file preparation, browser transactions, revisions and operation receipts. |
+| `src/ui`, `src/routes` | Presentation, navigation, unfinished input, dialogs and feedback. |
+| `src/evidence-assistance` | Source preparation, fixed task definitions, findings and retained-result lifecycle. |
+| `src/live-assistance` | Client/server contracts, local transport, admission, provider integration and usage accounting. |
+| `functions` | The separately deployed hosted evidence endpoint. |
 
-React screens own unfinished text, selections, dialogs and accessible feedback. Saved Draft data, private correction workspaces and submitted snapshots are separate. A prepared file becomes durable only through Save or publication. Staff reads exclude private correction work; applicant reads/print exclude internal notes, checks and activity. These are demo permissions in a visitor-controlled browser, not a security boundary against that visitor.
+Screens call complete typed operations rather than constructing database patches. Domain helpers have no browser storage, timers or navigation. Package guidance is maintained through the [domain workflow](implementation/agent-skills.md).
 
-Committed data and language are shared within an origin/profile. Sessions are tab-local. Change broadcasts refresh clean screens; dirty screens retain input and demand inspection. Recovery never silently retries a write. Startup validates schema, references, hashes and the required local sample catalog before Ready. Failure preserves data. Reset replaces the whole dataset atomically and invalidates prior tab work. See the [state/role/recovery sketch](user-flow.md).
+## Saving, publishing and reviewing
 
-Tailwind CSS 4.3.3 compiles through its pinned Vite plugin. `src/ui/styles.css` declares Guided A tokens with `@theme`, local Noto WOFF2 fonts and explicit base styles. Source detection includes production `src` only. Preflight is omitted. Logical utilities support RTL/LTR, with custom compact/narrow boundaries at 1199/767px. The [styling contract](../README.md#styling), [migration comparison](implementation/tailwind-v4.md) and [measured release](implementation/22-evidence.md#final-results) document preserved appearance and generated asset sizes.
+Draft data, private correction work and the submitted snapshot are separate. Preparing a file does not save it. Saving a correction does not publish it to the reviewer. Resubmission publishes all required meaningful changes together.
 
-The [acceptance checklist](acceptance/README.md) separates automated behavior, ordinary-browser manual work, print inspection, performance and hosted checks. Browser-only persistence, no real authentication or payment processing, and fresh-offline launch remain explicit limits.
+Submission, resubmission, final decisions and reset use transactions with complete effects. Expected revisions reject stale writes. Actor-scoped receipts let the interface inspect an uncertain operation without duplicating it. Approval freezes the terms and repayment illustration with its decision, history and notification.
 
-Draft, private correction and submitted identity, business, financial and purchase assistance use `Demo.createEvidenceAssistance`. The handle owns an
-explicit inspect/run/cancel/refresh/clear lifecycle and retained results. Authorized reads bind
-actual source bytes, relevant declarations and authority/dependency generations.
-Completion rechecks those dependencies. Replacement, relevant edits, sign-out,
-reset and view disposal cannot publish late findings. Language changes do not run
-analysis. Assistance never writes financing data.
+Applicants see their own data and public history. Reviewers see submitted records, including colleague assignments, but writes require the current assignment and permitted status. Applicant analysis and private corrections are excluded from staff projections. Public print excludes internal notes and review checks. These permissions simulate a product workflow in visitor-controlled storage; they are not production banking security.
 
-Correction inputs bind the current workspace's round identifier. The same task
-context includes the actual reviewer-written target reasons, permitted fields and
-document slots, and the actual initial submission month.
-Every question depends on that shared context. Document-only correction targets
-keep the name read-only in operations and presentation. Matching ordinary Save
-can retain a temporary result without restarting its run. Resubmission closes
-that round's analysis authority and publishes only the correction response.
-Staff reads, public print, notifications and review activity exclude applicant
-analysis before and after publication. Correction validation and deterministic
-financing calculations continue through their existing operations.
+The [journey guide](user-flow.md) shows statuses, correction publication and recovery. The [detailed reference](implementation/architecture.md) explains command fields and seed records.
 
-Reviewers use `find-supporting-evidence` with the same task definitions and
-lifecycle. The selector reads the authorized submitted snapshot even while an
-applicant saves private corrections. Reviewer inputs cannot override declarations
-or supply prepared files. Staff reading does not require assignment and grants no
-write permission. Reviewer records remain separate from applicant records.
-Their dependency key includes the existing inspection context, so publication and
-assignment transitions invalidate findings, including reassignment away and back.
-Unrelated notes preserve findings after a fresh authorized read.
+## Browser storage and recovery
 
-The shared assistance panel places the submitted source, findings and existing
-assessment controls in three columns on desktop and stacks them on smaller
-screens. Ordinary PDF inspection has explicit page navigation, open and download
-routes independent of analysis coverage and limits. Opening a source or receiving
-findings never confirms inspection. Assessment writes still require the current
-inspection confirmation or the explained unable-to-open replacement exception.
+Committed financing data and language are shared by tabs at the same origin/profile. Sessions are tab-local. Change notifications refresh clean views; views with unfinished work retain it for explicit inspection. Recovery does not silently replay writes.
 
-`src/evidence-assistance` separates the shared contracts, fixed question/display
-policy, cancellable browser preparation and controller. Preparation uses one
-terminable worker per complete PNG/JPEG or selected original PDF page, one at a time. PDF.js 5.4.296,
-its worker and resources are pinned together. Install/dev/build copy the matching
-resources into ignored `public/pdfjs`; production builds retain them as static
-assets. Source/raster hashes, orientation, padding and transforms accompany each
-result. The pinned JPEG decoder rejects truncated scans that browser decoding
-would repair silently. Encrypted, incomplete or oversized sources remain available
-through ordinary inspection. Analysis supports at most 100 original PDF pages and
-four selected full pages, eight seconds per page and 20 seconds of cumulative
-preparation. All pages are selected when they fit; longer or resource-limited
-sources require an explicit narrower selection. Rendering failures preserve
-selected, prepared, failed and unchecked scope without substituting rasters.
+Startup validates the dataset, file references/hashes and required resources before exposing protected work. Errors preserve existing data and offer retry. A confirmed reset replaces the dataset and invalidates old sessions and pending work across tabs. Already-ready work can continue offline; a fresh offline launch is outside the supported contract. There is no service worker or server write queue.
 
-Shared target definitions identify business name, address and operating-since
-month for separate presence and support findings. Invalid or missing declarations
-skip only their comparisons. Existing domain validation determines applicability;
-operating-history arithmetic and eligibility stay in the domain rules. Every
-model-visible declaration participates in each question's dependency manifest.
-Business checks share correction permissions, reviewer source selection and
-retention without depending on unrelated applicant fields or staff notes.
-The common multipage controller and named highlight targets also apply to business evidence.
+## Evidence preparation and results
 
-Purchase checks name separate description and total-budget targets. Inventory
-financing expects a stock purchase plan; Equipment financing expects a supplier
-quotation. Apparent category remains a finding independent of document suitability.
-Whole-rial parsing and declaration validity use the existing domain helpers;
-itemized analysis, product purpose fit and purchase budget coverage stay outside
-assistance. Every question binds the selected product and both purchase details.
-Relevant edits or product/source changes suppress old findings. Matching ordinary
-Save can retain a temporary purchase run. Correction edits remain limited to the
-requested fields, and reviewer checks use the submitted purchase evidence.
-The same complete-source and readability/category/presence guards apply.
+`Demo.createEvidenceAssistance` binds analysis to authorized source bytes, relevant declarations, page selection and the current application/correction/reviewer context. Completion checks those dependencies again. Relevant edits, replacement, sign-out or reset prevent late findings from being published as current.
 
-Financial checks name the reporting period, revenue and operating expenses for
-each of three months, and both printed averages. Code derives the three completed
-months from the effective initial submission month. Drafts use the existing demo
-submission month; historical and correction contexts use the actual initial
-submission month. Whole-rial parsing and validation stay in code. Assistance
-compares explicitly printed averages, never computes or transcribes missing ones.
-Missing declarations skip only their comparisons. Period findings precede amount
-findings, and wrong or conflicting periods suppress amount conclusions.
+Workers prepare complete PNG/JPEG images or selected original PDF pages. Analysis accepts at most four selected pages from a PDF of at most 100 original pages. Ordinary source viewing remains independent of analysis limits. PDF.js and its worker/resources are pinned together; install/dev/build copy resources into ignored `public/pdfjs`.
 
-A source proven to have exactly one page combines page and declaration work,
-reserving a second stage for optional bound verification. Multipage sources dispatch
-ascending page stages and at most one comparison over usable pages. A single
-selected page from a longer original retains that multipage plan. Four selected
-pages reserve at most nine attempts, including one verification per page.
-Comparison requests include each raster once. The
-[fixed server workflow](implementation/jev-workflow.md) connects admitted requests
-to the pinned TanStack AI and TypeSafe SDK integration. Production dispatch stays
-disabled pending hosted controls and bounded acceptance.
+Code combines typed Jev answers with explicit display rules. Complete usable coverage is required for whole-source agreement or absence. Partial checks remain scoped. Optional bound verification and source/crop reconstruction govern whether a named region can be drawn. Missing or rejected geometry leaves ordinary source navigation available. The compact panel keeps details collapsed, and field inspection opens an overlay dialog.
 
-Agreement and absence require complete usable coverage of the original source.
-Conflicts witnessed on usable checked pages can remain scoped warnings, with
-financial-period guards. Failed comparisons preserve independent page findings.
-Runs never merge coverage. The Arabic/English panel shows explicit page selection,
-coverage, period-first findings and ordinary source navigation. Advice remains
-optional during Save, submission and reviewer assessment.
+The assistance result never changes financing fields, accepts a document or records a decision. Independent document controls let visitors inspect and prepare another slot while one slot is checking. Reviewer assessment still requires explicit source inspection.
 
-The controller retains native answers, distributions, fractional readability,
-usage, per-page manifests, fixed requests and timestamps in provenance. Restoring
-an analysis revalidates the page scope, stage plan, question definitions and
-native-to-display composition. Configured live requests use the bounded endpoint;
-ordinary unconfigured development reports live analysis unavailable. Only test
-entry points inject fake transports.
-Actual multipage fictional PDFs and deterministic four-page plans verify browser
-behavior; native four-image context fit and representative reliability remain
-unverified.
+## Retention
 
-Native Box questions and companion presence and multiplicity judgments identify
-up to nine fixed named targets per page. Complete usable original-source coverage,
-field and period findings, repetition checks and the versioned experimental policy
-control whether a target can proceed to verification. Malformed Box answers leave
-independent category, readability and support findings available. Box confidence
-retains its native number or null and never controls display.
+The separate `rifd-evidence-analysis` IndexedDB database keeps one applicable completed run per context, with its original seven-day expiry and provenance. Saving matching source/context can retain an otherwise temporary result. Changed dependencies make findings stale. Clearing a run fences late completions; language changes and reopening never restart inference.
 
-One terminable crop worker per page copies each exact Box's integer enclosure
-without scaling, then adds white padding to minimum 280-pixel sides. The recorded
-`lossless-boundary-pad-v1` manifest retains fractional original edges, enclosure,
-padding, crop hash and transform. One optional verification stage includes the
-unchanged parent and at most nine crops, with six Nouls per crop. Each original-edge
-clipping probability must be at most 0.01, association at least 0.99 and competing
-value at most 0.01. Padding cannot establish containment. Combined pixel, byte,
-metadata and deadline limits stop work without resizing, retries or repair calls.
-Invalid accounting stops further dispatch while preserving usable prior findings.
+Web Locks coordinate financing commits/reset and analysis retention. Without them, assistance remains temporary. Corrupt or incompatible analysis does not prevent financing reads. Reset and expiry cleanup remove results outside their valid dataset/lifetime.
 
-Verification requests bind answers to source and raster hashes, actual shared
-context, fixed definitions, original page, named target and exact crop geometry.
-Restored records recompose these checks. Before any live overlay appears, the
-source viewer reproduces both the original raster and crop and matches their
-manifests and hashes. Percentage geometry uses that exact raster's physical
-left/top axes; resizing and RTL do not change the selected region. Suppression
-leaves the named finding and ordinary source navigation available. The five known
-misleading pilot targets stay suppressed on their original source and page,
-including shifted rectangles, independently of numeric thresholds.
-The four certified static Saved overlays retain their original policy.
+## Local and hosted inference
 
-Analysis uses the separate version-1 `rifd-evidence-analysis` IndexedDB database
-after financing startup validates the current dataset. The financing database
-keeps its one-store layout and unchanged logical records. Context records retain
-one bounded completed run, its original seven-day expiry, native/mapped answers,
-coverage, dependency manifest and versions. Prepared visitor images are never
-archived. Restored results retain their dates and say previous live analysis.
-Changed dependencies keep explicitly stale scope and provenance while suppressing
-current findings. Corrupt or incompatible analysis does not affect financing reads.
+`pnpm dev:jev` starts a loopback-only local API and the app on port 5174. Signed local sessions, exact-origin checks, fixed requests and durable SQLite admission state protect the local endpoint. The provider key stays server-side. [Development](development.md#local-jev-inference) documents key setup, request allowances and restart behavior.
 
-Web Locks serialize financing commits/reset with analysis retention. Each context
-has a run generation and a separate clear generation. A newer run fences late
-completions without discarding another view's completed unsaved result; clear
-fences both. Without Web Locks, assistance remains temporary. Unsaved sources and
-context become durable only after matching ordinary Save. Failed/cancelled runs
-retain the previous result and expiry. Storage failure leaves new findings
-temporary and reports that they cannot be recovered after closing.
+Hosted access uses a separate Cloud Function and its own identity, App Check and transactional admission controls. Current source keeps hosted dispatch disabled. Building the app or running the local mode does not activate it. See the dated [hosted preparation record](implementation/jev-hosted-operation.md) and [workflow record](implementation/jev-workflow.md) for implementation details and unverified native reliability limits.
 
-Reset invalidates local authority before replacing financing data. Cleanup of
-old-dataset and expired analysis runs during startup and activation, including
-recovery after interrupted cleanup. Public `analysisAvailability()` reports its
-status. Cross-tab hints carry dataset identifiers only; each view rereads its own
-authorized source/context. Reads never restart inference or replay a server
-answer. Restored live overlays reconstruct and verify the recorded raster and
-crop before drawing anything.
+## Presentation and delivery
+
+TanStack Start prerenders a neutral startup shell. Static hosting serves `dist/client` and uses `/_shell.html` for application routes; required UI routes need no runtime Start server. The evidence endpoint is a separate server capability.
+
+The Arabic-first interface shares components between RTL and LTR. Tailwind compiles locally, with Guided A tokens and local Noto fonts. [Styling conventions](development.md#styling) describe logical spacing, source scanning and breakpoints. [Testing](testing.md) distinguishes automated behavior checks from dated manual, performance and release evidence.

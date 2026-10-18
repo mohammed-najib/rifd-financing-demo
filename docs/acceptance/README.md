@@ -1,8 +1,10 @@
-# Final acceptance checklist
+# Original financing release acceptance
+
+This matrix records acceptance of the original financing demo before Jev was added. It is historical evidence, not a current all-features status page. Use [testing](../testing.md) for current commands, [the AI guide](../ai-features.md) for current behavior, and [the local Jev record](../implementation/jev-local-development.md) for subsequent native smoke results.
 
 The [accepted matrix](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/financing-application-and-review/issues/07-acceptance-and-implementation-handoff.md#requirement-to-evidence-matrix) is the source of these thirty rows. The [82 user stories](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/financing-application-and-review/spec.md#user-stories) refine the same contract. Every row below links implementation and verification evidence; original failed invocations stay failed and explicit rechecks supply passing coverage.
 
-The application release is `1352c140782168ce9e77773547e35658c19cff45`, source fingerprint `b40ed3702f8c955998aaf4b38246930469a1cdbd47bbec6ba68357c0d8e1f8fd`, Hosting version `ea1a7ab0ece6377e`. See [the actual live/preview identifiers](../implementation/23-evidence.md), [delivery result](../implementation/24-evidence.md), [film manifest](../demo/film.json) and [reproduction guide](../demo-guide.md).
+The original application release was `1352c140782168ce9e77773547e35658c19cff45`, source fingerprint `b40ed3702f8c955998aaf4b38246930469a1cdbd47bbec6ba68357c0d8e1f8fd`, Hosting version `ea1a7ab0ece6377e`. See [the actual live/preview identifiers](../implementation/23-evidence.md), [delivery result](../implementation/24-evidence.md), [film manifest](../demo/film.json) and [reproduction guide](../demo-guide.md).
 
 | ID | Accepted requirement | Evidence and completion condition |
 | --- | --- | --- |
@@ -35,7 +37,7 @@ The application release is `1352c140782168ce9e77773547e35658c19cff45`, source fi
 | A27 | Firebase Hosting and direct-link refresh | [Dedicated preview/live IDs, refresh, routes and MIME/hash checks](../implementation/23-evidence.md) |
 | A28 | Repository, flow sketch, focused tests and case study | [Public repository, delivery docs, reviewed source and timed film](../implementation/24-evidence.md) |
 | A29 | Browser-only data and permission limitations | [Visible bilingual fictional/browser-local disclosures](../implementation/01-evidence.md) |
-| A30 | Source's optional extras and real integrations | [Documented scope boundary; no real integrations](../implementation/architecture.md) |
+| A30 | Original optional extras and integration scope | [Original browser-only financing boundary](../implementation/architecture.md) |
 
 ## Numbered story coverage
 
@@ -98,4 +100,4 @@ These immutable GitHub commit links preserve accepted planning and throwaway des
 
 ## Reproducibility and limits
 
-Run the root README commands and the chapter guide from a fresh profile or use the confirmed public reset. Check the thirteen-record inventory and original unread notices before following the walkthrough. Save progress explicitly. Reset affects every tab in that profile/origin. Browser-local data can be inspected or removed by its visitor; identities and permissions are simulated. No request reaches a bank, no payment is processed and fresh-offline launch is outside scope. The public guide uses prepared fictional evidence.
+Follow the [development commands](../development.md) and the chapter guide from a fresh profile or use the confirmed public reset. Check the thirteen-record inventory and original unread notices before following the walkthrough. Save progress explicitly. Reset affects every tab in that profile/origin. Browser-local data can be inspected or removed by its visitor; identities and permissions are simulated. No request reaches a bank, no payment is processed and fresh-offline launch is outside scope. The public guide uses prepared fictional evidence.

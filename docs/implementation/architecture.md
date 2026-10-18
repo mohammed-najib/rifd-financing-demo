@@ -1,6 +1,8 @@
-# Browser demo architecture
+# Detailed browser operation reference
 
-The [specification](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/financing-application-and-review/spec.md) and [accepted browser contract](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/financing-application-and-review/issues/04-browser-state-and-simulated-failures.md#answer) govern the implementation. The first fifteen slices provide startup, authorized reads, canonical field validation, five-step drafts, session and tab recovery, atomic first submission, notifications, printing, the staff queue, assignment, review start, document assessments, checks, internal notes targeted correction requests and private correction responses, atomic resubmission and correction verification. Final decisions use the same transaction, authority and receipt boundaries.
+This reference describes the financing commands, storage rules and seed inventory. For the whole application, including local Jev and the current UI, start with [architecture](../architecture.md). Dated delivery evidence is indexed [separately](README.md).
+
+The [specification](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/financing-application-and-review/spec.md) and [accepted browser contract](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/financing-application-and-review/issues/04-browser-state-and-simulated-failures.md#answer) govern the implementation. The financing workflow provides startup, authorized reads, canonical field validation, five-step drafts, session and tab recovery, atomic first submission, notifications, printing, the staff queue, assignment, review start, document assessments, checks, internal notes targeted correction requests and private correction responses, atomic resubmission and correction verification. Final decisions use the same transaction, authority and receipt boundaries.
 
 ## Modules
 
@@ -13,7 +15,7 @@ The [specification](https://github.com/mohammed-najib/rifd-financing-demo/blob/3
 | `src/demo/storage.ts` | Private IndexedDB opening, validation, reads and transaction completion. Product screens never import this module. |
 | `src/demo/seed-manifest.ts`, `seed.ts`, `evidence.ts` | Canonical scenario facts and preparation of locally rendered, hashed PNG, JPEG and multipage PDF bytes and catalog variants. |
 | `src/ui` | Screen loading, navigation, feedback, bilingual read presentation, responsive table/card views and identity controls. |
-| `src/routes`, `router.tsx` | Start SPA shell and normal browser paths. The current slice validates supported paths within the shared read screen. |
+| `src/routes`, `router.tsx` | Start SPA shell and normal browser paths. Supported paths resolve through the shared SPA shell. |
 
 `claimApplication`, `transferApplication`, `unassignApplication` and `startReview`
 are explicit staff commands carrying the application, dataset, operation identifier
@@ -96,7 +98,7 @@ Round-bound links and retained buffers cannot reopen an obsolete workspace.
 
 Tailwind CSS 4.3.3 runs through the dedicated Vite plugin in the application and browser API harness. The shared stylesheet defines Guided A theme tokens, retained base defaults and reusable component skins. Screen layouts use utilities with explicit status-class maps. Source detection covers `src`; archived prototypes and documentation do not contribute utilities.
 
-Preflight is omitted. The local fonts, 15px root typography, logical RTL/LTR spacing and inclusive 767px/1199px responsive cutoffs remain the design contract. The root route retains its compiled stylesheet URL in the static shell. See [styling conventions](../../README.md#styling) and [migration evidence](tailwind-v4.md) before extending the UI.
+Preflight is omitted. The local fonts, 15px root typography, logical RTL/LTR spacing and inclusive 767px/1199px responsive cutoffs remain the design contract. The root route retains its compiled stylesheet URL in the static shell. See [styling conventions](../development.md#styling) and [migration evidence](tailwind-v4.md) before extending the UI.
 
 ## Storage and authority
 

@@ -1,5 +1,7 @@
 # Slice 21 bilingual, accessibility, preview and print acceptance
 
+> Dated implementation record. For current setup and behavior, start with the [documentation index](../README.md). Test counts, release identifiers and operational decisions below apply to the work recorded here.
+
 [Issue 21](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/financing-application-and-review-implementation/issues/21-bilingual-accessibility-preview-and-print-acceptance.md)
 is complete. The 16 October follow-up records ten ordinary-browser walkthroughs,
 supplemental correction and recovery flows, final control rechecks, native PDF

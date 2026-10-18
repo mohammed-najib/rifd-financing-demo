@@ -1,5 +1,7 @@
 # Jev document preparation and highlight coordinates
 
+> Historical research. Repository state and provider facts below describe the inspection date, not the current checkout. See the [research index](README.md) and [current architecture](../architecture.md).
+
 Researched 2026-10-17 for "Verify document preparation and highlight coordinates", part of "Plan thoughtful Jev evidence assistance". This report distinguishes source inspection, documented capabilities and proposed implementation approaches. It chooses no workflow policy and includes no inference calls or renderer benchmark.
 
 ## Findings that affect the map

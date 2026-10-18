@@ -1,5 +1,7 @@
 # Slice 11 implementation evidence
 
+> Dated implementation record. For current setup and behavior, start with the [documentation index](../README.md). Test counts, release identifiers and operational decisions below apply to the work recorded here.
+
 Implemented [Request targeted corrections](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/financing-application-and-review-implementation/issues/11-request-targeted-corrections.md), stories 43 and 53, against starting commit `2dea7a8132f073e99f97a67d12cda2143b440611`.
 
 ## Request behavior

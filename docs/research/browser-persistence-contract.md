@@ -1,5 +1,7 @@
 # Browser persistence and client initialization
 
+> Historical research. Repository state and provider facts below describe the inspection date, not the current checkout. See the [research index](README.md) and [current architecture](../architecture.md).
+
 Accessed 2026-10-14. This fact check uses browser standards, Mozilla's API documentation, and official TanStack Start documentation. Implementation implications are identified below. Product policy remains in [Define browser persistence and simulated failures](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/financing-application-and-review/issues/04-browser-state-and-simulated-failures.md).
 
 ## Current repository constraints

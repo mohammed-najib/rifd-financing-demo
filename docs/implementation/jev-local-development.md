@@ -1,5 +1,7 @@
 # Local Jev inference and retry recovery
 
+> Dated implementation record. For current setup and behavior, start with the [documentation index](../README.md). Test counts, release identifiers and operational decisions below apply to the work recorded here.
+
 The app supports real Jev inference on the local development server through
 `pnpm dev:jev`. By default, the app runs at http://127.0.0.1:5174. It uses the
 existing TypeSafe SDK and admitted fixed workflow, with the key held by the
@@ -10,7 +12,7 @@ implement the retry fix, enable local inference and test it locally.
 The command accepts `TYPESAFE_API_KEY` from the environment or ignored
 `.env.local`. Otherwise it obtains the existing project's dedicated
 `LIVE_TYPESAFE_API_KEY` through the Firebase CLI. No key was written to a new
-environment file. See [the run instructions](../../README.md#local-jev-inference).
+environment file. See [the run instructions](../development.md#local-jev-inference).
 
 The [local server](../../src/live-assistance/local-server.ts) listens on IPv4
 loopback and requires the exact app Host and Origin, a signed local session and

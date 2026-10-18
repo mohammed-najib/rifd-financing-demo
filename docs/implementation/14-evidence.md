@@ -1,5 +1,7 @@
 # Slice 14 implementation evidence
 
+> Dated implementation record. For current setup and behavior, start with the [documentation index](../README.md). Test counts, release identifiers and operational decisions below apply to the work recorded here.
+
 Implemented [Confirm final decisions and freeze approved terms](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/financing-application-and-review-implementation/issues/14-confirm-decisions-and-freeze-terms.md) against starting commit `bfcf1da000b1fefb526452e6d3c2d1eb71ccf38f`.
 
 ## Decisions and frozen terms

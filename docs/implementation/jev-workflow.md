@@ -1,5 +1,7 @@
 # Fixed Jev workflow connection
 
+> Dated implementation record. For current setup and behavior, start with the [documentation index](../README.md). Test counts, release identifiers and operational decisions below apply to the work recorded here.
+
 Ticket [12](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/jev-evidence-assistance-implementation/issues/12-connect-the-bounded-workflow-to-tanstack-ai-and-jev.md)
 connects the admitted server request to the fixed page, comparison and bound
 verification stages. Production dispatch remains disabled by

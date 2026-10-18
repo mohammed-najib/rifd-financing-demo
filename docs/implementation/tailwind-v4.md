@@ -1,5 +1,7 @@
 # Tailwind v4 migration evidence
 
+> Dated implementation record. For current setup and behavior, start with the [documentation index](../README.md). Test counts, release identifiers and operational decisions below apply to the work recorded here.
+
 The user approved adoption of Tailwind CSS v4 and updates to unresolved implementation tickets. The starting commit was `daf5b4170c4bb72db1d0d81b4b328e14907338e6`. This change preserves the current Guided A UI and the behavior implemented by slices 01 and 02.
 
 Checked on 2026-10-14 on Omarchy Linux, x86_64, with Node 26.7.0, pnpm 11.24.0 and Playwright 1.64.1. Browser versions are installed stable Chrome 155.0.8059.39, pinned Playwright Firefox 157.0 revision 1555 and pinned Playwright WebKit 27.2 revision 2370. WebKit uses the existing temporary compatibility launcher described in [slice 01 evidence](01-evidence.md).
@@ -68,7 +70,7 @@ Review totals: Standards 0 outstanding; Spec 0 outstanding.
 
 All 22 unresolved implementation tickets link to the styling conventions. Form, print, queue, gallery, browser acceptance, visual acceptance, performance, Hosting release and repository-delivery tickets also carry specific checks. Their statuses, functional scope and dependency graph remain unchanged. Completed tickets and their historical evidence were not rewritten.
 
-These checks cover the current UI. They do not complete later feature journeys, screen-reader checks, actual print acceptance, 200% zoom acceptance, Lighthouse gates or Hosting release. Playwright WebKit and responsive viewport checks do not establish branded Safari or physical-device support. See [styling conventions](../../README.md#styling) before extending the UI.
+These checks cover the current UI. They do not complete later feature journeys, screen-reader checks, actual print acceptance, 200% zoom acceptance, Lighthouse gates or Hosting release. Playwright WebKit and responsive viewport checks do not establish branded Safari or physical-device support. See [styling conventions](../development.md#styling) before extending the UI.
 
 ## Ticket 21 acceptance extension
 

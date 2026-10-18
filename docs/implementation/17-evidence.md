@@ -1,5 +1,7 @@
 # Slice 17 implementation evidence
 
+> Dated implementation record. For current setup and behavior, start with the [documentation index](../README.md). Test counts, release identifiers and operational decisions below apply to the work recorded here.
+
 Implemented [Recover startup failures and keep loaded work usable offline](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/financing-application-and-review-implementation/issues/17-recover-startup-and-use-offline.md)
 against starting commit `5899f5a0bb7296163562a52925565cd235f07a4a`.
 
