@@ -13,7 +13,8 @@ export type LiveWork = {
 }
 export type FixedWorkflow = (request: ValidatedRequest, work: LiveWork) => Promise<void>
 type Request = { body: Buffer; authorization?: string; appCheck?: string; network: string | null; path?: string; signal?: AbortSignal }
-const headers = { 'Cache-Control': 'private, no-store, max-age=0', Pragma: 'no-cache', Vary: 'Authorization, X-Firebase-AppCheck', 'Content-Type': 'application/json', 'X-Content-Type-Options': 'nosniff' }
+export const liveResponseHeaders = { 'Cache-Control': 'private, no-store, max-age=0', Pragma: 'no-cache', Vary: 'Authorization, X-Firebase-AppCheck', 'Content-Type': 'application/json', 'X-Content-Type-Options': 'nosniff' }
+const headers = liveResponseHeaders
 
 export function createLiveService(options: {
   admission: Admission
@@ -33,9 +34,9 @@ export function createLiveService(options: {
     try {
       const guest = await run.wait(() => options.authorize(input.authorization, input.appCheck).catch(() => { throw new LiveStop('access-denied') }))
       if (!guest) throw new LiveStop('access-denied')
-      if (!input.network || !options.execute) throw new LiveStop('service-unavailable')
       const request = await run.wait(() => validateRequest(input.body, run.signal))
       if (request.runId.slice(0, 10) !== new Date(now()).toISOString().slice(0, 10)) throw new LiveStop('run-expired')
+      if (!input.network || !options.execute) throw new LiveStop('service-unavailable')
       run.check()
       // The key covers actual received bytes, canonical allowed context and all
       // question versions. It establishes equality, never source authenticity.

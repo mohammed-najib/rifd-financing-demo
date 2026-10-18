@@ -1,0 +1,11 @@
+{
+  "projectId": "rifd-portfolio-mdnb",
+  "projectGrants": [
+    { "role": "roles/datastore.user", "members": ["serviceAccount:rifd-live-analysis@rifd-portfolio-mdnb.iam.gserviceaccount.com", "serviceAccount:rifd-live-cleanup@rifd-portfolio-mdnb.iam.gserviceaccount.com"] },
+    { "role": "roles/firebaseauth.viewer", "members": ["serviceAccount:rifd-live-analysis@rifd-portfolio-mdnb.iam.gserviceaccount.com"] }
+  ],
+  "secretGrants": [
+    { "secret": "LIVE_ACCOUNTING_KEY", "role": "roles/secretmanager.secretAccessor", "members": ["serviceAccount:rifd-live-analysis@rifd-portfolio-mdnb.iam.gserviceaccount.com"] },
+    { "secret": "LIVE_TYPESAFE_API_KEY", "role": "roles/secretmanager.secretAccessor", "members": ["serviceAccount:rifd-live-analysis@rifd-portfolio-mdnb.iam.gserviceaccount.com"] }
+  ]
+}

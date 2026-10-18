@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "priorActualNano": null,
+  "priorBillingEvidence": null,
+  "stoppedAttempts": [
+    { "id": "development-pass-1/ar-identity-01/0", "actualNano": null, "billingEvidence": null },
+    { "id": "development-pass-1/ar-identity-01/1", "actualNano": null, "billingEvidence": null }
+  ],
+  "credit": { "availableNano": null, "checkedAt": null, "billingEvidence": null, "refillDisabled": null, "dedicatedKeyConfirmed": null },
+  "validationAttempts": [],
+  "nextAttemptReservationsNano": [],
+  "pricingEvidence": null
+}

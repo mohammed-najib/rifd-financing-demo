@@ -13,6 +13,7 @@ firestore-debug.log
 ui-debug.log
 *.tsbuildinfo
 firepit-log.txt
+.env*.local
 # Local identity and provider-account evidence
 .scratch/jev-evidence-assistance/evaluation/operator-prerequisites.json
 .scratch/jev-evidence-assistance/evaluation/human-corpus-review.json

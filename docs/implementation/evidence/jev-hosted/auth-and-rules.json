@@ -1,0 +1,14 @@
+{
+  "checkedAt": "2026-10-18T03:26:59.071Z",
+  "providerAttempts": 0,
+  "anonymousSignupStatus": 200,
+  "clientControlReadStatus": 403,
+  "clientWriteStatus": 403,
+  "rulesDenyClient": true,
+  "anonymousCleanupObservation": "Enabled; a new test account cannot establish deletion after 30 days.",
+  "identityPlatform": {
+    "subtype": "IDENTITY_PLATFORM",
+    "anonymousEnabled": true,
+    "autodeleteAnonymousUsers": true
+  }
+}

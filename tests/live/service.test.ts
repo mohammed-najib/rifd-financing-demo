@@ -121,3 +121,17 @@ test('a four-page run can dispatch only its reserved nine stages', async () => {
   expect((await service({ body: Buffer.from(JSON.stringify(body)), network: '192.0.2.1' })).body).toMatchObject({ status: 'completed', stages: expect.arrayContaining([{ stage: 'document-comparison', page: 1, answer: native }]) })
   expect(dispatches).toBe(9)
 })
+
+test('disabled dispatch still verifies access and rejects arbitrary input without reserving allowance', async () => {
+  let transactions = 0
+  const store: MetadataStore = { transaction() { transactions++; throw Error('unexpected-admission') } }
+  const service = createLiveService({ admission: createAdmission(store, 'dummy-key-with-at-least-thirty-two-bytes'),
+    authorize: async (auth, app) => { if (auth !== 'Bearer dummy-auth' || app !== 'dummy-app') throw Error(); return 'guest' },
+  })
+  const headers = { authorization: 'Bearer dummy-auth', appCheck: 'dummy-app', network: null }
+  const arbitrary = Buffer.from(JSON.stringify({ ...input(), questions: { arbitrary: 'visitor instruction' } }))
+  expect((await service({ body: arbitrary, network: null })).status).toBe(401)
+  expect(await service({ ...headers, body: arbitrary })).toMatchObject({ status: 400, body: { reason: 'invalid-request' } })
+  expect(await service({ ...headers, body: Buffer.from(JSON.stringify(input())) })).toMatchObject({ status: 503, body: { reason: 'service-unavailable' } })
+  expect(transactions).toBe(0)
+})

@@ -8,7 +8,7 @@ import { onSchedule } from 'firebase-functions/v2/scheduler'
 import { createAdmission } from '../src/live-assistance/admission'
 import { firestoreMetadata, cleanupMetadata } from '../src/live-assistance/firestore'
 import { trustedNetwork } from '../src/live-assistance/ingress'
-import { createLiveService } from '../src/live-assistance/service'
+import { createLiveService, liveResponseHeaders } from '../src/live-assistance/service'
 import { firebaseGuestVerifier } from '../src/live-assistance/security'
 import { createJevWorkflow } from '../src/live-assistance/jev'
 
@@ -22,14 +22,17 @@ const liveDispatchEnabled = false
 export const liveAnalysis = onRequest({
   region: 'europe-west1', memory: '512MiB', cpu: 1, minInstances: 0,
   maxInstances: 1, concurrency: 2, timeoutSeconds: 55, cors: false,
-  secrets: [accountingKey, providerKey],
+  serviceAccount: 'rifd-live-analysis@rifd-portfolio-mdnb.iam.gserviceaccount.com',
+  // The provider secret has no version until the operator installs a dedicated
+  // key. Closed control checks must not require or expose that credential.
+  secrets: liveDispatchEnabled ? [accountingKey, providerKey] : [accountingKey],
   // Hosting and direct traffic must both pass the same verifier. No test modes,
   // emulator credentials, transport selection or public operator commands.
 }, async (request, response) => {
   const abort = new AbortController()
   const disconnected = () => { if (!response.writableEnded) abort.abort() }
   response.on('close', disconnected)
-  response.set('Cache-Control', 'private, no-store, max-age=0')
+  response.set(liveResponseHeaders)
   if (request.method !== 'POST' || request.get('content-type')?.split(';')[0].trim() !== 'application/json' || request.get('content-encoding')) {
     response.status(400).json({ status: 'unavailable', reason: 'invalid-request' }); return
   }
@@ -47,6 +50,8 @@ export const liveAnalysis = onRequest({
   } finally { response.off('close', disconnected) }
 })
 
-export const cleanupLiveMetadata = onSchedule({ region: 'europe-west1', schedule: 'every 1 hours', timeoutSeconds: 55, maxInstances: 1 }, async () => {
+export const cleanupLiveMetadata = onSchedule({ region: 'europe-west1', schedule: 'every 1 hours', timeoutSeconds: 55, maxInstances: 1,
+  serviceAccount: 'rifd-live-cleanup@rifd-portfolio-mdnb.iam.gserviceaccount.com',
+}, async () => {
   await cleanupMetadata(getFirestore())
 })

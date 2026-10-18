@@ -1,0 +1,43 @@
+{
+  "checkedAt": "2026-10-18T03:28:55.228Z",
+  "targetUsdMonthly": 5,
+  "hardCap": false,
+  "configured": true,
+  "budget": {
+    "displayName": "RIFD Google operating target USD5 monthly",
+    "filter": {
+      "projects": [
+        "projects/1060449933466"
+      ],
+      "creditTypesTreatment": "EXCLUDE_ALL_CREDITS",
+      "calendarPeriod": "MONTH"
+    },
+    "amount": {
+      "specifiedAmount": {
+        "currencyCode": "USD",
+        "units": "5"
+      }
+    },
+    "thresholdRules": [
+      {
+        "thresholdPercent": 0.5,
+        "spendBasis": "CURRENT_SPEND"
+      },
+      {
+        "thresholdPercent": 0.8,
+        "spendBasis": "CURRENT_SPEND"
+      },
+      {
+        "thresholdPercent": 1,
+        "spendBasis": "CURRENT_SPEND"
+      },
+      {
+        "thresholdPercent": 1,
+        "spendBasis": "FORECASTED_SPEND"
+      }
+    ],
+    "notificationsRule": {
+      "enableProjectLevelRecipients": true
+    }
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "iam": {
+    "projectId": "rifd-portfolio-mdnb",
+    "projectGrants": [
+      {
+        "role": "roles/datastore.user",
+        "members": [
+          "serviceAccount:rifd-live-analysis@rifd-portfolio-mdnb.iam.gserviceaccount.com",
+          "serviceAccount:rifd-live-cleanup@rifd-portfolio-mdnb.iam.gserviceaccount.com"
+        ]
+      },
+      {
+        "role": "roles/firebaseauth.viewer",
+        "members": [
+          "serviceAccount:rifd-live-analysis@rifd-portfolio-mdnb.iam.gserviceaccount.com"
+        ]
+      }
+    ],
+    "secretGrants": [
+      {
+        "secret": "LIVE_ACCOUNTING_KEY",
+        "role": "roles/secretmanager.secretAccessor",
+        "members": [
+          "serviceAccount:rifd-live-analysis@rifd-portfolio-mdnb.iam.gserviceaccount.com"
+        ]
+      },
+      {
+        "secret": "LIVE_TYPESAFE_API_KEY",
+        "role": "roles/secretmanager.secretAccessor",
+        "members": [
+          "serviceAccount:rifd-live-analysis@rifd-portfolio-mdnb.iam.gserviceaccount.com"
+        ]
+      }
+    ]
+  },
+  "logs": {
+    "bucketId": "rifd-live-application",
+    "location": "europe-west1",
+    "retentionDays": 7,
+    "applicationLogFilter": "resource.type=\"cloud_run_revision\" AND resource.labels.service_name=~\"^(liveanalysis|cleanuplivemetadata)$\" AND (log_id(\"run.googleapis.com/stdout\") OR log_id(\"run.googleapis.com/stderr\"))",
+    "destination": "logging.googleapis.com/projects/rifd-portfolio-mdnb/locations/europe-west1/buckets/rifd-live-application",
+    "defaultBucketExclusion": "rifd-live-seven-day"
+  }
+}
