@@ -1,5 +1,7 @@
 import type { PreparedAttachment, Result } from '../demo/types'
 import type { CorrectionTarget, DocumentSlot, ProductId } from '../domain/model'
+import type { LiveReason } from '../live-assistance/wire'
+import type { RunInput } from '../live-assistance/client'
 
 export const versions = {
   questions: 'evidence-questions-v4', preparation: 'full-page-pdfjs-5.4.296-v1',
@@ -91,7 +93,7 @@ export type StageRequest = {
   dependencies: Record<string, string[]>;
 }
 // The later service bridge implements this fixed evaluation boundary. Runtime has no transport yet.
-export type EvidenceTransport = { evaluate(request: StageRequest, signal: AbortSignal): Promise<unknown> }
+export type EvidenceTransport = { evaluate(request: StageRequest, signal: AbortSignal): Promise<unknown>; begin?(input: RunInput, signal: AbortSignal): Promise<EvidenceTransport> }
 export type ChoiceAnswer = { type: 'choice'; choice: string; confidence: number; probabilities: Record<string, number> }
 export type ScoreAnswer = { type: 'score'; score: number; confidence: number; probabilities: Record<string, number>; legend: Record<string, string> }
 export type NoulAnswer = { type: 'noul'; noul: number }
@@ -111,7 +113,7 @@ export type EvidenceRun = {
 }
 export type PageAnalysis = { page: number; request: RecordedRequest; raster: RasterManifest; native: NativeCapture; findings: Findings; partial: boolean }
 export type ComparisonAnalysis = { request: RecordedRequest; native: NativeCapture; findings: Findings; partial: boolean }
-export type AssistanceReason = 'live-unavailable' | 'source-limit' | 'invalid-source' | 'multipage' | 'page-selection' | 'preparation-timeout' | 'prepared-limit' | 'context-limit' | 'provider-unavailable' | 'analysis-storage' | 'invalid-response' | 'stale' | 'unauthorized'
+export type AssistanceReason = LiveReason | 'live-unavailable' | 'source-limit' | 'invalid-source' | 'multipage' | 'page-selection' | 'preparation-timeout' | 'prepared-limit' | 'context-limit' | 'provider-unavailable' | 'analysis-storage' | 'invalid-response' | 'stale' | 'unauthorized'
 export type AssistanceState = {
   status: 'idle' | 'preparing' | 'running' | 'completed' | 'unavailable' | 'cancelled' | 'disposed';
   result: EvidenceRun | null; reason?: AssistanceReason; coverage: Coverage;

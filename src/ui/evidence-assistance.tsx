@@ -80,6 +80,7 @@ export function EvidenceAssistancePanel({ demo, input, product, language, disabl
     <h4 ref={heading} tabIndex={-1}>{t('title')}</h4><p>{t('notice')}</p>
     {!open ? <><button disabled={disabled} onClick={() => setOpen(true)}>{t(reviewer ? 'find' : 'check')}</button>{children}</> : <>
       <p>{t(input.context === 'correction-workspace' ? financial ? 'financialCorrectionTransmission' : purchase ? 'purchaseCorrectionTransmission' : business ? 'businessCorrectionTransmission' : 'correctionTransmission' : financial ? 'financialTransmission' : purchase ? 'purchaseTransmission' : business ? 'businessTransmission' : 'transmission')}</p>
+      <p>{t('livePrivacy')}</p>
       <div className={reviewer ? 'grid grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)] items-start gap-4 compact:grid-cols-1' : 'grid grid-cols-2 items-start gap-4 narrow:grid-cols-1'}>
       {reviewer && <div className="min-w-0" aria-label={t('source')}><h5>{t('source')}</h5>{file && selection ? <SourcePages key={selection.source.hash} source={selection.source} file={file} language={language} run={state?.result} focus={region} /> : <p role="status">{t('unavailable')}</p>}</div>}
       <div className={reviewer ? 'min-w-0' : 'contents'}><div className="min-w-0"><h5>{t('context')}</h5>

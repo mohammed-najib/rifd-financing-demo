@@ -1,0 +1,13 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Server-only liveAssistanceMetadata records contain keyed fingerprints,
+    // counters, UTC expiries, lease times, terminal status and dispatch indexes.
+    // Control contains enabled and provider-connection leases. IAM governs all
+    // operator and Admin SDK access. No browser, including an authenticated
+    // guest or fictional reviewer, can read or mutate any metadata.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

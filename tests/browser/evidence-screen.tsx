@@ -9,8 +9,12 @@ import { correctionApplicationId, requestIdentityCorrection, correctionCommand, 
 import { pdfFile } from './evidence-fixtures'
 import { requestBusinessCorrection } from './business-evidence-fixtures'
 import { requestPurchaseCorrection } from './purchase-evidence-fixtures'
+import { browserLiveTransport } from '../../src/live-assistance/client'
 
-const demo = createDemo({ evidenceTransport: {
+const demo = createDemo({ evidenceTransport: new URLSearchParams(location.search).has('live') ? browserLiveTransport(async () => {
+  const response = await fetch('/fake-guest-session')
+  return response.json()
+}) : {
   async evaluate(request, signal) {
     const response = await fetch('/fake-provider/systemone', { method: 'POST', headers: { Authorization: 'Bearer dummy-test-key', 'Content-Type': 'application/json' }, signal, body: JSON.stringify({ ...request, image: { ...request.image, bytes: Array.from(new Uint8Array(request.image.bytes)) }, ...(request.images ? { images: request.images.map(image => ({ ...image, bytes: Array.from(new Uint8Array(image.bytes)) })) } : {}) }) })
     if (!response.ok) throw new Error('unavailable')

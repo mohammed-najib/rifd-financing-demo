@@ -7,6 +7,7 @@ import { prepareEvidence, prepareCrops, inspectSource, emptyCoverage, sourcePage
 import { interpret, makeRequest, recordRequest, attemptPlan, composeFindings, usablePage, envelope } from './policy'
 import { retentionMilliseconds } from './record'
 import type { AnalysisStorage, AnalysisTicket } from './storage'
+import { LiveAccessError } from '../live-assistance/client'
 
 const coverage = emptyCoverage
 const initialScope = (totalPages: number) => ({ ...coverage(), totalPages, selected: totalPages <= 4 ? sourcePages(totalPages) : [], unchecked: sourcePages(totalPages), uncheckedCount: totalPages })
@@ -150,7 +151,7 @@ export function createAssistance(resolve: () => Promise<Result<SelectedEvidence>
       const startedAt = new Date().toISOString(), id = crypto.randomUUID()
       state = { ...state, status: 'preparing', reason: undefined, coverage: record?.coverage ?? coverage() }; notify()
       const deadline = performance.now() + 50_000
-      const runTimer = setTimeout(() => { cancellation.abort(); if (captured === generation) { state = { ...state, status: 'unavailable', reason: 'preparation-timeout' }; notify() } }, 50_000)
+      const runTimer = setTimeout(() => { cancellation.abort(); if (captured === generation) { state = { ...state, status: 'unavailable', reason: transport?.begin ? 'deadline' : 'preparation-timeout' }; notify() } }, 50_000)
       let runCoverage = coverage()
       try {
         const selected = await resolve()
@@ -159,6 +160,7 @@ export function createAssistance(resolve: () => Promise<Result<SelectedEvidence>
         const selection = selected.value
         dependencyKey = selection.binding.dependencyKey
         if (!transport) { state = { ...state, status: 'unavailable', reason: 'live-unavailable' }; notify(); return }
+        if (transport.begin && !navigator.onLine) throw new LiveAccessError('service-unavailable')
         try { ticket = await storage.begin(selection, current); runAuthority = ticket; clearGeneration = ticket.clearGeneration; state.storage = 'available' }
         catch { ticket = null; state.storage = 'temporary-only' }
         if (!current()) return
@@ -168,6 +170,12 @@ export function createAssistance(resolve: () => Promise<Result<SelectedEvidence>
         })
         if (!current()) return
         runCoverage = prepared.coverage
+        let evaluator = transport
+        if (transport.begin) {
+          state = { ...state, status: 'running', coverage: runCoverage }; notify()
+          evaluator = await transport.begin({ runId: id, selection, pages: prepared.pages, selectedPages: runCoverage.selected, totalPages: runCoverage.totalPages! }, cancellation.signal)
+          if (!current()) return
+        }
         const plan = attemptPlan(runCoverage.totalPages!, runCoverage.selected)
         const verifications: BoundVerification[] = []
         const pages: PageAnalysis[] = [], stages: EvidenceRun['stages'] = prepared.failures.map(failure => ({ page: failure.page, stage: 'preparation', outcome: 'unavailable', reason: failure.reason }))
@@ -179,7 +187,7 @@ export function createAssistance(resolve: () => Promise<Result<SelectedEvidence>
           const latest = await resolve()
           if (!current()) throw new DOMException('Cancelled', 'AbortError')
           if (!latest.ok || latest.value.binding.dependencyKey !== dependencyKey) { invalidate(latest.ok ? 'stale' : 'unauthorized'); throw new Error('stale') }
-          if (deadline - performance.now() < 8000) throw new PreparationError('preparation-timeout')
+          if (deadline - performance.now() < (transport.begin ? 0 : 8000)) throw new PreparationError('preparation-timeout')
           const stageAbort = new AbortController()
           let timer: ReturnType<typeof setTimeout> | undefined
           const abortStage = () => stageAbort.abort()
@@ -194,7 +202,7 @@ export function createAssistance(resolve: () => Promise<Result<SelectedEvidence>
               stageAbort.signal.addEventListener('abort', () => reject(new Error('provider-unavailable')), { once: true })
               timer = setTimeout(() => { reject(new Error('provider-unavailable')); stageAbort.abort() }, 8000)
             })
-            const raw = await Promise.race([transport.evaluate(request, stageAbort.signal), expired])
+            const raw = await Promise.race([evaluator.evaluate(request, stageAbort.signal), expired])
             answeredAt = new Date().toISOString()
             if (!envelope.safeParse(raw).success) { halted = true; throw new Error('invalid-response') }
             return raw
@@ -213,6 +221,7 @@ export function createAssistance(resolve: () => Promise<Result<SelectedEvidence>
             stages.push({ page: page.manifest.page, stage: request.stage, outcome: result.partial ? 'partial' : 'successful' })
           } catch (error) {
             if (!current()) return
+            if (error instanceof LiveAccessError) { halted = true; throw error }
             lastReason = error instanceof Error && ['invalid-response', 'context-limit'].includes(error.message) ? error.message as typeof lastReason : 'provider-unavailable'
             runCoverage.failed.push(page.manifest.page)
             stages.push({ page: page.manifest.page, stage: 'page', outcome: 'unavailable', reason: lastReason })
@@ -238,6 +247,7 @@ export function createAssistance(resolve: () => Promise<Result<SelectedEvidence>
               } else stages.push({ stage: 'document-comparison', outcome: 'skipped', reason: 'missing-context' })
             } catch (error) {
               if (!current()) return
+              if (error instanceof LiveAccessError) { halted = true; throw error }
               stages.push({ stage: 'document-comparison', outcome: 'unavailable', reason: error instanceof Error ? error.message : 'provider-unavailable' })
             }
           } else stages.push({ stage: 'document-comparison', outcome: 'skipped', reason: 'no-usable-pages' })
@@ -267,6 +277,7 @@ export function createAssistance(resolve: () => Promise<Result<SelectedEvidence>
               stages.push({ page: page.page, stage: 'bound-verification', outcome: 'successful' })
             } catch (error) {
               if (!current()) return
+              if (error instanceof LiveAccessError) { halted = true; throw error }
               const reason = error instanceof Error ? error.message : 'provider-unavailable'
               stages.push({ page: page.page, stage: 'bound-verification', outcome: 'unavailable', reason })
               // Uncertain judgments are ordinary suppression. Unaccounted usage,
@@ -323,7 +334,7 @@ export function createAssistance(resolve: () => Promise<Result<SelectedEvidence>
         state = { ...state, status: 'completed', reason: undefined, result: completed, coverage: runCoverage }; notify()
       } catch (error) {
         if (captured !== generation) return
-        const reason = error instanceof PreparationError ? error.reason : error instanceof Error && ['context-limit', 'invalid-response'].includes(error.message) ? error.message as 'context-limit' | 'invalid-response' : 'provider-unavailable'
+        const reason = error instanceof LiveAccessError ? error.reason : error instanceof PreparationError ? error.reason : error instanceof Error && ['context-limit', 'invalid-response'].includes(error.message) ? error.message as 'context-limit' | 'invalid-response' : 'provider-unavailable'
         const total = error instanceof PreparationError ? error.totalPages : runCoverage.totalPages
         state = { ...state, status: 'unavailable', reason, coverage: { ...runCoverage, totalPages: total, uncheckedCount: total === null ? null : total - runCoverage.successful.length, unchecked: total ? sourcePages(total).filter(page => !runCoverage.successful.includes(page)) : [] } }; notify()
       } finally { clearTimeout(runTimer); if (captured === generation) abort = null }

@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
 import { defaultParseSearch, useBlocker, useNavigate, useRouter, useRouterState } from '@tanstack/react-router'
 import { createDemo, demoIdentities, type ApplicationSummary, type ApplicationView, type Context, type ErrorKind, type LanguageOperation, type PrintSummary } from '../demo'
+import { configuredLiveTransport } from '../live-assistance/client'
 import { products, resolveStep } from '../domain'
 import type { ActorId, Language, ProductId } from '../domain/model'
 import { date, displayFieldValue, documentLabel, errors, money, text } from './i18n'
@@ -65,7 +66,7 @@ function Mark() { return <span className="flex h-[35px] items-end gap-1 [directi
 function Heading({ children }: { children: React.ReactNode }) { return <h1 tabIndex={-1}>{children}</h1> }
 
 export function App() {
-  const demo = useMemo(() => createDemo(), [])
+  const demo = useMemo(() => createDemo({ evidenceTransport: configuredLiveTransport() }), [])
   const search = useRouterState({ select: state => state.location.search }) as Record<string, unknown>
   const step = resolveStep(typeof search.step === 'string' ? search.step : undefined)
   const chosenProduct: ProductId = search.product === 'equipment' ? 'equipment' : 'inventory'

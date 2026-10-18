@@ -16,10 +16,17 @@
         "headers": [{ "key": "Cache-Control", "value": "max-age=3600" }]
       }
     ],
-    "rewrites": [{ "source": "**", "destination": "/_shell.html" }]
+    "rewrites": [
+      { "source": "/api/evidence-analysis", "function": { "functionId": "liveAnalysis", "region": "europe-west1" } },
+      { "source": "**", "destination": "/_shell.html" }
+    ]
   },
+  "functions": [{ "source": "functions", "codebase": "live-assistance", "predeploy": ["node scripts/build-functions.mjs"], "ignore": ["node_modules", "*.ts", "*-debug.log"] }],
+  "firestore": { "rules": "firestore.rules" },
   "emulators": {
     "hosting": { "host": "127.0.0.1", "port": 4173 },
+    "firestore": { "host": "127.0.0.1", "port": 8080 },
+    "auth": { "host": "127.0.0.1", "port": 9099 },
     "ui": { "enabled": false },
     "singleProjectMode": true
   }

@@ -1,0 +1,6 @@
+{
+  "bucketId": "rifd-live-application",
+  "location": "europe-west1",
+  "retentionDays": 7,
+  "applicationLogFilter": "resource.type=\"cloud_run_revision\" AND resource.labels.service_name=~\"^(liveanalysis|cleanuplivemetadata)$\" AND (log_id(\"run.googleapis.com/stdout\") OR log_id(\"run.googleapis.com/stderr\"))"
+}

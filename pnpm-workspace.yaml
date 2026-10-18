@@ -1,6 +1,11 @@
 packages:
   - packages/*
 
+allowBuilds:
+  '@firebase/util': false
+  esbuild: true
+  protobufjs: false
+
 minimumReleaseAgeExclude:
   - '@playwright/test@1.64.1'
   - '@tanstack/react-start-rsc@0.1.63'
