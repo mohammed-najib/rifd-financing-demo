@@ -4,13 +4,13 @@
 
 **Blocked by:** [05: Check evidence in private correction workspaces](05-check-evidence-in-private-correction-workspaces.md); [06: Find supporting evidence during reviewer examination](06-find-supporting-evidence-during-reviewer-examination.md); [07: Check business evidence](07-check-business-evidence.md); [08: Check purchase evidence](08-check-purchase-evidence.md); [12: Connect the bounded workflow to TanStack AI and Jev](12-connect-the-bounded-workflow-to-tanstack-ai-and-jev.md).
 
-**Status:** in progress; hosted deployment blocked on IAM/logging/secret approval and operator TypeSafe prerequisites. See [operation evidence](../../../docs/implementation/jev-hosted-operation.md).
+**Status:** in progress; approved IAM/logging/secret changes and disabled hosted deployment completed. Direct/routed credential, cache, telemetry and synthetic cleanup checks pass. Activation still requires TypeSafe account reconciliation/readiness, trusted-ingress verification and the remaining deployed authorization/admission checks. See [operation evidence](../../../docs/implementation/jev-hosted-operation.md).
 
 Specification: [Experimental Jev evidence assistance](../../jev-evidence-assistance/spec.md). Relevant decisions: [Server, accounts, spending and privacy](../../jev-evidence-assistance/spec.md#server-accounts-spending-and-privacy); [Dependency order of implementation slices](../../jev-evidence-assistance/spec.md#dependency-order-of-implementation-slices); [Testing Decisions](../../jev-evidence-assistance/spec.md#testing-decisions).
 
 User stories: 43, 44, 45, 57, 58, 59, 60, 61, 62, 63, 64.
 
-- [ ] Configure classic Firebase Hosting with the analysis route before the SPA fallback and a second-generation Node 22 HTTPS function in europe-west1, 512 MiB, one CPU, zero minimum/one maximum instance, concurrency two and a 55-second timeout.
+- [x] Configure classic Firebase Hosting with the analysis route before the SPA fallback and a second-generation Node 22 HTTPS function in europe-west1, 512 MiB, one CPU, zero minimum/one maximum instance, concurrency two and a 55-second timeout.
 - [ ] Configure the dedicated TypeSafe Secret Manager secret, service identity/IAM, anonymous Firebase Auth, App Check with reCAPTCHA Enterprise, server-only Firestore admission and operator disable state. Verify secret isolation from client assets and keep provider dispatch disabled during deployed control checks.
 - [ ] Verify authorization on both direct and routed endpoints, non-cacheable responses, rejected arbitrary input and no-content telemetry in the deployed environment. Record the evidence and limitations rather than treating local/emulator success as deployed proof.
 - [ ] Configure Identity Platform anonymous-account cleanup after checking actual terms/quotas. Distinguish eligibility after 30 days from guaranteed deletion on that day, and verify active-use/metadata cleanup behavior under the specified daily, monthly and log retention windows.

@@ -1,0 +1,65 @@
+{
+  "checkedAt": "2026-10-18T03:52:43.073Z",
+  "providerAttempts": 0,
+  "method": "Real deployed browser bundle and reCAPTCHA Enterprise; no debug or custom App Check token",
+  "checks": [
+    {
+      "route": "routed",
+      "name": "missing-app-check",
+      "status": 401,
+      "cacheControl": "private, no-store, max-age=0",
+      "passed": true
+    },
+    {
+      "route": "routed",
+      "name": "missing-auth",
+      "status": 401,
+      "cacheControl": "private, no-store, max-age=0",
+      "passed": true
+    },
+    {
+      "route": "routed",
+      "name": "authenticated-arbitrary-input",
+      "status": 400,
+      "cacheControl": "private, no-store, max-age=0",
+      "passed": true
+    },
+    {
+      "route": "direct",
+      "name": "missing-app-check",
+      "status": 401,
+      "cacheControl": "private, no-store, max-age=0",
+      "passed": true
+    },
+    {
+      "route": "direct",
+      "name": "missing-auth",
+      "status": 401,
+      "cacheControl": "private, no-store, max-age=0",
+      "passed": true
+    },
+    {
+      "route": "direct",
+      "name": "authenticated-arbitrary-input",
+      "status": 400,
+      "cacheControl": "private, no-store, max-age=0",
+      "passed": true
+    },
+    {
+      "route": "routed",
+      "name": "revoked-anonymous-session",
+      "status": 401,
+      "cacheControl": "private, no-store, max-age=0",
+      "passed": true
+    },
+    {
+      "route": "direct",
+      "name": "revoked-anonymous-session",
+      "status": 401,
+      "cacheControl": "private, no-store, max-age=0",
+      "passed": true
+    }
+  ],
+  "credentialAcquisition": "passed",
+  "passed": true
+}

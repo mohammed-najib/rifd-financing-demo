@@ -1,0 +1,64 @@
+{
+  "checkedAt": "2026-10-18T03:46:32.438Z",
+  "endpoints": {
+    "routed": "https://rifd-portfolio-mdnb.web.app/api/evidence-analysis",
+    "direct": "https://europe-west1-rifd-portfolio-mdnb.cloudfunctions.net/liveAnalysis"
+  },
+  "providerAttempts": 0,
+  "authenticatedSchemaCheck": "skipped-no-real-tokens",
+  "limitations": [
+    "Invalid requests only. No valid run or inference is sent.",
+    "A denial with forged tokens does not prove real App Check acceptance, trusted ingress, quotas, telemetry, cleanup or billing."
+  ],
+  "checks": [
+    {
+      "route": "routed",
+      "name": "missing-tokens",
+      "status": 401,
+      "contentType": "application/json; charset=utf-8",
+      "cacheControl": "private, no-store, max-age=0",
+      "passed": true
+    },
+    {
+      "route": "routed",
+      "name": "forged-tokens-and-role",
+      "status": 401,
+      "contentType": "application/json; charset=utf-8",
+      "cacheControl": "private, no-store, max-age=0",
+      "passed": true
+    },
+    {
+      "route": "routed",
+      "name": "wrong-method",
+      "status": 400,
+      "contentType": "application/json; charset=utf-8",
+      "cacheControl": "private, no-store, max-age=0",
+      "passed": true
+    },
+    {
+      "route": "direct",
+      "name": "missing-tokens",
+      "status": 401,
+      "contentType": "application/json; charset=utf-8",
+      "cacheControl": "private, no-store, max-age=0",
+      "passed": true
+    },
+    {
+      "route": "direct",
+      "name": "forged-tokens-and-role",
+      "status": 401,
+      "contentType": "application/json; charset=utf-8",
+      "cacheControl": "private, no-store, max-age=0",
+      "passed": true
+    },
+    {
+      "route": "direct",
+      "name": "wrong-method",
+      "status": 400,
+      "contentType": "application/json; charset=utf-8",
+      "cacheControl": "private, no-store, max-age=0",
+      "passed": true
+    }
+  ],
+  "basicChecksPassed": true
+}

@@ -1,0 +1,4 @@
+{
+  "status": "error",
+  "error": "Cloud Secret Manager has no latest version of the secret defined by param LIVE_TYPESAFE_API_KEY"
+}

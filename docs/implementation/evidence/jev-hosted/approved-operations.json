@@ -1,0 +1,10 @@
+{
+  "appliedAt": "2026-10-18T03:38:12.764Z",
+  "approval": "User explicitly approved the listed IAM grants, seven-day log routing and one ASCII accounting-secret version after commit a823a7b.",
+  "iamApplied": true,
+  "applicationLogRetentionDays": 7,
+  "accountingSecretVersion": "2",
+  "accountingSecretEncoding": "ASCII",
+  "secretValueRecorded": false,
+  "providerDispatchEnabled": false
+}

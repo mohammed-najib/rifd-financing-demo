@@ -1,0 +1,134 @@
+{
+  "checkedAt": "2026-10-18T03:51:55.995Z",
+  "applicationEntries": [
+    {
+      "timestamp": "2026-10-18T03:50:51.210612Z",
+      "event": "live-assistance-cleanup",
+      "service": "cleanuplivemetadata",
+      "keys": [
+        "message",
+        "deleted"
+      ],
+      "deleted": 2
+    },
+    {
+      "timestamp": "2026-10-18T03:50:30.188418Z",
+      "event": "live-assistance-response",
+      "service": "liveanalysis",
+      "keys": [
+        "status",
+        "message",
+        "reason",
+        "outcome"
+      ],
+      "status": 401,
+      "outcome": "unavailable",
+      "reason": "access-denied"
+    },
+    {
+      "timestamp": "2026-10-18T03:50:29.665055Z",
+      "event": "live-assistance-response",
+      "service": "liveanalysis",
+      "keys": [
+        "status",
+        "outcome",
+        "reason",
+        "message"
+      ],
+      "status": 401,
+      "outcome": "unavailable",
+      "reason": "access-denied"
+    },
+    {
+      "timestamp": "2026-10-18T03:50:27.187857Z",
+      "event": "live-assistance-response",
+      "service": "liveanalysis",
+      "keys": [
+        "status",
+        "outcome",
+        "message",
+        "reason"
+      ],
+      "status": 400,
+      "outcome": "unavailable",
+      "reason": "invalid-request"
+    },
+    {
+      "timestamp": "2026-10-18T03:50:26.856484Z",
+      "event": "live-assistance-response",
+      "service": "liveanalysis",
+      "keys": [
+        "status",
+        "message",
+        "reason",
+        "outcome"
+      ],
+      "status": 401,
+      "outcome": "unavailable",
+      "reason": "access-denied"
+    },
+    {
+      "timestamp": "2026-10-18T03:50:26.709208Z",
+      "event": "live-assistance-response",
+      "service": "liveanalysis",
+      "keys": [
+        "message",
+        "outcome",
+        "status",
+        "reason"
+      ],
+      "status": 401,
+      "outcome": "unavailable",
+      "reason": "access-denied"
+    },
+    {
+      "timestamp": "2026-10-18T03:50:26.086117Z",
+      "event": "live-assistance-response",
+      "service": "liveanalysis",
+      "keys": [
+        "reason",
+        "status",
+        "outcome",
+        "message"
+      ],
+      "status": 400,
+      "outcome": "unavailable",
+      "reason": "invalid-request"
+    },
+    {
+      "timestamp": "2026-10-18T03:50:25.261671Z",
+      "event": "live-assistance-response",
+      "service": "liveanalysis",
+      "keys": [
+        "outcome",
+        "reason",
+        "message",
+        "status"
+      ],
+      "status": 401,
+      "outcome": "unavailable",
+      "reason": "access-denied"
+    },
+    {
+      "timestamp": "2026-10-18T03:50:24.689585Z",
+      "event": "live-assistance-response",
+      "service": "liveanalysis",
+      "keys": [
+        "reason",
+        "outcome",
+        "message",
+        "status"
+      ],
+      "status": 401,
+      "outcome": "unavailable",
+      "reason": "access-denied"
+    }
+  ],
+  "applicationEntryCount": 9,
+  "longerDefaultBucketApplicationEntries": 0,
+  "onlyAllowedMetadata": true,
+  "controlProbeInputFound": false,
+  "providerAttempts": 0,
+  "limitation": "Checks current ingestion, destination and payloads; seven-day physical deletion and provider/platform retention are not established by this short observation.",
+  "passed": true
+}

@@ -1,10 +1,11 @@
 # Hosted evidence assistance preparation
 
 Ticket [13](../../.scratch/jev-evidence-assistance-implementation/issues/13-prepare-and-verify-hosted-operation.md)
-is partially implemented. Dispatch remains compiled off and deployed admission
-control is disabled. The function and Hosting rewrite have not been published.
-The existing public application continues to serve its previous release.
-No TypeSafe inference, purchase, refill or final acceptance batch ran.
+remains in progress. The client, Hosting rewrite and both functions are published
+at [the demo](https://rifd-portfolio-mdnb.web.app). Dispatch remains compiled off
+and deployed admission control is disabled. Ordinary work and Saved demonstrations
+remain available. No TypeSafe inference, purchase, refill or final acceptance
+batch ran. Remaining prerequisites are listed below.
 
 ## Configured and checked on 2026-10-18
 
@@ -18,17 +19,18 @@ web app, Standard Firestore database in europe-west1 with delete protection,
 separate `rifd-live-analysis` and `rifd-live-cleanup` service identities, a
 regionally replicated accounting secret and the empty dedicated
 `LIVE_TYPESAFE_API_KEY` secret. No service-account private keys were created.
-The accounting secret's initial value contains random bytes. Its text encoding
-must be normalized before first deployment, pending the approval described below.
-It has never keyed an allowance. Keep the resulting text value stable across
-revisions and retention windows.
+The initial accounting-secret version contained random bytes. After explicit
+approval, version 2 installed a random 64-character ASCII value before first
+runtime use. Only version 2 is bound. Neither version has keyed an allowance.
+Keep the deployed value stable across revisions and retention windows. Its raw
+value never entered source, reports or client configuration.
 
 `functions/.env.rifd-portfolio-mdnb` pins the allowed Firebase app ID. The ignored
 `.env.production.local` holds only public Firebase configuration and the public
 reCAPTCHA Enterprise site key. The score-based key accepts the two default
 Hosting domains, and its App Check registration has a one-hour token lifetime.
-No debug App Check credential was created. A real browser attestation remains
-unverified because no browser is available in this session.
+No debug App Check credential was created. The deployed browser bundle acquired
+real anonymous Auth and reCAPTCHA Enterprise App Check credentials successfully.
 
 Identity Platform initialization, anonymous sign-in and automatic anonymous-user
 cleanup succeeded. The deployed [deny-all rules](../../firestore.rules) were
@@ -49,12 +51,15 @@ account-wide cap. Google's [budget guidance](https://docs.cloud.google.com/billi
 explains that alerts alone do not prevent charges.
 
 The function source retains Node 22, europe-west1, 512 MiB, one CPU, minimum zero,
-maximum one instance, concurrency two and a 55-second timeout. The narrow
-Hosting rewrite already precedes the SPA fallback. Both functions now specify
-their dedicated runtime identity. Closed checks do not bind the empty provider
-secret. Later activation must install the dedicated provider key and bind it by
-changing the compiled dispatch capability only after the remaining controls and
-ticket 14 establish readiness.
+maximum one instance, concurrency two and a 55-second timeout. The narrow Hosting
+rewrite precedes the SPA fallback. The deployed runtime inspection confirms
+these settings and the dedicated identities. Analysis is publicly invokable but
+checks Auth and App Check inside the handler. Cleanup has no public invoker and
+accepts the scheduler's dedicated identity. The provider secret has zero versions
+and is neither declared nor bound in the disabled build. Firebase validates all
+declared secrets, including unbound ones, so an unconditional declaration blocked
+the first deployment. Later activation requires the dedicated provider key,
+binding and all remaining readiness controls.
 
 All handler responses now receive the shared private/no-store headers, including
 early protocol rejection and unexpected failures. The authorized service checks
@@ -63,15 +68,16 @@ arbitrary-input checks without reserving allowance. Access still comes first.
 The existing service-boundary test proves these refusals make no metadata
 transaction.
 
-## Approval needed for the remaining cloud changes
+## Approved cloud changes
 
-Automatic approval review rejected persistent IAM grants and log-routing changes.
-It said the ticket did not specifically authorize the exact permissions,
-recipients and project-wide security effects. A second review rejected creation
-of the replacement accounting-secret version as an unspecified persistent
-credential. Neither rejected action ran. No workaround applied these changes.
+Automatic approval review initially rejected the persistent IAM grants,
+log-routing changes and replacement accounting-secret version because their exact
+effects were not specifically authorized. The user then explicitly approved the
+reviewable proposal. All approved changes succeeded. No approval is pending for
+these operations. See [the applied record](evidence/jev-hosted/approved-operations.json)
+and [read-back verification](evidence/jev-hosted/operations-verification.json).
 
-The exact proposed changes are reviewable in
+The exact approved changes are recorded in
 [pending-operations.json](evidence/jev-hosted/pending-operations.json), generated
 by `node scripts/configure-live-operations.mjs plan`:
 
@@ -92,53 +98,93 @@ by `node scripts/configure-live-operations.mjs plan`:
   The raw value stays in Secret Manager and never enters source, output or client
   configuration. No historical allowance or ledger changes accompany this step.
 
-After approval, the IAM/logging script can apply the first four changes with
-operator application-default credentials or an ephemeral
-`RIFD_OPERATOR_ACCESS_TOKEN`. It preserves existing bindings and policy etags and
-refuses conflicting existing log configuration. The accounting-secret update is
-a separate explicitly approved step. None of these commands enables inference.
+The IAM/logging script applied the first four changes using an ephemeral
+`RIFD_OPERATOR_ACCESS_TOKEN`. It preserved existing bindings and policy etags and
+refuses conflicting existing log configuration. The accounting-secret update was
+a separate approved step. No service-account private key was created or stored.
+None of these operations enables inference.
 IAM reads request policy version 3 so conditional bindings survive the update,
 following Google's [policy-version guidance](https://docs.cloud.google.com/iam/docs/allow-policies#versions).
 
-## Hosted checks still required
+## Deployed control evidence
 
-The [endpoint preflight](evidence/jev-hosted/endpoint-preflight.json) failed all
-six basic checks. Hosting returned the existing HTML shell with HTTP 200 and
-`no-cache`; the conventional direct function URL returned HTTP 404. These are
-missing deployment prerequisites, not successful authorization or cache checks.
+The earlier [endpoint preflight](evidence/jev-hosted/endpoint-preflight.json)
+failed because the route and function were not deployed. Those failures remain
+in the record. The [final function deployment](evidence/jev-hosted/final-functions-deploy.json)
+and [Hosting release](evidence/jev-hosted/hosting-deploy.json) succeeded.
+An initial cleanup creation received a transient Cloud Run 500; retry succeeded.
+The CLI also required an Artifact Registry cleanup policy. Generated build images
+now have one-day retention. Historical ledgers and saved captures were preserved.
 
-After the approved IAM/logging/secret steps, build and deploy the functions and
-Hosting route with dispatch still compiled off. Inspect the deployed v2 function
-and Cloud Run settings, bound secret versions, actual service names and IAM,
-then rerun `node scripts/verify-live-hosting.mjs`. The probe sends only incomplete
-arbitrary input and invalid credentials by default. Optional real guest and App
-Check tokens come from `LIVE_CHECK_ID_TOKEN` and
-`LIVE_CHECK_APP_CHECK_TOKEN`; it never records them or transmits a valid run.
-Missing real tokens are an explicit skip. Never substitute debug tokens for
-proof of reCAPTCHA Enterprise browser attestation.
+[Runtime and asset verification](evidence/jev-hosted/deployed-runtime-and-assets.json)
+confirms both functions are active, the analysis settings above, only accounting
+secret version 2 bound, provider secret empty, control disabled and zero active
+slots. Nine served shell/code/style assets match the local production build byte
+for byte. None contains the actual accounting-secret value. The provider key
+cannot be scanned because none has been installed.
 
-Verify missing, expired, revoked, non-anonymous, wrong-app and forged credentials,
-then both valid tokens plus forbidden questions/options/URLs, on routed and
-direct endpoints. Inspect private/no-store headers and no answer caching.
-The invalid-input probe does not establish every one of these cases. In
-particular, forged-token refusal cannot prove successful App Check verification.
+`node scripts/verify-live-hosting.mjs` passed all six basic checks on the
+direct and routed endpoints. Missing credentials, forged credentials with role
+and forwarded-address claims, and wrong methods are refused. Each response has
+`private, no-store, max-age=0`. See [endpoint results](evidence/jev-hosted/deployed-endpoints.json).
+
+`node scripts/verify-live-browser.mjs --revoke-test-session` passed eight checks
+using the actual deployed client module in a fresh headless Chrome context.
+Real anonymous Auth and reCAPTCHA Enterprise credentials allow request validation
+to reject forbidden questions, model selection and an image URL with HTTP 400.
+Removing either credential returns 401. Revoking only that disposable guest's
+session makes the original credentials return 401 on both endpoints. See
+[browser and revocation evidence](evidence/jev-hosted/browser-attestation-and-revocation.json).
+The optional revocation step uses operator ADC or an ephemeral access token;
+without it the script performs six checks. Credentials and the raw guest ID stay
+in memory. Every probe is incomplete and has no source image, so none can reserve
+or dispatch a run. Expired, non-anonymous and wrong-app real credentials remain
+unverified on the deployment; local verifier tests do not close those gaps.
 
 Keep `LIVE_TRUSTED_PROXY_SUFFIX` unset until both actual ingress paths and forged
 forwarded prefixes are examined securely. Do not log raw addresses or guess a
 proxy suffix. The current unset value prevents work. No trusted chain or durable
 quota behavior has been demonstrated on the deployment.
 
-Check sanitized application telemetry in its actual destination, absence of
-content/debug/devtools output, and absence of duplicate application storage in
-longer-lived sinks. A seven-day configured bucket is not proof of seven-day
-physical cleanup. Platform, Auth and audit retention follow separate policies.
-There is no application archive of source images, context or answers.
+The function emits only fixed response status/outcome/reason fields and cleanup
+counts. [Observed telemetry](evidence/jev-hosted/deployed-telemetry.json) contains
+nine such entries in the seven-day bucket and zero matching application entries
+in `_Default`. The arbitrary probe text is absent. No request, credentials,
+source, context, run identifier or answer enters the application logger.
+A seven-day configured bucket is not proof of seven-day physical deletion.
+Platform, Auth and audit retention follow separate policies. There is no
+application archive of source images, context or answers.
 
-Verify deployed hourly cleanup and expired reads with isolated synthetic metadata,
-including daily records at the second following UTC midnight, monthly records
-35 days after month end and connection-slot pruning. Preserve real counters.
-The cleanup function is not deployed, so these remain local/emulator evidence.
-Active-use browser analysis cleanup is covered by the focused checks below.
+The hourly UTC scheduler is enabled and authenticates as the cleanup identity.
+[The deployed cleanup probe](evidence/jev-hosted/deployed-cleanup.json) inserted
+four isolated synthetic records while control stayed disabled. Running the actual
+scheduler removed expired daily/monthly records and retained future records.
+The probe removed its remaining fixtures and confirmed control was unchanged.
+The first short observation finished before Scheduler ran; a later probe's
+raw JSON comparison also misclassified equivalent empty-array encoding as a
+control change. Both failed records are retained. The final comparison normalizes
+field order and absent versus empty array values and passes.
+
+This proves deployed cleanup respects supplied expiry times. It does not prove
+the whole admission path computes the specified next-UTC-midnight or month-end
+plus 35-day expiry, rejects expired reads, or prunes connection slots on the
+deployment. Those still have local/emulator evidence only. Active-use browser
+analysis cleanup is covered by the focused checks below.
+
+## Cost of the approved operation
+
+Google charges are possible now that the hosted resources are deployed. The
+US$5 budget sends alerts and does not cap charges. Standard IAM grants are
+[free](https://cloud.google.com/iam/pricing). Secret Manager includes the first
+six active versions per billing account, then charges US$0.06 per version per
+month; disabled versions also count. This project has two accounting versions.
+See [Secret Manager pricing](https://cloud.google.com/secret-manager/pricing).
+Scheduler includes three jobs per billing account, then charges US$0.10 per job
+per month. See [Scheduler pricing](https://cloud.google.com/scheduler/pricing).
+These allowances are shared with other projects. Build, registry, compute,
+database, log, reCAPTCHA and network usage follow their applicable
+[Firebase/Google pricing](https://firebase.google.com/pricing). No zero-cost
+promise is possible. This work made zero paid TypeSafe attempts.
 
 ## Account terms and accounting stop
 
@@ -230,31 +276,51 @@ limited usage metadata and no server content archive. It promises neither
 account-specific zero retention nor processing exclusively in europe-west1.
 
 The separate single ten-minute final acceptance batch, its shutdown minute and
-maximum four new attempts remain untouched. Hosted authorization, trusted
-ingress, no-content telemetry, real cleanup and TypeSafe billing/access still
-block activation. A skipped check is not a pass.
+maximum four new attempts remain untouched. Activation still requires:
 
-Final local checks pass: typecheck, lint, client/function production builds, CSS
-source isolation, all 140 unit tests and the five focused browser checks. The
-separate emulator test is skipped in the ordinary unit command. The first CSS
-check could not bind the sandbox's loopback interface; its rerun with loopback
-access passed and restored a clean production build. The existing large client
-chunk warning remains. None of these results substitutes for the failed hosted
-endpoint checks or the unrun retention observations.
+- Operator TypeSafe billing reconciliation, current credit, dedicated key,
+  pinned-model/image access, account terms, refill disabled and spending alerts.
+- Verified trusted ingress on both routes, including forged forwarded prefixes.
+  The unset suffix currently refuses all otherwise valid work.
+- Remaining real deployed credential cases and admission behavior, including
+  transactional allowances, expired reads, expiry calculation and slot pruning.
+  No paid attempt is needed to check these controls.
+- Retention observations over their actual windows. Configured seven-day logs
+  and anonymous cleanup eligibility do not establish physical deletion timing.
+
+A skipped check is not a pass. Keep compiled dispatch and deployed control off
+while any required prerequisite is incomplete.
+
+Final local checks pass: typecheck, lint and all 140 unit tests. The separate
+emulator test is skipped in the ordinary unit command. The function production
+build passed before the successful deployment. The earlier client build, CSS
+source isolation and five focused browser checks still apply because no client
+source changed during deployment. The first CSS check could not bind the
+sandbox's loopback interface; its rerun with loopback access passed and restored
+a clean production build. The existing large client chunk warning remains.
+Local checks do not substitute for unrun deployed checks or retention observations.
 
 ## Standards
 
-The independent standards review found no documented violations or substantive
-code smells. It used the staged change from starting commit
-`9b8f665ab64f99eaabf2f8747405049bcef9ccbf`.
+The independent follow-up review of staged changes since `a823a7b` found no hard
+documented violations and no substantive baseline code smells. It confirmed
+disabled dispatch, server-side credentials, in-memory probe credentials and
+telemetry limited to fixed status fields and cleanup counts. The initial review
+from `9b8f665ab64f99eaabf2f8747405049bcef9ccbf` also had no findings.
 
 ## Spec
 
-The independent spec review found three disclosed incomplete requirement groups:
-function/Hosting publication, deployed controls and retention proof, and TypeSafe
-account reconciliation and readiness. It found no scope creep or confirmed code
-defect. Review prompted the policy-version preservation fix above, checked
-against Google's documentation before any IAM apply. The ticket remains in
-progress and activation remains blocked.
+The independent follow-up review found two disclosed incomplete requirement
+groups. Deployed controls and retention still need trusted ingress, allowance
+behavior, expiry calculation, expired-read refusal and slot pruning, with actual
+deletion timing remaining an observation limit. TypeSafe account readiness still
+needs the two stopped attempts reconciled, current credit and account-specific
+key/access/terms/refill/alert controls. It found no scope creep or confirmed code
+defect. The real browser credential/revocation checks and metadata logger support
+the requested verification without paid dispatch. Publication is complete.
 
-Remaining findings: Standards zero; Spec three incomplete requirement groups.
+The initial review prompted the IAM policy-version preservation fix before
+apply. The ticket remains in progress and activation remains blocked.
+
+Remaining findings: Standards zero; Spec two incomplete requirement groups,
+with zero confirmed code defects.
