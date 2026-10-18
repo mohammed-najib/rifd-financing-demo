@@ -3,12 +3,18 @@
   "source": "User report of the signed-in TypeSafe console; no agent access to private account pages",
   "creditDisplayObserved": true,
   "automaticRefillDisabled": true,
-  "usageProvidesOnlyRoundedTotal": true,
   "stoppedAttemptChargesReconciled": false,
   "dedicatedKeyInstalled": true,
   "accountValuesStoredOnlyInIgnoredArtifacts": true,
   "providerAttempts": 0,
   "keyCustodyEvidence": "provider-key-custody.json",
   "inferenceAttemptsDuringHostedPreparation": 0,
-  "readOnlyModelMetadataRequests": 1
+  "readOnlyModelMetadataRequests": 1,
+  "latestCreditReportAt": "2026-10-18T10:42:19Z",
+  "ordinarySelfServicePrepaidTermsConfirmed": true,
+  "usageExportReceived": true,
+  "usageExportHasMonetaryCharges": false,
+  "consoleMonetaryTotalIsRounded": true,
+  "operatorCouldNotFindSpendingAlertSetting": true,
+  "allRequestedOperatorFactsAnswered": true
 }
