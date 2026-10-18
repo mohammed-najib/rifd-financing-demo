@@ -1,0 +1,15 @@
+{
+  "recordedAt": "2026-10-18T10:58:36.903282+00:00",
+  "localInspectionProcessesSignalled": 2,
+  "localPortsClosed": {
+    "4174": true,
+    "4184": true
+  },
+  "newProviderAttempts": 0,
+  "haltedHistoricalControllerRestarted": false,
+  "initialLocalPortsClosed": {
+    "4174": true,
+    "4184": false
+  },
+  "verifiedAt": "2026-10-18T10:58:56.244894+00:00"
+}

@@ -1,0 +1,8 @@
+
+ RUN  v5.0.4 /home/mdnb/Dev/Projects/project_impress_bank
+
+
+ Test Files  4 passed (4)
+      Tests  29 passed (29)
+   Start at  13:51:41
+   Duration  1.48s (tests 46%, import 44%, transform 9%, worker 2%)

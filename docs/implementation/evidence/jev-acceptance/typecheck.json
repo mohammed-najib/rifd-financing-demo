@@ -1,0 +1,11 @@
+{
+  "command": [
+    "pnpm",
+    "typecheck"
+  ],
+  "startedAt": "2026-10-18T10:51:41.147969+00:00",
+  "exitCode": 0,
+  "timedOut": false,
+  "finishedAt": "2026-10-18T10:51:57.763692+00:00",
+  "elapsedMs": 16615.757
+}

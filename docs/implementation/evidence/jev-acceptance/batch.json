@@ -1,0 +1,28 @@
+{
+  "conservativeStartedAt": "2026-10-18T10:50:00Z",
+  "firstClockObservation": "2026-10-18T10:50:22Z",
+  "collectionStoppedAt": "2026-10-18T10:58:02.965827+00:00",
+  "collectionDeadline": "2026-10-18T10:59:00Z",
+  "reportDeadline": "2026-10-18T11:00:00Z",
+  "shutdownReportingReserveSeconds": 60,
+  "collectionWithinDeadline": true,
+  "elapsedSecondsThroughCollection": 482.966,
+  "batchCount": 1,
+  "providerAttempts": 0,
+  "reservations": 0,
+  "nativeArabic": "skipped-missing-reconciliation",
+  "nativeEnglish": "skipped-missing-reconciliation",
+  "activationReady": false,
+  "compiledDispatchEnabled": false,
+  "deployedDisableState": "unchanged; prior Ticket13 observation, not a fresh cloud read",
+  "reportFinalizedAt": "2026-10-18T10:58:56.245433+00:00",
+  "elapsedSecondsThroughReport": 536.245,
+  "reportWithinDeadline": true,
+  "review": {
+    "standardsFindings": 0,
+    "specFindings": 0,
+    "minorProseFindingCorrected": true
+  },
+  "preservedFilesUnchanged": 550,
+  "shutdownVerifiedAt": "2026-10-18T10:58:56.245433+00:00"
+}

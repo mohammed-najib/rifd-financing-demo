@@ -1,0 +1,32 @@
+{
+  "eligibleForReservation": false,
+  "reason": "missing-reconciliation",
+  "dispatchAuthorized": false,
+  "checkedAt": "2026-10-18T10:54:37.025091+00:00",
+  "exitCode": 1,
+  "historicalOutstandingAttempts": 2,
+  "actualStoppedChargesReconciled": false,
+  "newProviderAttempts": 0,
+  "newReservations": 0,
+  "nativeExamples": [
+    {
+      "language": "ar",
+      "status": "skipped",
+      "reason": "missing-reconciliation"
+    },
+    {
+      "language": "en",
+      "status": "skipped",
+      "reason": "missing-reconciliation"
+    }
+  ],
+  "nativeFindings": 0,
+  "nativeShownRegions": 0,
+  "nativeSuppressions": 0,
+  "nativeFailedAttempts": 0,
+  "nativeUnknownAttempts": 0,
+  "nativePreparationMs": null,
+  "nativeProviderMs": null,
+  "nativeEndToEndMs": null,
+  "billing": "No new inference dispatch. Actual historical charges remain unknown; matching usage export is not charge evidence. Credit console not refreshed during this batch."
+}

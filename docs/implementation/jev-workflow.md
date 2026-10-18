@@ -4,7 +4,7 @@ Ticket [12](../../.scratch/jev-evidence-assistance-implementation/issues/12-conn
 connects the admitted server request to the fixed page, comparison and bound
 verification stages. Production dispatch remains disabled by
 `liveDispatchEnabled = false` in `functions/index.ts`, independently of admission
-control. [Hosted preparation and outstanding controls](jev-hosted-operation.md) are recorded separately. Bounded acceptance remains separate work.
+control. [Hosted preparation and outstanding controls](jev-hosted-operation.md) and the completed [bounded acceptance decision](jev-acceptance.md) are recorded separately. Activation remains blocked.
 
 ## Provider boundary
 

@@ -1,0 +1,11 @@
+{
+  "command": [
+    "node",
+    "/tmp/jev-acceptance-inspect.mjs"
+  ],
+  "startedAt": "2026-10-18T10:54:35.324800+00:00",
+  "exitCode": 0,
+  "timedOut": false,
+  "finishedAt": "2026-10-18T10:54:46.616532+00:00",
+  "elapsedMs": 11291.753
+}
