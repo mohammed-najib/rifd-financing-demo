@@ -1,0 +1,21 @@
+{
+  "recordedAt": "2026-10-18T10:47:57.617620+00:00",
+  "source": "Explicit operator instruction in the implementation conversation",
+  "instruction": "No need for evidence of  actual debited charges and a supported spending-alert option",
+  "ticket": "13-prepare-and-verify-hosted-operation",
+  "status": "resolved",
+  "waivedEvidence": [
+    "actual-debited-charges",
+    "supported-typesafe-spending-alert-option"
+  ],
+  "actualChargesReconciled": false,
+  "typeSafeAlertConfigured": false,
+  "historicalLedgersPreserved": true,
+  "compiledDispatchEnabled": false,
+  "deployedControlEnabled": false,
+  "accountingGuardUnchanged": true,
+  "paidDispatchAuthorized": false,
+  "ticket14AcceptanceRun": false,
+  "providerInferenceAttempts": 0,
+  "supportOutreachRequiredForTicket13": false
+}

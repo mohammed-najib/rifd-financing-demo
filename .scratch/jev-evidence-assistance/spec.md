@@ -270,6 +270,12 @@ For the deployed feature retain the US$5/month TypeSafe and US$5/month Google op
 
 Retain daily allowance metadata for two UTC days, monthly aggregates until 35 days after that month ends and sanitized application logs for seven days. Expire reads and verify actual cleanup. No filenames, document/application IDs, declarations, answers, images, names, credentials or raw addresses enter allowance records or logs. Provider/platform/auth retention follows its own terms. Explain that Google and TypeSafe process transmitted fictional data; promise neither account-specific zero retention nor processing solely within the function region.
 
+**Operator update, 2026-10-18:** For completion of hosted-preparation Ticket 13,
+the operator waived evidence of actual debited charges and a supported TypeSafe
+spending-alert option. The [Ticket 13 resolution](../jev-evidence-assistance-implementation/issues/13-prepare-and-verify-hosted-operation.md)
+records those items as waived rather than verified. Existing runtime/accounting
+guards and the separate bounded acceptance and activation work remain unchanged.
+
 ### Dependency order of implementation slices
 
 Create implementation tickets in a separate effort from this accepted planning handoff. These are ordered delivery slices, not new Wayfinder decisions. Ordinary development and CI use dummy credentials and fake transport, preventing external inference.

@@ -16,5 +16,9 @@
   "usageExportHasMonetaryCharges": false,
   "consoleMonetaryTotalIsRounded": true,
   "operatorCouldNotFindSpendingAlertSetting": true,
-  "allRequestedOperatorFactsAnswered": true
+  "allRequestedOperatorFactsAnswered": true,
+  "actualDebitEvidenceWaivedByOperator": true,
+  "supportedTypeSafeAlertEvidenceWaivedByOperator": true,
+  "ticket13Status": "resolved",
+  "resolutionEvidence": "operator-resolution.json"
 }

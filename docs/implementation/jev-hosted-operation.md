@@ -1,16 +1,30 @@
 # Hosted evidence assistance preparation
 
 Ticket [13](../../.scratch/jev-evidence-assistance-implementation/issues/13-prepare-and-verify-hosted-operation.md)
-remains in progress. The client, Hosting rewrite and both functions are published
-at [the demo](https://rifd-portfolio-mdnb.web.app). Dispatch remains compiled off
-and deployed admission control is disabled. Ordinary work and Saved demonstrations
-remain available. No TypeSafe inference, purchase, refill or final acceptance
-batch ran. The remaining account prerequisites are historical charge reconciliation,
-and TypeSafe spending alerts. The operator has confirmed ordinary self-service
-prepaid terms and supplied current displayed credit,
-confirmed refill is disabled and installed the dedicated key. That key passed a
-read-only model-listing request. These observations do not reconcile charges or
-authorize inference.
+is resolved under the operator's 2026-10-18 scope update. Hosted configuration and
+deployed control checks passed. The operator waived evidence of actual debited
+charges and a supported TypeSafe spending-alert option. Charges remain unverified
+and no TypeSafe alert is configured; neither item is reported as a verification
+pass.
+
+The client, Hosting rewrite and both functions are published at
+[the demo](https://rifd-portfolio-mdnb.web.app). Dispatch remains compiled off and
+deployed admission control is disabled. Ordinary work and Saved demonstrations
+remain available. The operator confirmed ordinary self-service prepaid terms,
+current displayed credit and refill disabled, and installed the dedicated key.
+That key passed read-only model listing. No TypeSafe inference, purchase, refill
+or final acceptance batch ran.
+
+## Operator resolution on 2026-10-18
+
+The operator instructed: "No need for evidence of  actual debited charges and a
+supported spending-alert option". The [resolution record](evidence/jev-hosted/operator-resolution.json)
+closes those two preparation requirements by waiver. No support outreach is
+required to close Ticket 13. The CSV, private comparison, actual unknown charge
+fields and historical ledgers are preserved. The compiled dispatch stop, deployed
+disable state, US$1 validation ceiling, US$4 protected-credit rule and separate
+Ticket 14 work remain unchanged. The existing accounting guard still refuses
+unknown billing before a future paid call.
 
 ## Configured and checked on 2026-10-18
 
@@ -55,8 +69,8 @@ project's gross monthly costs against US$5, with actual-spend alerts at 50%, 80%
 and 100% and a forecast alert at 100%. Default billing recipients and project
 owners receive the platform notifications. Alert delivery has not been observed.
 The existing budgets were preserved. The TypeSafe US$5 monthly target remains;
-the operator could not find an account alert setting. A supported alert option
-remains to be established with the provider. Neither operating target is a guaranteed
+the operator could not find an account alert setting and waived evidence of a
+supported TypeSafe alert option. No such alert is configured. Neither operating target is a guaranteed
 account-wide cap. Google's [budget guidance](https://docs.cloud.google.com/billing/docs/how-to/budgets)
 explains that alerts alone do not prevent charges.
 
@@ -271,8 +285,8 @@ cannot stay current indefinitely. The custody check read version metadata only;
 the later model request and asset audit read the value only into process memory.
 No key entered an env file, shell history, chat or report. The operator subsequently
 confirmed ordinary self-service prepaid terms and refreshed the displayed credit
-observation. The operator could not find a spending-alert setting; provider confirmation of
-a supported alert option remains necessary. No custom
+observation. The operator could not find a spending-alert setting and subsequently
+waived evidence of a supported option for this preparation ticket. No custom
 zero-retention agreement is assumed.
 
 Google's [anonymous Auth cleanup guidance](https://firebase.google.com/docs/auth/web/anonymous-auth#automatic-clean-up)
@@ -358,24 +372,17 @@ limited usage metadata and no server content archive. It promises neither
 account-specific zero retention nor processing exclusively in europe-west1.
 
 The separate single ten-minute final acceptance batch, its shutdown minute and
-maximum four new attempts remain untouched. The agent-accessible deployment,
-ingress, admission, cleanup, credential, cache and content-free telemetry checks
-are complete. Activation still requires actual historical charge reconciliation,
-a fresh pre-dispatch credit read, TypeSafe alert confirmation and the separate
-bounded acceptance decision. A rounded usage total cannot establish the two
-stopped attempts' actual charges. The documented public API has model listing
-and evaluation, without a billing reconciliation endpoint. Do not probe undocumented
-billing paths or substitute token estimates for actual debits.
+maximum four new attempts remain untouched. Hosted preparation is complete under
+the operator resolution above. The earlier requests for actual-debit evidence and
+a supported TypeSafe alert option are waived for Ticket 13; no further operator
+account action or provider support response is needed to close this ticket.
 
-The supplied export contains usage rather than charges. Obtain the provider's
-billing breakdown
-for both stopped requests and prior pre-feature charges. The provider's
-[support guidance](https://help.typesafe.ai/articles/8737694518-who-should-i-reach-out-to-with-support-requests)
-identifies its billing contact. The operator has answered all requested account questions. No support message
-has been sent on the user's behalf. A local draft with the two timestamps is prepared in the ignored
-`artifacts/typesafe-billing-request.txt`; the operator must fill the organization
-locally. No purchase or refill is needed to obtain this evidence. The validation
-accounting file remains incomplete and the read-only guard refuses it.
+The supplied export contains usage rather than charges. Actual monetary values
+remain unknown, and the existing validation-accounting guard still refuses the
+incomplete state. The local support draft is superseded by the waiver; no message
+was sent. Any future paid work still encounters the accounting guard and the
+separate acceptance/activation decision. Current token-price estimates and rounded
+balance displays have not been substituted for actual historical debits.
 
 Final local checks pass: typecheck, lint, all 143 unit tests and the standalone
 hosted-verifier typecheck. The separate emulator test is skipped in the ordinary
@@ -407,35 +414,36 @@ also found no hard violation or substantive smell. It confirmed that the usage
 export review publishes no account identifiers, balances or raw usage values.
 
 
+The closure review since `d89f711` found no hard documented violations or
+substantive smells. It confirmed accurate attribution of both operator waivers,
+private account data omission and unchanged runtime/accounting guards.
+
 ## Spec
 
-One requirement group remains partial, accurately disclosed. The spec requires
-reconciliation of both stopped attempts and actual available credit before a
-future paid call, plus pinned-model/image access, pricing, applicable terms,
-dedicated-key custody, refill disabled and account cleanup before activation.
-Actual historical charges, fresh reconciled credit and TypeSafe alerts remain
-unresolved. Subsequent operator confirmation establishes ordinary self-service
-prepaid terms. The usage export supports historical token usage, not actual
-monetary reconciliation. Model listing authenticates the installed key
-but does not prove native image evaluation. These remain prerequisites for future
-paid work; dispatch is compiled off, production control is disabled and no
-inference ran.
-
-The review found no scope creep or confirmed implementation errors. The
-source-free handshake and temporary IAM-private verifier support the requested
+The independent reviews found no scope creep or confirmed implementation errors.
+The source-free handshake and temporary IAM-private verifier support the requested
 ingress and deployed control checks. The same-guest network-attribution limitation
-is stated explicitly. Firestore evidence distinguishes production-component
-verification from an enabled public admission run. Configured retention, synthetic
-expiry boundaries and observed cleanup support preparation. Physical log/Auth
-deletion remains an observation limit, with no new waiting period imposed.
+is explicit. Firestore evidence distinguishes production-component verification
+from an enabled public admission run. Configured retention, synthetic expiry
+boundaries and observed cleanup support preparation. Physical log/Auth deletion
+remains an observation limit, with no new waiting period imposed.
 
-The initial review prompted the IAM policy-version preservation fix before
-apply. The ticket remains in progress only for the account-readiness group.
+The last review before the operator resolution identified one incomplete account
+evidence group: actual historical charges and a supported TypeSafe alert option.
+The operator's explicit scope update now waives those two evidence requirements
+for closing Ticket 13. They remain unverified facts, and the accounting guard
+continues to stop unknown billing. Model listing authenticates the installed key;
+native image evaluation belongs to the separate acceptance work.
 
-The documentation-only follow-up found no new defect, scope creep or privacy
-issue. It confirmed that the export supports usage comparison without reconciling
-monetary debits, and that an alert setting not found by the operator remains an
-unresolved control. No additional unit run was needed for these evidence changes.
+The initial review prompted the IAM policy-version preservation fix before apply.
+The later documentation review confirmed that the CSV supports usage comparison
+without proving monetary debits. No additional unit run is needed for this
+resolution-only documentation change. Earlier passing runtime and local checks
+remain applicable because application code and cloud configuration did not change.
 
-Remaining findings: Standards zero; Spec one incomplete account-readiness group,
-with zero confirmed code defects or scope creep.
+The independent closure review found that the update follows the operator's
+instruction, closes the two waived preparation requirements and preserves their
+unverified status. It found no scope creep, privacy issue or confirmed defect.
+The closure grants no paid dispatch or activation authorization.
+
+Remaining Ticket 13 findings under the updated scope: Standards zero; Spec zero.

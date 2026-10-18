@@ -2,7 +2,7 @@
 
 Ticket [11](../../.scratch/jev-evidence-assistance-implementation/issues/11-enforce-live-access-and-spending-limits.md)
 adds the bounded service boundary. [Ticket 12's integration](jev-workflow.md) supplies the fixed Jev workflow;
-ticket 13 configures and verifies hosted operation. Production dispatch remains
+ticket 13 completed hosted preparation under its recorded operator waiver. Production dispatch remains
 disabled. No external inference or deployment is part of these checks.
 
 ## Request and browser behavior
@@ -102,11 +102,11 @@ bounds requests by the observed network, without claiming unique visitor identit
 See [deployed checks](jev-hosted-operation.md#deployed-control-evidence).
 
 The application-log bucket contract is in `functions/log-retention.json`.
-Ticket 13 must provision that bucket with seven-day retention, route matching
-application logs to it and exclude duplicate storage in longer-lived buckets.
-Check the deployed service names in its filter, actual cleanup, and platform/Auth
-retention separately. Configure Identity Platform anonymous-account cleanup in
-that same hosted effort, without promising deletion exactly at 30 days.
+Ticket 13 provisioned that bucket with seven-day retention, routed matching
+application logs to it and excluded duplicate storage in longer-lived buckets.
+The hosted report records deployed service filters, observed metadata cleanup and
+separate platform/Auth retention limits. Identity Platform anonymous-account
+cleanup is enabled, without promising deletion exactly at 30 days.
 Live dispatch stays closed until those checks and the bounded acceptance work
 are complete. A compiled dispatch switch keeps production closed even if control is
 mistakenly enabled.
