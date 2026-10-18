@@ -1,0 +1,31 @@
+{
+  "verifiedAt": "2026-10-18T11:09:11.650421+00:00",
+  "processesSignalled": [
+    "local-firestore",
+    "local-inspection",
+    "local-inspection"
+  ],
+  "localPortsClosed": {
+    "8080": true,
+    "4184": true
+  },
+  "conservativeStartedAt": "2026-10-18T11:02:00Z",
+  "collectionStoppedAt": "2026-10-18T11:09:11.650421+00:00",
+  "collectionDeadline": "2026-10-18T11:11:00Z",
+  "reportDeadline": "2026-10-18T11:12:00Z",
+  "providerAttempts": 2,
+  "nativeBoundVerificationAttempts": 0,
+  "retries": 0,
+  "replacementCalls": 0,
+  "historicalControllerRestarted": false,
+  "deployedControlsChanged": false,
+  "historicalActualBilling": "unreconciled",
+  "newActualBilling": "pending operator report",
+  "reportFinalizedAt": "2026-10-18T11:10:56.952131+00:00",
+  "reportWithinDeadline": true,
+  "standardsIssues": 0,
+  "specIssuesDisclosed": 1,
+  "spendingControlLimitation": "Full two-attempt per-example plans were not reserved before starting. Recorded per-dispatch planning amounts are not established charge maxima.",
+  "activationReady": false,
+  "reservationLimitationReviewedAfterDisclosure": true
+}

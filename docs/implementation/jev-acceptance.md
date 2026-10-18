@@ -1,5 +1,11 @@
 # Focused evidence assistance acceptance
 
+The operator subsequently authorized running both skipped checks and reporting
+TypeSafe credit spent afterward. The [follow-up outcome](#operator-authorized-follow-up)
+records a passing emulator check and two completed native examples. Actual
+charges remain pending the operator's report, and live dispatch stays disabled.
+The original bounded batch below is preserved as its own historical outcome.
+
 Ticket [14](../../.scratch/jev-evidence-assistance-implementation/issues/14-run-focused-acceptance-and-decide-activation-readiness.md)
 completed one bounded acceptance batch on 2026-10-18. **Do not activate live
 dispatch.** The accounting guard still refuses `missing-reconciliation`, and
@@ -153,3 +159,90 @@ intact under the [preservation check](evidence/jev-acceptance/preservation.json)
 ## Review and closure
 
 The independent Standards and Spec reviews compared this report and evidence with starting commit `0d26ace4f1e98985ca3989415ac4f34594e2eddd`. Standards found one minor prose issue, corrected before commit, and no code smells. Spec found no substantive omissions, scope creep or incorrect behavior. The final [batch record](evidence/jev-acceptance/batch.json) and [shutdown record](evidence/jev-acceptance/shutdown.json) close the shared time window. All 550 preserved files matched their preparation hashes. Remaining findings: Standards zero; Spec zero.
+
+## Operator-authorized follow-up
+
+The operator instructed, "do them both and for typesafe I will later after the
+run will tell you how much credit is spent". The [authorization record](evidence/jev-acceptance/followup/authorization.json)
+permits a limited follow-up with actual spending reported afterward. This
+explicitly changes the earlier requirement to reconcile actual charges before
+this smoke run. It does not mark historical billing reconciled, alter the
+permanent accounting guard, enable hosted dispatch or restart the retired
+controller. A separate local ledger records every new attempt before transport,
+including a US$0.002 planning amount per dispatched attempt and unknown actual
+charges. The runner did not reserve each example's entire two-attempt plan before
+starting, and this report does not establish US$0.002 as a proven maximum charge.
+This is a spending-control limitation of the local smoke runner. The last
+privately recorded credit exceeds the protected balance after the recorded
+planning amounts, but no fresh console credit observation was available.
+Compliance with cumulative actual charges and current protected credit remains
+unverified until the operator supplies actual spending and credit evidence.
+
+The follow-up uses a conservative 11:02:00 UTC start, a collection cutoff of
+11:11:00 and an 11:12:00 reporting deadline on 2026-10-18. It was explicitly
+requested after the original batch. No autonomous additional collection or
+replacement examples were added.
+
+The existing Firestore emulator test passed with the repository's actual
+deny-all rules and local `demo-rifd` database. It checks transaction contention,
+shared admission limits, unknown-accounting stops, denied browser metadata reads,
+privacy of identifiers and expiry cleanup. The final complete ordinary suite
+with `FIRESTORE_EMULATOR_HOST=127.0.0.1:8080` passed **144 tests with zero skips**.
+The emulator's focused run took 10.78 s and the complete suite took 5.87 s as
+reported by Vitest. Typecheck passed. [Test evidence](evidence/jev-acceptance/followup/full-unit-with-emulator.log)
+and the [focused emulator log](evidence/jev-acceptance/followup/emulator-test.log)
+are retained. The original skipped result remains unchanged.
+
+Both requested native examples completed using the dedicated secret and real
+`jev-1.14.0` inference through the existing native/TanStack bridge and public
+browser assistance workflow. The secret stayed in process memory and never
+entered browser code or evidence files. The local smoke transport did not invoke
+the disabled deployed function, so this does not establish a deployed native run.
+
+| Example | Displayed findings | Shown / suppressed regions | Attachment preparation / before-dispatch / provider / run elapsed |
+| --- | --- | --- | --- |
+| [Arabic identity](evidence/jev-acceptance/followup/ar-identity-01.png) | Identity category and printed name present; readability and name comparison undetermined | **0 / 1** | 1.242 / 0.340 / 1.127 / 2.018 s |
+| [English identity](evidence/jev-acceptance/followup/en-identity-10.png) | Identity category, clear text, printed name present and name consistent | **0 / 1** | 1.242 / 0.357 / 0.874 / 1.900 s |
+
+The displayed panels and actual source rasters were inspected. Both printed
+names match the supplied fictional declarations. The Arabic native readability
+Score is 1.97, below the fixed display threshold, and its comparison is also
+withheld as undetermined. The English single-value probability is 0.98, below
+the region eligibility threshold. Both candidate regions remain visibly
+suppressed. No highlight was shown and no suppressed region counts as successful
+highlight coverage. There are eight displayed finding values, including two
+undetermined values, two suppressed regions and zero failed source pages.
+
+Exactly **two provider attempts** returned HTTP 200 with usage, one combined
+request per language. Both bound-verification stages were **skipped for
+`no-eligible-regions`**. No automatic retries, replacement calls, failed attempts
+or unknown transport outcomes occurred. The two unused attempt slots grant no
+further collection permission. A local DOM setup error was corrected before any
+provider dispatch; its empty ledger and failure log remain private.
+
+[Sanitized native results](evidence/jev-acceptance/followup/native-results.json)
+retain stage outcomes, source hashes, versions, findings, suppressions and
+timings. Attachment preparation precedes the Run click. Before-dispatch time
+includes run preparation; provider time measures the HTTP exchange, and run
+elapsed starts at the Run click and ends at the terminal result. These two cases
+do not establish latency percentiles. Raw responses, exact token usage, provider
+request identifiers and the attempt ledger remain in ignored
+`artifacts/acceptance-followup/`, with content hashes in the sanitized record.
+Usage accounting reported by the application means tokens were supplied; actual
+billing remains **pending the operator's credit-spent report**.
+
+All 550 historical files still match their original hashes. No historical
+attempt, policy, Saved capture or source changed. Keep dispatch disabled pending
+actual reconciliation and an activation decision. Native name checking now has
+this limited smoke evidence, while native bound verification and useful
+highlights remain unobserved in the follow-up. All broad quality, cost and p95
+claims listed above remain unverified. Post-run billing cannot retroactively
+establish a reservation made before dispatch. This smoke runner's planning
+limitation must not be treated as a successful spending-control acceptance.
+
+Independent follow-up review found zero Standards issues and one Spec issue,
+the reservation limitation now disclosed above. Native outcomes and test counts
+matched the evidence. No further paid collection was used to address the finding.
+The [closure record](evidence/jev-acceptance/followup/closure.json) confirms both
+temporary local servers stopped within the authorized window. The production
+admission and accounting implementations remain unchanged.

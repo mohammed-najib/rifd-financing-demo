@@ -4,7 +4,7 @@
 
 **Blocked by:** [13: Prepare and verify hosted operation](13-prepare-and-verify-hosted-operation.md).
 
-**Status:** resolved on 2026-10-18. The single bounded acceptance batch is complete; activation is blocked. All 44 focused browser checks and 143 ordinary unit tests passed, with one emulator test skipped. Both optional native checks were skipped because actual billing remains unreconciled. Dispatch remains disabled. See the [acceptance report](../../../docs/implementation/jev-acceptance.md).
+**Status:** resolved on 2026-10-18. The original bounded acceptance batch and an explicitly operator-authorized follow-up are complete; activation stays disabled. All 44 focused browser checks passed. The follow-up full unit suite passed 144 tests with zero skips, including the emulator check. Arabic and English native checks completed in two provider attempts; both regions were suppressed and bound verification was skipped for no eligible regions. Actual billing is pending the operator's post-run credit report. See the [acceptance report](../../../docs/implementation/jev-acceptance.md).
 
 Specification: [Experimental Jev evidence assistance](../../jev-evidence-assistance/spec.md). Relevant decisions: [Focused acceptance and honest limits](../../jev-evidence-assistance/spec.md#focused-acceptance-and-honest-limits); [What has been measured](../../jev-evidence-assistance/spec.md#what-has-been-measured); [Server, accounts, spending and privacy](../../jev-evidence-assistance/spec.md#server-accounts-spending-and-privacy).
 
@@ -23,3 +23,7 @@ User stories: 24, 25, 38, 43, 62, 64.
 ## Acceptance outcome
 
 The checkboxes record execution of this bounded decision workflow, including its conditional skips. They do not mean paid dispatch or activation passed. Accounting returned `missing-reconciliation`; zero new attempts or reservations were made. The five unchanged Saved demonstrations were replayed and inspected, with four displayed highlights, six displayed comparisons and six withheld comparisons. Native preparation/provider/end-to-end timings remain unavailable. The report retains exact commands, timings, failures, skips, source screenshots, preservation evidence and the decision to keep dispatch disabled.
+
+The paragraph above records the original batch. The operator then explicitly requested both skipped checks and deferred actual credit-spent reporting until after the native run. The follow-up records the now-passing emulator check, two completed native examples, measured timings, zero displayed highlights, two visible suppressions and two skipped bound-verification stages. The permanent accounting guard and deployed disable state were not changed. Historical and new actual charges remain unreconciled pending the operator's report.
+
+Follow-up review also identified a local runner limitation: it recorded per-dispatch planning amounts but did not reserve the whole two-attempt plan before each example. The amounts are not established charge maxima. The report discloses this unresolved spending-control limitation and does not count the smoke run as passing spending-control acceptance.
