@@ -6,12 +6,13 @@ import { retentionMilliseconds } from './record'
 import type { AnalysisStorage, AnalysisTicket } from './storage'
 
 const coverage = emptyCoverage
+const initialScope = (totalPages: number) => ({ ...coverage(), totalPages, selected: totalPages <= 4 ? sourcePages(totalPages) : [], unchecked: sourcePages(totalPages), uncheckedCount: totalPages })
 
 export function createAssistance(resolve: () => Promise<Result<SelectedEvidence>>, transport: EvidenceTransport | undefined, storage: AnalysisStorage, authorizeClear: () => Promise<Result<SelectedEvidence['binding']>>, onDispose: () => void) {
   let state: AssistanceState = { status: 'idle', result: null, coverage: coverage(), storage: 'available' }
   let generation = 0
   let abort: AbortController | null = null
-  let inspectedHash: string | null = null
+  let inspectedScope: { hash: string; totalPages: number } | null = null
   let dependencyKey: string | null = null
   let record: EvidenceRun | null = null
   let ticket: AnalysisTicket | null = null
@@ -78,7 +79,10 @@ export function createAssistance(resolve: () => Promise<Result<SelectedEvidence>
       }
       if (record && Date.parse(record.expiresAt) <= Date.now()) { record = null; state.status = 'idle'; state.reason = undefined; state.coverage = coverage() }
       if (record) display(selection)
-      else state.result = null
+      else {
+        state.result = null
+        if (inspectedScope?.hash === selection.source.hash && state.coverage.totalPages === null && !['preparing', 'running'].includes(state.status)) state.coverage = initialScope(inspectedScope.totalPages)
+      }
       notify()
     })().finally(() => { refreshing = null })
     return refreshing
@@ -94,14 +98,14 @@ export function createAssistance(resolve: () => Promise<Result<SelectedEvidence>
       if (state.status === 'disposed') return { ok: false, error: { kind: 'unavailable', key: 'error.unavailable' } }
       await refresh()
       const selection = await resolve()
-      if (selection.ok && !abort && !['running', 'preparing'].includes(state.status) && inspectedHash !== selection.value.source.hash) {
+      if (selection.ok && !abort && !['running', 'preparing'].includes(state.status) && inspectedScope?.hash !== selection.value.source.hash) {
         const captured = generation, inspection = new AbortController()
         abort = inspection
         try {
           const totalPages = await inspectSource(selection.value.source, inspection.signal)
           if (captured === generation && !inspection.signal.aborted) {
-            inspectedHash = selection.value.source.hash
-            if (!record) state.coverage = { ...coverage(), totalPages, selected: totalPages <= 4 ? sourcePages(totalPages) : [], unchecked: sourcePages(totalPages), uncheckedCount: totalPages }
+            inspectedScope = { hash: selection.value.source.hash, totalPages }
+            if (!record) state.coverage = initialScope(totalPages)
             notify()
           }
         } catch (error) {

@@ -61,9 +61,14 @@ export function EvidenceAssistancePanel({ demo, input, product, language, disabl
   const clearAnalysis = async () => {
     setCleared(null)
     const controller = handle.current ?? demo.createEvidenceAssistance(input)
+    if (controller === handle.current && scope.length) setSelectedPages(scope)
     const result = await controller.clear()
     setState(controller.read()); setCleared(result.ok ? 'success' : 'failed')
     if (controller !== handle.current) controller.dispose()
+    else {
+      const inspected = await controller.inspect()
+      if (controller === handle.current) { setSelection(inspected.ok ? inspected.value : null); setState(controller.read()) }
+    }
   }
   const scope = selectedPages ?? state?.coverage.selected ?? []
   const totalPages = state?.coverage.totalPages
