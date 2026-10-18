@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { bounds, locationTargets, type BoxAnswer, type CropBinding, type NativeCapture, type Rectangle, type RasterManifest, type StageRequest, type EvidenceRun, type SelectedEvidence, type EvidenceLocation } from './contract'
 import type { DocumentSlot } from '../domain/model'
-import blockedRegions from './misleading-regions.json'
+import blockedRegions from './misleading-regions.json' with { type: 'json' }
 
 export const rectangleSchema = z.object({ left: z.number().min(0).max(1), top: z.number().min(0).max(1), right: z.number().min(0).max(1), bottom: z.number().min(0).max(1) }).strict().refine(box => box.left < box.right && box.top < box.bottom)
 const probability = z.number().min(0).max(1)
