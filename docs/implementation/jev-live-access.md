@@ -90,11 +90,16 @@ There is no HTTP operator action or fake transport selector. The dedicated
 stable across revisions and the retained allowance windows. Configure the allowed
 `LIVE_FIREBASE_APP_ID` separately from fictional roles.
 
-`LIVE_TRUSTED_PROXY_SUFFIX` is unset by default. Ticket 13 must verify the actual
-platform-appended ingress chain on direct and Hosting requests, including forged
-forwarded prefixes, before pinning its comma-separated trusted proxy suffix.
-An absent or mismatched suffix fails closed. This local implementation does not
-claim to have verified deployed ingress.
+Ticket 13 verified both real ingress paths. Hosting uses rotating intermediaries,
+so no forwarded proxy prefix is trusted. `LIVE_TRUSTED_INGRESS` pins the observed
+managed socket peer and canonical direct function authority. After Auth and App
+Check, a source-free direct `/network-proof` handshake signs a guest-bound daily
+network identifier derived only from the platform-appended rightmost address.
+Both analysis routes require that proof. Caller-supplied forwarded prefixes cannot
+select the network allowance. Missing configuration, an unexpected peer, another
+issuer authority, tampering, another guest or another UTC day fails closed. This
+bounds requests by the observed network, without claiming unique visitor identity.
+See [deployed checks](jev-hosted-operation.md#deployed-control-evidence).
 
 The application-log bucket contract is in `functions/log-retention.json`.
 Ticket 13 must provision that bucket with seven-day retention, route matching

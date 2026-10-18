@@ -1,0 +1,88 @@
+{
+  "checkedAt": "2026-10-18T10:10:25.302Z",
+  "providerInferenceAttempts": 0,
+  "modelInputTokensSent": 0,
+  "checks": [
+    {
+      "name": "real-browser-cors-and-network-proof",
+      "status": 200,
+      "passed": true
+    },
+    {
+      "name": "forged-prefix-ignored-1",
+      "status": 200,
+      "passed": true
+    },
+    {
+      "name": "forged-prefix-ignored-2",
+      "status": 200,
+      "passed": true
+    },
+    {
+      "name": "proof-missing-auth",
+      "status": 401,
+      "passed": true
+    },
+    {
+      "name": "proof-missing-app-check",
+      "status": 401,
+      "passed": true
+    },
+    {
+      "name": "proof-arbitrary-body",
+      "status": 400,
+      "passed": true
+    },
+    {
+      "name": "alternate-run-app-authority-cannot-issue",
+      "status": 503,
+      "passed": true
+    },
+    {
+      "name": "direct-valid-proof-closed-dispatch",
+      "status": 503,
+      "passed": true
+    },
+    {
+      "name": "direct-tampered-proof-closed-dispatch",
+      "status": 503,
+      "passed": true
+    },
+    {
+      "name": "routed-valid-proof-closed-dispatch",
+      "status": 503,
+      "passed": true
+    },
+    {
+      "name": "routed-tampered-proof-closed-dispatch",
+      "status": 503,
+      "passed": true
+    }
+  ],
+  "controlRemainedDisabled": true,
+  "controlUpdateTimePreserved": true,
+  "method": "Real deployed browser Auth/reCAPTCHA, CORS handshake, operator-only in-memory signature checks, spoofed prefixes and both closed analysis routes",
+  "traceChecks": [
+    {
+      "route": "direct",
+      "expectedIngressVerified": true,
+      "passed": true
+    },
+    {
+      "route": "direct",
+      "expectedIngressVerified": false,
+      "passed": true
+    },
+    {
+      "route": "routed",
+      "expectedIngressVerified": true,
+      "passed": true
+    },
+    {
+      "route": "routed",
+      "expectedIngressVerified": false,
+      "passed": true
+    }
+  ],
+  "passed": true
+}

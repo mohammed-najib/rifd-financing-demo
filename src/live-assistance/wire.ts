@@ -24,6 +24,7 @@ export const liveRequestSchema = z.discriminatedUnion('slot', [
   z.object({ ...base, slot: z.literal('financial'), declaration: z.object({ financial: z.object({ initialSubmissionMonth: month, expectedMonths: z.array(month).length(3), revenue: detail, expenses: detail }).strict() }).strict() }).strict(),
 ])
 export type LiveRequest = z.infer<typeof liveRequestSchema>
+export const networkProofReplySchema = z.object({ status: z.literal('ready'), proof: z.string().min(1).max(1024) }).strict()
 export const liveReasons = ['access-denied', 'service-disabled', 'service-unavailable', 'service-busy', 'accounting-unavailable', 'guest-active', 'guest-rate', 'guest-allowance', 'network-allowance', 'daily-allowance', 'monthly-allowance', 'run-conflict', 'run-expired', 'run-stopped', 'deadline', 'invalid-request', 'body-limit', 'context-limit', 'prepared-limit', 'invalid-response'] as const
 export type LiveReason = typeof liveReasons[number]
 const dispatches = z.array(z.object({ stage: z.enum(['combined-page-declaration', 'page', 'document-comparison', 'bound-verification']), page: z.number().int().min(1).max(100) }).strict()).max(9)

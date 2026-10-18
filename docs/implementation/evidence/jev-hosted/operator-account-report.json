@@ -1,0 +1,14 @@
+{
+  "reportedAt": "2026-10-18T09:55:29.023Z",
+  "source": "User report of the signed-in TypeSafe console; no agent access to private account pages",
+  "creditDisplayObserved": true,
+  "automaticRefillDisabled": true,
+  "usageProvidesOnlyRoundedTotal": true,
+  "stoppedAttemptChargesReconciled": false,
+  "dedicatedKeyInstalled": true,
+  "accountValuesStoredOnlyInIgnoredArtifacts": true,
+  "providerAttempts": 0,
+  "keyCustodyEvidence": "provider-key-custody.json",
+  "inferenceAttemptsDuringHostedPreparation": 0,
+  "readOnlyModelMetadataRequests": 1
+}

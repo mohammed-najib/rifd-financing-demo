@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-10-18T03:55:41.362Z",
+  "checkedAt": "2026-10-18T10:16:55.176Z",
   "projectGrants": [
     {
       "role": "roles/datastore.user",
@@ -79,6 +79,7 @@
         "timeoutSeconds": 55,
         "environmentVariables": {
           "LIVE_FIREBASE_APP_ID": "1:1060449933466:web:ee8cc89d4a15e8e4cda723",
+          "LIVE_TRUSTED_INGRESS": "{\"profile\":\"cloud-run-v2\",\"authority\":\"europe-west1-rifd-portfolio-mdnb.cloudfunctions.net\",\"peers\":[\"169.254.169.126\"]}",
           "FIREBASE_CONFIG": "{\"projectId\":\"rifd-portfolio-mdnb\",\"storageBucket\":\"rifd-portfolio-mdnb.firebasestorage.app\"}",
           "GCLOUD_PROJECT": "rifd-portfolio-mdnb",
           "EVENTARC_CLOUD_EVENT_SOURCE": "projects/rifd-portfolio-mdnb/locations/europe-west1/services/liveAnalysis",
@@ -100,7 +101,7 @@
             "version": "2"
           }
         ],
-        "revision": "liveanalysis-00002-kiw",
+        "revision": "liveanalysis-00003-jeq",
         "maxInstanceRequestConcurrency": 2,
         "availableCpu": "1"
       }

@@ -1,0 +1,108 @@
+{
+  "checkedAt": "2026-10-18T09:51:21.935Z",
+  "method": "IAM-private Cloud Run function with Firebase Hosting preview; raw visitor addresses and credentials remain only in process memory",
+  "checks": [
+    {
+      "route": "direct",
+      "forged": false,
+      "chainLength": 1,
+      "managedPeer": true,
+      "callerMarkersExcluded": true,
+      "firstEqualsFastlyClient": false
+    },
+    {
+      "route": "direct",
+      "forged": true,
+      "chainLength": 3,
+      "managedPeer": true,
+      "callerMarkersExcluded": true,
+      "firstEqualsFastlyClient": true
+    },
+    {
+      "route": "direct",
+      "forged": true,
+      "chainLength": 3,
+      "managedPeer": true,
+      "callerMarkersExcluded": true,
+      "firstEqualsFastlyClient": true
+    },
+    {
+      "route": "direct",
+      "forged": true,
+      "chainLength": 3,
+      "managedPeer": true,
+      "callerMarkersExcluded": true,
+      "firstEqualsFastlyClient": true
+    },
+    {
+      "route": "direct",
+      "forged": true,
+      "chainLength": 3,
+      "managedPeer": true,
+      "callerMarkersExcluded": true,
+      "firstEqualsFastlyClient": true
+    },
+    {
+      "route": "direct",
+      "forged": true,
+      "chainLength": 3,
+      "managedPeer": true,
+      "callerMarkersExcluded": true,
+      "firstEqualsFastlyClient": true
+    },
+    {
+      "route": "routed",
+      "forged": false,
+      "chainLength": 2,
+      "managedPeer": true,
+      "callerMarkersExcluded": true,
+      "firstEqualsFastlyClient": true
+    },
+    {
+      "route": "routed",
+      "forged": true,
+      "chainLength": 2,
+      "managedPeer": true,
+      "callerMarkersExcluded": true,
+      "firstEqualsFastlyClient": true
+    },
+    {
+      "route": "routed",
+      "forged": true,
+      "chainLength": 2,
+      "managedPeer": true,
+      "callerMarkersExcluded": true,
+      "firstEqualsFastlyClient": true
+    },
+    {
+      "route": "routed",
+      "forged": true,
+      "chainLength": 2,
+      "managedPeer": true,
+      "callerMarkersExcluded": true,
+      "firstEqualsFastlyClient": true
+    },
+    {
+      "route": "routed",
+      "forged": true,
+      "chainLength": 2,
+      "managedPeer": true,
+      "callerMarkersExcluded": true,
+      "firstEqualsFastlyClient": true
+    },
+    {
+      "route": "routed",
+      "forged": true,
+      "chainLength": 2,
+      "managedPeer": true,
+      "callerMarkersExcluded": true,
+      "firstEqualsFastlyClient": true
+    }
+  ],
+  "managedPeers": 1,
+  "verifiedHostingProxyAddresses": 6,
+  "allHostingProxiesAreGooglePublicServiceSources": true,
+  "providerAttempts": 0,
+  "passed": true,
+  "limitation": "Hosting intermediaries rotated across requests. Google ownership alone is not a trusted suffix; none of these proxy addresses is trusted by the implemented network-proof policy. Raw visitor addresses were not retained."
+}

@@ -5,7 +5,11 @@ remains in progress. The client, Hosting rewrite and both functions are publishe
 at [the demo](https://rifd-portfolio-mdnb.web.app). Dispatch remains compiled off
 and deployed admission control is disabled. Ordinary work and Saved demonstrations
 remain available. No TypeSafe inference, purchase, refill or final acceptance
-batch ran. Remaining prerequisites are listed below.
+batch ran. The remaining account prerequisites are historical charge reconciliation,
+TypeSafe spending alerts and applicable account terms. The operator has supplied current credit,
+confirmed refill is disabled and installed the dedicated key. That key passed a
+read-only model-listing request. These observations do not reconcile charges or
+authorize inference.
 
 ## Configured and checked on 2026-10-18
 
@@ -16,12 +20,16 @@ secret, IAM, scheduler, App Check and reCAPTCHA APIs are now enabled.
 
 [Configuration evidence](evidence/jev-hosted/configuration.json) records the new
 web app, Standard Firestore database in europe-west1 with delete protection,
-separate `rifd-live-analysis` and `rifd-live-cleanup` service identities, a
-regionally replicated accounting secret and the empty dedicated
-`LIVE_TYPESAFE_API_KEY` secret. No service-account private keys were created.
+separate `rifd-live-analysis` and `rifd-live-cleanup` service identities and
+regionally replicated accounting and provider secrets. This initial record predates
+the operator's dedicated-key upload, verified in
+[the custody record](evidence/jev-hosted/provider-key-custody.json).
+No service-account private keys were created.
 The initial accounting-secret version contained random bytes. After explicit
 approval, version 2 installed a random 64-character ASCII value before first
-runtime use. Only version 2 is bound. Neither version has keyed an allowance.
+runtime use. Only version 2 is bound. Neither version has keyed a production
+allowance. Version 2 signs network proofs;
+the isolated admission verifier used a separate random fixture key.
 Keep the deployed value stable across revisions and retention windows. Its raw
 value never entered source, reports or client configuration.
 
@@ -45,8 +53,8 @@ The [Google alert budget](evidence/jev-hosted/google-budget.json) tracks this
 project's gross monthly costs against US$5, with actual-spend alerts at 50%, 80%
 and 100% and a forecast alert at 100%. Default billing recipients and project
 owners receive the platform notifications. Alert delivery has not been observed.
-The existing budgets were preserved. The TypeSafe US$5 monthly target and its
-alerts remain pending account access. Neither operating target is a guaranteed
+The existing budgets were preserved. The TypeSafe US$5 monthly target remains;
+its account alert setting is pending operator confirmation. Neither operating target is a guaranteed
 account-wide cap. Google's [budget guidance](https://docs.cloud.google.com/billing/docs/how-to/budgets)
 explains that alerts alone do not prevent charges.
 
@@ -55,11 +63,11 @@ maximum one instance, concurrency two and a 55-second timeout. The narrow Hostin
 rewrite precedes the SPA fallback. The deployed runtime inspection confirms
 these settings and the dedicated identities. Analysis is publicly invokable but
 checks Auth and App Check inside the handler. Cleanup has no public invoker and
-accepts the scheduler's dedicated identity. The provider secret has zero versions
-and is neither declared nor bound in the disabled build. Firebase validates all
-declared secrets, including unbound ones, so an unconditional declaration blocked
-the first deployment. Later activation requires the dedicated provider key,
-binding and all remaining readiness controls.
+accepts the scheduler's dedicated identity. The provider secret now has one enabled version, installed privately by the
+operator. It remains undeclared and unbound in the disabled build. Firebase
+validates every declared secret, including unbound secrets, so the initially empty
+secret blocked an unconditional declaration during the first deployment. Later
+activation requires binding and all remaining readiness controls.
 
 All handler responses now receive the shared private/no-store headers, including
 early protocol rejection and unexpected failures. The authorized service checks
@@ -87,8 +95,8 @@ by `node scripts/configure-live-operations.mjs plan`:
 - Give the analysis identity `roles/firebaseauth.viewer` for revoked/disabled guest
   checks. Cleanup gets no Auth role.
 - Give only the analysis identity `roles/secretmanager.secretAccessor` on the two
-  named secrets. Cleanup gets no secret access. The provider secret remains empty
-  until the operator supplies the dedicated key.
+  named secrets. Cleanup gets no secret access. The operator has now supplied the dedicated key; the disabled function does
+  not receive it.
 - Create the `rifd-live-application` Logging bucket in europe-west1 with seven-day
   retention. Route only the two services' stdout/stderr to it. Add the matching
   exclusion to `_Default` so those application logs are not also kept there for
@@ -118,10 +126,12 @@ now have one-day retention. Historical ledgers and saved captures were preserved
 
 [Runtime and asset verification](evidence/jev-hosted/deployed-runtime-and-assets.json)
 confirms both functions are active, the analysis settings above, only accounting
-secret version 2 bound, provider secret empty, control disabled and zero active
-slots. Nine served shell/code/style assets match the local production build byte
-for byte. None contains the actual accounting-secret value. The provider key
-cannot be scanned because none has been installed.
+secret version 2 bound, provider secret installed but unbound, control disabled
+and zero active slots. Nine served shell/code/style assets match the local
+production build byte for byte. Neither actual secret value occurs in those
+assets. The audit read both values into process memory without recording them.
+The [network-proof deployment](evidence/jev-hosted/network-proof-deployment.json)
+records the later function update and corresponding Hosting release.
 
 `node scripts/verify-live-hosting.mjs` passed all six basic checks on the
 direct and routed endpoints. Missing credentials, forged credentials with role
@@ -138,18 +148,45 @@ session makes the original credentials return 401 on both endpoints. See
 The optional revocation step uses operator ADC or an ephemeral access token;
 without it the script performs six checks. Credentials and the raw guest ID stay
 in memory. Every probe is incomplete and has no source image, so none can reserve
-or dispatch a run. Expired, non-anonymous and wrong-app real credentials remain
-unverified on the deployment; local verifier tests do not close those gaps.
+or dispatch a run. This rerun passed against the current deployment. Expired, non-anonymous and
+wrong-app real credentials were not separately collected; rejection for those
+cases is covered at the verifier boundary, without claiming a deployed test.
 
-Keep `LIVE_TRUSTED_PROXY_SUFFIX` unset until both actual ingress paths and forged
-forwarded prefixes are examined securely. Do not log raw addresses or guess a
-proxy suffix. The current unset value prevents work. No trusted chain or durable
-quota behavior has been demonstrated on the deployment.
+An [IAM-private probe](evidence/jev-hosted/ingress-private-probe.json) examined
+both actual ingress paths and forged forwarded prefixes. Hosting had two
+forwarded hops with rotating Google intermediaries. Google ownership alone cannot
+authorize an earlier hop, so the implementation trusts no Hosting proxy range.
+Raw visitor addresses stayed only in process memory.
 
-The function emits only fixed response status/outcome/reason fields and cleanup
-counts. [Observed telemetry](evidence/jev-hosted/deployed-telemetry.json) contains
-nine such entries in the seven-day bucket and zero matching application entries
-in `_Default`. The arbitrary probe text is absent. No request, credentials,
+The client instead obtains an authenticated `/network-proof` from the canonical
+direct function endpoint after explicit Run. Issuance requires real anonymous
+Auth, App Check, the pinned managed socket peer and the canonical authority in
+`LIVE_TRUSTED_INGRESS`. It uses only the rightmost platform-appended caller address,
+consistent with Google's [forwarding-header contract](https://docs.cloud.google.com/functions/docs/reference/headers).
+The HMAC-signed proof contains a keyed guest identifier and a daily keyed network
+identifier, with no raw address or guest ID. It cannot cross guests, UTC days or
+signing keys. This source-free credential request does not reserve allowance. Both analysis routes
+verify the same proof; neither trusts caller-provided forwarding claims. Missing
+configuration or a changed platform peer refuses work until reverified.
+
+[Deployed network-proof checks](evidence/jev-hosted/deployed-network-proof.json)
+passed eleven HTTP checks, including actual browser CORS/reCAPTCHA, forged
+prefixes, independent missing credentials, arbitrary proof input and refusal on
+the alternate run.app authority. Four private log correlations confirm that valid
+proofs verify on both analysis routes and tampered proofs do not. Every analysis
+probe encountered the compiled dispatch stop. Control and its update time stayed
+unchanged. This bounds work by the observed network; it does not identify a unique
+visitor or prevent visitors from changing actual networks. A guest can reuse its
+proof until UTC midnight after changing networks; quota remains attributed to the
+network observed during issuance, rather than a newly observed analysis-source
+address. No proof can name an arbitrary unobserved address or cross guests.
+
+The function emits fixed response status/outcome/reason fields, a boolean
+`ingressVerified`, network-proof readiness and cleanup counts.
+[Observed telemetry](evidence/jev-hosted/deployed-telemetry.json) contains eleven
+current entries in the seven-day bucket and zero matching application entries
+in `_Default`. Earlier cleanup observations remain in
+[their report](evidence/jev-hosted/deployed-cleanup.json). The arbitrary probe text is absent. No request, credentials,
 source, context, run identifier or answer enters the application logger.
 A seven-day configured bucket is not proof of seven-day physical deletion.
 Platform, Auth and audit retention follow separate policies. There is no
@@ -165,11 +202,28 @@ raw JSON comparison also misclassified equivalent empty-array encoding as a
 control change. Both failed records are retained. The final comparison normalizes
 field order and absent versus empty array values and passes.
 
-This proves deployed cleanup respects supplied expiry times. It does not prove
-the whole admission path computes the specified next-UTC-midnight or month-end
-plus 35-day expiry, rejects expired reads, or prunes connection slots on the
-deployment. Those still have local/emulator evidence only. Active-use browser
-analysis cleanup is covered by the focused checks below.
+A later [deployed admission check](evidence/jev-hosted/deployed-admission.json)
+ran the unchanged production admission, Firestore and cleanup modules under the
+actual analysis identity in an IAM-private cloud function. Two admission instances
+shared one isolated real Firestore collection. All eighteen checks passed,
+including transactional daily/monthly caps, cross-instance deduplication, guest
+concurrency, operator disable on reservation/recheck, two connection slots,
+expired-slot pruning, unknown-accounting stop, unsent-only refunds and refusal of
+expired records before a sweep. Actual records had daily expiry at
+2026-10-20T00:00:00Z and monthly expiry at 2026-12-06T00:00:00Z, from October 18
+execution. Cleanup retained records before expiry and deleted them at expiry.
+No raw guest, network or run ID appeared in the stored synthetic metadata.
+
+The verifier's [source](../../scripts/verify-hosted-admission.ts) redirects only
+the metadata collection; it has no provider transport and never enables public
+control. All synthetic records were removed and production control was unchanged.
+The two temporary IAM-private functions and one-hour Hosting preview were then
+[deleted and their absence verified](evidence/jev-hosted/temporary-resource-removal.json).
+These are deployed component checks, not an enabled public admission run. Future
+expiry boundaries use explicit clocks rather than waiting out the retention
+windows. Active-use browser analysis cleanup is covered by the focused checks
+below. Eventual Auth deletion and physical log deletion remain observation limits,
+not claims made by this check.
 
 ## Cost of the approved operation
 
@@ -177,14 +231,16 @@ Google charges are possible now that the hosted resources are deployed. The
 US$5 budget sends alerts and does not cap charges. Standard IAM grants are
 [free](https://cloud.google.com/iam/pricing). Secret Manager includes the first
 six active versions per billing account, then charges US$0.06 per version per
-month; disabled versions also count. This project has two accounting versions.
+month; disabled versions also count. This project has two accounting versions and
+one provider-key version.
 See [Secret Manager pricing](https://cloud.google.com/secret-manager/pricing).
 Scheduler includes three jobs per billing account, then charges US$0.10 per job
 per month. See [Scheduler pricing](https://cloud.google.com/scheduler/pricing).
 These allowances are shared with other projects. Build, registry, compute,
 database, log, reCAPTCHA and network usage follow their applicable
 [Firebase/Google pricing](https://firebase.google.com/pricing). No zero-cost
-promise is possible. This work made zero paid TypeSafe attempts.
+promise is possible. This work made zero TypeSafe inference attempts and one read-only model metadata
+request. No input images or model input tokens were sent to TypeSafe.
 
 ## Account terms and accounting stop
 
@@ -193,17 +249,27 @@ Current TypeSafe [model documentation](https://docs.typesafe.ai/models) lists
 [Image guidance](https://docs.typesafe.ai/images) describes image/Box support as
 experimental, requires the explicit image header and bills image tokens at the
 same input rate. These public facts do not prove this account's access, negotiated
-terms, available credit or actual charges. No provider endpoint was called here.
+terms, available credit or actual charges. The dedicated key was accepted by
+one documented `GET /v1/models` request, returning the current aliases. The
+[access record](evidence/jev-hosted/provider-model-access.json) combines this
+account authentication with the documented acceptance of versioned model IDs and
+the explicit image opt-in header. No image inference was run, so it proves neither
+image quality nor a successful native evaluation with this new key.
 
 The [legal overview](https://docs.typesafe.ai/legal),
 [customer agreement](https://typesafe.ai/legal/mca),
 [data processing addendum](https://typesafe.ai/legal/data-processing) and
 [privacy policy](https://typesafe.ai/legal/privacy-policy) were checked. They do
 not establish account-specific zero retention. The agreement describes opt-in
-refills and directs customers to their account for current credit. Dedicated-key
-custody, image/model entitlement, applicable account terms, refill disabled and
-TypeSafe alerts require an authenticated operator account. No such browser or
-credential is available here. Do not send a provider key through chat.
+refills and directs customers to their account for current credit. The operator reported the current displayed credit, automatic refill disabled,
+and only a rounded Usage total, then installed the dedicated key through a
+hidden-input Secret Manager upload. The [sanitized account report](evidence/jev-hosted/operator-account-report.json)
+keeps the balance amount out of version control. Its private credit observation
+cannot stay current indefinitely. The custody check read version metadata only;
+the later model request and asset audit read the value only into process memory.
+No key entered an env file, shell history, chat or report. Account-specific terms
+and a TypeSafe spending alert still require confirmation. No zero-retention
+agreement is assumed.
 
 Google's [anonymous Auth cleanup guidance](https://firebase.google.com/docs/auth/web/anonymous-auth#automatic-clean-up)
 states that new accounts may be deleted any time after 30 days. Existing accounts
@@ -276,51 +342,73 @@ limited usage metadata and no server content archive. It promises neither
 account-specific zero retention nor processing exclusively in europe-west1.
 
 The separate single ten-minute final acceptance batch, its shutdown minute and
-maximum four new attempts remain untouched. Activation still requires:
+maximum four new attempts remain untouched. The agent-accessible deployment,
+ingress, admission, cleanup, credential, cache and content-free telemetry checks
+are complete. Activation still requires actual historical charge reconciliation,
+a fresh credit read, account terms/TypeSafe alert confirmation and the separate
+bounded acceptance decision. A rounded usage total cannot establish the two
+stopped attempts' actual charges. The documented public API has model listing
+and evaluation, without a billing reconciliation endpoint. Do not probe undocumented
+billing paths or substitute token estimates for actual debits.
 
-- Operator TypeSafe billing reconciliation, current credit, dedicated key,
-  pinned-model/image access, account terms, refill disabled and spending alerts.
-- Verified trusted ingress on both routes, including forged forwarded prefixes.
-  The unset suffix currently refuses all otherwise valid work.
-- Remaining real deployed credential cases and admission behavior, including
-  transactional allowances, expired reads, expiry calculation and slot pruning.
-  No paid attempt is needed to check these controls.
-- Retention observations over their actual windows. Configured seven-day logs
-  and anonymous cleanup eligibility do not establish physical deletion timing.
+If the account offers no detailed export, obtain the provider's billing breakdown
+for both stopped requests and prior pre-feature charges. The provider's
+[support guidance](https://help.typesafe.ai/articles/8737694518-who-should-i-reach-out-to-with-support-requests)
+identifies its billing contact. No support message has been sent on the user's
+behalf. A local draft with the two timestamps is prepared in the ignored
+`artifacts/typesafe-billing-request.txt`; the operator must fill the organization
+locally. No purchase or refill is needed to obtain this evidence. The validation
+accounting file remains incomplete and the read-only guard refuses it.
 
-A skipped check is not a pass. Keep compiled dispatch and deployed control off
-while any required prerequisite is incomplete.
-
-Final local checks pass: typecheck, lint and all 140 unit tests. The separate
-emulator test is skipped in the ordinary unit command. The function production
-build passed before the successful deployment. The earlier client build, CSS
-source isolation and five focused browser checks still apply because no client
-source changed during deployment. The first CSS check could not bind the
-sandbox's loopback interface; its rerun with loopback access passed and restored
-a clean production build. The existing large client chunk warning remains.
-Local checks do not substitute for unrun deployed checks or retention observations.
+Final local checks pass: typecheck, lint, all 143 unit tests and the standalone
+hosted-verifier typecheck. The separate emulator test is skipped in the ordinary
+unit command. Both production builds passed. The focused live-access browser
+suite passed both checks after this client change. Earlier store compatibility,
+cleanup, Saved replay and bilingual workflow checks remain applicable. The first
+browser invocation used the wrong test path and found no tests; the corrected
+path passed. Build and HTTP tests need loopback access, which the sandbox blocks;
+their permitted reruns passed. The existing large client chunk warning remains.
+Local checks do not substitute for unrun native inference or elapsed retention
+observations.
 
 ## Standards
 
-The independent follow-up review of staged changes since `a823a7b` found no hard
-documented violations and no substantive baseline code smells. It confirmed
-disabled dispatch, server-side credentials, in-memory probe credentials and
-telemetry limited to fixed status fields and cleanup counts. The initial review
-from `9b8f665ab64f99eaabf2f8747405049bcef9ccbf` also had no findings.
+The independent follow-up review since `fdbe70c` found no hard documented
+violations and no substantive baseline smells. Network proofs bind the authenticated
+guest, UTC day and observed network without exposing raw identifiers. Both routes
+verify the signature; issuance fails closed for unexpected peers or authorities.
+Cancellation covers the handshake, and authorization time reduces the remaining
+analysis deadline. Secrets and proof contents stay out of application logs.
+
+The verifier now uses a fixed October 18 calendar fixture with literal October 20
+and December 6 expectations. These independently match the retained actual
+October 18 deployment result. This correction needs no additional deployed run.
+The report now distinguishes the stable keyed guest identifier from the daily
+keyed network identifier. Earlier reviews since `9b8f665` and `a823a7b` also found
+no hard standards violations.
 
 ## Spec
 
-The independent follow-up review found two disclosed incomplete requirement
-groups. Deployed controls and retention still need trusted ingress, allowance
-behavior, expiry calculation, expired-read refusal and slot pruning, with actual
-deletion timing remaining an observation limit. TypeSafe account readiness still
-needs the two stopped attempts reconciled, current credit and account-specific
-key/access/terms/refill/alert controls. It found no scope creep or confirmed code
-defect. The real browser credential/revocation checks and metadata logger support
-the requested verification without paid dispatch. Publication is complete.
+One requirement group remains partial, accurately disclosed. The spec requires
+reconciliation of both stopped attempts and actual available credit before a
+future paid call, plus pinned-model/image access, pricing, applicable terms,
+dedicated-key custody, refill disabled and account cleanup before activation.
+Actual historical charges, fresh reconciled credit, account-specific terms and
+TypeSafe alerts remain unresolved. Model listing authenticates the installed key
+but does not prove native image evaluation. These remain prerequisites for future
+paid work; dispatch is compiled off, production control is disabled and no
+inference ran.
+
+The review found no scope creep or confirmed implementation errors. The
+source-free handshake and temporary IAM-private verifier support the requested
+ingress and deployed control checks. The same-guest network-attribution limitation
+is stated explicitly. Firestore evidence distinguishes production-component
+verification from an enabled public admission run. Configured retention, synthetic
+expiry boundaries and observed cleanup support preparation. Physical log/Auth
+deletion remains an observation limit, with no new waiting period imposed.
 
 The initial review prompted the IAM policy-version preservation fix before
-apply. The ticket remains in progress and activation remains blocked.
+apply. The ticket remains in progress only for the account-readiness group.
 
-Remaining findings: Standards zero; Spec two incomplete requirement groups,
-with zero confirmed code defects.
+Remaining findings: Standards zero; Spec one incomplete account-readiness group,
+with zero confirmed code defects or scope creep.

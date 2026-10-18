@@ -1,130 +1,172 @@
 {
-  "checkedAt": "2026-10-18T03:51:55.995Z",
+  "checkedAt": "2026-10-18T10:15:11.773Z",
   "applicationEntries": [
     {
-      "timestamp": "2026-10-18T03:50:51.210612Z",
-      "event": "live-assistance-cleanup",
-      "service": "cleanuplivemetadata",
-      "keys": [
-        "message",
-        "deleted"
-      ],
-      "deleted": 2
-    },
-    {
-      "timestamp": "2026-10-18T03:50:30.188418Z",
+      "timestamp": "2026-10-18T10:10:24.495041Z",
       "event": "live-assistance-response",
       "service": "liveanalysis",
       "keys": [
-        "status",
         "message",
-        "reason",
-        "outcome"
+        "ingressVerified",
+        "status",
+        "outcome",
+        "reason"
       ],
-      "status": 401,
+      "status": 503,
       "outcome": "unavailable",
-      "reason": "access-denied"
+      "reason": "service-unavailable",
+      "ingressVerified": false
     },
     {
-      "timestamp": "2026-10-18T03:50:29.665055Z",
+      "timestamp": "2026-10-18T10:10:23.759906Z",
       "event": "live-assistance-response",
       "service": "liveanalysis",
       "keys": [
         "status",
         "outcome",
+        "ingressVerified",
         "reason",
         "message"
       ],
-      "status": 401,
+      "status": 503,
       "outcome": "unavailable",
-      "reason": "access-denied"
+      "reason": "service-unavailable",
+      "ingressVerified": true
     },
     {
-      "timestamp": "2026-10-18T03:50:27.187857Z",
+      "timestamp": "2026-10-18T10:10:22.839304Z",
       "event": "live-assistance-response",
       "service": "liveanalysis",
       "keys": [
-        "status",
-        "outcome",
         "message",
+        "status",
+        "ingressVerified",
+        "outcome",
         "reason"
       ],
-      "status": 400,
+      "status": 503,
       "outcome": "unavailable",
-      "reason": "invalid-request"
+      "reason": "service-unavailable",
+      "ingressVerified": false
     },
     {
-      "timestamp": "2026-10-18T03:50:26.856484Z",
+      "timestamp": "2026-10-18T10:10:22.386545Z",
       "event": "live-assistance-response",
       "service": "liveanalysis",
       "keys": [
-        "status",
-        "message",
+        "outcome",
         "reason",
-        "outcome"
-      ],
-      "status": 401,
-      "outcome": "unavailable",
-      "reason": "access-denied"
-    },
-    {
-      "timestamp": "2026-10-18T03:50:26.709208Z",
-      "event": "live-assistance-response",
-      "service": "liveanalysis",
-      "keys": [
-        "message",
-        "outcome",
         "status",
-        "reason"
+        "ingressVerified",
+        "message"
       ],
-      "status": 401,
+      "status": 503,
       "outcome": "unavailable",
-      "reason": "access-denied"
+      "reason": "service-unavailable",
+      "ingressVerified": true
     },
     {
-      "timestamp": "2026-10-18T03:50:26.086117Z",
+      "timestamp": "2026-10-18T10:10:22.054991Z",
       "event": "live-assistance-response",
       "service": "liveanalysis",
       "keys": [
         "reason",
+        "outcome",
+        "ingressVerified",
+        "message",
+        "status"
+      ],
+      "status": 503,
+      "outcome": "unavailable",
+      "reason": "service-unavailable",
+      "ingressVerified": false
+    },
+    {
+      "timestamp": "2026-10-18T10:10:21.241967Z",
+      "event": "live-assistance-response",
+      "service": "liveanalysis",
+      "keys": [
         "status",
         "outcome",
+        "ingressVerified",
+        "reason",
         "message"
       ],
       "status": 400,
       "outcome": "unavailable",
-      "reason": "invalid-request"
+      "reason": "invalid-request",
+      "ingressVerified": false
     },
     {
-      "timestamp": "2026-10-18T03:50:25.261671Z",
+      "timestamp": "2026-10-18T10:10:20.905775Z",
       "event": "live-assistance-response",
       "service": "liveanalysis",
       "keys": [
-        "outcome",
-        "reason",
         "message",
+        "status",
+        "outcome",
+        "ingressVerified",
+        "reason"
+      ],
+      "status": 401,
+      "outcome": "unavailable",
+      "reason": "access-denied",
+      "ingressVerified": false
+    },
+    {
+      "timestamp": "2026-10-18T10:10:20.754520Z",
+      "event": "live-assistance-response",
+      "service": "liveanalysis",
+      "keys": [
+        "reason",
+        "outcome",
+        "message",
+        "ingressVerified",
         "status"
       ],
       "status": 401,
       "outcome": "unavailable",
-      "reason": "access-denied"
+      "reason": "access-denied",
+      "ingressVerified": false
     },
     {
-      "timestamp": "2026-10-18T03:50:24.689585Z",
-      "event": "live-assistance-response",
+      "timestamp": "2026-10-18T10:10:20.604008Z",
+      "event": "live-network-proof",
       "service": "liveanalysis",
       "keys": [
-        "reason",
         "outcome",
         "message",
         "status"
       ],
-      "status": 401,
-      "outcome": "unavailable",
-      "reason": "access-denied"
+      "status": 200,
+      "outcome": "ready"
+    },
+    {
+      "timestamp": "2026-10-18T10:10:20.259786Z",
+      "event": "live-network-proof",
+      "service": "liveanalysis",
+      "keys": [
+        "status",
+        "outcome",
+        "message"
+      ],
+      "status": 200,
+      "outcome": "ready"
+    },
+    {
+      "timestamp": "2026-10-18T10:10:19.280523Z",
+      "event": "live-network-proof",
+      "service": "liveanalysis",
+      "keys": [
+        "status",
+        "message",
+        "outcome"
+      ],
+      "status": 200,
+      "outcome": "ready"
     }
   ],
-  "applicationEntryCount": 9,
+  "applicationEntryCount": 11,
   "longerDefaultBucketApplicationEntries": 0,
   "onlyAllowedMetadata": true,
   "controlProbeInputFound": false,

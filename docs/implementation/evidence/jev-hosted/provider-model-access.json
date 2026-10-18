@@ -1,0 +1,25 @@
+{
+  "checkedAt": "2026-10-18T10:06:53.588Z",
+  "endpoint": "GET https://api.typesafe.ai/v1/models",
+  "status": 200,
+  "models": [
+    {
+      "name": "jev-latest",
+      "releaseDate": "2026-09-10T18:38:01.391457+00:00"
+    },
+    {
+      "name": "jev-preview",
+      "releaseDate": "2026-09-10T18:39:06.057655+00:00"
+    }
+  ],
+  "readOnlyMetadataRequests": 1,
+  "providerInferenceAttempts": 0,
+  "modelInputTokensSent": 0,
+  "dedicatedKeyAccepted": true,
+  "pinnedVersion": "jev-1.14.0",
+  "modelDocumentation": "https://docs.typesafe.ai/models",
+  "imageDocumentation": "https://docs.typesafe.ai/images",
+  "pinnedVersionAcceptedByDocumentedContract": true,
+  "imageOptIn": "TypeSafe-Danger-Zone-Images: true",
+  "limitation": "This authenticates the dedicated key and reads model metadata. It does not execute image inference, establish image correctness, reconcile historical charges or verify account-specific retention terms."
+}

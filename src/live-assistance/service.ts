@@ -13,7 +13,7 @@ export type LiveWork = {
 }
 export type FixedWorkflow = (request: ValidatedRequest, work: LiveWork) => Promise<void>
 type Request = { body: Buffer; authorization?: string; appCheck?: string; network: string | null; path?: string; signal?: AbortSignal }
-export const liveResponseHeaders = { 'Cache-Control': 'private, no-store, max-age=0', Pragma: 'no-cache', Vary: 'Authorization, X-Firebase-AppCheck', 'Content-Type': 'application/json', 'X-Content-Type-Options': 'nosniff' }
+export const liveResponseHeaders = { 'Cache-Control': 'private, no-store, max-age=0', Pragma: 'no-cache', Vary: 'Authorization, X-Firebase-AppCheck, X-Rifd-Network-Proof', 'Content-Type': 'application/json', 'X-Content-Type-Options': 'nosniff' }
 const headers = liveResponseHeaders
 
 export function createLiveService(options: {
