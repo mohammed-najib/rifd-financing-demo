@@ -1,5 +1,9 @@
 # Focused evidence assistance acceptance
 
+The operator accepted the Arabic result remaining undetermined after an
+additional [Arabic rerun](#additional-arabic-rerun). No further collection is
+needed for that request. Actual charges remain pending and activation disabled.
+
 The operator subsequently authorized running both skipped checks and reporting
 TypeSafe credit spent afterward. The [follow-up outcome](#operator-authorized-follow-up)
 records a passing emulator check and two completed native examples. Actual
@@ -206,8 +210,9 @@ the disabled deployed function, so this does not establish a deployed native run
 
 The displayed panels and actual source rasters were inspected. Both printed
 names match the supplied fictional declarations. The Arabic native readability
-Score is 1.97, below the fixed display threshold, and its comparison is also
-withheld as undetermined. The English single-value probability is 0.98, below
+Score is 1.97, with a clear-readability probability of 0.97 below the fixed 0.99
+probability threshold. Its comparison confidence is 0.82, below the fixed 0.99
+comparison threshold, so the comparison is also undetermined. The English single-value probability is 0.98, below
 the region eligibility threshold. Both candidate regions remain visibly
 suppressed. No highlight was shown and no suppressed region counts as successful
 highlight coverage. There are eight displayed finding values, including two
@@ -246,3 +251,42 @@ matched the evidence. No further paid collection was used to address the finding
 The [closure record](evidence/jev-acceptance/followup/closure.json) confirms both
 temporary local servers stopped within the authorized window. The production
 admission and accounting implementations remain unchanged.
+
+## Additional Arabic rerun
+
+The operator requested another Arabic comparison, then explicitly accepted
+"it is ok if it is undetermined". One additional native combined request returned
+HTTP 200 with usage. The displayed name comparison remains **undetermined**.
+There were no retries, no bound-verification call and zero displayed highlights.
+The full two-attempt plan was recorded before dispatch in a separate ledger,
+with a US$0.003 per-attempt maximum derived from the published default context
+limit and price, rounded upward. Long context was forbidden. The definitely
+unsent second slot was released after completion; the dispatched attempt remains
+unreconciled. These are planning amounts, not actual billing evidence.
+The [current model documentation](https://docs.typesafe.ai/models) supplies the
+published context and pricing basis; account actual charges remain unverified.
+
+The source, raster manifest, declaration state, questions, versions, dependencies
+and plan exactly matched the preceding Arabic input. Display thresholds did not
+change. The native match confidence increased from 0.82 to 0.85, still below 0.99.
+The readability answer was invalid because its stated Score was 1.97 while its
+distribution implied 1.98. The bridge retained the invalid answer in provenance
+and excluded it from usable findings. The UI showed partial results and
+readability unavailable; the candidate region stayed suppressed. This is a
+partial native result, not a passing automated comparison or highlight.
+
+Direct visual inspection confirms that the fictional printed name
+"سالم نور التجريبي 107" matches the declaration. That manual source inspection is
+separate from the automated undetermined result. [The source/result screenshot](evidence/jev-acceptance/arabic-rerun/ar-identity-01.png)
+and [sanitized result](evidence/jev-acceptance/arabic-rerun/result.json) retain the
+actual outcome. Attachment preparation took 1.246 s, provider HTTP time 1.308 s,
+and Run-click-to-result time 2.236 s. The latter excludes attachment preparation.
+There are now three native attempts across the operator-requested follow-up and
+rerun. All historical records and prior results remain preserved. Actual credit
+spent awaits the operator's report. Dispatch stays disabled.
+
+All ten existing native-bridge regressions passed after the rerun. No production
+source or test code changed; the preceding full suite's 144 passing tests remain
+the full-suite evidence. Independent Standards and Spec reviews found zero new
+issues. The [closure record](evidence/jev-acceptance/arabic-rerun/closure.json)
+confirms the local server stopped and all 550 historical files stayed unchanged.

@@ -1,0 +1,8 @@
+{
+  "recordedAt": "2026-10-18T11:14:40.271Z",
+  "instruction": "run The Arabic comparison so that it becomes determined",
+  "scope": "One additional Arabic check on the unchanged ar-identity-01 source and declaration. At most one combined and one eligible bound-verification call; retain the outcome even if still undetermined.",
+  "actualBilling": "Deferred by explicit operator instruction; unknown, not fabricated",
+  "permanentAccountingGuardChanged": false,
+  "deployedDispatchEnabled": false
+}
