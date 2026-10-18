@@ -14,6 +14,7 @@ import { inspectionContext } from './inspection'
 import { hashBytes, matchesSavedContext, openSavedExample, savedExamples, type SavedSelection } from './saved-demonstrations'
 import { activeCorrection, correctionDocument, validateCorrectionFields, validateCorrectionSave, validateResubmission } from './corrections'
 import { createAssistance } from '../evidence-assistance/controller'
+import { completedFinancialMonths } from '../evidence-assistance/financial'
 import { evidenceDependencyKey } from '../evidence-assistance/record'
 import { createAnalysisStorage, withAnalysisAuthority } from '../evidence-assistance/storage'
 import { evidenceTaskSlots, evidenceTargets, type EvidenceInput, type EvidenceTransport, type SelectedEvidence } from '../evidence-assistance/contract'
@@ -589,7 +590,7 @@ export function createDemo(options: { evidenceTransport?: EvidenceTransport } = 
       const who = session?.identity
       const task = { applicationId: z.string().min(1), slot: z.enum(slots), fileId: z.string().nullable().optional() }
       const schema = z.discriminatedUnion('action', [
-        z.object({ ...task, action: z.literal('check-document'), audience: z.literal('applicant'), context: z.enum(['draft', 'correction-workspace']), roundId: z.string().min(1).optional(), attachment: preparedSchema.optional(), declaredName: z.string().optional(), declaredBusiness: z.object({ businessName: z.string(), address: z.string(), operatingSince: z.string() }).strict().optional(), declaredPurchase: z.object({ product: productIdSchema, explanation: z.string(), budget: z.string() }).strict().optional() }).strict(),
+        z.object({ ...task, action: z.literal('check-document'), audience: z.literal('applicant'), context: z.enum(['draft', 'correction-workspace']), roundId: z.string().min(1).optional(), attachment: preparedSchema.optional(), declaredFinancial: z.object({ revenue: z.string(), expenses: z.string() }).strict().optional(), declaredName: z.string().optional(), declaredBusiness: z.object({ businessName: z.string(), address: z.string(), operatingSince: z.string() }).strict().optional(), declaredPurchase: z.object({ product: productIdSchema, explanation: z.string(), budget: z.string() }).strict().optional() }).strict(),
         z.object({ ...task, action: z.literal('find-supporting-evidence'), audience: z.literal('reviewer'), context: z.literal('submitted') }).strict(),
       ])
       const authorize = (data: Dataset) => {
@@ -597,7 +598,7 @@ export function createDemo(options: { evidenceTransport?: EvidenceTransport } = 
         if (!parsed.success) throw new DemoError('validation')
         const command = parsed.data
         if (!evidenceTaskSlots.includes(command.slot)) throw new DemoError('unavailable')
-        if (command.action === 'check-document' && (command.slot !== 'identity' && command.declaredName !== undefined || command.slot !== 'business' && command.declaredBusiness !== undefined || command.slot !== 'purchase' && command.declaredPurchase !== undefined)) throw new DemoError('validation')
+        if (command.action === 'check-document' && (command.slot !== 'financial' && command.declaredFinancial !== undefined || command.slot !== 'identity' && command.declaredName !== undefined || command.slot !== 'business' && command.declaredBusiness !== undefined || command.slot !== 'purchase' && command.declaredPurchase !== undefined)) throw new DemoError('validation')
         if (!who) throw new DemoError('sessionExpired')
         authority(captured, who, data.meta.datasetId, data)
         if (command.action === 'find-supporting-evidence') {
@@ -615,7 +616,7 @@ export function createDemo(options: { evidenceTransport?: EvidenceTransport } = 
         if (round) {
           correctionDocument(application, command.slot)
           if (command.declaredName !== undefined && command.declaredName !== application.workspace.snapshot.fields.fullName && !round.targets.some(target => target.kind === 'field' && target.field === 'fullName')) throw new DemoError('permissionDenied')
-          for (const [field, value] of Object.entries(command.declaredBusiness ?? {})) if (value !== application.workspace.snapshot.fields[field as keyof Fields] && !round.targets.some(target => target.kind === 'field' && target.field === field)) throw new DemoError('permissionDenied')
+          for (const [field, value] of Object.entries(command.declaredFinancial ?? command.declaredBusiness ?? {})) if (value !== application.workspace.snapshot.fields[field as keyof Fields] && !round.targets.some(target => target.kind === 'field' && target.field === field)) throw new DemoError('permissionDenied')
           if (command.declaredPurchase) {
             if (command.declaredPurchase.product !== application.product) throw new DemoError('permissionDenied')
             for (const field of ['explanation', 'budget'] as const) if (command.declaredPurchase[field] !== application.workspace.snapshot.fields[field] && !round.targets.some(target => target.kind === 'field' && target.field === field)) throw new DemoError('permissionDenied')
@@ -642,11 +643,14 @@ export function createDemo(options: { evidenceTransport?: EvidenceTransport } = 
         const product = purchase?.product ?? application.product
         if (command.slot === 'purchase' && product !== application.product && !('attachment' in command && command.attachment)) throw new DemoError('supersededSelection')
         if (command.slot === 'purchase' && command.action === 'check-document' && command.attachment && preparations.get(file.id)?.product !== product) throw new DemoError('supersededSelection')
-        const fields = { ...snapshot.fields, ...(command.action === 'check-document' ? command.declaredBusiness ?? (purchase ? { explanation: purchase.explanation, budget: purchase.budget } : command.declaredName !== undefined ? { fullName: command.declaredName } : {}) : {}) }
+        const fields = { ...snapshot.fields, ...(command.action === 'check-document' ? command.declaredFinancial ?? command.declaredBusiness ?? (purchase ? { explanation: purchase.explanation, budget: purchase.budget } : command.declaredName !== undefined ? { fullName: command.declaredName } : {}) : {}) }
         const issues = validateFields(fields, products[product], application.submittedAt?.slice(0, 7) ?? submissionMonth)
         const detail = (field: keyof Fields) => ({ value: issues.some(issue => issue.field === field) ? null : fields[field], status: !fields[field].trim() ? 'missing' as const : issues.some(issue => issue.field === field) ? 'invalid' as const : 'valid' as const })
         const budget = detail('budget')
-        const declaration: SelectedEvidence['declaration'] = command.slot === 'purchase'
+        const initialSubmissionMonth = application.submittedAt?.slice(0, 7) ?? submissionMonth
+        const declaration: SelectedEvidence['declaration'] = command.slot === 'financial'
+          ? { financial: { initialSubmissionMonth, expectedMonths: completedFinancialMonths(initialSubmissionMonth), revenue: { ...detail('revenue'), value: detail('revenue').status === 'valid' ? String(parseWholeYER(fields.revenue)) : null }, expenses: { ...detail('expenses'), value: detail('expenses').status === 'valid' ? String(parseWholeYER(fields.expenses)) : null } } }
+          : command.slot === 'purchase'
           ? { purchase: { product, explanation: detail('explanation'), budget: { ...budget, value: budget.status === 'valid' ? String(parseWholeYER(fields.budget)) : null } } }
           : command.slot === 'business'
           ? { business: { businessName: detail('businessName'), address: detail('address'), operatingSince: detail('operatingSince') } }

@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { bounds, versions, evidenceTargets, declaredDetail, type EvidenceTarget, type Findings, type NativeCapture, type SelectedEvidence, type StageRequest, type PreparedPage } from './contract'
+import { bounds, versions, evidenceTargets, financialPageTargets, declaredDetail, type EvidenceTarget, type Findings, type NativeCapture, type SelectedEvidence, type StageRequest, type PreparedPage, type AttemptPlan, type Coverage, type PageAnalysis, type ComparisonAnalysis, type SupportKey, type PresenceKey } from './contract'
 
 const categories = {
   identity: 'Applicant identity evidence naming a person', business: 'Business registration or business evidence',
@@ -15,7 +15,12 @@ const support = (target: EvidenceTarget) => ({
 })
 export const readabilityLevels = ['Relevant text unreadable', 'Partly readable with obscured details', 'Relevant text and digits clearly readable']
 
-export function makeRequest(selection: SelectedEvidence, image: PreparedPage, runId: string): StageRequest {
+export function attemptPlan(totalPages: number, selected: number[]): AttemptPlan {
+  const stages = totalPages === 1 ? ['combined-page-declaration', 'bound-verification'] : [...selected.map(page => `page:${page}`), 'document-comparison', ...selected.map(page => `bound-verification:${page}`)]
+  return { maximumAttempts: stages.length, stages, verification: 'reserved-not-enabled' }
+}
+
+export function makeRequest(selection: SelectedEvidence, image: PreparedPage, runId: string, plan = attemptPlan(image.totalPages, [image.manifest.page]), images?: PreparedPage[]): StageRequest {
   const common = ['source.hash', 'raster.rasterHash', 'selectedPages', 'versions']
   const targets = evidenceTargets(selection.binding.slot)
   const dependencies: StageRequest['dependencies'] = { category: [...common], readability: [...common] }
@@ -31,32 +36,54 @@ export function makeRequest(selection: SelectedEvidence, image: PreparedPage, ru
       dependencies[target.support] = [...common]
     }
   }
+  if (selection.declaration.financial) {
+    for (const target of financialPageTargets) {
+      questions[target.presence] = { type: 'noul', instructions: `Does the original page in \`page\` contain the printed ${target.name}? The three expected months in order are in \`declaredFinancial.expectedMonths\`. A different value counts as present. Do not calculate or transcribe figures.` }
+      dependencies[target.presence] = [...common]
+    }
+    questions.periodSupport = { type: 'choice', instructions: 'How does the printed reporting period support the three completed months in `declaredFinancial.expectedMonths`? Inspect all printed periods and retain incompatible entries.', criteria: periodCriteria }
+    dependencies.periodSupport = [...common]
+    for (const target of targets) if (questions[target.support]) questions[target.support].instructions += ' Compare only explicitly printed averages associated with `declaredFinancial.expectedMonths`. If only monthly figures appear, choose uncertain. Do not calculate averages, transcribe figures or infer arithmetic.'
+  }
   // Every question sees the shared declarations, even source-only judgments.
   for (const question of Object.keys(dependencies)) {
     for (const target of targets) {
-      const path = `declaration.${selection.declaration.purchase ? 'purchase' : 'business'}.${target.field}`
+      const path = `declaration.${selection.declaration.purchase ? 'purchase' : selection.declaration.financial ? 'financial' : 'business'}.${target.field}`
       dependencies[question].push(...(target.field === 'fullName' ? ['declaration.fullName', 'declaration.status'] : [`${path}.value`, `${path}.status`]))
     }
+    if (selection.declaration.financial) dependencies[question].push('declaration.financial.initialSubmissionMonth', 'declaration.financial.expectedMonths')
     if (selection.declaration.purchase) dependencies[question].push('declaration.purchase.product')
     if (selection.correction) dependencies[question].push('correction')
   }
-  const state: StageRequest['state'] = { page: 'original-page-1', ...(selection.correction ? { correction: selection.correction } : {}) }
+  const state: StageRequest['state'] = { page: `original-page-${image.manifest.page}`, ...(selection.correction ? { correction: selection.correction } : {}) }
   if (selection.declaration.purchase) state.declaredPurchase = { product: selection.declaration.purchase.product, explanation: selection.declaration.purchase.explanation.value, budget: selection.declaration.purchase.budget.value }
   else if (selection.declaration.business) state.declaredBusiness = { businessName: selection.declaration.business.businessName.value, address: selection.declaration.business.address.value, operatingSince: selection.declaration.business.operatingSince.value }
+  else if (selection.declaration.financial) { const financial = selection.declaration.financial; state.declaredFinancial = { initialSubmissionMonth: financial.initialSubmissionMonth, expectedMonths: financial.expectedMonths, revenue: financial.revenue.value, expenses: financial.expenses.value } }
   else state.declaredApplicantName = selection.declaration.fullName
   const request: StageRequest = {
-    runId, stage: 'combined-page-declaration', model: versions.model,
-    plan: { maximumAttempts: 2, stages: ['combined-page-declaration', 'bound-verification'], verification: 'reserved-not-enabled' },
-    state, image, questions, versions, dependencies,
+    runId, stage: images ? 'document-comparison' : image.totalPages === 1 ? 'combined-page-declaration' : 'page', model: versions.model,
+    plan,
+    state, image, ...(images ? { images: images.slice(1) } : {}), questions, versions, dependencies,
   }
-  const metadata = new TextEncoder().encode(JSON.stringify({ ...request, image: { ...image, bytes: undefined } })).byteLength
-  if (metadata > bounds.contextBytes || metadata + Math.ceil(image.bytes.byteLength / 3) * 4 > bounds.bodyBytes) throw new Error('context-limit')
+  if (images) {
+    state.pages = images.map(page => `original-page-${page.manifest.page}`)
+    for (const key of Object.keys(questions)) if (!key.endsWith('Support')) { delete questions[key]; delete dependencies[key] }
+    for (const question of Object.values(questions)) question.instructions = question.instructions.replaceAll('on the complete original page in `page`', 'across all original pages in `pages`').replaceAll('checked original page', 'checked original pages').replaceAll('printed reporting period', 'reporting periods across all original pages in `pages`')
+  }
+  if (Object.keys(questions).length > (images ? 4 : 32)) throw new Error('context-limit')
+  const assets = images ?? [image]
+  const totalBytes = assets.reduce((sum, page) => sum + page.bytes.byteLength, 0), pixels = assets.reduce((sum, page) => sum + page.manifest.width * page.manifest.height, 0)
+  if (totalBytes > bounds.combinedBytes || pixels > bounds.combinedPixels) throw new Error('context-limit')
+  const metadata = new TextEncoder().encode(JSON.stringify({ ...request, image: undefined, images: undefined, rasters: assets.map(page => page.manifest) })).byteLength
+  if (metadata > bounds.contextBytes || metadata + assets.reduce((sum, page) => sum + Math.ceil(page.bytes.byteLength / 3) * 4, 0) > bounds.bodyBytes) throw new Error('context-limit')
   return request
 }
 
-export function recordRequest(request: StageRequest): Omit<StageRequest, 'image'> {
+export function recordRequest(request: StageRequest): Omit<StageRequest, 'image' | 'images'> {
   return { runId: request.runId, stage: request.stage, model: request.model, plan: request.plan, state: request.state, questions: request.questions, versions: request.versions, dependencies: request.dependencies }
 }
+
+const periodCriteria = { consistent: 'All readable printed reporting periods cover exactly the expected three completed months', different: 'A readable printed reporting period covers different months', not_found: 'No printed reporting period in the checked original pages', conflict: 'Incompatible reporting periods in the checked original pages', uncertain: 'Cannot determine the reporting period' }
 
 const probability = z.number().min(0).max(1)
 const choice = z.object({ type: z.literal('choice'), choice: z.string(), confidence: probability, probabilities: z.record(z.string(), probability) })
@@ -65,26 +92,35 @@ const noul = z.object({ type: z.literal('noul'), noul: probability })
 const envelope = z.object({ model: z.literal(versions.model), answers: z.record(z.string(), z.unknown()), usage: z.object({ input_tokens: z.number().int().nonnegative(), output_tokens: z.number().int().nonnegative() }), responseId: z.string().optional() })
 const distribution = (probabilities: Record<string, number>, keys: string[]) => Object.keys(probabilities).length === keys.length && keys.every(key => key in probabilities) && Math.abs(Object.values(probabilities).reduce((a, b) => a + b, 0) - 1) < 0.0001
 
-export function interpret(raw: unknown, selection: SelectedEvidence): { native: NativeCapture; findings: Findings; partial: boolean } {
+export function interpret(raw: unknown, selection: SelectedEvidence, basis?: Findings): { native: NativeCapture; findings: Findings; partial: boolean } {
   const parsed = envelope.safeParse(raw)
   if (!parsed.success) throw new Error('invalid-response')
   const native: NativeCapture = { ...parsed.data, receivedAnswers: parsed.data.answers, answers: {} }
-  const findings: Findings = { category: 'unavailable', readability: 'unavailable' }
+  const findings: Findings = { category: basis?.category ?? 'unavailable', readability: basis?.readability ?? 'unavailable' }
   const targets = evidenceTargets(selection.binding.slot)
-  const readChoice = (key: 'category' | EvidenceTarget['support'], criteria: Record<string, string>) => {
+  const readChoice = (key: 'category' | SupportKey, criteria: Record<string, string>) => {
     const answer = choice.safeParse(parsed.data.answers[key])
     if (answer.success && distribution(answer.data.probabilities, Object.keys(criteria)) && answer.data.choice in criteria && answer.data.probabilities[answer.data.choice] === Math.max(...Object.values(answer.data.probabilities))) native.answers[key] = answer.data
   }
-  readChoice('category', categories)
+  if (!basis) readChoice('category', categories)
   for (const target of targets) {
-    findings[target.presence] = 'unavailable'
+    findings[target.presence] = basis?.[target.presence] ?? 'unavailable'
     const applicable = declaredDetail(selection.declaration, target).status === 'valid'
     findings[target.support] = applicable ? 'unavailable' : 'missing-context'
     if (applicable) readChoice(target.support, support(target))
-    const presence = noul.safeParse(parsed.data.answers[target.presence])
+    const presence = noul.safeParse(basis ? undefined : parsed.data.answers[target.presence])
     if (presence.success) native.answers[target.presence] = presence.data
   }
-  const readable = score.safeParse(parsed.data.answers.readability)
+  if (selection.declaration.financial) {
+    readChoice('periodSupport', periodCriteria)
+    for (const target of financialPageTargets) {
+      findings[target.presence] ??= basis?.[target.presence] ?? 'unavailable'
+      const presence = noul.safeParse(basis ? undefined : parsed.data.answers[target.presence])
+      if (presence.success) native.answers[target.presence] = presence.data
+    }
+    findings.periodSupport = 'unavailable'
+  }
+  const readable = score.safeParse(basis ? undefined : parsed.data.answers.readability)
   if (readable.success && distribution(readable.data.probabilities, ['0', '1', '2']) && readabilityLevels.every((level, i) => readable.data.legend[i] === level) && Math.abs(readable.data.score - Object.entries(readable.data.probabilities).reduce((sum, [level, probability]) => sum + Number(level) * probability, 0)) < 0.0001) native.answers.readability = readable.data
   if (!Object.keys(native.answers).length) throw new Error('invalid-response')
   const category = native.answers.category
@@ -96,17 +132,70 @@ export function interpret(raw: unknown, selection: SelectedEvidence): { native: 
   }
   const expectedCategory = selection.declaration.purchase ? selection.declaration.purchase.product === 'inventory' ? 'stock' : 'equipment' : selection.binding.slot
   const usable = findings.category === expectedCategory && findings.readability === 'clear'
+  if (selection.declaration.financial) {
+    for (const target of financialPageTargets) {
+      const presence = native.answers[target.presence]
+      if (presence) findings[target.presence] = presence.noul >= 0.99 ? 'present' : presence.noul <= 0.01 && usable ? 'absent' : 'undetermined'
+    }
+    const period = native.answers.periodSupport
+    if (period) findings.periodSupport = usable && period.confidence >= 0.99 && period.choice !== 'uncertain' && (period.choice === 'not_found' ? findings.periodPresence === 'absent' : findings.periodPresence === 'present') ? period.choice as Findings['periodSupport'] : 'undetermined'
+  }
+  // Period guards are applied before any amount answer, independent of JSON order.
   for (const target of targets) {
     const presence = native.answers[target.presence]
     if (presence) findings[target.presence] = presence.noul >= 0.99 ? 'present' : presence.noul <= 0.01 && usable ? 'absent' : 'undetermined'
     const comparison = native.answers[target.support]
     if (comparison) {
       findings[target.support] = 'undetermined'
-      if (usable && comparison.confidence >= 0.99 && comparison.choice !== 'uncertain') {
+      if (usable && (!selection.declaration.financial || findings.periodSupport === 'consistent') && comparison.confidence >= 0.99 && comparison.choice !== 'uncertain') {
         if (comparison.choice === 'not_found' && findings[target.presence] === 'absent') findings[target.support] = 'not_found'
         else if (comparison.choice !== 'not_found' && findings[target.presence] === 'present') findings[target.support] = comparison.choice as Findings[typeof target.support]
       }
     }
   }
-  return { native, findings, partial: Object.values(findings).includes('unavailable') }
+  if (selection.declaration.financial && findings.periodSupport !== 'consistent') {
+    for (const target of financialPageTargets) if (target.presence !== 'periodPresence' && findings[target.presence] === 'absent') findings[target.presence] = 'undetermined'
+  }
+  return { native, findings: orderFinancialFindings(findings), partial: Object.values(findings).includes('unavailable') }
+}
+
+// Composition uses only the current run. A comparison never fills missing pages.
+export function composeFindings(selection: SelectedEvidence, coverage: Coverage, pages: PageAnalysis[], comparison?: ComparisonAnalysis): Findings {
+  const complete = coverage.totalPages !== null && coverage.successful.length === coverage.totalPages && pages.length === coverage.totalPages && pages.every(page => usablePage(selection, page.findings))
+  const findings: Findings = { category: pages[0]?.findings.category ?? 'unavailable', readability: pages[0]?.findings.readability ?? 'unavailable' }
+  const keys = new Set(pages.flatMap(page => Object.keys(page.findings)))
+  for (const key of keys) {
+    if (key === 'category' || key === 'readability') continue
+    const values = pages.map(page => page.findings[key as keyof Findings])
+    if (key.endsWith('Presence')) findings[key as PresenceKey] = values.includes('present') ? 'present' : complete && values.every(value => value === 'absent') ? 'absent' : 'undetermined'
+  }
+  const supports: SupportKey[] = [...(selection.declaration.financial ? ['periodSupport' as const] : []), ...evidenceTargets(selection.binding.slot).map(target => target.support)]
+  for (const key of supports) {
+    const target = evidenceTargets(selection.binding.slot).find(target => target.support === key)
+    if (target && declaredDetail(selection.declaration, target).status !== 'valid') { findings[key] = 'missing-context'; continue }
+    const witnesses = pages.filter(page => usablePage(selection, page.findings) && page.findings[key] === 'conflict')
+    const compared = comparison?.findings[key]
+    const periodAllowed = !selection.declaration.financial || key === 'periodSupport' || findings.periodSupport === 'consistent'
+    const periodRejected = !!selection.declaration.financial && key !== 'periodSupport' && (pages.some(page => usablePage(selection, page.findings) && ['different', 'conflict'].includes(page.findings.periodSupport ?? '')) || ['different', 'conflict'].includes(comparison?.findings.periodSupport ?? ''))
+    const scopedWitness = witnesses.some(page => !selection.declaration.financial || key === 'periodSupport' || page.findings.periodSupport === 'consistent')
+    if (periodRejected) findings[key] = 'undetermined'
+    else if (scopedWitness || compared === 'conflict' && periodAllowed) findings[key] = 'conflict'
+    else if (!complete) findings[key] = 'undetermined'
+    else if (periodAllowed) findings[key] = compared ?? (coverage.totalPages === 1 ? pages[0]?.findings[key] : 'unavailable') ?? 'unavailable'
+    else findings[key] = comparison ? 'undetermined' : 'unavailable'
+
+  }
+  if (pages.some(page => page.findings.category !== findings.category)) findings.category = 'mixed'
+  if (pages.some(page => page.findings.readability !== 'clear') || !complete) findings.readability = pages.some(page => page.findings.readability === 'unreadable') ? 'unreadable' : 'partial'
+  return orderFinancialFindings(findings)
+}
+
+function orderFinancialFindings(findings: Findings): Findings {
+  const { category, readability, periodPresence, periodSupport, ...amounts } = findings
+  return { category, readability, ...(periodPresence ? { periodPresence } : {}), ...(periodSupport ? { periodSupport } : {}), ...amounts }
+}
+
+export function usablePage(selection: SelectedEvidence, findings: Findings) {
+  const category = selection.declaration.purchase ? selection.declaration.purchase.product === 'inventory' ? 'stock' : 'equipment' : selection.binding.slot
+  return findings.category === category && findings.readability === 'clear'
 }

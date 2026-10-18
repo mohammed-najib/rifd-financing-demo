@@ -23,7 +23,7 @@ for (const language of ['en', 'ar'] as const) test(`${language} reviewer examine
   await expect(confirm).not.toBeChecked(); await expect(accept).toHaveAttribute('aria-disabled', 'true')
   expect(requests).toBe(1)
   expect(await page.evaluate(() => globalThis.document.documentElement.scrollWidth <= innerWidth)).toBe(true)
-  const source = assistance.getByRole('img'), controls = assistance.getByRole('checkbox')
+  const source = assistance.getByRole('img'), controls = confirm
   const sourceBox = await source.boundingBox(), controlsBox = await controls.boundingBox()
   expect(sourceBox && controlsBox && (ar ? sourceBox.y < controlsBox.y : Math.abs(sourceBox.y - controlsBox.y) < 300)).toBe(true)
   await assistance.screenshot({ path: info.outputPath(`reviewer-${language}.png`) })
@@ -32,7 +32,7 @@ for (const language of ['en', 'ar'] as const) test(`${language} reviewer examine
   await expect(document.getByText(ar ? 'مقبول' : 'Accepted', { exact: true })).toBeVisible()
 })
 
-test('multipage source navigation remains available when one-page analysis is unavailable', async ({ page }) => {
+test('multipage source navigation and document comparison preserve human inspection', async ({ page }) => {
   let requests = 0
   await page.route('**/fake-provider/systemone', async route => { requests++; await route.fulfill({ json: nativeIdentity() }) })
   await page.goto('/tests/browser/evidence-screen.html?reviewer=pdf')
@@ -46,8 +46,8 @@ test('multipage source navigation remains available when one-page analysis is un
   await assistance.getByRole('button', { name: 'Previous page', exact: true }).click()
   await expect(assistance.getByRole('img', { name: 'Source page 1', exact: true })).toBeVisible()
   await assistance.getByRole('button', { name: 'Run check', exact: true }).click()
-  await expect(assistance.getByText('The source has multiple pages. The one-page check cannot be used here.', { exact: true })).toBeVisible()
-  expect(requests).toBe(0)
+  await expect(assistance.getByText('Printed name appears different from the declared name', { exact: true })).toBeVisible()
+  expect(requests).toBe(3)
   await document.getByRole('checkbox', { name: 'I confirm I inspected the current source', exact: true }).check()
   await document.getByRole('button', { name: 'Accept document', exact: true }).click()
   await expect(document.getByText('Accepted', { exact: true })).toBeVisible()

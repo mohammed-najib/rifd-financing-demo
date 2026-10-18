@@ -24,7 +24,7 @@ Tailwind CSS 4.3.3 compiles through its pinned Vite plugin. `src/ui/styles.css` 
 
 The [acceptance checklist](acceptance/README.md) separates automated behavior, ordinary-browser manual work, print inspection, performance and hosted checks. Browser-only persistence, no real authentication or payment processing, and fresh-offline launch remain explicit limits.
 
-Draft, private correction and submitted identity, business and purchase assistance use `Demo.createEvidenceAssistance`. The handle owns an
+Draft, private correction and submitted identity, business, financial and purchase assistance use `Demo.createEvidenceAssistance`. The handle owns an
 explicit inspect/run/cancel/refresh/clear lifecycle and retained results. Authorized reads bind
 actual source bytes, relevant declarations and authority/dependency generations.
 Completion rechecks those dependencies. Replacement, relevant edits, sign-out,
@@ -33,7 +33,7 @@ analysis. Assistance never writes financing data.
 
 Correction inputs bind the current workspace's round identifier. The same task
 context includes the actual reviewer-written target reasons, permitted fields and
-document slots, and the initial submission month for later financial tasks.
+document slots, and the actual initial submission month.
 Every question depends on that shared context. Document-only correction targets
 keep the name read-only in operations and presentation. Matching ordinary Save
 can retain a temporary result without restarting its run. Resubmission closes
@@ -60,13 +60,17 @@ inspection confirmation or the explained unable-to-open replacement exception.
 
 `src/evidence-assistance` separates the shared contracts, fixed question/display
 policy, cancellable browser preparation and controller. Preparation uses one
-terminable worker for a complete PNG/JPEG or proven one-page PDF. PDF.js 5.4.296,
+terminable worker per complete PNG/JPEG or selected original PDF page, one at a time. PDF.js 5.4.296,
 its worker and resources are pinned together. Install/dev/build copy the matching
 resources into ignored `public/pdfjs`; production builds retain them as static
 assets. Source/raster hashes, orientation, padding and transforms accompany each
 result. The pinned JPEG decoder rejects truncated scans that browser decoding
-would repair silently. Incomplete, encrypted, oversized or multipage sources remain available
-through ordinary inspection but cannot produce one-page findings.
+would repair silently. Encrypted, incomplete or oversized sources remain available
+through ordinary inspection. Analysis supports at most 100 original PDF pages and
+four selected full pages, eight seconds per page and 20 seconds of cumulative
+preparation. All pages are selected when they fit; longer or resource-limited
+sources require an explicit narrower selection. Rendering failures preserve
+selected, prepared, failed and unchecked scope without substituting rasters.
 
 Shared target definitions identify business name, address and operating-since
 month for separate presence and support findings. Invalid or missing declarations
@@ -75,8 +79,8 @@ operating-history arithmetic and eligibility stay in the domain rules. Every
 model-visible declaration participates in each question's dependency manifest.
 Business checks share correction permissions, reviewer source selection and
 retention without depending on unrelated applicant fields or staff notes.
-The current one-page limit also applies to business evidence; multipage support
-and automatic highlights remain separate implementation tickets.
+The common multipage controller also applies to business evidence. Automatic
+highlights remain a separate implementation ticket.
 
 Purchase checks name separate description and total-budget targets. Inventory
 financing expects a stock purchase plan; Equipment financing expects a supplier
@@ -87,15 +91,40 @@ assistance. Every question binds the selected product and both purchase details.
 Relevant edits or product/source changes suppress old findings. Matching ordinary
 Save can retain a temporary purchase run. Correction edits remain limited to the
 requested fields, and reviewer checks use the submitted purchase evidence.
-The same complete one-page and readability/category/presence guards apply.
+The same complete-source and readability/category/presence guards apply.
 
-The controller reserves the shape of a two-stage plan for later bound verification;
-this slice evaluates only the combined page/declaration stage. It retains native
-answers, distributions, fractional readability, usage and timestamps in provenance.
-Ordinary runtime has no provider transport and reports live analysis unavailable.
-Only test entry points inject deterministic or fake HTTP transports with dummy
-credentials. Service admission, native SDK integration and automatic highlights
-belong to subsequent tickets.
+Financial checks name the reporting period, revenue and operating expenses for
+each of three months, and both printed averages. Code derives the three completed
+months from the effective initial submission month. Drafts use the existing demo
+submission month; historical and correction contexts use the actual initial
+submission month. Whole-rial parsing and validation stay in code. Assistance
+compares explicitly printed averages, never computes or transcribes missing ones.
+Missing declarations skip only their comparisons. Period findings precede amount
+findings, and wrong or conflicting periods suppress amount conclusions.
+
+A source proven to have exactly one page combines page and declaration work,
+reserving a second stage for later bound verification. Multipage sources dispatch
+ascending page stages and at most one comparison over usable pages. A single
+selected page from a longer original retains that multipage plan. Four selected
+pages reserve at most nine attempts, including one future verification per page.
+Comparison requests include each raster once. Actual verification, service
+admission and native SDK integration belong to subsequent tickets.
+
+Agreement and absence require complete usable coverage of the original source.
+Conflicts witnessed on usable checked pages can remain scoped warnings, with
+financial-period guards. Failed comparisons preserve independent page findings.
+Runs never merge coverage. The Arabic/English panel shows explicit page selection,
+coverage, period-first findings and ordinary source navigation. Advice remains
+optional during Save, submission and reviewer assessment.
+
+The controller retains native answers, distributions, fractional readability,
+usage, per-page manifests, fixed requests and timestamps in provenance. Restoring
+an analysis revalidates the page scope, stage plan, question definitions and
+native-to-display composition. Ordinary runtime has no provider transport and
+reports live analysis unavailable. Only test entry points inject fake transports.
+Actual multipage fictional PDFs and deterministic four-page plans verify browser
+behavior; native four-image context fit and representative reliability remain
+unverified.
 
 Analysis uses the separate version-1 `rifd-evidence-analysis` IndexedDB database
 after financing startup validates the current dataset. The financing database

@@ -183,11 +183,13 @@ test('a multipage business source stays inspectable and cannot produce whole-sou
     const fixtures = '/tests/browser/business-evidence-fixtures.ts', identity = '/tests/browser/evidence-fixtures.ts'
     const { businessInput, attachBusiness } = await import(fixtures) as typeof import('./business-evidence-fixtures')
     const { identityDemo, pdfFile } = await import(identity) as typeof import('./evidence-fixtures')
+    const transport = '/tests/browser/evidence-transport.ts'
+    const { nativeBusiness } = await import(transport) as typeof import('./evidence-transport')
     let attempts = 0
-    const { demo } = await identityDemo({ async evaluate() { attempts++; throw new Error('must not dispatch') } })
+    const { demo } = await identityDemo({ async evaluate(request) { attempts++; if (request.stage === 'page' && request.image.manifest.page === 2) throw new Error('page unavailable'); return nativeBusiness() } })
     const attachment = await attachBusiness(await pdfFile(2))
     const handle = demo.createEvidenceAssistance({ ...businessInput, attachment }); await handle.run()
     return { state: handle.read(), readable: (await demo.readPrepared(businessInput.applicationId, attachment)).ok, attempts }
   })
-  expect(result).toMatchObject({ attempts: 0, readable: true, state: { status: 'unavailable', reason: 'multipage', result: null, coverage: { totalPages: 2, successful: [], dispatched: [], unchecked: [1, 2] } } })
+  expect(result).toMatchObject({ attempts: 3, readable: true, state: { status: 'completed', result: { findings: { businessNameSupport: 'undetermined', addressSupport: 'conflict', operatingSinceSupport: 'undetermined' } }, coverage: { totalPages: 2, successful: [1], dispatched: [1, 2], failed: [2], unchecked: [2] } } })
 })

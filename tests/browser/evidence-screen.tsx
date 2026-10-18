@@ -12,7 +12,7 @@ import { requestPurchaseCorrection } from './purchase-evidence-fixtures'
 
 const demo = createDemo({ evidenceTransport: {
   async evaluate(request, signal) {
-    const response = await fetch('/fake-provider/systemone', { method: 'POST', headers: { Authorization: 'Bearer dummy-test-key', 'Content-Type': 'application/json' }, signal, body: JSON.stringify({ ...request, image: { ...request.image, bytes: Array.from(new Uint8Array(request.image.bytes)) } }) })
+    const response = await fetch('/fake-provider/systemone', { method: 'POST', headers: { Authorization: 'Bearer dummy-test-key', 'Content-Type': 'application/json' }, signal, body: JSON.stringify({ ...request, image: { ...request.image, bytes: Array.from(new Uint8Array(request.image.bytes)) }, ...(request.images ? { images: request.images.map(image => ({ ...image, bytes: Array.from(new Uint8Array(image.bytes)) })) } : {}) }) })
     if (!response.ok) throw new Error('unavailable')
     return response.json()
   },

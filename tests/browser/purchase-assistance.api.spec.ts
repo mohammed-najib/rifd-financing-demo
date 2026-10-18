@@ -60,10 +60,11 @@ test('purchase guards distinguish absence, unrelated quotations, missing context
     const partial = await check()
     response = { ...nativePurchase(), usage: null }
     const unavailable = await check()
+    response = nativePurchase()
     const attempts = requests.length
     const multipageAttachment = await attachPurchase('inventory', await pdfFile(2))
-    const handle = demo.createEvidenceAssistance({ ...purchaseInput, attachment: multipageAttachment }); await handle.run()
-    return { missing, missingBudget, absent, unrelated, obscured, conflict, uncertain, partial, unavailable, multipage: handle.read(), multipageReadable: (await demo.readPrepared(purchaseInput.applicationId, multipageAttachment)).ok, noMultipageDispatch: requests.length === attempts, requests: requests.map(({ state, questions }) => ({ state, questions })) }
+    const handle = demo.createEvidenceAssistance({ ...purchaseInput, attachment: multipageAttachment, declaredPurchase: { product: 'inventory', explanation: 'Restock shop shelves with supplies', budget: '1200000' } }); await handle.run()
+    return { missing, missingBudget, absent, unrelated, obscured, conflict, uncertain, partial, unavailable, multipage: handle.read(), multipageReadable: (await demo.readPrepared(purchaseInput.applicationId, multipageAttachment)).ok, multipageAttempts: requests.length - attempts, requests: requests.map(({ state, questions }) => ({ state, questions })) }
   })
   expect(result.missing.result?.findings).toMatchObject({ category: 'stock', readability: 'clear', descriptionPresence: 'present', descriptionSupport: 'missing-context', budgetPresence: 'present', budgetSupport: 'missing-context' })
   expect(Object.keys(result.requests[0].questions)).toEqual(['category', 'readability', 'descriptionPresence', 'budgetPresence'])
@@ -80,8 +81,9 @@ test('purchase guards distinguish absence, unrelated quotations, missing context
   expect(result.partial.result?.findings).toMatchObject({ descriptionSupport: 'consistent', budgetSupport: 'unavailable' })
   expect(result.partial.result?.stages).toContainEqual({ stage: 'budget-comparison', outcome: 'unavailable' })
   expect(result.unavailable).toMatchObject({ status: 'unavailable', reason: 'invalid-response', result: null })
-  expect(result.multipage).toMatchObject({ status: 'unavailable', reason: 'multipage', result: null, coverage: { totalPages: 2, dispatched: [], successful: [], unchecked: [1, 2] } })
-  expect(result.multipageReadable && result.noMultipageDispatch).toBe(true)
+  expect(result.multipage).toMatchObject({ status: 'completed', result: { findings: { descriptionSupport: 'consistent', budgetSupport: 'different' } }, coverage: { totalPages: 2, dispatched: [1, 2], successful: [1, 2], unchecked: [] } })
+  expect(result.multipageReadable).toBe(true)
+  expect(result.multipageAttempts).toBe(3)
 })
 
 test('purchase results survive matching Save and restore, but relevant details, product and source changes invalidate them', async ({ page }) => {

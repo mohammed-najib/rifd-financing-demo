@@ -91,7 +91,7 @@ test('actual PNG, oriented JPEG and proven one-page PDF retain complete raster g
   expect(results[2].state.result?.provenance.raster).toMatchObject({ width: 700, height: 500, rotation: 90, renderer: 'pdfjs-5.4.296', resources: 'pdfjs-5.4.296' })
 })
 
-test('multipage, incomplete and oversized sources never dispatch and remain inspectable', async ({ page }) => {
+test('sources requiring narrower selection, incomplete and oversized sources stay inspectable without dispatch', async ({ page }) => {
   await page.goto('/tests/browser/api.html'); await page.waitForFunction(() => window.demo)
   const result = await page.evaluate(async () => {
     const path = '/tests/browser/evidence-fixtures.ts'
@@ -101,7 +101,7 @@ test('multipage, incomplete and oversized sources never dispatch and remain insp
     const png = new Uint8Array(await (await imageFile('image/png')).arrayBuffer())
     const large = png.slice(); new DataView(large.buffer).setUint32(16, 8193)
     const encrypted = await (await fetch('/tests/browser/fixtures/identity-encrypted.pdf')).arrayBuffer()
-    const files = [await pdfFile(2), new File([png.slice(0, 40)], 'incomplete.png', { type: 'image/png' }), new File([large], 'oversized.png', { type: 'image/png' }), await pdfFile(101), new File([encrypted], 'encrypted.pdf', { type: 'application/pdf' })]
+    const files = [await pdfFile(5), new File([png.slice(0, 40)], 'incomplete.png', { type: 'image/png' }), new File([large], 'oversized.png', { type: 'image/png' }), await pdfFile(101), new File([encrypted], 'encrypted.pdf', { type: 'application/pdf' })]
     const states = [], sources = []
     for (const file of files) {
       const attachment = await attachIdentity(file)
@@ -114,8 +114,8 @@ test('multipage, incomplete and oversized sources never dispatch and remain insp
   })
   expect(result.dispatched).toBe(0)
   expect(result.sources).toEqual([true, true, true, true, true])
-  expect(result.states.map(state => state.reason)).toEqual(['multipage', 'invalid-source', 'source-limit', 'source-limit', 'invalid-source'])
-  expect(result.states[0].coverage).toMatchObject({ totalPages: 2, successful: [], unchecked: [1, 2], dispatched: [] })
+  expect(result.states.map(state => state.reason)).toEqual(['page-selection', 'invalid-source', 'source-limit', 'source-limit', 'invalid-source'])
+  expect(result.states[0].coverage).toMatchObject({ totalPages: 5, successful: [], unchecked: [1, 2, 3, 4, 5], dispatched: [] })
 })
 
 test('cancel, retry, edits, replacement, sign-out and disposal cannot publish late answers', async ({ page }) => {

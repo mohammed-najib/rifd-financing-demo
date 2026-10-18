@@ -95,10 +95,11 @@ class CMapFactory {
   }
 }
 
-async function prepare(source: EvidenceSource): Promise<PreparedPage> {
+async function prepare(source: EvidenceSource & { pageNumber: number; explicit: boolean; inspectOnly?: boolean }): Promise<PreparedPage | { totalPages: number }> {
   const sourceHash = await hash(source.bytes)
   if (sourceHash !== source.hash) return rejectSource()
-  let width: number, height: number, orientation = 1, rotation = 0, totalPages = 1
+  let width: number, height: number, orientation = 1, rotation = 0
+  let totalPages: number | null = source.mime === 'application/pdf' ? null : 1
   let originalWidth: number | undefined, originalHeight: number | undefined
   let viewport: number[] = [], transform: number[] = []
   let bitmap: ImageBitmap | undefined
@@ -119,17 +120,20 @@ async function prepare(source: EvidenceSource): Promise<PreparedPage> {
       // Even PDFs with an empty password are rejected as encrypted.
       task.onPassword = () => { void task?.destroy() }
       pdf = await task.promise
-      if (await pdf.getPermissions() !== null) return rejectSource()
       totalPages = pdf.numPages
+      if (await pdf.getPermissions() !== null) return rejectSource()
       if (totalPages > bounds.pdfPages) throw Object.assign(new Error('source-limit'), { totalPages })
-      if (totalPages !== 1) throw Object.assign(new Error('multipage'), { totalPages })
-      const page = await pdf.getPage(1)
+      if (source.inspectOnly) return { totalPages: totalPages! }
+      if (!source.explicit && totalPages > 4) throw Object.assign(new Error('page-selection'), { totalPages })
+      if (source.pageNumber > totalPages) throw Object.assign(new Error('page-selection'), { totalPages })
+      const page = await pdf.getPage(source.pageNumber)
       const base = page.getViewport({ scale: 1 })
       width = base.width; height = base.height; rotation = page.rotate
       originalWidth = page.view[2] - page.view[0]; originalHeight = page.view[3] - page.view[1]
     } else {
       const header = imageHeader(source.bytes, source.mime)
       width = header.width; height = header.height; orientation = header.orientation
+      if (source.inspectOnly) return { totalPages: totalPages! }
       if (!width || !height || width > bounds.decodedSide || height > bounds.decodedSide || width * height > bounds.sourcePixels) throw new Error('source-limit')
       if (source.mime === 'image/jpeg') {
         // Browser decoders can silently fill a truncated scan. Validate all MCU
@@ -156,7 +160,7 @@ async function prepare(source: EvidenceSource): Promise<PreparedPage> {
       transform = [contentWidth / uprightWidth, 0, 0, contentHeight / uprightHeight, left, top]
       viewport = [0, 0, uprightWidth, uprightHeight]
     } else {
-      const page = await pdf!.getPage(1)
+      const page = await pdf!.getPage(source.pageNumber)
       const rendered = page.getViewport({ scale, offsetX: left, offsetY: top })
       viewport = page.view; transform = rendered.transform
       await page.render({ canvas: canvas as never, canvasContext: target.context as never, viewport: rendered, background: '#fff' }).promise
@@ -166,13 +170,15 @@ async function prepare(source: EvidenceSource): Promise<PreparedPage> {
     const bytes = await (await canvas.convertToBlob({ type: 'image/png' })).arrayBuffer()
     if (bytes.byteLength > bounds.imageBytes || bytes.byteLength > bounds.combinedBytes || preparedWidth * preparedHeight > bounds.combinedPixels) throw new Error('prepared-limit')
     const manifest: RasterManifest = {
-      page: 1, sourceHash, rasterHash: await hash(bytes), width: preparedWidth, height: preparedHeight,
+      page: source.pageNumber, sourceHash, rasterHash: await hash(bytes), width: preparedWidth, height: preparedHeight,
       sourceWidth: originalWidth ?? width, sourceHeight: originalHeight ?? height, uprightWidth, uprightHeight, orientation, rotation, scale,
       padding: { left, top, right: preparedWidth - contentWidth - left, bottom: preparedHeight - contentHeight - top }, viewport,
       orientationTransform: [[], [1, 0, 0, 1, 0, 0], [-1, 0, 0, 1, width, 0], [-1, 0, 0, -1, width, height], [1, 0, 0, -1, 0, height], [0, 1, 1, 0, 0, 0], [0, 1, -1, 0, height, 0], [0, -1, -1, 0, height, width], [0, -1, 1, 0, 0, width]][orientation], transform,
       renderer: source.mime === 'application/pdf' ? `pdfjs-${version}` : 'createImageBitmap-from-image-v1', worker: `pdfjs-${version}`, resources: `pdfjs-${version}`, preparation: versions.preparation,
     }
-    return { bytes, manifest, totalPages }
+    return { bytes, manifest, totalPages: totalPages! }
+  } catch (error) {
+    throw Object.assign(error instanceof Error ? error : new Error('invalid-source'), { totalPages })
   } finally {
     bitmap?.close()
     if (canvas) { canvas.width = 0; canvas.height = 0 }
@@ -180,10 +186,10 @@ async function prepare(source: EvidenceSource): Promise<PreparedPage> {
   }
 }
 
-self.onmessage = async (event: MessageEvent<EvidenceSource>) => {
-  try { const page = await prepare(event.data); self.postMessage({ kind: 'prepared-evidence', page }, { transfer: [page.bytes] }) }
+self.onmessage = async (event: MessageEvent<EvidenceSource & { pageNumber: number; explicit: boolean; inspectOnly?: boolean }>) => {
+  try { const page = await prepare(event.data); self.postMessage({ kind: 'prepared-evidence', ...('bytes' in page ? { page } : page) }, { transfer: 'bytes' in page ? [page.bytes] : [] }) }
   catch (error) {
-    const reason = error instanceof Error && ['source-limit', 'multipage', 'prepared-limit'].includes(error.message) ? error.message : 'invalid-source'
+    const reason = error instanceof Error && ['source-limit', 'page-selection', 'prepared-limit'].includes(error.message) ? error.message : 'invalid-source'
     self.postMessage({ kind: 'prepared-evidence', reason, totalPages: error && typeof error === 'object' && 'totalPages' in error ? error.totalPages : undefined })
   }
 }

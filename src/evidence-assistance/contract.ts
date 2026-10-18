@@ -2,7 +2,7 @@ import type { PreparedAttachment, Result } from '../demo/types'
 import type { CorrectionTarget, DocumentSlot, ProductId } from '../domain/model'
 
 export const versions = {
-  questions: 'evidence-questions-v2', preparation: 'full-page-pdfjs-5.4.296-v1',
+  questions: 'evidence-questions-v3', preparation: 'full-page-pdfjs-5.4.296-v1',
   mapping: 'evidence-mapping-v2', display: 'release-display-v2-experimental',
   defaults: 'provisional-display-defaults-v1', model: 'jev-1.14.0',
   bridge: 'fixed-evaluation-v1', sdk: 'not-connected',
@@ -20,18 +20,22 @@ export type EvidenceAudience = 'applicant' | 'reviewer'
 export type EvidenceContext = 'draft' | 'correction-workspace' | 'submitted'
 export type EvidenceAction = 'check-document' | 'find-supporting-evidence'
 // Both audiences use the same implemented tasks. Add new document definitions here.
-export const evidenceTaskSlots: readonly DocumentSlot[] = ['identity', 'business', 'purchase']
+export const evidenceTaskSlots: readonly DocumentSlot[] = ['identity', 'business', 'financial', 'purchase']
 export type BusinessField = 'businessName' | 'address' | 'operatingSince'
 export type PurchaseField = 'explanation' | 'budget'
 export type PurchaseDeclaration = { product: ProductId } & Record<PurchaseField, DeclaredDetail>
+export type FinancialField = 'revenue' | 'expenses'
+export type FinancialDeclaration = { initialSubmissionMonth: string; expectedMonths: string[]; revenue: DeclaredDetail; expenses: DeclaredDetail }
 export type DeclaredDetail = { value: string | null; status: 'valid' | 'missing' | 'invalid' }
-export type EvidenceDeclaration = { fullName: string | null; status: DeclaredDetail['status']; business?: never; purchase?: never }
-  | { fullName?: never; status?: never; business: Record<BusinessField, DeclaredDetail>; purchase?: never }
-  | { fullName?: never; status?: never; business?: never; purchase: PurchaseDeclaration }
-export type PresenceKey = 'namePresence' | 'businessNamePresence' | 'addressPresence' | 'operatingSincePresence' | 'descriptionPresence' | 'budgetPresence'
-export type SupportKey = 'nameSupport' | 'businessNameSupport' | 'addressSupport' | 'operatingSinceSupport' | 'descriptionSupport' | 'budgetSupport'
+export type EvidenceDeclaration = { fullName: string | null; status: DeclaredDetail['status']; business?: never; purchase?: never; financial?: never }
+  | { fullName?: never; status?: never; business: Record<BusinessField, DeclaredDetail>; purchase?: never; financial?: never }
+  | { fullName?: never; status?: never; business?: never; purchase: PurchaseDeclaration; financial?: never }
+  | { fullName?: never; status?: never; business?: never; purchase?: never; financial: FinancialDeclaration }
+export type FinancialPresenceKey = 'periodPresence' | 'month1RevenuePresence' | 'month1ExpensesPresence' | 'month2RevenuePresence' | 'month2ExpensesPresence' | 'month3RevenuePresence' | 'month3ExpensesPresence' | 'revenuePresence' | 'expensesPresence'
+export type PresenceKey = FinancialPresenceKey | 'namePresence' | 'businessNamePresence' | 'addressPresence' | 'operatingSincePresence' | 'descriptionPresence' | 'budgetPresence'
+export type SupportKey = 'periodSupport' | 'revenueSupport' | 'expensesSupport' | 'nameSupport' | 'businessNameSupport' | 'addressSupport' | 'operatingSinceSupport' | 'descriptionSupport' | 'budgetSupport'
 // These named targets also identify the regions to locate when highlights are enabled.
-export type EvidenceTarget = { field: 'fullName' | BusinessField | PurchaseField; name: string; presence: PresenceKey; support: SupportKey; statePath: string }
+export type EvidenceTarget = { field: 'fullName' | BusinessField | PurchaseField | FinancialField; name: string; presence: PresenceKey; support: SupportKey; statePath: string }
 const identityTargets: readonly EvidenceTarget[] = [{ field: 'fullName', name: 'applicant name', presence: 'namePresence', support: 'nameSupport', statePath: 'declaredApplicantName' }]
 const businessTargets: readonly EvidenceTarget[] = [
   { field: 'businessName', name: 'business name', presence: 'businessNamePresence', support: 'businessNameSupport', statePath: 'declaredBusiness.businessName' },
@@ -42,13 +46,22 @@ const purchaseTargets: readonly EvidenceTarget[] = [
   { field: 'explanation', name: 'purchase description', presence: 'descriptionPresence', support: 'descriptionSupport', statePath: 'declaredPurchase.explanation' },
   { field: 'budget', name: 'purchase total budget in whole Yemeni rials', presence: 'budgetPresence', support: 'budgetSupport', statePath: 'declaredPurchase.budget' },
 ]
-export const evidenceTargets = (slot: DocumentSlot): readonly EvidenceTarget[] => slot === 'identity' ? identityTargets : slot === 'business' ? businessTargets : slot === 'purchase' ? purchaseTargets : []
+const financialTargets = [
+  { field: 'revenue', name: 'printed average monthly revenue in whole Yemeni rials', presence: 'revenuePresence', support: 'revenueSupport', statePath: 'declaredFinancial.revenue' },
+  { field: 'expenses', name: 'printed average monthly operating expenses in whole Yemeni rials', presence: 'expensesPresence', support: 'expensesSupport', statePath: 'declaredFinancial.expenses' },
+] as const satisfies readonly EvidenceTarget[]
+export const financialPageTargets: readonly { name: string; presence: FinancialPresenceKey }[] = [
+  { name: 'reporting period', presence: 'periodPresence' },
+  ...[1, 2, 3].flatMap(month => [{ name: `revenue for expected month ${month}`, presence: `month${month}RevenuePresence` as FinancialPresenceKey }, { name: `operating expenses for expected month ${month}`, presence: `month${month}ExpensesPresence` as FinancialPresenceKey }]),
+  ...financialTargets,
+]
+export const evidenceTargets = (slot: DocumentSlot): readonly EvidenceTarget[] => slot === 'identity' ? identityTargets : slot === 'business' ? businessTargets : slot === 'purchase' ? purchaseTargets : slot === 'financial' ? financialTargets : []
 export const declaredDetail = (declaration: EvidenceDeclaration, target: EvidenceTarget): DeclaredDetail => target.field === 'fullName'
   ? { value: declaration.fullName ?? null, status: declaration.status ?? 'missing' }
-  : (target.field === 'explanation' || target.field === 'budget' ? declaration.purchase?.[target.field] : declaration.business?.[target.field]) ?? { value: null, status: 'missing' }
+  : (target.field === 'explanation' || target.field === 'budget' ? declaration.purchase?.[target.field] : target.field === 'revenue' || target.field === 'expenses' ? declaration.financial?.[target.field] : declaration.business?.[target.field]) ?? { value: null, status: 'missing' }
 export type EvidenceInput = {
   action: EvidenceAction; applicationId: string; slot: DocumentSlot; audience: EvidenceAudience; context: EvidenceContext;
-  fileId?: string | null; attachment?: PreparedAttachment; declaredName?: string; declaredBusiness?: Record<BusinessField, string>; declaredPurchase?: { product: ProductId; explanation: string; budget: string }; roundId?: string;
+  fileId?: string | null; attachment?: PreparedAttachment; declaredName?: string; declaredBusiness?: Record<BusinessField, string>; declaredPurchase?: { product: ProductId; explanation: string; budget: string }; declaredFinancial?: Record<FinancialField, string>; roundId?: string;
 }
 export type CorrectionEvidenceContext = { targets: CorrectionTarget[]; initialSubmissionMonth: string }
 export type EvidenceSource = { id: string; bytes: ArrayBuffer; name: string; mime: string; hash: string }
@@ -66,14 +79,14 @@ export type RasterManifest = {
   renderer: string; worker: string; resources: string; preparation: string;
 }
 export type PreparedPage = { bytes: ArrayBuffer; manifest: RasterManifest; totalPages: number }
-export type AttemptPlan = { maximumAttempts: 2; stages: readonly ['combined-page-declaration', 'bound-verification']; verification: 'reserved-not-enabled' }
+export type AttemptPlan = { maximumAttempts: number; stages: readonly string[]; verification: 'reserved-not-enabled' }
 export type FixedQuestion = { type: 'choice'; instructions: string; criteria: Record<string, string> }
   | { type: 'score'; instructions: string; criteria: string[] }
   | { type: 'noul'; instructions: string }
 export type StageRequest = {
-  runId: string; stage: 'combined-page-declaration'; model: typeof versions.model; plan: AttemptPlan;
-  state: { page: string; declaredApplicantName?: string | null; declaredBusiness?: Record<BusinessField, string | null>; declaredPurchase?: { product: ProductId; explanation: string | null; budget: string | null }; correction?: CorrectionEvidenceContext };
-  image: PreparedPage;
+  runId: string; stage: 'combined-page-declaration' | 'page' | 'document-comparison'; model: typeof versions.model; plan: AttemptPlan;
+  state: { page: string; pages?: string[]; declaredFinancial?: { initialSubmissionMonth: string; expectedMonths: string[]; revenue: string | null; expenses: string | null }; declaredApplicantName?: string | null; declaredBusiness?: Record<BusinessField, string | null>; declaredPurchase?: { product: ProductId; explanation: string | null; budget: string | null }; correction?: CorrectionEvidenceContext };
+  image: PreparedPage; images?: PreparedPage[];
   questions: Record<string, FixedQuestion>; versions: typeof versions;
   dependencies: Record<string, string[]>;
 }
@@ -92,10 +105,13 @@ export type Findings = {
 export type Coverage = { totalPages: number | null; selected: number[]; prepared: number[]; dispatched: number[]; successful: number[]; failed: number[]; unreadable: number[]; unchecked: number[]; uncheckedCount: number | null }
 export type EvidenceRun = {
   schemaVersion: 1; id: string; provenanceKind: 'live-analysis'; temporary: boolean; restored: boolean; stale: boolean; expiresAt: string; coverage: Coverage; findings: Findings;
-  stages: { stage: string; outcome: 'successful' | 'partial' | 'unavailable' | 'skipped'; reason?: string }[];
-  provenance: { source: Omit<EvidenceSource, 'bytes'>; binding: SelectedEvidence['binding']; context: SelectedEvidence['declaration']; correction?: CorrectionEvidenceContext; versions: typeof versions; plan: AttemptPlan; request: Omit<StageRequest, 'image'>; raster: RasterManifest; native: NativeCapture; accounting: 'reported'; startedAt: string; dispatchedAt: string; answeredAt: string; completedAt: string };
+  pages?: PageAnalysis[]; comparison?: ComparisonAnalysis;
+  stages: { page?: number; stage: string; outcome: 'successful' | 'partial' | 'unavailable' | 'skipped'; reason?: string }[];
+  provenance: { source: Omit<EvidenceSource, 'bytes'>; binding: SelectedEvidence['binding']; context: SelectedEvidence['declaration']; correction?: CorrectionEvidenceContext; versions: typeof versions; plan: AttemptPlan; request: Omit<StageRequest, 'image' | 'images'>; raster: RasterManifest; native: NativeCapture; accounting: 'reported'; startedAt: string; dispatchedAt: string; answeredAt: string; completedAt: string };
 }
-export type AssistanceReason = 'live-unavailable' | 'source-limit' | 'invalid-source' | 'multipage' | 'preparation-timeout' | 'prepared-limit' | 'context-limit' | 'provider-unavailable' | 'analysis-storage' | 'invalid-response' | 'stale' | 'unauthorized'
+export type PageAnalysis = { page: number; request: Omit<StageRequest, 'image' | 'images'>; raster: RasterManifest; native: NativeCapture; findings: Findings; partial: boolean }
+export type ComparisonAnalysis = { request: Omit<StageRequest, 'image' | 'images'>; native: NativeCapture; findings: Findings; partial: boolean }
+export type AssistanceReason = 'live-unavailable' | 'source-limit' | 'invalid-source' | 'multipage' | 'page-selection' | 'preparation-timeout' | 'prepared-limit' | 'context-limit' | 'provider-unavailable' | 'analysis-storage' | 'invalid-response' | 'stale' | 'unauthorized'
 export type AssistanceState = {
   status: 'idle' | 'preparing' | 'running' | 'completed' | 'unavailable' | 'cancelled' | 'disposed';
   result: EvidenceRun | null; reason?: AssistanceReason; coverage: Coverage;
@@ -105,7 +121,7 @@ export type EvidenceAssistance = {
   inspect(): Promise<Result<SelectedEvidence>>;
   read(): AssistanceState;
   subscribe(listener: () => void): () => void;
-  run(): Promise<void>;
+  run(pages?: number[]): Promise<void>;
   refresh(): Promise<void>;
   clear(): Promise<Result<void>>;
   cancel(): void;

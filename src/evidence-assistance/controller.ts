@@ -1,16 +1,17 @@
 import type { Result } from '../demo/types'
-import { declaredDetail, evidenceTargets, type AssistanceState, type Coverage, type EvidenceAssistance, type EvidenceRun, type EvidenceTransport, type SelectedEvidence } from './contract'
-import { preparePage, PreparationError } from './prepare'
-import { interpret, makeRequest, recordRequest } from './policy'
+import { declaredDetail, evidenceTargets, type AssistanceState, type EvidenceAssistance, type EvidenceRun, type EvidenceTransport, type SelectedEvidence, type PageAnalysis, type ComparisonAnalysis, type StageRequest } from './contract'
+import { prepareEvidence, inspectSource, emptyCoverage, sourcePages, PreparationError } from './prepare'
+import { interpret, makeRequest, recordRequest, attemptPlan, composeFindings, usablePage } from './policy'
 import { retentionMilliseconds } from './record'
 import type { AnalysisStorage, AnalysisTicket } from './storage'
 
-const coverage = (): Coverage => ({ totalPages: null, selected: [1], prepared: [], dispatched: [], successful: [], failed: [], unreadable: [], unchecked: [1], uncheckedCount: null })
+const coverage = emptyCoverage
 
 export function createAssistance(resolve: () => Promise<Result<SelectedEvidence>>, transport: EvidenceTransport | undefined, storage: AnalysisStorage, authorizeClear: () => Promise<Result<SelectedEvidence['binding']>>, onDispose: () => void) {
   let state: AssistanceState = { status: 'idle', result: null, coverage: coverage(), storage: 'available' }
   let generation = 0
   let abort: AbortController | null = null
+  let inspectedHash: string | null = null
   let dependencyKey: string | null = null
   let record: EvidenceRun | null = null
   let ticket: AnalysisTicket | null = null
@@ -92,7 +93,22 @@ export function createAssistance(resolve: () => Promise<Result<SelectedEvidence>
     inspect: async () => {
       if (state.status === 'disposed') return { ok: false, error: { kind: 'unavailable', key: 'error.unavailable' } }
       await refresh()
-      return resolve()
+      const selection = await resolve()
+      if (selection.ok && !abort && !['running', 'preparing'].includes(state.status) && inspectedHash !== selection.value.source.hash) {
+        const captured = generation, inspection = new AbortController()
+        abort = inspection
+        try {
+          const totalPages = await inspectSource(selection.value.source, inspection.signal)
+          if (captured === generation && !inspection.signal.aborted) {
+            inspectedHash = selection.value.source.hash
+            if (!record) state.coverage = { ...coverage(), totalPages, selected: totalPages <= 4 ? sourcePages(totalPages) : [], unchecked: sourcePages(totalPages), uncheckedCount: totalPages }
+            notify()
+          }
+        } catch (error) {
+          if (captured === generation && error instanceof PreparationError) { state.reason = error.reason; state.coverage.totalPages = error.totalPages; notify() }
+        } finally { if (abort === inspection) abort = null }
+      }
+      return selection
     },
     async clear() {
       const refused = (): Result<void> => ({ ok: false, error: { kind: 'unavailable', key: 'error.unavailable' } })
@@ -115,7 +131,7 @@ export function createAssistance(resolve: () => Promise<Result<SelectedEvidence>
     },
     cancel() { if (state.status === 'disposed') return; stop(); state = { ...state, status: 'cancelled', reason: undefined }; notify() },
     dispose() { if (state.status === 'disposed') return; stop(); record = null; ticket = null; state = { status: 'disposed', result: null, coverage: coverage(), storage: state.storage }; listeners.clear(); onDispose() },
-    async run() {
+    async run(selectedPages) {
       if (state.status === 'disposed' || state.status === 'preparing' || state.status === 'running') return
       await refresh()
       if (api.read().status === 'disposed') return
@@ -126,7 +142,6 @@ export function createAssistance(resolve: () => Promise<Result<SelectedEvidence>
       const current = () => captured === generation && !cancellation.signal.aborted
       const startedAt = new Date().toISOString(), id = crypto.randomUUID()
       state = { ...state, status: 'preparing', reason: undefined, coverage: record?.coverage ?? coverage() }; notify()
-      let deadline: ReturnType<typeof setTimeout> | undefined
       let runCoverage = coverage()
       try {
         const selected = await resolve()
@@ -138,25 +153,80 @@ export function createAssistance(resolve: () => Promise<Result<SelectedEvidence>
         try { ticket = await storage.begin(selection, current); runAuthority = ticket; clearGeneration = ticket.clearGeneration; state.storage = 'available' }
         catch { ticket = null; state.storage = 'temporary-only' }
         if (!current()) return
-        const page = await preparePage(selection.source, cancellation.signal)
-        if (!current()) return
-        runCoverage.totalPages = page.totalPages; runCoverage.prepared = [1]
-        const latest = await resolve()
-        if (!current()) return
-        if (!latest.ok || latest.value.binding.dependencyKey !== dependencyKey) { invalidate(latest.ok ? 'stale' : 'unauthorized'); return }
-        const request = makeRequest(selection, page, id)
-        state = { ...state, status: 'running', coverage: record?.coverage ?? runCoverage }; notify()
-        if (!current()) return
-        const dispatchedAt = new Date().toISOString()
-        const expired = new Promise<never>((_, reject) => {
-          cancellation.signal.addEventListener('abort', () => reject(new DOMException('Cancelled', 'AbortError')), { once: true })
-          deadline = setTimeout(() => { reject(new Error('provider-unavailable')); cancellation.abort() }, 8000)
+        const prepared = await prepareEvidence(selection.source, cancellation.signal, selectedPages, next => {
+          runCoverage = next
+          if (current()) { state = { ...state, coverage: next }; notify() }
         })
-        runCoverage.dispatched = [1]
-        const evaluated = transport.evaluate(request, cancellation.signal)
-        notify()
-        const raw = await Promise.race([evaluated, expired])
-        const answeredAt = new Date().toISOString()
+        if (!current()) return
+        runCoverage = prepared.coverage
+        const plan = attemptPlan(runCoverage.totalPages!, runCoverage.selected)
+        const pages: PageAnalysis[] = [], stages: EvidenceRun['stages'] = prepared.failures.map(failure => ({ page: failure.page, stage: 'preparation', outcome: 'unavailable', reason: failure.reason }))
+        let comparison: ComparisonAnalysis | undefined, lastReason = prepared.failures[0]?.reason ?? 'provider-unavailable'
+        let dispatchedAt = startedAt, answeredAt = startedAt
+        const evaluate = async (request: StageRequest) => {
+          const latest = await resolve()
+          if (!current()) throw new DOMException('Cancelled', 'AbortError')
+          if (!latest.ok || latest.value.binding.dependencyKey !== dependencyKey) { invalidate(latest.ok ? 'stale' : 'unauthorized'); throw new Error('stale') }
+          const stageAbort = new AbortController()
+          let timer: ReturnType<typeof setTimeout> | undefined
+          const abortStage = () => stageAbort.abort()
+          cancellation.signal.addEventListener('abort', abortStage, { once: true })
+          state = { ...state, status: 'running', coverage: runCoverage }; notify()
+          if (!current()) throw new DOMException('Cancelled', 'AbortError')
+          if (request.stage !== 'document-comparison') runCoverage.dispatched.push(request.image.manifest.page)
+          const sent = new Date().toISOString()
+          if (dispatchedAt === startedAt) dispatchedAt = sent
+          try {
+            const expired = new Promise<never>((_, reject) => {
+              stageAbort.signal.addEventListener('abort', () => reject(new Error('provider-unavailable')), { once: true })
+              timer = setTimeout(() => { reject(new Error('provider-unavailable')); stageAbort.abort() }, 8000)
+            })
+            const raw = await Promise.race([transport.evaluate(request, stageAbort.signal), expired])
+            answeredAt = new Date().toISOString()
+            return raw
+          } finally { clearTimeout(timer); cancellation.signal.removeEventListener('abort', abortStage) }
+        }
+        for (const page of prepared.pages) {
+          try {
+            const request = makeRequest(selection, page, id, plan)
+            const raw = await evaluate(request)
+            if (!current()) return
+            const result = interpret(raw, selection)
+            pages.push({ page: page.manifest.page, request: recordRequest(request), raster: page.manifest, ...result })
+            runCoverage.successful.push(page.manifest.page)
+            if (['unreadable', 'partial'].includes(result.findings.readability)) runCoverage.unreadable.push(page.manifest.page)
+            stages.push({ page: page.manifest.page, stage: request.stage, outcome: result.partial ? 'partial' : 'successful' })
+          } catch (error) {
+            if (!current()) return
+            lastReason = error instanceof Error && ['invalid-response', 'context-limit'].includes(error.message) ? error.message as typeof lastReason : 'provider-unavailable'
+            runCoverage.failed.push(page.manifest.page)
+            stages.push({ page: page.manifest.page, stage: 'page', outcome: 'unavailable', reason: lastReason })
+          }
+          runCoverage.failed.sort((a, b) => a - b)
+          runCoverage.unchecked = sourcePages(runCoverage.totalPages!).filter(page => !runCoverage.successful.includes(page))
+          runCoverage.uncheckedCount = runCoverage.unchecked.length
+          state.coverage = structuredClone(runCoverage); notify()
+        }
+        const usable = pages.filter(page => usablePage(selection, page.findings))
+        if (runCoverage.totalPages! > 1) {
+          if (usable.length) {
+            try {
+              const images = prepared.pages.filter(page => usable.some(result => result.page === page.manifest.page))
+              const request = makeRequest(selection, images[0], id, plan, images)
+              if (Object.keys(request.questions).length) {
+                const basis = composeFindings(selection, { ...runCoverage, totalPages: usable.length, successful: usable.map(page => page.page) }, usable)
+                const result = interpret(await evaluate(request), selection, basis)
+                if (!current()) return
+                comparison = { request: recordRequest(request), ...result }
+                stages.push({ stage: 'document-comparison', outcome: result.partial ? 'partial' : 'successful' })
+              } else stages.push({ stage: 'document-comparison', outcome: 'skipped', reason: 'missing-context' })
+            } catch (error) {
+              if (!current()) return
+              stages.push({ stage: 'document-comparison', outcome: 'unavailable', reason: error instanceof Error ? error.message : 'provider-unavailable' })
+            }
+          } else stages.push({ stage: 'document-comparison', outcome: 'skipped', reason: 'no-usable-pages' })
+        }
+        if (!pages.length) throw new PreparationError(lastReason, runCoverage.totalPages)
         if (!current()) return
         const final = await resolve()
         if (!current()) return
@@ -183,15 +253,16 @@ export function createAssistance(resolve: () => Promise<Result<SelectedEvidence>
           // When storage was unavailable throughout, the run has only its local
           // cancellation authority and is explicitly temporary-only.
         }
-        const result = interpret(raw, selection)
-        runCoverage = { ...runCoverage, successful: [1], unchecked: [], uncheckedCount: 0, unreadable: result.findings.readability === 'unreadable' || result.findings.readability === 'partial' ? [1] : [] }
+        const first = pages[0]
+        const findings = runCoverage.totalPages === 1 ? first.findings : composeFindings(selection, runCoverage, pages, comparison)
         const source = { id: selection.source.id, name: selection.source.name, mime: selection.source.mime, hash: selection.source.hash }
-        const recordedRequest = recordRequest(request)
+        if (runCoverage.totalPages === 1) stages.push(...evidenceTargets(selection.binding.slot).map(target => ({ stage: `${target.field === 'fullName' ? 'name' : target.field}-comparison`, outcome: (declaredDetail(selection.declaration, target).status === 'valid' ? first.native.answers[target.support] ? 'successful' : 'unavailable' : 'skipped') as EvidenceRun['stages'][number]['outcome'], ...(declaredDetail(selection.declaration, target).status === 'valid' ? {} : { reason: 'missing-context' }) })))
+        stages.push(...runCoverage.selected.map(page => ({ ...(runCoverage.totalPages === 1 ? {} : { page }), stage: 'bound-verification', outcome: 'skipped' as const, reason: 'not-enabled' })))
         const completedAt = new Date().toISOString()
         const completed: EvidenceRun = {
-          schemaVersion: 1, id, provenanceKind: 'live-analysis', temporary: true, restored: false, stale: false, expiresAt: new Date(Date.parse(completedAt) + retentionMilliseconds).toISOString(), coverage: runCoverage, findings: result.findings,
-          stages: [{ stage: 'combined-page-declaration', outcome: result.partial ? 'partial' : 'successful' }, ...evidenceTargets(selection.binding.slot).map(target => ({ stage: `${target.field === 'fullName' ? 'name' : target.field}-comparison`, outcome: (declaredDetail(selection.declaration, target).status === 'valid' ? result.native.answers[target.support] ? 'successful' : 'unavailable' : 'skipped') as EvidenceRun['stages'][number]['outcome'], ...(declaredDetail(selection.declaration, target).status === 'valid' ? {} : { reason: 'missing-context' }) })), { stage: 'bound-verification', outcome: 'skipped', reason: 'not-enabled' }],
-          provenance: { source, binding: selection.binding, context: selection.declaration, ...(selection.correction ? { correction: selection.correction } : {}), versions: request.versions, plan: request.plan, request: recordedRequest, raster: page.manifest, native: result.native, accounting: 'reported', startedAt, dispatchedAt, answeredAt, completedAt },
+          schemaVersion: 1, id, provenanceKind: 'live-analysis', temporary: true, restored: false, stale: false, expiresAt: new Date(Date.parse(completedAt) + retentionMilliseconds).toISOString(), coverage: runCoverage, findings,
+          pages, ...(comparison ? { comparison } : {}), stages,
+          provenance: { source, binding: selection.binding, context: selection.declaration, ...(selection.correction ? { correction: selection.correction } : {}), versions: first.request.versions, plan, request: first.request, raster: first.raster, native: first.native, accounting: 'reported', startedAt, dispatchedAt, answeredAt, completedAt },
         }
         if (ticket && final.value.binding.durable) {
           try {
@@ -206,8 +277,8 @@ export function createAssistance(resolve: () => Promise<Result<SelectedEvidence>
         if (captured !== generation) return
         const reason = error instanceof PreparationError ? error.reason : error instanceof Error && ['context-limit', 'invalid-response'].includes(error.message) ? error.message as 'context-limit' | 'invalid-response' : 'provider-unavailable'
         const total = error instanceof PreparationError ? error.totalPages : runCoverage.totalPages
-        state = { ...state, status: 'unavailable', reason, coverage: record?.coverage ?? { ...runCoverage, totalPages: total, failed: [1], uncheckedCount: total, unchecked: total && total <= 100 ? Array.from({ length: total }, (_, i) => i + 1) : total ? [] : [1] } }; notify()
-      } finally { clearTimeout(deadline); if (captured === generation) abort = null }
+        state = { ...state, status: 'unavailable', reason, coverage: { ...runCoverage, totalPages: total, uncheckedCount: total === null ? null : total - runCoverage.successful.length, unchecked: total ? sourcePages(total).filter(page => !runCoverage.successful.includes(page)) : [] } }; notify()
+      } finally { if (captured === generation) abort = null }
     },
   }
   return { api, invalidate, revalidate: refresh }
