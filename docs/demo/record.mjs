@@ -3,10 +3,10 @@ import { mkdir, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { performance } from 'node:perf_hooks'
 
-// Records the real hosted UI. No test API, fixture injection or storage editing.
+// Records the real app UI. No test API, fixture injection or storage editing.
 const expect = playwrightExpect.configure({ timeout: 60_000 })
-const origin = process.env.RIFD_DEMO_ORIGIN ?? 'https://rifd-portfolio-mdnb.web.app'
-const directory = resolve(process.env.RIFD_DEMO_OUTPUT ?? `artifacts/demo/24/${new Date().toISOString().replaceAll(':', '-')}`)
+const origin = process.env.RIFD_DEMO_ORIGIN ?? 'http://127.0.0.1:4173'
+const directory = resolve(process.env.RIFD_DEMO_OUTPUT ?? `artifacts/demo/current/${new Date().toISOString().replaceAll(':', '-')}`)
 await mkdir(directory, { recursive: true })
 const browser = await chromium.launch({ channel: 'chrome' })
 const context = await browser.newContext({ baseURL: origin, viewport: { width: 1440, height: 950 }, recordVideo: { dir: directory, size: { width: 1440, height: 950 } } })
@@ -20,10 +20,15 @@ const l = name => page.getByRole('link', { name, exact: true })
 const go = async path => { await page.goto(path); await expect(page.locator('[data-workspace-ready="true"]')).toBeVisible() }
 const switchTo = async name => { await b('تغيير الهوية').click(); await b(name).click(); await expect(page).toHaveURL(name === 'سلمى ناصر' ? /\/staff\/applications$/ : /\/applications$/) }
 const save = async () => { await b('حفظ التقدم').click(); await expect(page.getByText('محفوظ', { exact: true })).toBeVisible() }
+const choose = async (selector, value) => {
+  await page.locator(selector).click()
+  await page.getByRole('listbox').locator(`[role="option"][data-value="${value}"]`).click()
+  await expect(page.locator(selector)).toHaveAttribute('data-value', value)
+}
 const controls = async failure => {
   const details = page.locator('details.demo-controls')
   if (!await details.evaluate(element => element.open)) await details.locator('summary').click()
-  await page.locator('#next-failure').selectOption(failure)
+  await choose('#next-failure', failure)
 }
 async function passChecks(labels) {
   for (const label of labels) {
@@ -77,10 +82,10 @@ try {
   await page.pdf({ path: `${directory}/approved-ar.pdf`, printBackground: true, format: 'A4' })
   await switchTo('سلمى ناصر')
   await scene(4, 'queue-search', 9, 'بحث وتصفيات وفرز محفوظ', 'Search, filter and save the queue sort', 'سلمى / Salma', 'Staff queue', async () => {
-    await page.getByRole('searchbox').fill('٠٠٤'); await expect(page.getByRole('link', { name: /RIFD-2026-004/ })).toBeVisible(); await page.getByRole('searchbox').fill(''); await page.locator('#queue-status').selectOption('submitted'); await page.locator('#queue-sort').selectOption('amountAsc')
+    await page.getByRole('searchbox').fill('٠٠٤'); await expect(page.getByRole('link', { name: /RIFD-2026-004/ })).toBeVisible(); await page.getByRole('searchbox').fill(''); await choose('#queue-status', 'submitted'); await choose('#queue-sort', 'amountAsc')
   })
-  await scene(4, 'queue-page', 6, 'الصفحات تعرض المجموعة نفسها', 'Five rows per page with stable ordering', 'سلمى / Salma', 'Staff queue', async () => { await page.locator('#queue-status').selectOption('all'); await b('الصفحة التالية').click() })
-  await scene(4, 'queue-restored', 6, 'زيارة جديدة تستعيد الفرز المحفوظ', 'A fresh queue visit restores the saved sort', 'سلمى / Salma', 'Staff queue', async () => { await go('/products'); await go('/staff/applications'); await expect(page.locator('#queue-sort')).toHaveValue('amountAsc') })
+  await scene(4, 'queue-page', 6, 'الصفحات تعرض المجموعة نفسها', 'Five rows per page with stable ordering', 'سلمى / Salma', 'Staff queue', async () => { await choose('#queue-status', 'all'); await b('الصفحة التالية').click() })
+  await scene(4, 'queue-restored', 6, 'زيارة جديدة تستعيد الفرز المحفوظ', 'A fresh queue visit restores the saved sort', 'سلمى / Salma', 'Staff queue', async () => { await go('/products'); await go('/staff/applications'); await expect(page.locator('#queue-sort')).toHaveAttribute('data-value', 'amountAsc') })
   await scene(4, 'claim', 7, 'الاستلام لا يبدأ المراجعة', 'Claiming preserves Submitted status', 'سلمى / Salma', '001', async () => { await go('/staff/applications/RIFD-2026-001'); await b('استلام الطلب').click(); await expect(b('بدء المراجعة')).toBeEnabled() })
   await scene(4, 'start-review', 7, 'بدء المراجعة فعل مستقل', 'Start review is a separate explicit action', 'سلمى / Salma', '001', async () => { await b('بدء المراجعة').click(); await expect(b('قبول المستند').first()).toBeVisible() })
   // Prepare approval through the actual review controls, retained in the long take.
@@ -100,7 +105,7 @@ try {
   await switchTo('هدى علي'); await go('/applications/RIFD-2026-004/corrections/current')
   const editor = page.getByRole('region', { name: 'الرد على التصحيحات', exact: true })
   await scene(5, 'private-response', 5, 'الاستجابة الخاصة بجانب مبلغ مقدم قدره 600000', 'Private response stays beside the submitted 600,000 baseline', 'هدى / Huda', '004', async () => {
-    await editor.getByRole('textbox').fill('٤٥٠٬٠٠٠'); const select = editor.locator('select').first(); await select.selectOption({ label: 'replacement' }); await editor.getByRole('button', { name: 'استخدام النموذج', exact: true }).click(); await expect(editor.getByRole('button', { name: 'معاينة الملف الجاهز', exact: true })).toBeVisible(); await save()
+    await editor.getByRole('textbox').fill('٤٥٠٬٠٠٠'); await editor.getByRole('combobox', { name: 'المستند التجريبي', exact: true }).click(); await page.getByRole('option', { name: 'نسخة بديلة', exact: true }).click(); await editor.getByRole('button', { name: 'استخدام النموذج', exact: true }).click(); await expect(editor.getByRole('button', { name: 'معاينة الملف الجاهز', exact: true })).toBeVisible(); await save()
   })
   await page.setViewportSize({ width: 390, height: 950 }); await page.screenshot({ path: `${directory}/applicant-ar-390.png`, fullPage: true }); await page.setViewportSize({ width: 1440, height: 950 })
   await scene(5, 'resubmit', 7, 'نشر التغييرات المطلوبة معا', 'Resubmission publishes all requested changes together', 'هدى / Huda', '004', async () => { await editor.getByRole('button', { name: 'إعادة تقديم التصحيحات', exact: true }).click(); await expect(page.getByRole('status').filter({ hasText: 'أُعيد تقديم التصحيحات' })).toBeVisible() })
@@ -127,7 +132,7 @@ try {
   })
   await scene(6, 'repayment', 6, 'مثال تاريخي ثابت بقسطين مكتملين', 'Historical frozen illustration with two completed entries', 'سلمى / Salma', '005', async () => { await go('/staff/applications/RIFD-2026-005/repayment'); await expect(page.getByText('144,000 ر.ي.', { exact: true })).toBeVisible() })
   await scene(7, 'english', 5, 'تبديل اللغة يحفظ السياق والاتجاه', 'Explicit English switch preserves the current record', 'سلمى / Salma', '005', async () => { await b('English').click(); await expect(page.locator('html')).toHaveAttribute('lang', 'en'); await page.waitForTimeout(1000); await b('العربية').click() })
-  await scene(7, 'expiry', 7, 'انتهاء الجلسة ثم استعادة الهوية نفسها', 'Expiry covers protected content; same-identity sign-in recovers', 'سلمى / Salma', '005', async () => { await b('إنهاء الجلسة').click(); await expect(b('سلمى ناصر')).toBeVisible(); await page.waitForTimeout(1700); await b('سلمى ناصر').click() })
+  await scene(7, 'expiry', 7, 'انتهاء الجلسة ثم استعادة الهوية نفسها', 'Expiry covers protected content; same-identity sign-in recovers', 'سلمى / Salma', '005', async () => { await b('إنهاء الجلسة').click(); await expect(b('سلمى ناصر')).toBeVisible(); await page.waitForTimeout(1700); await b('سلمى ناصر').click(); await expect(page.locator('[data-workspace-ready="true"]')).toBeVisible() })
   await switchTo('مريم سالم')
   await scene(7, 'forbidden', 5, 'الرابط غير المسموح لا يكشف تفاصيل الطلب', 'Forbidden access reveals no application details', 'مريم / Mariam', '004 forbidden', async () => { await go('/applications/RIFD-2026-004'); await expect(page.locator('main')).not.toContainText('600,000') })
   await scene(7, 'gallery', 5, 'معرض المكونات المستخدمة في الرحلات', 'Public gallery uses the production components', 'مريم / Mariam', 'Components', async () => { await go('/components') })

@@ -1,0 +1,58 @@
+{
+  "status": "passed",
+  "sourceCommit": "04cf9e40ca10a047fe8448e69c36f9b0a071370b",
+  "filmSha256": "849d9a8701e7b091bf7a872d7d41c004603695e18fb0b27aef66cc85ec1316ef",
+  "durationSeconds": 340,
+  "sceneCount": 47,
+  "chapterCount": 10,
+  "fullDecode": "passed",
+  "sceneAlignment": {
+    "comparedWithCapturedScreenshots": 45,
+    "maximumMeanPixelError": 2.217,
+    "scale": "0 to 255"
+  },
+  "transitions": {
+    "type": "crossfade",
+    "seconds": 0.35,
+    "checked": 46,
+    "maximumBoundaryMeanPixelChange": 2.498,
+    "scale": "0 to 255"
+  },
+  "uniformFrameSweep": {
+    "framesPerSecond": 5,
+    "uniformFrames": []
+  },
+  "chromePlayback": {
+    "width": 1440,
+    "height": 1080,
+    "durationSeconds": 340,
+    "seekAndPlayback": "passed",
+    "mediaError": null
+  },
+  "visualInspection": [
+    "All 47 scene endings in a contact sheet",
+    "AI chapter contact sheet",
+    "Popup transition frame strip",
+    "Full-resolution session recovery frame",
+    "Arabic and English captions and theme colors"
+  ],
+  "recording": {
+    "actualJevAnalysisRuns": 1,
+    "actualProviderStages": [
+      {
+        "stage": "combined-page-declaration",
+        "page": 1,
+        "model": "jev-1.14.0"
+      }
+    ],
+    "savedExamples": "Visibly labelled as saved demonstrations",
+    "nativeOutcome": "Partial findings and suppressed highlighting were preserved",
+    "additionalNativeCallsForEditing": 0
+  },
+  "editingCorrections": [
+    "Matched scene clocks to captured screenshots",
+    "Held completed results and dialogs before the following action",
+    "Removed loading-screen holds from restored analysis and session recovery"
+  ],
+  "rawEvidence": "Ignored artifacts/demo/2026-10-18/"
+}

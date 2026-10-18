@@ -1,6 +1,6 @@
 # RIFD: a financing application and review demo
 
-[Try the live demo](https://rifd-portfolio-mdnb.web.app), [watch the 4:30 film](demo/rifd-demo.mp4), or [inspect the public source](https://github.com/mohammed-najib/rifd-financing-demo). The [longer chapter guide](demo-guide.md) reproduces all seven journeys. RIFD uses invented people, products and decisions. It sends no request to a bank, verifies no real identity and processes no payment.
+[Try the live demo](https://rifd-portfolio-mdnb.web.app), [watch the 5:40 walkthrough with Jev](demo/rifd-demo.mp4), or [inspect the public source](https://github.com/mohammed-najib/rifd-financing-demo). The [chapter guide](demo-guide.md) reproduces the seven original journeys and the new AI chapter. RIFD uses invented people, products and decisions. It sends no request to a bank, verifies no real identity and processes no payment.
 
 ## The problem
 

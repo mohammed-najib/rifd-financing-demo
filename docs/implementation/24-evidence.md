@@ -1,5 +1,7 @@
 # Slice 24 repository, case study and timed demonstration
 
+This is the historical delivery record for the original 4:30 film. On 18 October 2026, the [current walkthrough](../demo-guide.md) was refreshed to 5:40 with the updated local website and Jev features. The original film and its recorded hashes remain available in the delivery release and Git history.
+
 The delivery uses the existing repository and preserves its history. The application remains the measured Firebase release from [slice 23](23-evidence.md). This slice adds the public delivery documents, requirement checklist, case study, actual film, recording/export tools and evidence copies.
 
 ## Destinations and application identity

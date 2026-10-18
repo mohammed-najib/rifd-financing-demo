@@ -18,30 +18,35 @@ title=2. Documents and recovery / المستندات والتعافي
 [CHAPTER]
 TIMEBASE=1/1000
 START=80000
-END=115000
-title=3. Tracking, notifications and print / المتابعة والإشعارات والطباعة
-[CHAPTER]
-TIMEBASE=1/1000
-START=115000
 END=150000
-title=4. Queue and assignment / قائمة الطلبات والإسناد
+title=3. Jev document assistance / مساعدة Jev للمستندات
 [CHAPTER]
 TIMEBASE=1/1000
 START=150000
 END=185000
-title=5. Review and corrections / المراجعة والتصحيحات
+title=4. Tracking, notifications and print / المتابعة والإشعارات والطباعة
 [CHAPTER]
 TIMEBASE=1/1000
 START=185000
 END=220000
-title=6. Decisions and repayment / القرارات والسداد
+title=5. Queue and assignment / قائمة الطلبات والإسناد
 [CHAPTER]
 TIMEBASE=1/1000
 START=220000
 END=255000
-title=7. Access, sessions and reset / الوصول والجلسات وإعادة الضبط
+title=6. Review and corrections / المراجعة والتصحيحات
 [CHAPTER]
 TIMEBASE=1/1000
 START=255000
-END=270000
+END=290000
+title=7. Decisions and repayment / القرارات والسداد
+[CHAPTER]
+TIMEBASE=1/1000
+START=290000
+END=325000
+title=8. Access, sessions and reset / الوصول والجلسات وإعادة الضبط
+[CHAPTER]
+TIMEBASE=1/1000
+START=325000
+END=340000
 title=Delivery links / روابط التسليم

@@ -5,8 +5,8 @@ Open the [live demo](https://rifd-portfolio-mdnb.web.app). See the
 build hashes, release identifiers and hosted checks.
 
 [Public repository](https://github.com/mohammed-najib/rifd-financing-demo) ·
-[Delivery release and film download](https://github.com/mohammed-najib/rifd-financing-demo/releases/tag/rifd-delivery-v1) ·
-[4:30 film](docs/demo/rifd-demo.mp4) · [Chapter and reset guide](docs/demo-guide.md) ·
+[Original delivery release](https://github.com/mohammed-najib/rifd-financing-demo/releases/tag/rifd-delivery-v1) ·
+[5:40 walkthrough with Jev](docs/demo/rifd-demo.mp4) · [Chapter and reset guide](docs/demo-guide.md) ·
 [Case study](docs/case-study.md) · [Acceptance checklist](docs/acceptance/README.md) ·
 [Architecture](docs/architecture.md) · [State and role flow](docs/user-flow.md).
 

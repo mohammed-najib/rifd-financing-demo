@@ -45,113 +45,145 @@ Preview the saved evidence
 Failed replacement preserves the saved file; explicit retry succeeds
 
 00:01:20.000 --> 00:01:26.000
+مستندات منظمة واسم الملف المختار ظاهر
+Grouped documents and a clear selected filename
+
+00:01:26.000 --> 00:01:38.000
+فحص Jev فعلي لوضوح المستند وتوافق الاسم
+A real Jev check of readability and the declared name
+
+00:01:38.000 --> 00:01:48.000
+افحص الحقل في نافذة واضحة؛ يُحجب التظليل غير الموثوق
+Inspect the field in a popup; uncertain highlights stay hidden
+
+00:01:48.000 --> 00:01:56.000
+احفظ التحليل واستعده دون فحص جديد
+Save and reopen the findings without another AI request
+
+00:01:56.000 --> 00:02:04.000
+مثال Jev محفوظ يحدد العنوان في مستند النشاط
+Saved Jev example: inspect the business address
+
+00:02:04.000 --> 00:02:14.000
+التغطية الجزئية واضحة؛ راجع الصفحات غير المفحوصة
+Saved Jev example: partial coverage stays explicit
+
+00:02:14.000 --> 00:02:22.000
+مثال Jev محفوظ يفصل التكلفة عن الوصف الغائب
+Saved Jev example: budget support and a missing description
+
+00:02:22.000 --> 00:02:30.000
+المساعدة لا تقبل المستند؛ التأكيد بيد المراجع
+AI assistance leaves document acceptance with the reviewer
+
+00:02:30.000 --> 00:02:36.000
 الطلبات الخاصة بهذه الهوية فقط
 This identity sees only her own applications
 
-00:01:26.000 --> 00:01:33.000
+00:02:36.000 --> 00:02:43.000
 الحالة والخطوة التالية والمعلومات المقدمة
 Status, permitted next action and submitted information
 
-00:01:33.000 --> 00:01:40.000
+00:02:43.000 --> 00:02:50.000
 سجل المتقدم لا يعرض ملاحظات الموظفين
 Public history excludes internal staff notes
 
-00:01:40.000 --> 00:01:47.000
+00:02:50.000 --> 00:02:57.000
 إشعار محفوظ يفتح الحالة الحالية
 A saved notification opens the current permitted record
 
-00:01:47.000 --> 00:01:55.000
+00:02:57.000 --> 00:03:05.000
 ملخص الطباعة يشترك في سياسة عرض المتقدم
 Both roles print the same applicant-visible summary
 
-00:01:55.000 --> 00:02:04.000
+00:03:05.000 --> 00:03:14.000
 بحث وتصفيات وفرز محفوظ
 Search, filter and save the queue sort
 
-00:02:04.000 --> 00:02:10.000
+00:03:14.000 --> 00:03:20.000
 الصفحات تعرض المجموعة نفسها
 Five rows per page with stable ordering
 
-00:02:10.000 --> 00:02:16.000
+00:03:20.000 --> 00:03:26.000
 زيارة جديدة تستعيد الفرز المحفوظ
 A fresh queue visit restores the saved sort
 
-00:02:16.000 --> 00:02:23.000
+00:03:26.000 --> 00:03:33.000
 الاستلام لا يبدأ المراجعة
 Claiming preserves Submitted status
 
-00:02:23.000 --> 00:02:30.000
+00:03:33.000 --> 00:03:40.000
 بدء المراجعة فعل مستقل
 Start review is a separate explicit action
 
-00:02:30.000 --> 00:02:34.000
+00:03:40.000 --> 00:03:44.000
 ملاحظات داخلية محفوظة لا تظهر للمتقدم
 Saved internal notes stay private to staff
 
-00:02:34.000 --> 00:02:39.000
+00:03:44.000 --> 00:03:49.000
 هدف محدد وسبب مستقل قبل التأكيد
 Inspect a targeted correction and its individual reason
 
-00:02:39.000 --> 00:02:44.000
+00:03:49.000 --> 00:03:54.000
 الاستجابة الخاصة بجانب مبلغ مقدم قدره 600000
 Private response stays beside the submitted 600,000 baseline
 
-00:02:44.000 --> 00:02:51.000
+00:03:54.000 --> 00:04:01.000
 نشر التغييرات المطلوبة معا
 Resubmission publishes all requested changes together
 
-00:02:51.000 --> 00:02:59.000
+00:04:01.000 --> 00:04:09.000
 تغير المبلغ والملف عن المرجع الثابت
 Changed amount and plan are compared with the fixed baseline
 
-00:02:59.000 --> 00:03:05.000
+00:04:09.000 --> 00:04:15.000
 تحقق من التغييرات ثم أعد الفحوص التابعة
 Verify the changes, then repeat the affected checks
 
-00:03:05.000 --> 00:03:14.000
+00:04:15.000 --> 00:04:24.000
 إسناد خارجي يرفض قرارا من عرض قديم
 Outside reassignment refuses the stale decision
 
-00:03:14.000 --> 00:03:21.000
+00:04:24.000 --> 00:04:31.000
 تحميل الأحدث واسترداد مؤكد وفحص جديد
 Load latest, confirm reclaim, then inspect again
 
-00:03:21.000 --> 00:03:27.000
+00:04:31.000 --> 00:04:37.000
 تأكيد جديد يحفظ الموافقة وشروطها
 Fresh confirmation commits approval and freezes its terms
 
-00:03:27.000 --> 00:03:34.000
+00:04:37.000 --> 00:04:44.000
 رفض جديد بعد تقديم فعلي لنشاط عمره شهران
 New rejection after normal submission: two operating months
 
-00:03:34.000 --> 00:03:40.000
+00:04:44.000 --> 00:04:50.000
 مثال تاريخي ثابت بقسطين مكتملين
 Historical frozen illustration with two completed entries
 
-00:03:40.000 --> 00:03:45.000
+00:04:50.000 --> 00:04:55.000
 تبديل اللغة يحفظ السياق والاتجاه
 Explicit English switch preserves the current record
 
-00:03:45.000 --> 00:03:52.000
+00:04:55.000 --> 00:05:02.000
 انتهاء الجلسة ثم استعادة الهوية نفسها
 Expiry covers protected content; same-identity sign-in recovers
 
-00:03:52.000 --> 00:03:57.000
+00:05:02.000 --> 00:05:07.000
 الرابط غير المسموح لا يكشف تفاصيل الطلب
 Forbidden access reveals no application details
 
-00:03:57.000 --> 00:04:02.000
+00:05:07.000 --> 00:05:12.000
 معرض المكونات المستخدمة في الرحلات
 Public gallery uses the production components
 
-00:04:02.000 --> 00:04:10.000
+00:05:12.000 --> 00:05:20.000
 تأكيد إعادة الضبط يستبدل بيانات هذا المتصفح
 Confirm browser-wide reset after reading the warning
 
-00:04:10.000 --> 00:04:15.000
+00:05:20.000 --> 00:05:25.000
 عادت العربية والهويات والبيانات الأصلية
 Arabic, identities and the original dataset are restored
 
-00:04:15.000 --> 00:04:30.000
+00:05:25.000 --> 00:05:40.000
 الدليل والأدلة ودراسة الحالة وروابط التجربة في المستودع
 Find the live demo, chapter guide, evidence and case study in the repository
