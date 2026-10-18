@@ -1,6 +1,52 @@
 import { expect, test } from '@playwright/test'
-import { nativeIdentity } from './evidence-transport'
+import { nativeBusiness, nativeIdentity } from './evidence-transport'
 import { validateRequest } from '../../src/live-assistance/request'
+
+test('a first unavailable run preserves inspected scope without inventing checked work', async ({ page }) => {
+  await page.goto('/tests/browser/api.html'); await page.waitForFunction(() => window.demo)
+  const result = await page.evaluate(async () => {
+    const demo = window.demo
+    await demo.startup(); await demo.signIn('mariam')
+    const handle = demo.createEvidenceAssistance({ action: 'check-document', applicationId: 'RIFD-2026-001', slot: 'business', audience: 'applicant', context: 'draft' })
+    await handle.inspect()
+    const before = await demo.readApplication('RIFD-2026-001')
+    await handle.run([2])
+    const state = handle.read()
+    handle.dispose()
+    return { state, before, after: await demo.readApplication('RIFD-2026-001') }
+  })
+  expect(result.state).toMatchObject({ status: 'unavailable', reason: 'live-unavailable', result: null, coverage: { totalPages: 2, selected: [2], prepared: [], dispatched: [], successful: [], failed: [], unreadable: [], unchecked: [1, 2], uncheckedCount: 2 } })
+  expect(result.after).toEqual(result.before)
+})
+
+for (const explicitSelection of [false, true]) test(`a first offline run keeps ${explicitSelection ? 'explicit' : 'default'} pages selectable and retries after reconnection`, async ({ page, context }) => {
+  let sessions = 0
+  const submissions: { selectedPages: number[] }[] = []
+  await page.route('**/fake-guest-session', route => { sessions++; return route.fulfill({ json: { authorization: 'Bearer dummy-guest', appCheck: 'dummy-app-check' } }) })
+  await page.route('**/api/evidence-analysis', route => {
+    const body = route.request().postDataJSON() as { selectedPages: number[] }
+    submissions.push(body)
+    return route.fulfill({ json: { status: 'completed', stages: [...body.selectedPages.map(page => ({ stage: 'page', page, answer: nativeBusiness() })), { stage: 'document-comparison', page: body.selectedPages[0], answer: nativeBusiness() }] } })
+  })
+  await page.goto('/tests/browser/evidence-screen.html?live')
+  await page.getByRole('button', { name: 'English', exact: true }).click()
+  const assistance = page.locator('section[aria-labelledby="business-heading"]').locator('.evidence-assistance')
+  await assistance.getByRole('button', { name: 'Check document', exact: true }).click()
+  await expect(assistance.getByRole('button', { name: 'Run check', exact: true })).toBeEnabled()
+  if (explicitSelection) await assistance.getByRole('checkbox', { name: 'Page 1', exact: true }).uncheck()
+  await context.setOffline(true)
+  await assistance.getByRole('button', { name: 'Run check', exact: true }).click()
+  await expect(assistance.getByRole('status')).toContainText('Live analysis is currently unavailable')
+  await expect(assistance.getByText('Total source pages: 2', { exact: true })).toBeVisible()
+  await expect(assistance.getByRole('checkbox', { name: 'Page 2', exact: true })).toBeChecked()
+  await expect(assistance.getByRole('button', { name: 'Retry check', exact: true })).toBeEnabled()
+  expect(sessions).toBe(0); expect(submissions).toHaveLength(0)
+  await context.setOffline(false)
+  await assistance.getByRole('button', { name: 'Retry check', exact: true }).click()
+  await expect(assistance.locator('dl')).toBeVisible()
+  expect(sessions).toBe(1); expect(submissions).toHaveLength(1)
+  expect(submissions[0].selectedPages).toEqual(explicitSelection ? [2] : [1, 2])
+})
 
 test('live access starts only after notice and explicit Run; allowance refusal preserves ordinary work', async ({ page }) => {
   let sessions = 0

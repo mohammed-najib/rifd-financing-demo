@@ -1,4 +1,4 @@
-import type { ApplicationStatus, Bilingual, DocumentSlot, Fields, Language, ProductId } from '../domain/model'
+import type { ApplicationStatus, Bilingual, DocumentSlot, Fields, Language, ProductId, Sample } from '../domain/model'
 import type { ErrorKind } from '../demo'
 import { foldDigits, parseWholeYER } from '../domain'
 
@@ -64,6 +64,14 @@ export const statuses: Record<ApplicationStatus, Bilingual> = {
   draft: { ar: 'مسودة', en: 'Draft' }, submitted: { ar: 'مقدم', en: 'Submitted' }, underReview: { ar: 'قيد المراجعة', en: 'Under review' },
   correctionsRequested: { ar: 'مطلوب تصحيح', en: 'Corrections requested' }, approved: { ar: 'موافق عليه', en: 'Approved' }, rejected: { ar: 'مرفوض', en: 'Rejected' },
 }
+export const sampleLabels = {
+  replacement: { ar: 'نسخة بديلة', en: 'Replacement document' },
+  identical: { ar: 'محتوى مطابق باسم آخر', en: 'Identical content, another name' },
+  invalidType: { ar: 'ملف تجريبي بصيغة غير مدعومة', en: 'Unsupported file type sample' },
+  empty: { ar: 'ملف تجريبي فارغ', en: 'Empty file sample' },
+  oversized: { ar: 'ملف تجريبي يتجاوز الحجم المسموح', en: 'Oversized file sample' },
+} satisfies Record<Exclude<Sample['variant'], 'original'>, Bilingual>
+
 export const draftText = {
   edit: { ar: 'إعداد المسودة', en: 'Prepare draft' }, save: { ar: 'حفظ التقدم', en: 'Save progress' },
   saved: { ar: 'محفوظ', en: 'Saved' }, unsaved: { ar: 'تغييرات غير محفوظة', en: 'Unsaved changes' },
@@ -73,6 +81,10 @@ export const draftText = {
   rawHint: { ar: 'يلزم 20 إلى 500 حرف عند التقديم. يمكنك حفظ النص كما أدخلته الآن.', en: 'Submission will require 20 to 500 characters. You can save the text exactly as entered now.' },
   fileHint: { ar: 'PDF أو JPEG أو PNG، أكبر من صفر وحتى 5,000,000 بايت. يجب أن يطابق نوع الملف امتداده.', en: 'PDF, JPEG or PNG, greater than zero and up to 5,000,000 bytes. MIME must match the extension.' },
   chooseFile: { ar: 'اختر مستندًا افتراضيًا محليًا', en: 'Choose a local fictional document' },
+  browseFiles: { ar: 'اختيار ملف', en: 'Choose file' }, replaceFile: { ar: 'تغيير الملف', en: 'Change file' },
+  noFileSelected: { ar: 'لم يتم اختيار ملف بعد', en: 'No file selected yet' },
+  samplesFailed: { ar: 'تعذر تحميل المستندات التجريبية. أعد المحاولة لعرض الخيارات.', en: 'Sample documents could not be loaded. Retry to display the options.' },
+  generatedSampleHint: { ar: 'سننشئ مستندًا تجريبيًا من بيانات الطلب الحالية.', en: 'A sample document will be created from the current application details.' },
   sample: { ar: 'المستند التجريبي', en: 'Prepared sample' }, useSample: { ar: 'استخدام النموذج', en: 'Use sample' },
   selected: { ar: 'ملف مختار وغير محفوظ', en: 'Selected file, unsaved' }, preparing: { ar: 'جارٍ تجهيز الملف', en: 'Preparing file' }, ready: { ar: 'جاهز للحفظ', en: 'Ready to save' },
   preparationFailed: { ar: 'فشل تجهيز الملف', en: 'Preparation failed' }, retryPreparation: { ar: 'إعادة تجهيز الاختيار', en: 'Retry preparation' },

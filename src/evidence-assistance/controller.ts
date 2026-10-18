@@ -159,7 +159,15 @@ export function createAssistance(resolve: () => Promise<Result<SelectedEvidence>
         if (!selected.ok) { invalidate('unauthorized'); return }
         const selection = selected.value
         dependencyKey = selection.binding.dependencyKey
-        if (!transport) { state = { ...state, status: 'unavailable', reason: 'live-unavailable' }; notify(); return }
+        // Inspection knows source scope even when admission cannot start. Keep
+        // that knowledge separate from work performed by this new attempt.
+        if (inspectedScope?.hash === selection.source.hash) {
+          const { totalPages } = inspectedScope
+          runCoverage = initialScope(totalPages)
+          if (selectedPages) runCoverage.selected = selectedPages.length <= 4 && new Set(selectedPages).size === selectedPages.length && selectedPages.every(page => Number.isInteger(page) && page >= 1 && page <= totalPages)
+            ? [...selectedPages].sort((a, b) => a - b) : []
+        }
+        if (!transport) { state = { ...state, status: 'unavailable', reason: 'live-unavailable', coverage: runCoverage }; notify(); return }
         if (transport.begin && !navigator.onLine) throw new LiveAccessError('service-unavailable')
         try { ticket = await storage.begin(selection, current); runAuthority = ticket; clearGeneration = ticket.clearGeneration; state.storage = 'available' }
         catch { ticket = null; state.storage = 'temporary-only' }

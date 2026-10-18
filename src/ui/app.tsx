@@ -67,6 +67,8 @@ function Heading({ children }: { children: React.ReactNode }) { return <h1 tabIn
 
 export function App() {
   const demo = useMemo(() => createDemo({ evidenceTransport: configuredLiveTransport() }), [])
+  // Fast Refresh can retain the old context while replacing the service instance.
+  const [initializedDemo, setInitializedDemo] = useState<typeof demo | null>(null)
   const search = useRouterState({ select: state => state.location.search }) as Record<string, unknown>
   const step = resolveStep(typeof search.step === 'string' ? search.step : undefined)
   const chosenProduct: ProductId = search.product === 'equipment' ? 'equipment' : 'inventory'
@@ -175,7 +177,7 @@ export function App() {
     // Load the protected route component before Ready, including when starting at the chooser.
     void prepareJourney().then(() => demo.startup()).then(result => {
       if (!active) return
-      if (result.ok) acceptContext(result.value)
+      if (result.ok) { acceptContext(result.value); setInitializedDemo(demo) }
       else setStartupError(result.error.kind)
     }).catch(() => { if (active) setStartupError('resources') })
     const unsubscribe = demo.subscribe(currentSession => {
@@ -221,7 +223,7 @@ export function App() {
       loadedContext.current = readContext
       setLoadedRead(null); setView(null); setList(null); setPrintSummary(null)
     }
-    if (!context || !identityId) return
+    if (initializedDemo !== demo || !context || !identityId) return
     if (current.kind === 'home') { void navigate({ to: '/$', params: { _splat: identity?.role === 'reviewer' ? 'staff/applications' : 'applications' }, replace: true }); return }
     const staff = current.kind === 'staffList' || current.kind === 'staffDetail' || current.kind === 'staffRequest' || current.kind === 'staffDecision' || current.kind === 'staffPrint' || current.kind === 'staffRepayment'
     const applicant = current.kind === 'applicantList' || current.kind === 'applicantDetail' || current.kind === 'applicantPrint' || current.kind === 'notifications' || current.kind === 'newDraft' || current.kind === 'applicantRepayment'
@@ -289,9 +291,9 @@ export function App() {
     } else setLoadedRead(readContext)
     return () => { active = false }
     // Preferences do not change the record read or revoke the current identity.
-  }, [path, search.round, sessionId, identityId, reload, demo, navigate])
+  }, [path, search.round, sessionId, identityId, reload, demo, initializedDemo, navigate])
 
-  const routeReady = !startupError && !!context && !identitySelection.current && (screen.kind === 'chooser' || screen.kind === 'gallery' || screen.kind === 'products' || screen.kind === 'reset' || !identity || loadedRead === `${path}/${identityId}/${sessionId}`)
+  const routeReady = initializedDemo === demo && !startupError && !!context && !identitySelection.current && (screen.kind === 'chooser' || screen.kind === 'gallery' || screen.kind === 'products' || screen.kind === 'reset' || !identity || loadedRead === `${path}/${identityId}/${sessionId}`)
   useEffect(() => {
     if (routeReady || startupError) document.querySelector<HTMLElement>('main h1')?.focus({ preventScroll: true })
   }, [path, routeReady, sessionId, startupError])
@@ -380,11 +382,11 @@ export function App() {
     try {
       await prepareJourney()
       const result = await demo.startup()
-      if (result.ok) acceptContext(result.value); else setStartupError(result.error.kind)
+      if (result.ok) { acceptContext(result.value); setInitializedDemo(demo) } else setStartupError(result.error.kind)
     } catch { setStartupError('resources') }
   }
 
-  if (!context && !startupError) return <NeutralStartup />
+  if ((!context || initializedDemo !== demo) && !startupError) return <NeutralStartup />
   const isChooser = screen.kind === 'chooser' || screen.kind !== 'products' && screen.kind !== 'gallery' && screen.kind !== 'unavailable' && screen.kind !== 'reset' && !identity
   const isStaff = identity?.role === 'reviewer' && !isChooser && screen.kind !== 'products' && screen.kind !== 'gallery' && screen.kind !== 'reset'
   const unavailable = screen.kind === 'unavailable' || error === 'unavailable'

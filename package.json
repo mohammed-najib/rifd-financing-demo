@@ -11,6 +11,7 @@
     "predev": "node scripts/pdfjs-resources.mjs",
     "prebuild": "node scripts/pdfjs-resources.mjs",
     "dev": "vite --host 127.0.0.1",
+    "dev:jev": "node scripts/dev-jev.mjs",
     "build": "vite build",
     "build:functions": "node scripts/build-functions.mjs",
     "typecheck": "tsc --noEmit",

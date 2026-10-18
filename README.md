@@ -52,6 +52,46 @@ pnpm preview
 
 Open <http://127.0.0.1:4173>. The preview serves `dist/client` and rewrites missing paths to its generated `/_shell.html`. It runs a static Node file server. The generated `dist/server` is used by Start during prerendering and is not part of the Hosting directory. The build itself needs permission to open a temporary local prerender server.
 
+### Local Jev inference
+
+Start the app with real, server-side Jev inference:
+
+```sh
+pnpm dev:jev
+# Open http://127.0.0.1:5174
+```
+
+The command uses `TYPESAFE_API_KEY` from your environment or ignored `.env.local`.
+When it is absent, it reads the existing `LIVE_TYPESAFE_API_KEY` secret from
+`rifd-portfolio-mdnb` using your signed-in Firebase CLI. The key stays in the
+local API process and is never passed to the browser or printed. Use
+`pnpm dev:jev --port 5180` if port 5174 is occupied. Stop the command with Ctrl+C.
+
+Choose a fictional identity, open an editable application's Documents step,
+and choose Check document. Inspect the selected file, declarations and pages,
+then choose Run check. A reviewer uses Find supporting evidence. Only an explicit
+Run or Retry starts inference; loading, saving, language changes and reopening
+previous results do not. Prepared files and unsaved declaration changes produce
+temporary results until an ordinary matching Save. Partial or undetermined
+findings and suppressed highlights remain possible with real Jev responses.
+
+This mode accepts only the local app's origin on `127.0.0.1`. It uses a signed
+local browser session and the existing fixed request validation, Jev 1.14 workflow,
+deadlines, no-retry policy and admission limits. It creates no Firebase guest
+account. One start per minute and 20 attempts per guest per UTC day apply; all
+local guests share the 60-attempt network allowance. Each run reserves its full
+plan, up to nine attempts, before dispatch. Unknown usage stops further inference.
+These are request limits, not an account-wide billing cap.
+
+Usage metadata and local session signing state persist in
+`artifacts/local-jev/metadata.sqlite`, separate from financing data. The server
+does not archive documents, declarations or answers. Vite refuses browser access
+to this directory. Keep the database across restarts; deleting it resets local
+allowances and is not a way to resolve an accounting stop. The provider key is
+not stored there. Ordinary `pnpm dev`, production builds and hosted dispatch
+retain their existing configuration. Local inference does not activate the
+hosted service or change historical validation accounting.
+
 The chooser starts in Arabic. Choose English explicitly to persist it independently of the tab's identity. Sign-in is passwordless and fictional. Sessions last fifteen minutes of inactivity and survive refresh while valid. Other tabs share committed data and language, with independent identities.
 
 A duplicated tab or one opened from another demo tab may inherit its initial identity. Its subsequent activity, identity changes, sign-out and expiry stay independent. The current identity remains visible in the header.

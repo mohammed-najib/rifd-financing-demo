@@ -42,7 +42,17 @@ if (correctionMode && view.ok && view.value.status === 'underReview') {
   else await requestIdentityCorrection(demo, correctionMode === 'name' ? [{ kind: 'field', field: 'fullName', reason: { ar: 'صحح الاسم المعلن.', en: 'Correct the declared name.' } }] : [])
   view = await demo.readApplication(correctionApplicationId)
 }
+if (new URLSearchParams(location.search).has('new-draft')) view = await demo.newDraft('inventory')
 if (!context.ok || !view.ok) throw new Error('fixture')
+if (new URLSearchParams(location.search).has('samples-fail-once')) {
+  const listSamples = demo.listSamples
+  let failed = false
+  demo.listSamples = id => {
+    if (failed) return listSamples(id)
+    failed = true
+    return Promise.resolve({ ok: false, error: { kind: 'sessionExpired', key: 'error.sessionExpired' } })
+  }
+}
 const initialContext = context.value, initialView = view.value
 function Screen() {
   const [language, setLanguage] = useState<Language>('ar'), [step, setStep] = useState<ApplicationStep>('documents'), [view, setView] = useState(initialView)

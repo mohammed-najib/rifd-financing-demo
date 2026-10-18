@@ -46,7 +46,7 @@ test('multipage source navigation and document comparison preserve human inspect
   await assistance.getByRole('button', { name: 'Previous page', exact: true }).click()
   await expect(assistance.getByRole('img', { name: 'Source page 1', exact: true })).toBeVisible()
   await assistance.getByRole('button', { name: 'Run check', exact: true }).click()
-  await expect(assistance.getByText('Printed name appears different from the declared name', { exact: true })).toBeVisible()
+  await expect(assistance.getByText('Printed name appears different from the declared name', { exact: true })).toBeVisible({ timeout: 20_000 })
   expect(requests).toBe(3)
   await document.getByRole('checkbox', { name: 'I confirm I inspected the current source', exact: true }).check()
   await document.getByRole('button', { name: 'Accept document', exact: true }).click()

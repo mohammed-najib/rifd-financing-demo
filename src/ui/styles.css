@@ -3,6 +3,7 @@
 @import 'tailwindcss/utilities.css' layer(utilities) source('../');
 @import './select.css' layer(components);
 @import './products.css' layer(components);
+@import './document-check.css';
 
 /* Preserve the existing inclusive responsive cutoffs. */
 @custom-variant compact (@media (max-width: 1199px));
@@ -120,13 +121,6 @@
   h1:focus { outline: none; }
   summary { cursor: pointer; border-radius: var(--radius-control); transition: color 200ms, background-color 200ms; }
   summary:is(:hover, :focus-visible) { color: var(--color-accent); background-color: var(--color-summary); }
-  input[type=file]::file-selector-button {
-    margin-inline-end: 12px; padding: 8px 12px; border: 1px solid var(--color-control-border);
-    border-radius: var(--radius-control); background: var(--color-summary); color: var(--color-accent);
-    font: inherit; cursor: pointer; transition: color 200ms, background-color 200ms, border-color 200ms, box-shadow 200ms;
-  }
-  input[type=file]:not(:disabled):is(:hover, :focus-visible)::file-selector-button { background: var(--color-accent); color: var(--color-surface); border-color: var(--color-accent); box-shadow: var(--shadow-button-hover); }
-  input[type=file]:disabled::file-selector-button { cursor: not-allowed; opacity: .65; }
 
   h1 { @apply mt-0 mb-[15px] text-[clamp(28px,3vw,40px)] leading-[1.5] font-semibold wrap-anywhere; letter-spacing: -.6px; }
   h2 { @apply mt-0 mb-3.5 text-[21px] leading-[1.7] font-semibold narrow:text-[19px]; }
@@ -223,9 +217,35 @@
   .application-steps [aria-current=step] { @apply bg-accent text-white; }
   .button-spinner { @apply inline-block size-4 animate-spin rounded-full border-2 border-solid border-current border-e-transparent; }
   :is(.draft-editor, .application-field) :is(input, textarea, select)[aria-invalid=true] { @apply border-danger-border; }
+  .file-picker {
+    @apply relative rounded-card border border-solid border-control-border bg-surface;
+    transition: background-color 200ms, border-color 200ms;
+  }
+  /* The transparent native input preserves the real chooser and keyboard behavior. */
+  .file-picker > input[type=file] {
+    position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%;
+    margin: 0; padding: 0; opacity: 0; cursor: pointer;
+  }
+  .file-picker-content { @apply flex min-h-[74px] flex-wrap items-center gap-3 p-3; }
+  .file-picker-action { @apply inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-control bg-accent px-4 py-2 font-semibold text-white; }
+  .file-picker-name { @apply min-w-0 flex-[1_1_180px] text-[14px] text-muted wrap-anywhere; }
+  .file-picker-name bdi { @apply block font-semibold text-ink; }
+  .file-picker-name small { @apply mt-0.5; }
+  .file-picker:has(> input:not(:disabled)):hover { @apply border-accent bg-summary; }
+  .file-picker:has(> input:focus-visible) { outline: 3px solid var(--color-focus); outline-offset: 4px; }
+  .file-picker:has(> input[aria-invalid=true]) { @apply border-danger-border; }
+  .file-picker:has(> input:disabled) { @apply opacity-65; }
+  .file-picker > input:disabled { cursor: not-allowed; }
+  @media (forced-colors: active) {
+    .file-picker { border-color: ButtonText; }
+    .file-picker-action { color: ButtonText; background: ButtonFace; border: 1px solid ButtonText; }
+    .file-picker:has(> input:focus-visible) { outline-color: Highlight; }
+  }
   :is(.draft-editor, .application-field) textarea { @apply min-h-[130px] resize-y; }
-  .sample-picker label { @apply m-0 w-full; }
-  .sample-picker .select-trigger { @apply w-auto min-w-0 flex-[1_1_250px]; }
+  .sample-picker { @apply rounded-card border border-solid border-summary-border bg-summary p-4; }
+  .sample-picker label { @apply m-0 w-full text-accent; }
+  .sample-picker .select-trigger { @apply min-h-12 w-auto min-w-0 flex-[1_1_250px] rounded-card; }
+  .sample-picker > button:not(.select-trigger) { @apply m-0 min-h-12; }
   .draft-feedback { @apply my-[18px] rounded-card bg-control-surface p-4 wrap-anywhere; }
   .demo-controls summary { @apply cursor-pointer font-semibold; }
   .demo-controls label:has(input) { @apply flex items-center gap-3; }
@@ -268,7 +288,7 @@
   }
   @media (prefers-reduced-motion: reduce) {
     button, .button, summary { transition: none; }
-    input[type=file]::file-selector-button { transition: none; }
+    .file-picker { transition: none; }
     .button-spinner { animation: none; }
     button, .button { transform: none; }
   }

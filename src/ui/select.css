@@ -16,20 +16,20 @@
 .select-trigger[aria-expanded=true] .select-chevron { transform: rotate(180deg); }
 .select-menu {
   position: fixed; z-index: 1000; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin;
-  padding: 5px; border: 1px solid var(--color-control-border); border-radius: var(--radius-card);
-  background: var(--color-surface); color: var(--color-ink); font: inherit; font-size: 12px;
+  padding: 6px; border: 1px solid var(--color-summary-border); border-radius: var(--radius-card);
+  background: var(--color-surface); color: var(--color-ink); font: inherit; font-size: 14px;
   box-shadow: 0 16px 40px rgb(23 46 43 / .14), 0 2px 6px rgb(23 46 43 / .05);
   transform-origin: top; animation: select-enter 160ms cubic-bezier(.16, 1, .3, 1) both;
 }
 .select-menu[data-placement=above] { transform-origin: bottom; }
 .select-option {
-  display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 42px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px;
   padding: 10px; border-radius: var(--radius-control); cursor: pointer;
   transition: background-color 120ms;
 }
 .select-option + .select-option { margin-top: 3px; }
 .select-option[aria-selected=true] { background: var(--color-summary); color: var(--color-accent); }
-.select-option[data-active=true] { background: #e8e6d8; outline: 1px solid var(--color-hover-border); outline-offset: -1px; }
+.select-option[data-active=true] { background: var(--color-summary); color: var(--color-accent); outline: 1px solid var(--color-accent); outline-offset: -1px; }
 .select-option[aria-disabled=true] { opacity: .5; cursor: not-allowed; }
 .select-check { flex: none; color: var(--color-accent); visibility: hidden; }
 .select-option[aria-selected=true] .select-check { visibility: visible; }

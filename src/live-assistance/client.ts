@@ -65,7 +65,16 @@ export function browserLiveTransport(credentials: GuestCredentials, requestFetch
   }
 }
 
+export const localJevEnabled = import.meta.env.DEV && import.meta.env.VITE_LOCAL_JEV === '1'
+
 export function configuredLiveTransport(): EvidenceTransport | undefined {
+  if (localJevEnabled) return browserLiveTransport(async signal => {
+    const response = await fetch('/api/local-evidence-session', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}', cache: 'no-store', signal })
+    if (!response.ok) throw new LiveAccessError('access-denied')
+    const value: unknown = await response.json()
+    if (!value || typeof value !== 'object' || !('authorization' in value) || typeof value.authorization !== 'string' || !('appCheck' in value) || value.appCheck !== 'local-development') throw new LiveAccessError('invalid-response')
+    return { authorization: value.authorization, appCheck: value.appCheck }
+  })
   const configuration = import.meta.env.VITE_LIVE_FIREBASE_CONFIG
   const siteKey = import.meta.env.VITE_LIVE_RECAPTCHA_ENTERPRISE_SITE_KEY
   if (!configuration || !siteKey) return undefined

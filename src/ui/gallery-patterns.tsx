@@ -15,6 +15,7 @@ import { PublicHistory } from './public-record'
 import { QueueCounts } from './queue-counts'
 import { RepaymentSchedule, RepaymentSummary } from './repayment'
 import { Select } from './select'
+import { FilePicker } from './file-picker'
 
 const labels = {
   foundations: { ar: 'الهوية والألوان', en: 'Identity and colors' },
@@ -123,8 +124,8 @@ export function GalleryControls({ language }: { language: Language }) {
         <div className="application-field"><label htmlFor="gallery-disabled">{t('حقل غير متاح', 'Disabled field')}</label><input id="gallery-disabled" type="text" value={t('غير متاح', 'Unavailable')} disabled /></div>
       </div>
       <div className="draft-editor grid grid-cols-2 items-start gap-6 narrow:grid-cols-1">
-        <div><label htmlFor="gallery-file">{t('رفع ملف', 'File upload')}</label><input id="gallery-file" type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={event => setFile(event.target.files?.[0]?.name ?? '')} /><p role="status">{file}</p></div>
-        <div><label htmlFor="gallery-file-disabled">{t('رفع ملف غير متاح', 'Disabled file upload')}</label><input id="gallery-file-disabled" type="file" disabled /></div>
+        <div><label htmlFor="gallery-file">{t('رفع ملف', 'File upload')}</label><FilePicker id="gallery-file" language={language} name={file || undefined} choose={file => setFile(file.name)} /></div>
+        <div><label htmlFor="gallery-file-disabled">{t('رفع ملف غير متاح', 'Disabled file upload')}</label><FilePicker id="gallery-file-disabled" language={language} disabled choose={() => {}} /></div>
       </div>
       <fieldset className="m-0 mt-6 min-w-0 rounded-card border border-solid border-border p-4">
         <legend>{t('أدوات الاختيار والمراجعة', 'Choice and review controls')}</legend>
