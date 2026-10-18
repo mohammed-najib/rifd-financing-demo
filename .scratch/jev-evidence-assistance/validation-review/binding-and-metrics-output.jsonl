@@ -1,3 +1,0 @@
-{"check":"signed kind binding","fakeOnly":true,"signedReceiptsUnchanged":true,"baselineOpportunities":24,"alteredOpportunities":10,"accepted":"complete-proposal-only"}
-{"check":"readability harm","fakeOnly":true,"falseReassuranceCases":3,"accuracy":0.85,"rawErrors":3,"harmful":0,"qualifies":true}
-{"check":"exact input metadata binding","fakeOnly":true,"accepted":true,"fakeAttempts":2,"preparation":{"durationMs":0,"scale":1,"rotation":0,"padding":{"left":0,"right":0,"top":0,"bottom":0},"sourceToRaster":[1,0,0,1,999,999],"auditMarker":"UNREVIEWED-METADATA"},"contentBoundaryLeft":1}

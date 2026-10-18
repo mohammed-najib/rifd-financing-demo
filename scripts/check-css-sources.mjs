@@ -1,15 +1,16 @@
 import { randomUUID } from 'node:crypto'
 import { execFileSync } from 'node:child_process'
-import { readFile, readdir, unlink, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, readdir, unlink, writeFile } from 'node:fs/promises'
 
 const id = randomUUID()
 const probes = [
   [`src/delivery-scan-${id}.html`, 'production'],
   [`docs/delivery-scan-${id}.html`, 'documentation'],
-  [`.scratch/delivery-scan-${id}.html`, 'archive'],
+  [`artifacts/delivery-scan-${id}.html`, 'archive'],
 ]
 const created = []
 try {
+  await mkdir('artifacts', { recursive: true })
   for (const [path, label] of probes) {
     await writeFile(path, `<div class="[--rifd-${label}-scan:1]"></div>`, { flag: 'wx' })
     created.push(path)

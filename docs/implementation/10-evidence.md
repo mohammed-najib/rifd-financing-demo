@@ -1,6 +1,6 @@
 # Slice 10 implementation evidence
 
-Implemented [Assess evidence, record review checks and save internal notes](../../.scratch/financing-application-and-review-implementation/issues/10-assess-evidence-checks-and-notes.md), stories 39 to 42.
+Implemented [Assess evidence, record review checks and save internal notes](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/financing-application-and-review-implementation/issues/10-assess-evidence-checks-and-notes.md), stories 39 to 42.
 
 ## Review behavior
 

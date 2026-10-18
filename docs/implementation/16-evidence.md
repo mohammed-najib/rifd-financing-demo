@@ -1,6 +1,6 @@
 # Slice 16 implementation evidence
 
-Implemented [Demonstrate stale staff writes and explicit recovery](../../.scratch/financing-application-and-review-implementation/issues/16-recover-stale-staff-writes.md) against starting commit `1a3ca13253b56e9ab7171dad52b63107bb9bd4bf`.
+Implemented [Demonstrate stale staff writes and explicit recovery](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/financing-application-and-review-implementation/issues/16-recover-stale-staff-writes.md) against starting commit `1a3ca13253b56e9ab7171dad52b63107bb9bd4bf`.
 
 ## Transfer and recovery
 

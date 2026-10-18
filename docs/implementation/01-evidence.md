@@ -1,6 +1,6 @@
 # Slice 01 evidence
 
-Implementation of [Open the bilingual demo and inspect seeded applications](../../.scratch/financing-application-and-review-implementation/issues/01-open-bilingual-seeded-demo.md), against planning baseline `b59adca9e23d44eddef8f0b83519f191f50302f3`.
+Implementation of [Open the bilingual demo and inspect seeded applications](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/financing-application-and-review-implementation/issues/01-open-bilingual-seeded-demo.md), against planning baseline `b59adca9e23d44eddef8f0b83519f191f50302f3`.
 
 Checked on 2026-10-14 on Omarchy Linux, x86_64, using Node 26.7.0, pnpm 11.24.0, Vite 8.3.4, Vitest 5.0.4, Playwright 1.64.1 and Firebase CLI 15.30.0. Browser versions are installed stable Chrome 155.0.8059.39, pinned Playwright Firefox 157.0 revision 1555 and pinned Playwright WebKit 27.2 revision 2370.
 

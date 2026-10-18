@@ -1,6 +1,6 @@
 # Notifications and public print summaries
 
-Implementation of [ticket 07](../../.scratch/financing-application-and-review-implementation/issues/07-notifications-and-print-summaries.md), checked on 2026-10-15. The domain date remains 2026-10-14.
+Implementation of [ticket 07](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/financing-application-and-review-implementation/issues/07-notifications-and-print-summaries.md), checked on 2026-10-15. The domain date remains 2026-10-14.
 
 ## Delivered behavior
 

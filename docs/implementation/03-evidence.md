@@ -1,6 +1,6 @@
 # Product comparison and five-step drafts
 
-Implementation of [ticket 03](../../.scratch/financing-application-and-review-implementation/issues/03-compare-products-and-complete-drafts.md), checked on 2026-10-15. The domain demonstration date remains 2026-10-14.
+Implementation of [ticket 03](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/financing-application-and-review-implementation/issues/03-compare-products-and-complete-drafts.md), checked on 2026-10-15. The domain demonstration date remains 2026-10-14.
 
 ## Delivered behavior
 

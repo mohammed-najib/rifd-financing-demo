@@ -1,6 +1,6 @@
 # Slice 18 implementation evidence
 
-Implemented [Reset the browser-wide demo atomically](../../.scratch/financing-application-and-review-implementation/issues/18-reset-demo-atomically.md)
+Implemented [Reset the browser-wide demo atomically](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/financing-application-and-review-implementation/issues/18-reset-demo-atomically.md)
 against starting commit `241437daefaacdee18733b0d882feb30bab15662`.
 
 ## Confirmation and replacement

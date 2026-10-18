@@ -1,7 +1,7 @@
 # Slice 20 browser and reliability acceptance
 
-[Issue 20](../../.scratch/financing-application-and-review-implementation/issues/20-browser-and-reliability-acceptance.md)
-implements the functional part of the [accepted handoff](../../.scratch/financing-application-and-review/issues/07-acceptance-and-implementation-handoff.md#answer).
+[Issue 20](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/financing-application-and-review-implementation/issues/20-browser-and-reliability-acceptance.md)
+implements the functional part of the [accepted handoff](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/financing-application-and-review/issues/07-acceptance-and-implementation-handoff.md#answer).
 The starting commit is `85f096a52fcb0cbc709a433bf7cf858aaaca26ec`.
 Assertions use the accepted public `Demo` interface with actual IndexedDB and
 the production static screens. No production testing interface was added.
@@ -68,9 +68,9 @@ repetitions across the three engines; the final six cases used the committed tes
 file, including the additional initial-setup stabilization from review. No outcome assertion or timeout was weakened.
 
 Pointer usability during sample loading/recovery remains an explicit check in
-[21](../../.scratch/financing-application-and-review-implementation/issues/21-bilingual-accessibility-preview-and-print-acceptance.md),
+[21](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/financing-application-and-review-implementation/issues/21-bilingual-accessibility-preview-and-print-acceptance.md),
 and the layout shift is recorded for the CLS gate in
-[22](../../.scratch/financing-application-and-review-implementation/issues/22-performance-and-static-route-gates.md).
+[22](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/financing-application-and-review-implementation/issues/22-performance-and-static-route-gates.md).
 These keyboard results do not claim those checks passed.
 
 ### Commands and retained artifacts
@@ -127,7 +127,7 @@ used. An earlier interrupted sweep and all diagnostic runs are excluded from the
 ## Functional requirement matrix
 
 These rows map the functional requirements in the handoff and the specification's
-[automated coverage table](../../.scratch/financing-application-and-review/spec.md#required-automated-coverage)
+[automated coverage table](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/financing-application-and-review/spec.md#required-automated-coverage)
 to executable evidence. Each linked file supplies named cases in the retained
 JSON and HTML reports. Domain cases are recorded in `test.log`.
 
@@ -227,10 +227,10 @@ This report covers functional browser and transaction acceptance for issue 20.
 The following handoff evidence belongs to its explicit later tickets and is not
 claimed here:
 
-- [21](../../.scratch/financing-application-and-review-implementation/issues/21-bilingual-accessibility-preview-and-print-acceptance.md) owns ordinary Chrome/Firefox manual passes, 200% zoom, screen-reader pairing, mixed-direction visual inspection and actual preview/print pagination inspection.
-- [22](../../.scratch/financing-application-and-review-implementation/issues/22-performance-and-static-route-gates.md) owns Lighthouse, feedback timing, the full static route/emulator gate and performance conditions.
-- [23](../../.scratch/financing-application-and-review-implementation/issues/23-release-to-firebase-hosting.md) owns hosted preview/live evidence.
-- [24](../../.scratch/financing-application-and-review-implementation/issues/24-repository-case-study-and-timed-demo.md) owns release documentation, flow sketch, case study, repository publication and the timed film.
+- [21](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/financing-application-and-review-implementation/issues/21-bilingual-accessibility-preview-and-print-acceptance.md) owns ordinary Chrome/Firefox manual passes, 200% zoom, screen-reader pairing, mixed-direction visual inspection and actual preview/print pagination inspection.
+- [22](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/financing-application-and-review-implementation/issues/22-performance-and-static-route-gates.md) owns Lighthouse, feedback timing, the full static route/emulator gate and performance conditions.
+- [23](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/financing-application-and-review-implementation/issues/23-release-to-firebase-hosting.md) owns hosted preview/live evidence.
+- [24](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/financing-application-and-review-implementation/issues/24-repository-case-study-and-timed-demo.md) owns release documentation, flow sketch, case study, repository publication and the timed film.
 
 ## Standards review
 

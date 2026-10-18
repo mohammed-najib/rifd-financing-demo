@@ -1,6 +1,6 @@
 # Hosted evidence assistance preparation
 
-Ticket [13](../../.scratch/jev-evidence-assistance-implementation/issues/13-prepare-and-verify-hosted-operation.md)
+Ticket [13](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/jev-evidence-assistance-implementation/issues/13-prepare-and-verify-hosted-operation.md)
 is resolved under the operator's 2026-10-18 scope update. Hosted configuration and
 deployed control checks passed. The operator waived evidence of actual debited
 charges and a supported TypeSafe spending-alert option. Charges remain unverified

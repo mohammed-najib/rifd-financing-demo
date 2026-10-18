@@ -4,7 +4,7 @@ The verified preview is live on the dedicated project's default site. All
 required hosted checks have passing evidence after the explicit rechecks below.
 The [release binding](evidence/23/release.json) records the final IDs, build,
 application commit and results. This record completes
-[issue 23](../../.scratch/financing-application-and-review-implementation/issues/23-release-to-firebase-hosting.md).
+[issue 23](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/financing-application-and-review-implementation/issues/23-release-to-firebase-hosting.md).
 
 ## Release identity and build
 

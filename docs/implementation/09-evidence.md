@@ -1,6 +1,6 @@
 # Slice 09 implementation evidence
 
-Implemented [Assign applications and start review](../../.scratch/financing-application-and-review-implementation/issues/09-assign-applications-and-start-review.md) for stories 36 to 38.
+Implemented [Assign applications and start review](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/financing-application-and-review-implementation/issues/09-assign-applications-and-start-review.md) for stories 36 to 38.
 
 ## Assignment and review start
 

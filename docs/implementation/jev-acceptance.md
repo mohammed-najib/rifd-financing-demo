@@ -10,7 +10,7 @@ records a passing emulator check and two completed native examples. Actual
 charges remain pending the operator's report, and live dispatch stays disabled.
 The original bounded batch below is preserved as its own historical outcome.
 
-Ticket [14](../../.scratch/jev-evidence-assistance-implementation/issues/14-run-focused-acceptance-and-decide-activation-readiness.md)
+Ticket [14](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/jev-evidence-assistance-implementation/issues/14-run-focused-acceptance-and-decide-activation-readiness.md)
 completed one bounded acceptance batch on 2026-10-18. **Do not activate live
 dispatch.** The accounting guard still refuses `missing-reconciliation`, and
 native readiness remains unestablished because both optional language checks
@@ -156,7 +156,7 @@ native four-page reliability, deployed/mobile p95 and human time savings remain
 unverified. The desired 95% category/support correctness, 85% readability,
 70% useful findings, 60% useful highlights, US$0.01/US$0.02 one/four-page cost and
 12/35-second p95 targets remain goals, not measurements or new statistical
-validation prerequisites. Historical [pilot failures](../../.scratch/jev-evidence-assistance/evaluation/report.md),
+validation prerequisites. Historical [pilot failures](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/jev-evidence-assistance/evaluation/report.md),
 stopped-controller records, Saved sources/captures and policy versions remain
 intact under the [preservation check](evidence/jev-acceptance/preservation.json).
 

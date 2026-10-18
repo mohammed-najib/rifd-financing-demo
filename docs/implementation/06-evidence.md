@@ -1,6 +1,6 @@
 # Submit applications and track public history
 
-Implementation of [ticket 06](../../.scratch/financing-application-and-review-implementation/issues/06-submit-and-track-applications.md), checked on 2026-10-15. The domain date remains 2026-10-14.
+Implementation of [ticket 06](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/financing-application-and-review-implementation/issues/06-submit-and-track-applications.md), checked on 2026-10-15. The domain date remains 2026-10-14.
 
 ## Delivered behavior
 

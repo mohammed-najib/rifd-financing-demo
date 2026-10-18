@@ -1,10 +1,10 @@
 # Browser persistence and client initialization
 
-Accessed 2026-10-14. This fact check uses browser standards, Mozilla's API documentation, and official TanStack Start documentation. Implementation implications are identified below. Product policy remains in [Define browser persistence and simulated failures](../../.scratch/financing-application-and-review/issues/04-browser-state-and-simulated-failures.md).
+Accessed 2026-10-14. This fact check uses browser standards, Mozilla's API documentation, and official TanStack Start documentation. Implementation implications are identified below. Product policy remains in [Define browser persistence and simulated failures](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/financing-application-and-review/issues/04-browser-state-and-simulated-failures.md).
 
 ## Current repository constraints
 
-The [planning map](../../.scratch/financing-application-and-review/map.md) requires pnpm, React, TypeScript, TanStack Start SPA mode, classic Firebase Hosting, typed mocked asynchronous operations, fictional data, browser-local persistence, and simulated permissions. No application code, dependency manifest, selected Start version, or configured Git remote exists yet. The research branch is local evidence and is not an implementation branch.
+The [planning map](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/financing-application-and-review/map.md) requires pnpm, React, TypeScript, TanStack Start SPA mode, classic Firebase Hosting, typed mocked asynchronous operations, fictional data, browser-local persistence, and simulated permissions. No application code, dependency manifest, selected Start version, or configured Git remote exists yet. The research branch is local evidence and is not an implementation branch.
 
 The user has accepted local test files plus prepared samples, explicit progress saves, shared committed data across tabs with independent tab sessions, browser-local operation in an already-loaded offline demo, and deterministic failures. This report checks the technical basis without choosing a storage wrapper or changing those decisions.
 

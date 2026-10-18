@@ -1,6 +1,6 @@
 # Final acceptance checklist
 
-The [accepted matrix](../../.scratch/financing-application-and-review/issues/07-acceptance-and-implementation-handoff.md#requirement-to-evidence-matrix) is the source of these thirty rows. The [82 user stories](../../.scratch/financing-application-and-review/spec.md#user-stories) refine the same contract. Every row below links implementation and verification evidence; original failed invocations stay failed and explicit rechecks supply passing coverage.
+The [accepted matrix](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/financing-application-and-review/issues/07-acceptance-and-implementation-handoff.md#requirement-to-evidence-matrix) is the source of these thirty rows. The [82 user stories](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/financing-application-and-review/spec.md#user-stories) refine the same contract. Every row below links implementation and verification evidence; original failed invocations stay failed and explicit rechecks supply passing coverage.
 
 The application release is `1352c140782168ce9e77773547e35658c19cff45`, source fingerprint `b40ed3702f8c955998aaf4b38246930469a1cdbd47bbec6ba68357c0d8e1f8fd`, Hosting version `ea1a7ab0ece6377e`. See [the actual live/preview identifiers](../implementation/23-evidence.md), [delivery result](../implementation/24-evidence.md), [film manifest](../demo/film.json) and [reproduction guide](../demo-guide.md).
 

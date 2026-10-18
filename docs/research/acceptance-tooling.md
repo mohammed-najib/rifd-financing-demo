@@ -1,6 +1,6 @@
 # Acceptance tooling facts
 
-Accessed 2026-10-14. This note supports [Verify browser-test and static-delivery tooling](../../.scratch/financing-application-and-review/issues/09-acceptance-tooling-facts.md) and the acceptance handoff. Sources are the tools' official documentation and first-party source code. Proposed protocols below are implementation inferences, not completed tests or acceptance decisions.
+Accessed 2026-10-14. This note supports [Verify browser-test and static-delivery tooling](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/financing-application-and-review/issues/09-acceptance-tooling-facts.md) and the acceptance handoff. Sources are the tools' official documentation and first-party source code. Proposed protocols below are implementation inferences, not completed tests or acceptance decisions.
 
 ## Repository and decision context
 

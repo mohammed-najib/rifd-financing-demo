@@ -1,6 +1,6 @@
 # Fixed Jev workflow connection
 
-Ticket [12](../../.scratch/jev-evidence-assistance-implementation/issues/12-connect-the-bounded-workflow-to-tanstack-ai-and-jev.md)
+Ticket [12](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/jev-evidence-assistance-implementation/issues/12-connect-the-bounded-workflow-to-tanstack-ai-and-jev.md)
 connects the admitted server request to the fixed page, comparison and bound
 verification stages. Production dispatch remains disabled by
 `liveDispatchEnabled = false` in `functions/index.ts`, independently of admission

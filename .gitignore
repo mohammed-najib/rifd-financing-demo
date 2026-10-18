@@ -14,16 +14,5 @@ ui-debug.log
 *.tsbuildinfo
 firepit-log.txt
 .env*.local
-# Local identity and provider-account evidence
-.scratch/jev-evidence-assistance/evaluation/operator-prerequisites.json
-.scratch/jev-evidence-assistance/evaluation/human-corpus-review.json
-.scratch/jev-evidence-assistance/evaluation/frozen-inputs.json
-.scratch/jev-evidence-assistance/evaluation/analysis-summary.json
-.scratch/jev-evidence-assistance/evaluation/observations.json
-.scratch/jev-evidence-assistance/evaluation/attempt-ledger.json
-.scratch/jev-evidence-assistance/selection-bound-review/bootstrap-corrected/decision-binding.json
-.scratch/jev-evidence-assistance/selection-bound-review/bootstrap-corrected/execution-proposal.json
-.scratch/jev-evidence-assistance/selection-bound-review/bootstrap-corrected/paid-authorization-2026-10-17.json
-.scratch/jev-evidence-assistance/selection-bound-review/user-attestations-2026-10-17.json
-.scratch/jev-evidence-assistance/selection-bound-execution/results/stopped-ledger.json
-.scratch/jev-evidence-assistance/selection-bound-execution/results/summary.json
+# Local scratch work can include credentials and provider-account evidence.
+.scratch/

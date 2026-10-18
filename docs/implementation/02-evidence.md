@@ -1,6 +1,6 @@
 # Slice 02 evidence
 
-Implementation of [Save and restore a draft with a real attachment](../../.scratch/financing-application-and-review-implementation/issues/02-save-and-restore-draft-with-attachment.md), against starting commit `17eb290c233119acfe6752b79ca64f4ca37836bf`.
+Implementation of [Save and restore a draft with a real attachment](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/financing-application-and-review-implementation/issues/02-save-and-restore-draft-with-attachment.md), against starting commit `17eb290c233119acfe6752b79ca64f4ca37836bf`.
 
 Checked on 2026-10-14 on Omarchy Linux, x86_64, with the same pinned runtime, Playwright browsers and temporary WebKit compatibility launcher documented in [slice 01 evidence](01-evidence.md). Tests use installed stable Chrome and pinned Playwright Firefox/WebKit. They do not establish physical-device or branded Safari support.
 

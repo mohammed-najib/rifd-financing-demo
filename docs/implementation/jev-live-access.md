@@ -1,6 +1,6 @@
 # Live access and spending controls
 
-Ticket [11](../../.scratch/jev-evidence-assistance-implementation/issues/11-enforce-live-access-and-spending-limits.md)
+Ticket [11](https://github.com/mohammed-najib/rifd-financing-demo/blob/3983386c06f5ab7db68003f07f08ae0a6717d9b7/.scratch/jev-evidence-assistance-implementation/issues/11-enforce-live-access-and-spending-limits.md)
 adds the bounded service boundary. [Ticket 12's integration](jev-workflow.md) supplies the fixed Jev workflow;
 ticket 13 completed hosted preparation under its recorded operator waiver. Production dispatch remains
 disabled. No external inference or deployment is part of these checks.
