@@ -121,6 +121,7 @@ async function prepare(source: EvidenceSource & { pageNumber: number; explicit: 
       task.onPassword = () => { void task?.destroy() }
       pdf = await task.promise
       totalPages = pdf.numPages
+      self.postMessage({ kind: 'evidence-scope', totalPages })
       if (await pdf.getPermissions() !== null) return rejectSource()
       if (totalPages > bounds.pdfPages) throw Object.assign(new Error('source-limit'), { totalPages })
       if (source.inspectOnly) return { totalPages: totalPages! }

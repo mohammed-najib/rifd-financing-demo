@@ -41,7 +41,7 @@ export function makeRequest(selection: SelectedEvidence, image: PreparedPage, ru
       questions[target.presence] = { type: 'noul', instructions: `Does the original page in \`page\` contain the printed ${target.name}? The three expected months in order are in \`declaredFinancial.expectedMonths\`. A different value counts as present. Do not calculate or transcribe figures.` }
       dependencies[target.presence] = [...common]
     }
-    questions.periodSupport = { type: 'choice', instructions: 'How does the printed reporting period support the three completed months in `declaredFinancial.expectedMonths`? Inspect all printed periods and retain incompatible entries.', criteria: periodCriteria }
+    questions.periodSupport = { type: 'choice', instructions: 'How does the printed reporting period support the three completed months in `declaredFinancial.expectedMonths`? Inspect all printed periods and retain incompatible entries.' + (image.totalPages > 1 && !images ? ' This page may contain only a subset of the expected months. A table for one expected month is compatible, not a different reporting period. Consider only dates associated with the financial figures.' : ''), criteria: image.totalPages > 1 && !images ? pagePeriodCriteria : periodCriteria }
     dependencies.periodSupport = [...common]
     for (const target of targets) if (questions[target.support]) questions[target.support].instructions += ' Compare only explicitly printed averages associated with `declaredFinancial.expectedMonths`. If only monthly figures appear, choose uncertain. Do not calculate averages, transcribe figures or infer arithmetic.'
   }
@@ -82,6 +82,8 @@ export function makeRequest(selection: SelectedEvidence, image: PreparedPage, ru
 export function recordRequest(request: StageRequest): Omit<StageRequest, 'image' | 'images'> {
   return { runId: request.runId, stage: request.stage, model: request.model, plan: request.plan, state: request.state, questions: request.questions, versions: request.versions, dependencies: request.dependencies }
 }
+
+const pagePeriodCriteria = { consistent: 'The printed reporting period or monthly table covers only expected months; other expected months may appear on other original pages', different: 'The printed reporting period or monthly table includes a month outside the expected period', not_found: 'No printed reporting period or month associated with the financial figures on this original page', conflict: 'Incompatible reporting periods are printed on this original page', uncertain: 'Cannot determine the reporting period or its association with the figures' }
 
 const periodCriteria = { consistent: 'All readable printed reporting periods cover exactly the expected three completed months', different: 'A readable printed reporting period covers different months', not_found: 'No printed reporting period in the checked original pages', conflict: 'Incompatible reporting periods in the checked original pages', uncertain: 'Cannot determine the reporting period' }
 
@@ -186,7 +188,7 @@ export function composeFindings(selection: SelectedEvidence, coverage: Coverage,
 
   }
   if (pages.some(page => page.findings.category !== findings.category)) findings.category = 'mixed'
-  if (pages.some(page => page.findings.readability !== 'clear') || !complete) findings.readability = pages.some(page => page.findings.readability === 'unreadable') ? 'unreadable' : 'partial'
+  findings.readability = (['unavailable', 'undetermined', 'unreadable', 'partial', 'clear'] as const).find(level => pages.some(page => page.findings.readability === level)) ?? 'unavailable'
   return orderFinancialFindings(findings)
 }
 

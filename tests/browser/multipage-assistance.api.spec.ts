@@ -47,7 +47,7 @@ test('page selection is explicit, bounded and never changes longer-source semant
   expect(result.unselected).toMatchObject({ status: 'unavailable', reason: 'page-selection', result: null, coverage: { selected: [], dispatched: [] } })
   expect(result.refused.every(state => state.reason === 'page-selection' && !state.coverage.dispatched.length)).toBe(true)
   expect(result.selected.coverage).toEqual({ totalPages: 5, selected: [4], prepared: [4], dispatched: [4], successful: [4], failed: [], unreadable: [], unchecked: [1, 2, 3, 5], uncheckedCount: 4 })
-  expect(result.selected.result?.findings).toMatchObject({ periodSupport: 'undetermined', revenueSupport: 'undetermined', expensesSupport: 'undetermined' })
+  expect(result.selected.result?.findings).toMatchObject({ readability: 'clear', periodSupport: 'undetermined', revenueSupport: 'undetermined', expensesSupport: 'undetermined' })
   expect(result.requests.map(request => request.stage)).toEqual(['page', 'document-comparison'])
   expect(result.requests[0].plan).toMatchObject({ maximumAttempts: 3, stages: ['page:4', 'document-comparison', 'bound-verification:4'] })
 })

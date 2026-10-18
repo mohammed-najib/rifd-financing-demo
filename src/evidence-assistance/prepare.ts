@@ -8,13 +8,15 @@ function workerPage(source: EvidenceSource, signal: AbortSignal, pageNumber: num
   if (!source.bytes.byteLength || source.bytes.byteLength > bounds.sourceBytes) return Promise.reject(new PreparationError('source-limit'))
   return new Promise((resolve, reject) => {
     if (signal.aborted) { reject(new DOMException('Cancelled', 'AbortError')); return }
+    let knownTotal: number | null = null
     const worker = new Worker(new URL('./prepare.worker.ts', import.meta.url), { type: 'module' })
     const finish = () => { clearTimeout(timer); signal.removeEventListener('abort', abort); worker.terminate() }
     const abort = () => { finish(); reject(new DOMException('Cancelled', 'AbortError')) }
-    const timer = setTimeout(() => { finish(); reject(new PreparationError('preparation-timeout')) }, Math.min(bounds.pageMilliseconds, milliseconds))
+    const timer = setTimeout(() => { finish(); reject(new PreparationError('preparation-timeout', knownTotal)) }, Math.min(bounds.pageMilliseconds, milliseconds))
     signal.addEventListener('abort', abort, { once: true })
     worker.onerror = () => { finish(); reject(new PreparationError('invalid-source')) }
     worker.onmessage = (event: MessageEvent<{ kind?: string; page?: PreparedPage; reason?: AssistanceReason; totalPages?: number }>) => {
+      if (event.data.kind === 'evidence-scope') { knownTotal = event.data.totalPages ?? null; return }
       if (event.data.kind !== 'prepared-evidence') return
       finish()
       if (event.data.page) resolve(event.data.page)

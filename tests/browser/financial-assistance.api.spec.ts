@@ -7,8 +7,8 @@ test('financial checks use the completed months and normalized declarations with
     const { financialInput, financialFile, attachFinancial, nativeFinancial } = await import(fixtures) as typeof import('./financial-evidence-fixtures')
     const { identityDemo } = await import(identity) as typeof import('./evidence-fixtures')
     const requests: import('../../src/evidence-assistance/contract').StageRequest[] = []
-    const { demo } = await identityDemo({ async evaluate(request) { requests.push(request); return nativeFinancial(request) } })
-    const attachment = await attachFinancial(await financialFile())
+    const { demo } = await identityDemo({ async evaluate(request) { requests.push(request); return nativeFinancial(request, { monthlyPages: true }) } })
+    const attachment = await attachFinancial(await financialFile(4, { monthlyPages: true }))
     const before = await demo.readApplication(financialInput.applicationId)
     const handle = demo.createEvidenceAssistance({ ...financialInput, attachment })
     await handle.run()
