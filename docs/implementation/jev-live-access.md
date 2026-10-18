@@ -48,6 +48,8 @@ Guest limits are one active run, one start per minute and 20 attempts per UTC da
 Network limits are 60 attempts per UTC day; shared limits are 100 daily and 1,000
 monthly. Two durable provider-connection slots and 60-second leases span
 instances and revisions. Missing control or required accounting prevents work.
+The daily record retains a bounded registry of keyed guest, network and run
+references, so deleting known subject accounting cannot recreate an allowance.
 
 Run IDs bind to HMAC fingerprints of actual PNG bytes, canonical allowed context
 and question versions. Fingerprints establish supplied-input equality, never
@@ -65,6 +67,7 @@ transactionally rechecked sweep deletes expired records. No source, context,
 answer, filename, financing identifier, raw Auth ID, address or credential enters
 metadata. There is no application content logger, answer archive or cache.
 Private no-store response headers apply to success, denial and duplicate status.
+The sweep also removes expired connection identifiers from permanent control.
 
 The prototype Firestore rules deny all client reads and writes; Admin SDK and
 operator access require IAM. Review and verify these rules before broad sharing.

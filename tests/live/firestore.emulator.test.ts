@@ -15,11 +15,23 @@ test.skipIf(!process.env.FIRESTORE_EMULATOR_HOST)('Firestore transactions serial
     const batch = db.batch(); old.docs.forEach(doc => batch.delete(doc.ref)); await batch.commit()
     await collection.doc('control').set({ enabled: true, slots: [] })
     const revisions = [createAdmission(firestoreMetadata(db), key), createAdmission(firestoreMetadata(db), key)]
-    const outcomes = await Promise.allSettled(Array.from({ length: 12 }, (_, i) => revisions[i % 2].reserve({ guest: `private-guest-${i}`, network: `192.0.2.${i}`, runId: `private-run-${i}`, fingerprint: 'keyed-input', attempts: 9, now })))
+    const reserve = (i: number) => revisions[i % 2].reserve({ guest: `private-guest-${i}`, network: `192.0.2.${i}`, runId: `private-run-${i}`, fingerprint: 'keyed-input', attempts: 9, now })
+    const outcomes = await Promise.allSettled(Array.from({ length: 12 }, (_, i) => reserve(i)))
+    expect(outcomes.filter(result => result.status === 'fulfilled').length).toBeLessThanOrEqual(11)
+    // Firestore can exhaust transaction retries under deliberate contention.
+    // Retrying the same fixed IDs serially must still stop at the shared limit.
+    for (let i = 0; i < outcomes.length; i++) if (outcomes[i].status === 'rejected') outcomes[i] = (await Promise.allSettled([reserve(i)]))[0]
     expect(outcomes.filter(result => result.status === 'fulfilled')).toHaveLength(11)
     expect(outcomes.find(result => result.status === 'rejected')).toMatchObject({ reason: { message: 'daily-allowance' } })
     const ticket = outcomes.find(result => result.status === 'fulfilled')
     if (ticket?.status !== 'fulfilled') throw Error('no-reservation')
+    await revisions[0].mark(ticket.value, 0, now)
+    await cleanupMetadata(db, now + 60_000)
+    expect((await collection.doc('control').get()).get('slots')).toEqual([])
+    const guestKey = ticket.value.keys.find(key => key.startsWith('guest-'))!
+    await collection.doc(guestKey).delete()
+    const guestIndex = outcomes.findIndex(result => result.status === 'fulfilled')
+    await expect(revisions[1].reserve({ guest: `private-guest-${guestIndex}`, network: `192.0.2.${guestIndex}`, runId: 'new-after-missing-state', fingerprint: 'new', attempts: 1, now: now + 61_000 })).rejects.toThrow('accounting-unavailable')
     // Rules apply even when somebody knows a document's opaque name.
     const denied = await fetch(`http://${process.env.FIRESTORE_EMULATOR_HOST}/v1/projects/demo-rifd/databases/(default)/documents/${metadataCollection}/${ticket.value.key}`)
     expect(denied.status).toBe(403)
@@ -35,4 +47,4 @@ test.skipIf(!process.env.FIRESTORE_EMULATOR_HOST)('Firestore transactions serial
     await cleanupMetadata(db, Date.UTC(2026, 11, 6))
     expect((await collection.get()).docs.map(doc => doc.id)).toEqual(['control'])
   } finally { await db.terminate(); await deleteApp(app) }
-}, 60_000)
+}, 90_000)

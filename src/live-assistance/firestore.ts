@@ -1,5 +1,5 @@
 import type { Firestore } from 'firebase-admin/firestore'
-import type { MetadataStore } from './admission'
+import { pruneExpiredConnections, type MetadataStore } from './admission'
 
 export const metadataCollection = 'liveAssistanceMetadata'
 
@@ -24,6 +24,7 @@ export function firestoreMetadata(db: Firestore): MetadataStore {
 // Deletion is unconditional only for expired documents, rechecked transactionally
 // so a refreshed guest record cannot be deleted by a stale cleanup query.
 export async function cleanupMetadata(db: Firestore, now = Date.now()) {
+  await pruneExpiredConnections(firestoreMetadata(db), now)
   const expired = await db.collection(metadataCollection).where('expiresAt', '<=', now).limit(500).get()
   let deleted = 0
   for (const candidate of expired.docs) {

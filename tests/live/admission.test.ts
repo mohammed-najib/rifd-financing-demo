@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { createAdmission } from '../../src/live-assistance/admission'
+import { createAdmission, pruneExpiredConnections } from '../../src/live-assistance/admission'
 
 import { memoryStore } from './fixtures'
 
@@ -88,4 +88,27 @@ test('missing control and a missing already-started day counter fail closed', as
   await expect(admission.reserve({ ...input, guest: 'other', runId: 'other' })).rejects.toThrow('accounting-unavailable')
   await store.transaction(['control'], () => ({ value: undefined, writes: { control: undefined } }))
   await expect(admission.reserve({ ...input, guest: 'third', runId: 'third' })).rejects.toThrow('accounting-unavailable')
+})
+
+test('missing known guest, network and run metadata cannot recreate an allowance or dispatch proof', async () => {
+  for (const prefix of ['guest-', 'network-', 'run-']) {
+    const store = memoryStore(), admission = createAdmission(store, 'dummy-key-with-at-least-thirty-two-bytes')
+    const input = { guest: 'guest', network: 'network', runId: 'run', fingerprint: 'same', attempts: 2, now: Date.UTC(2026, 9, 18) }
+    const ticket = await admission.reserve(input)
+    const id = ticket.keys.find(key => key.startsWith(prefix))!
+    await store.transaction([id], () => ({ value: undefined, writes: { [id]: undefined } }))
+    await expect(admission.reserve({ ...input, now: input.now + 60_000 })).rejects.toThrow('accounting-unavailable')
+  }
+})
+
+test('cleanup releases expired connection identifiers without reviving old dispatch authority', async () => {
+  const store = memoryStore(), admission = createAdmission(store, 'dummy-key-with-at-least-thirty-two-bytes')
+  const now = Date.UTC(2026, 9, 18)
+  const ticket = await admission.reserve({ guest: 'guest', network: 'network', runId: 'run', fingerprint: 'same', attempts: 2, now })
+  await admission.mark(ticket, 0, now)
+  await pruneExpiredConnections(store, now + 60_000)
+  await expect(admission.mark(ticket, 0, now + 60_000)).rejects.toThrow('run-stopped')
+  // Control cleanup is independently observable at its metadata-store boundary.
+  const slots = await store.transaction(['control'], records => ({ value: (records.control as { slots: unknown[] }).slots, writes: {} }))
+  expect(slots).toEqual([])
 })

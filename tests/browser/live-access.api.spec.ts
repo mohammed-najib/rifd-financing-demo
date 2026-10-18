@@ -1,15 +1,17 @@
 import { expect, test } from '@playwright/test'
 import { nativeIdentity } from './evidence-transport'
+import { validateRequest } from '../../src/live-assistance/request'
 
 test('live access starts only after notice and explicit Run; allowance refusal preserves ordinary work', async ({ page }) => {
   let sessions = 0
   const requests: Record<string, unknown>[] = []
   await page.route('**/fake-guest-session', route => { sessions++; return route.fulfill({ json: { authorization: 'Bearer dummy-guest', appCheck: 'dummy-app-check' } }) })
-  await page.route('**/api/evidence-analysis', route => {
+  await page.route('**/api/evidence-analysis', async route => {
     const headers = route.request().headers()
     expect(headers.authorization).toBe('Bearer dummy-guest')
     expect(headers['x-firebase-appcheck']).toBe('dummy-app-check')
     requests.push(route.request().postDataJSON())
+    expect((await validateRequest(Buffer.from(route.request().postData()!), new AbortController().signal)).maximumAttempts).toBe(2)
     return route.fulfill({ status: 503, json: { status: 'unavailable', reason: 'guest-allowance' }, headers: { 'Cache-Control': 'private, no-store' } })
   })
   await page.setViewportSize({ width: 390, height: 900 })

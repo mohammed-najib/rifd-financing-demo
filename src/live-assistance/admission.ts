@@ -8,7 +8,7 @@ export class LiveStop extends Error {}
 const stop = (reason: string): never => { throw new LiveStop(reason) }
 const dayMs = 86_400_000
 const count = z.number().int().nonnegative()
-const counter = z.object({ attempts: count, expiresAt: count }).strict()
+const counter = z.object({ attempts: count, expiresAt: count, subjects: z.array(z.string().max(128)).max(5000).optional() }).strict()
 const slot = z.object({ id: z.string(), until: count }).strict()
 const controlSchema = z.object({ enabled: z.boolean(), slots: z.array(slot).max(2), day: z.string().optional(), month: z.string().optional() }).strict()
 const guestSchema = z.object({ day: z.string(), attempts: count, lastStart: count, active: z.string().nullable(), lease: count, expiresAt: count }).strict()
@@ -57,9 +57,17 @@ export function createAdmission(store: MetadataStore, secret: string) {
       const networkKey = `network-${day}-${keyed('network', `${day}\0${input.network}`)}`
       const key = `run-${keyed('run', `${input.guest}\0${input.runId}`)}`
       const dayKey = `day-${day}`, monthKey = `month-${month}`
-      const keys = ['control', key, guestKey, networkKey, dayKey, monthKey]
+      const previousDayKey = `day-${new Date(now - dayMs).toISOString().slice(0, 10)}`
+      const keys = ['control', key, guestKey, networkKey, dayKey, monthKey, previousDayKey]
       return store.transaction<Reservation>(keys, records => {
         const state = control(records)
+        const daily = records[dayKey] === undefined ? undefined : read(counter, records[dayKey])
+        const previous = records[previousDayKey] === undefined ? undefined : read(counter, records[previousDayKey])
+        if (daily && !daily.subjects) stop('accounting-unavailable')
+        const known = new Set(daily?.subjects ?? [])
+        for (const id of [key, guestKey, networkKey]) {
+          if (records[id] === undefined && (known.has(id) || id === guestKey && previous?.subjects?.includes(id))) stop('accounting-unavailable')
+        }
         if (records[key] !== undefined) {
           const run = read(runSchema, records[key])
           // Expired run IDs are terminal, never permission to dispatch again.
@@ -80,6 +88,9 @@ export function createAdmission(store: MetadataStore, secret: string) {
           if (used + attempts > limit) stop(id === networkKey ? 'network-allowance' : id === dayKey ? 'daily-allowance' : 'monthly-allowance')
           writes[id] = { attempts: used + attempts, expiresAt }
         }
+        const subjects = [...new Set([...known, key, guestKey, networkKey])]
+        if (subjects.length > 5000) stop('accounting-unavailable')
+        writes[dayKey] = { ...writes[dayKey] as object, subjects }
         writes.control = { ...state, day, month }
         writes[guestKey] = { day, attempts: (guest.day === day ? guest.attempts : 0) + attempts, lastStart: now, active: key, lease: now + 60_000, expiresAt: expiry }
         writes[key] = { fingerprint: input.fingerprint, guest: guestKey, network: networkKey, day: dayKey, month: monthKey, planned: attempts, dispatched: [], released: 0, lease: now + 60_000, status: 'active', expiresAt: expiry } satisfies Run
@@ -134,3 +145,12 @@ export function createAdmission(store: MetadataStore, secret: string) {
   }
 }
 export type Admission = ReturnType<typeof createAdmission>
+
+export async function pruneExpiredConnections(store: MetadataStore, now: number) {
+  await store.transaction(['control'], records => {
+    const state = controlSchema.safeParse(records.control)
+    if (!state.success) return { value: undefined, writes: {} }
+    const slots = state.data.slots.filter(slot => slot.until > now)
+    return { value: undefined, writes: { control: { ...state.data, slots } } }
+  })
+}

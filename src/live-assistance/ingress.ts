@@ -13,5 +13,8 @@ export function trustedNetwork(forwarded: string | undefined, trustedProxySuffix
   // Normalize textual IPv6 and IPv4-mapped IPv6 before daily keyed hashing.
   if (isIP(client) === 4) return client
   const normalized = new URL(`http://[${client}]/`).hostname.slice(1, -1)
-  return normalized.startsWith('::ffff:') && isIP(normalized.slice(7)) === 4 ? normalized.slice(7) : normalized
+  const mapped = /^::ffff:([a-f0-9]{1,4}):([a-f0-9]{1,4})$/.exec(normalized)
+  if (!mapped) return normalized
+  const high = parseInt(mapped[1], 16), low = parseInt(mapped[2], 16)
+  return `${high >>> 8}.${high & 255}.${low >>> 8}.${low & 255}`
 }

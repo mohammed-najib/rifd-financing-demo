@@ -66,7 +66,7 @@ export function createLiveService(options: {
           if (assets.reduce((sum, asset) => sum + asset.bytes.byteLength, 0) > bounds.combinedBytes) stopStage('prepared-limit')
           if (assets.some(asset => asset.bytes.byteLength > bounds.imageBytes)) stopStage('prepared-limit')
           const dimensions = assets.map(asset => 'manifest' in asset ? asset.manifest : asset.binding)
-          if (dimensions.some(size => size.width < 280 || size.height < 280 || size.width > 1568 || size.height > 1568) || dimensions.reduce((sum, size) => sum + size.width * size.height, 0) > bounds.combinedPixels) stopStage('prepared-limit')
+          if (dimensions.some(size => size.width < bounds.minimumSide || size.height < bounds.minimumSide || size.width > bounds.maximumSide || size.height > bounds.maximumSide) || dimensions.reduce((sum, size) => sum + size.width * size.height, 0) > bounds.combinedPixels) stopStage('prepared-limit')
           cropBytes += (stage.crops ?? []).reduce((sum, crop) => sum + crop.bytes.byteLength, 0)
           cropPixels += (stage.crops ?? []).reduce((sum, crop) => sum + crop.binding.width * crop.binding.height, 0)
           if (cropBytes > bounds.combinedBytes || cropPixels > bounds.combinedPixels) stopStage('prepared-limit')

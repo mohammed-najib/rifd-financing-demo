@@ -1,6 +1,7 @@
 import { crc32, inflate } from 'node:zlib'
 import { promisify } from 'node:util'
 import { bounds } from '../evidence-assistance/contract'
+import { attemptPlan } from '../evidence-assistance/policy'
 import { liveRequestSchema } from './wire'
 import { LiveStop } from './admission'
 
@@ -20,7 +21,7 @@ async function readPng(bytes: Buffer, signal: AbortSignal) {
     if (type === 'IHDR') {
       if (offset !== 8 || size !== 13) fail()
       width = body.readUInt32BE(0); height = body.readUInt32BE(4)
-      if (width < 280 || height < 280 || width > 1568 || height > 1568) fail('prepared-limit')
+      if (width < bounds.minimumSide || height < bounds.minimumSide || width > bounds.maximumSide || height > bounds.maximumSide) fail('prepared-limit')
       if (body[8] !== 8 || ![2, 6].includes(body[9]) || body[10] || body[11] || body[12]) fail()
       channels = body[9] === 6 ? 4 : 3
     } else if (type === 'IDAT') data.push(body)
@@ -61,6 +62,6 @@ export async function validateRequest(body: Buffer, signal: AbortSignal) {
     if (pixels > bounds.combinedPixels || size > bounds.combinedBytes) fail('prepared-limit')
     decoded.push({ page: page.page, bytes, ...dimensions })
   }
-  return { ...metadata, pages: decoded, maximumAttempts: request.totalPages === 1 ? 2 : request.selectedPages.length * 2 + 1 }
+  return { ...metadata, pages: decoded, maximumAttempts: attemptPlan(request.totalPages, request.selectedPages).maximumAttempts }
 }
 export type ValidatedRequest = Awaited<ReturnType<typeof validateRequest>>
