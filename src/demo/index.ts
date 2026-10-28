@@ -577,13 +577,17 @@ export function createDemo(options: DemoOptions = {}): Demo {
   }
   // The record a buffer was prepared from supplies the expected revisions, so
   // callers never construct or compare them.
-  const buildCommand = (intent: AttemptIntent, view: ApplicationView | undefined, operationId: string): DemoOperation => {
+  const buildCommand = (intent: AttemptIntent, view: ApplicationView | Context | undefined, operationId: string): DemoOperation => {
     if (intent.kind === 'resetDemo') return { ...intent, operationId }
     if (!datasetId) throw new DemoError('startup')
     if (intent.kind === 'markNotificationRead') return { ...intent, datasetId, operationId }
-    if (intent.kind === 'setLanguage' || intent.kind === 'setQueuePreferences') return { ...intent, datasetId, operationId }
+    if (intent.kind === 'setLanguage' || intent.kind === 'setQueuePreferences') {
+      if (!view || !('preferences' in view)) throw new DemoError('invalidState')
+      return { ...intent, datasetId, operationId, expectedRevision: view.preferences.revision }
+    }
+    if (!view || 'preferences' in view) throw new DemoError('invalidState')
     if (intent.kind === 'saveDraft' || intent.kind === 'saveCorrections' || intent.kind === 'submit' || intent.kind === 'resubmit') {
-      if (!view || view.role !== 'applicant' || !view.workspace) throw new DemoError('invalidState')
+      if (view.role !== 'applicant' || !view.workspace) throw new DemoError('invalidState')
       const expectedWorkspaceRevision = view.workspace.revision
       switch (intent.kind) {
         case 'saveDraft': return { ...intent, datasetId, operationId, expectedWorkspaceRevision }
@@ -592,7 +596,7 @@ export function createDemo(options: DemoOptions = {}): Demo {
         case 'resubmit': return { ...intent, datasetId, operationId, expectedWorkspaceRevision, expectedSharedRevision: view.sharedRevision }
       }
     }
-    if (!view || view.role !== 'reviewer' || !session) throw new DemoError('invalidState')
+    if (view.role !== 'reviewer' || !session) throw new DemoError('invalidState')
     const expectedSharedRevision = view.sharedRevision
     switch (intent.kind) {
       case 'approve': return { ...intent, datasetId, operationId, expectedSharedRevision, confirmationSessionId: session.sessionId }
@@ -608,7 +612,7 @@ export function createDemo(options: DemoOptions = {}): Demo {
       ? success({ status: 'committed' as const, result: inspected.value.result as AttemptResult<T> })
       : success({ status: 'notCommitted' as const, latest: inspected.value.latest })
   }
-  const runAttempt = async <T extends AttemptIntent>(input: T, view: ApplicationView | undefined, inspectOnly: boolean): Promise<Result<AttemptOutcome<AttemptResult<T>>>> => {
+  const runAttempt = async <T extends AttemptIntent>(input: T, view: ApplicationView | Context | undefined, inspectOnly: boolean): Promise<Result<AttemptOutcome<AttemptResult<T>>>> => {
     const intent = structuredClone(input)
     try {
       const who = attemptActor(intent)

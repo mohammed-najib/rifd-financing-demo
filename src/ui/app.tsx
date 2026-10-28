@@ -338,13 +338,14 @@ export function App() {
     } catch { if (alive.current) setError('resources') }
     finally { identitySelection.current = false; if (alive.current) setBusy(false) }
   }
-  const changeLanguage = async (intent?: LanguageIntent) => {
+  const changeLanguage = async (intent?: LanguageIntent, base?: Context) => {
     if (!context) return
+    const preparedFrom = base ?? context
     const capturedSession = context.session?.sessionId
     const capturedDataset = context.datasetId
-    const change: LanguageIntent = intent ?? { kind: 'setLanguage', expectedRevision: context.preferences.revision, language: language === 'ar' ? 'en' : 'ar' }
+    const change: LanguageIntent = intent ?? { kind: 'setLanguage', language: language === 'ar' ? 'en' : 'ar' }
     setBusy(true); setError(null)
-    const result = await demo.attempt(change)
+    const result = await demo.attempt(change, preparedFrom)
     if (!alive.current) return
     setBusy(false)
     if (capturedSession !== currentContext.current?.session?.sessionId || capturedDataset !== currentContext.current?.datasetId) return
@@ -416,7 +417,7 @@ export function App() {
           <p role="status">{errors.stalePreference[language]}</p>
           <p>{t('unappliedLanguage')}: {text[languageConflict.intent.language === 'ar' ? 'arabic' : 'english'][language]}</p>
           <button disabled={busy} onClick={() => void inspectLanguage()}>{t('inspectPreference')}</button>
-          {languageConflict.latest && <><p>{t('latestLanguage')}: {text[languageConflict.latest.preferences.language === 'ar' ? 'arabic' : 'english'][language]}</p><button disabled={busy} onClick={() => void changeLanguage({ ...languageConflict.intent, expectedRevision: languageConflict.latest!.preferences.revision })}>{t('reapplyPreference')}</button></>}
+          {languageConflict.latest && <><p>{t('latestLanguage')}: {text[languageConflict.latest.preferences.language === 'ar' ? 'arabic' : 'english'][language]}</p><button disabled={busy} onClick={() => void changeLanguage(languageConflict.intent, languageConflict.latest!)}>{t('reapplyPreference')}</button></>}
           <button disabled={busy} onClick={() => setLanguageConflict(null)}>{t('discardPreference')}</button>
         </section>}
         {screen.kind === 'reset' ? <section className="panel"><Heading>{resetText.title[language]}</Heading><p>{resetText.warning[language]}</p><button disabled={busy} onClick={() => setResetOpen(true)}>{resetText.title[language]}</button></section>

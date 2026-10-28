@@ -141,7 +141,7 @@ test('a repeated reset with a superseded context is refused and cannot erase lat
     const first = await window.commit(command)
     const after = await window.demo.context()
     if (!after.ok) throw new Error('No reset dataset')
-    await window.commit({ kind: 'setLanguage', expectedRevision: 1, language: 'en' })
+    await window.commit({ kind: 'setLanguage', language: 'en' })
     window.demo.dispose()
     window.demo.setControls({ slow: true, failure: 'storage' })
     // The repeat is a new reset intent: its context no longer names the stored
@@ -157,7 +157,7 @@ test('a repeated reset with a superseded context is refused and cannot erase lat
     const second = await window.commit(secondCommand)
     const current = await window.demo.context()
     if (!current.ok) throw new Error('No current context')
-    await window.commit({ kind: 'setLanguage', expectedRevision: 1, language: 'en' })
+    await window.commit({ kind: 'setLanguage', language: 'en' })
     const obsolete = await window.commit(command)
     return { first, replay, controls, restored, misuse, second, secondCommand, obsolete, final: await window.demo.context() }
   })
@@ -195,7 +195,7 @@ test('reset abort retains the dataset, session and prepared bytes; retry restore
       fields: { ...draft.value.snapshot.fields, explanation: 'Saved before reset' }, documents: {
         identity: { kind: 'saved', fileId: draft.value.snapshot.documents.identity }, business: { kind: 'saved', fileId: draft.value.snapshot.documents.business }, financial: { kind: 'saved', fileId: draft.value.snapshot.documents.financial }, purchase: { kind: 'prepared', attachment: prepared.value },
       } })
-    await window.commit({ kind: 'setLanguage', expectedRevision: 1, language: 'en' })
+    await window.commit({ kind: 'setLanguage', language: 'en' })
     await window.commit({ kind: 'markNotificationRead', notificationId: 'RIFD-2026-005-notice', expectedRevision: 1 })
     const inspection = await window.demo.inspectReset()
     if (!inspection.ok) throw new Error('No reset context')
@@ -208,7 +208,7 @@ test('reset abort retains the dataset, session and prepared bytes; retry restore
     const context = await window.demo.context()
     await window.demo.signIn('mariam')
     const restoredDraft = await window.demo.readApplication('RIFD-2026-001')
-    const retiredReceipt = await window.inspectPreference({ kind: 'setLanguage', expectedRevision: 1, language: 'en' })
+    const retiredReceipt = await window.inspect({ kind: 'setLanguage', language: 'en' })
     await window.demo.signIn('salma')
     const queue = await window.demo.readStaffQueue()
     const counts = []
@@ -230,7 +230,7 @@ test('reset abort retains the dataset, session and prepared bytes; retry restore
   expect(result.context.ok && result.context.value.datasetId).not.toBe(result.original)
   expect(result.controls).toEqual({ slow: false, failure: null })
   expect(result.restoredDraft).toMatchObject({ ok: true, value: { workspace: { revision: 1 }, snapshot: { fields: { explanation: '' }, documents: { purchase: 'RIFD-2026-001-purchase-original' } } } })
-  expect(result.retiredReceipt).toMatchObject({ ok: true, value: { status: 'notCommitted', context: { datasetId: result.reset.ok ? result.reset.value.datasetId : '', preferences: { revision: 1, language: 'ar' } } } })
+  expect(result.retiredReceipt).toMatchObject({ ok: true, value: { status: 'notCommitted', application: { datasetId: result.reset.ok ? result.reset.value.datasetId : '', preferences: { revision: 1, language: 'ar' } } } })
   expect(result.counts).toEqual([5, 5, 3])
   expect(result.notices).toEqual([[false], [false, false], [false, false]])
   expect(result.queue).toMatchObject({ ok: true, value: { total: 12, counts: { submitted: 4, underReview: 3, correctionsRequested: 3, approved: 1, rejected: 1 }, assignments: { you: 7, colleague: 3, unassigned: 2 } } })

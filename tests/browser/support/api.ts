@@ -1,5 +1,5 @@
 import { createDemo } from '../../../src/demo'
-import type { ApplicationIntent, ApplicationView, AttemptIntent, AttemptResult, Demo, Result } from '../../../src/demo/types'
+import type { ApplicationIntent, ApplicationView, AttemptIntent, AttemptResult, Context, Demo, Result } from '../../../src/demo/types'
 import { installAttemptClient } from './attempt-client'
 import type { Inspection, NotificationInspection, PreferenceInspection, ResetInspection } from './attempt-client'
 
@@ -10,8 +10,8 @@ declare global {
     commitOn<T extends AttemptIntent>(demo: Demo, intent: T, view?: ApplicationView): Promise<Result<AttemptResult<T>>>
     inspect(intent: AttemptIntent, view?: ApplicationView): Promise<Result<Inspection>>
     inspectOn(demo: Demo, intent: AttemptIntent, view?: ApplicationView): Promise<Result<Inspection>>
-    inspectPreference(intent: AttemptIntent): Promise<Result<PreferenceInspection>>
-    inspectOnPreference(demo: Demo, intent: AttemptIntent): Promise<Result<PreferenceInspection>>
+    inspectPreference(intent: AttemptIntent, context?: Context): Promise<Result<PreferenceInspection>>
+    inspectOnPreference(demo: Demo, intent: AttemptIntent, context?: Context): Promise<Result<PreferenceInspection>>
     inspectNotification(intent: AttemptIntent): Promise<Result<NotificationInspection>>
     inspectOnNotification(demo: Demo, intent: AttemptIntent): Promise<Result<NotificationInspection>>
     inspectReset(intent: AttemptIntent): Promise<Result<ResetInspection>>

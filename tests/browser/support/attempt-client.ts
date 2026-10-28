@@ -15,11 +15,15 @@ function refused(cause: string): { ok: false; error: { kind: import('../../../sr
 
 // Tests speak intents. These helpers unwrap the outcome into the shape the existing
 // assertions use, and read the base view when a test does not hold one.
-async function attemptResult<T extends AttemptIntent>(target: Demo, input: T, view?: ApplicationView): Promise<Result<AttemptResult<T>>> {
+async function attemptResult<T extends AttemptIntent>(target: Demo, input: T, view?: ApplicationView | Context): Promise<Result<AttemptResult<T>>> {
   const intent = structuredClone(input)
   let base = view
   if (!base && 'applicationId' in intent) {
     const read = await target.readApplication(intent.applicationId)
+    if (!read.ok) return read
+    base = read.value
+  } else if (!base && (intent.kind === 'setLanguage' || intent.kind === 'setQueuePreferences')) {
+    const read = await target.context()
     if (!read.ok) return read
     base = read.value
   }
@@ -31,11 +35,15 @@ async function attemptResult<T extends AttemptIntent>(target: Demo, input: T, vi
   return { ok: false, error: { kind, key: `error.${kind}` } }
 }
 
-async function inspection<T extends AttemptIntent>(target: Demo, input: T, view?: ApplicationView): Promise<Result<Inspection>> {
+async function inspection<T extends AttemptIntent>(target: Demo, input: T, view?: ApplicationView | Context): Promise<Result<Inspection>> {
   const intent = structuredClone(input)
   let base = view
   if (!base && 'applicationId' in intent) {
     const read = await target.readApplication(intent.applicationId)
+    if (!read.ok) return read
+    base = read.value
+  } else if (!base && (intent.kind === 'setLanguage' || intent.kind === 'setQueuePreferences')) {
+    const read = await target.context()
     if (!read.ok) return read
     base = read.value
   }
@@ -49,8 +57,10 @@ async function inspection<T extends AttemptIntent>(target: Demo, input: T, view?
     : { ok: true, value: { status: 'notCommitted', application: outcome.latest as ApplicationView } }
 }
 
-async function preferenceInspection(target: Demo, intent: AttemptIntent): Promise<Result<PreferenceInspection>> {
-  const result = await target.inspectAttempt(intent)
+async function preferenceInspection(target: Demo, intent: AttemptIntent, context?: Context): Promise<Result<PreferenceInspection>> {
+  const read = context ? { ok: true as const, value: context } : await target.context()
+  if (!read.ok) return read
+  const result = await target.inspectAttempt(intent, read.value)
   if (!result.ok) return result
   const outcome = result.value
   if (outcome.status === 'stale') return refused(outcome.cause)
@@ -84,8 +94,8 @@ export function installAttemptClient() {
   window.commitOn = (target, intent, view) => attemptResult(target, intent, view)
   window.inspect = (intent, view) => inspection(current(), intent, view)
   window.inspectOn = (target, intent, view) => inspection(target, intent, view)
-  window.inspectPreference = intent => preferenceInspection(current(), intent)
-  window.inspectOnPreference = (target, intent) => preferenceInspection(target, intent)
+  window.inspectPreference = (intent, context) => preferenceInspection(current(), intent, context)
+  window.inspectOnPreference = (target, intent, context) => preferenceInspection(target, intent, context)
   window.inspectNotification = intent => notificationInspection(current(), intent)
   window.inspectOnNotification = (target, intent) => notificationInspection(target, intent)
   window.inspectReset = intent => resetInspection(current(), intent)

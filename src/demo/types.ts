@@ -91,7 +91,7 @@ export type DemoOperation = PreferenceOperation | ApplicationMutation | Notifica
 // An attempt supplies the record it was prepared from. The envelope — dataset,
 // operation identity, revisions and confirmation session — belongs to the store.
 type StoreSupplied = 'datasetId' | 'operationId' | 'confirmationSessionId' | 'expectedSharedRevision' | 'expectedWorkspaceRevision'
-type IntentOf<T> = T extends unknown ? Omit<T, StoreSupplied> : never
+type IntentOf<T> = T extends unknown ? Omit<T, StoreSupplied | (T extends { kind: 'setLanguage' | 'setQueuePreferences' } ? 'expectedRevision' : never)> : never
 export type AttemptIntent = IntentOf<DemoOperation>
 export type ApplicationIntent = Extract<AttemptIntent, { kind: 'saveDraft' | 'saveCorrections' | 'submit' | 'resubmit' }>
 export type ReviewIntent = Extract<AttemptIntent, { kind: ReviewOperation['kind'] }>
@@ -121,8 +121,12 @@ export type Demo = {
   selectSavedDemonstration(input: import('./saved-demonstrations').SavedSelection): Promise<Result<import('./saved-demonstrations').OpenedSavedDemonstration>>;
   // One write protocol: intent plus the record it was prepared from. Revisions,
   // operation identity, retry and outcome inspection stay behind the seam.
-  attempt<T extends AttemptIntent>(intent: T, view?: ApplicationView): Promise<Result<AttemptOutcome<AttemptResult<T>>>>;
-  inspectAttempt<T extends AttemptIntent>(intent: T, view?: ApplicationView): Promise<Result<AttemptOutcome<AttemptResult<T>>>>;
+  // Retry identity is the record: the same intent against the same record is one
+  // attempt; a later record is a new edit even when its content matches.
+  // A preference intent is prepared from a Context; an application intent from
+  // the ApplicationView it was edited against.
+  attempt<T extends AttemptIntent>(intent: T, view?: ApplicationView | Context): Promise<Result<AttemptOutcome<AttemptResult<T>>>>;
+  inspectAttempt<T extends AttemptIntent>(intent: T, view?: ApplicationView | Context): Promise<Result<AttemptOutcome<AttemptResult<T>>>>;
   inspectReset(): Promise<Result<ResetContext>>;
   startup(): Promise<Result<Context>>;
   context(): Promise<Result<Context>>;

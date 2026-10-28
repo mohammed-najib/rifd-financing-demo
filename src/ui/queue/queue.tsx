@@ -29,7 +29,7 @@ export function StaffApplicationQueue({ demo, context, language, input, href, re
   const [retry, setRetry] = useState(0)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
-  const [refused, setRefused] = useState<{ intent: QueueIntent; error: ErrorKind; latest: Context | null; committed: boolean } | null>(null)
+  const [refused, setRefused] = useState<{ intent: QueueIntent; base: Context; error: ErrorKind; latest: Context | null; committed: boolean } | null>(null)
   const alive = useRef(true)
   const pagination = useRef<HTMLElement>(null)
   const actions = useRef({ go, acceptContext, href })
@@ -62,27 +62,27 @@ export function StaffApplicationQueue({ demo, context, language, input, href, re
     }
   }, [reading, readError, queue])
 
-  const persist = async (intent: QueueIntent) => {
+  const persist = async (intent: QueueIntent, base = context) => {
     setSaving(true); setSaved(false)
-    const result = await demo.attempt(intent)
+    const result = await demo.attempt(intent, base)
     if (!alive.current) return
     setSaving(false)
-    if (!result.ok) { setRefused({ intent, error: result.error.kind, latest: null, committed: false }); return }
+    if (!result.ok) { setRefused({ intent, base, error: result.error.kind, latest: null, committed: false }); return }
     const outcome = result.value
     if (outcome.status === 'committed') { setRefused(null); setSaved(true); actions.current.acceptContext(outcome.result); return }
-    if (outcome.status === 'notCommitted') { setRefused({ intent, error: 'requestFailed', latest: null, committed: false }); return }
-    setRefused({ intent, error: outcome.status === 'stale' ? outcome.cause : 'outcomeUnknown', latest: null, committed: false })
+    if (outcome.status === 'notCommitted') { setRefused({ intent, base, error: 'requestFailed', latest: null, committed: false }); return }
+    setRefused({ intent, base, error: outcome.status === 'stale' ? outcome.cause : 'outcomeUnknown', latest: null, committed: false })
   }
   const change = (patch: Partial<QueueQuery>, save = false) => {
     const next = { ...query, ...patch }
     go(queueHref(next))
-    if (save) void persist({ kind: 'setQueuePreferences', expectedRevision: context.preferences.revision, queue: preferenceValues(next) })
+    if (save) void persist({ kind: 'setQueuePreferences', queue: preferenceValues(next) })
   }
   const inspect = async () => {
     if (!refused) return
     const intent = refused.intent
     setSaving(true)
-    const result = await demo.inspectAttempt(intent)
+    const result = await demo.inspectAttempt(intent, refused.base)
     if (!alive.current) return
     setSaving(false)
     if (result.ok && (result.value.status === 'committed' || result.value.status === 'notCommitted')) {
@@ -120,7 +120,7 @@ export function StaffApplicationQueue({ demo, context, language, input, href, re
       <p role={refused.committed ? 'status' : 'alert'}>{refused.committed ? q('saved') : errors[refused.error][language]}</p>{!refused.committed && <p>{q('desired')}: {describe(refused.intent.queue)}</p>}
       <button disabled={saving} onClick={() => void inspect()}>{q('inspect')}</button>
       {refused.latest && <><p className="mt-3">{q('latest')}: {describe(refused.latest.preferences.queue)}</p>
-        {!refused.committed && <button disabled={saving} onClick={() => void persist({ ...refused.intent, expectedRevision: refused.latest!.preferences.revision })}>{q('reapply')}</button>}
+        {!refused.committed && <button disabled={saving} onClick={() => void persist(refused.intent, refused.latest!)}>{q('reapply')}</button>}
         <button disabled={saving} onClick={() => { change({ ...refused.latest!.preferences.queue, page: 1 }); setRefused(null); setSaved(refused.committed) }}>{q('useLatest')}</button>
       </>}
     </section>}
