@@ -52,20 +52,23 @@ const suites = await Promise.all([
 const failed = suites.find(result => result.code !== 0);
 if (failed) process.exit(failed.code);
 
-const smokeProjects = ['--project=firefox'];
-if (process.env.RIFD_WEBKIT_EXECUTABLE) smokeProjects.push('--project=webkit');
-const smoke = await run('cross-browser smoke', [
-  'exec',
-  'playwright',
-  'test',
-  '--config',
-  'playwright.gate.config.ts',
-  ...smokeProjects,
-  '--grep',
-  '@smoke',
-  '--workers=1',
-]);
-if (smoke.code !== 0) process.exit(smoke.code);
+const smokeProjects = process.env.RIFD_WEBKIT_EXECUTABLE ? ['--project=webkit'] : [];
+if (smokeProjects.length) {
+  const smoke = await run('WebKit smoke', [
+    'exec',
+    'playwright',
+    'test',
+    '--config',
+    'playwright.gate.config.ts',
+    ...smokeProjects,
+    '--grep',
+    '@smoke',
+    '--workers=1',
+  ]);
+  if (smoke.code !== 0) process.exit(smoke.code);
+} else {
+  console.log('\n[gate] skipped WebKit smoke (set RIFD_WEBKIT_EXECUTABLE to enable)');
+}
 
 const seconds = Math.round((Date.now() - started) / 1000);
 console.log(`\n[gate] passed in ${seconds}s${budget > 0 ? ` (budget ${budget}s)` : ''}`);

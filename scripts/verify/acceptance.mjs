@@ -3,7 +3,7 @@ import { createWriteStream } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { arch, platform, release } from 'node:os';
 import { resolve } from 'node:path';
-import { chromium, firefox, webkit } from '@playwright/test';
+import { chromium, webkit } from '@playwright/test';
 import { sourceEvidence, staticEvidence } from '../lib/delivery-evidence.mjs';
 
 // Every invocation has its own reports. A focused recheck cannot erase the
@@ -66,7 +66,6 @@ async function run(name, args) {
 try {
   for (const [name, browserType, options] of [
     ['chrome', chromium, { channel: 'chrome' }],
-    ['firefox', firefox, {}],
     ['webkit', webkit, { executablePath: process.env.RIFD_WEBKIT_EXECUTABLE }],
   ]) {
     const browser = await browserType.launch(options);

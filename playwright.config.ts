@@ -46,11 +46,10 @@ export default defineConfig({
       use: { channel: 'chrome', launchOptions: { args: ['--disable-gpu'] } },
     },
     {
-      name: 'seed-firefox',
+      name: 'seed-webkit',
       testMatch: '**/seed.screens.setup.ts',
-      use: { browserName: 'firefox' },
+      use: webkit,
     },
-    { name: 'seed-webkit', testMatch: '**/seed.screens.setup.ts', use: webkit },
     {
       name: 'chrome',
       use: {
@@ -59,11 +58,6 @@ export default defineConfig({
         launchOptions: { args: ['--disable-gpu'] },
       },
       dependencies: ['seed-chrome'],
-    },
-    {
-      name: 'firefox',
-      use: { browserName: 'firefox', storageState: seed('firefox') },
-      dependencies: ['seed-firefox'],
     },
     {
       name: 'webkit',

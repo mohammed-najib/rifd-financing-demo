@@ -14,7 +14,7 @@ Choose checks that exercise the behavior you changed. A screenshot, model smoke 
 | `pnpm test` | Pure domain rules and evidence-service/controller logic, including local fake-provider tests. |
 | `pnpm test:skills` | Packaged guidance and its consumer policy. |
 | `pnpm build` | Production client/server compilation and SPA prerendering. |
-| `pnpm test:gate` | The 10-minute core gate: checks, build, core API/screen journeys and Firefox smoke. |
+| `pnpm test:gate` | The 10-minute core gate: checks, build, core API/screen journeys and optional WebKit smoke. |
 | `pnpm test:full` | The complete API and screen suites across all configured browsers. |
 | `pnpm check:css-sources` | Production CSS sources included, docs/artifacts excluded, followed by a clean rebuild. |
 
@@ -24,10 +24,10 @@ The Firestore admission test requires its emulator. A skipped emulator test is n
 
 ## Browser tests
 
-Install ordinary Google Chrome and Playwright's pinned Firefox and WebKit on a supported system:
+Install ordinary Google Chrome and Playwright's pinned WebKit on a supported system:
 
 ```sh
-pnpm exec playwright install --with-deps firefox webkit
+pnpm exec playwright install --with-deps webkit
 pnpm test:browser:api
 pnpm build:test
 pnpm test:browser
@@ -40,7 +40,7 @@ Both suites seed IndexedDB once per run and restore that snapshot into each test
 Default gate and full runs:
 
 ```sh
-pnpm test:gate   # target under 10 minutes; core journeys and Firefox smoke
+pnpm test:gate   # target under 10 minutes; core journeys and optional WebKit smoke
 pnpm test:full   # exhaustive API/screen matrices and all configured browsers
 ```
 

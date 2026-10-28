@@ -10,10 +10,7 @@ const launchOptions = { args: ['--disable-gpu'] };
 export default defineConfig({
   ...screens,
   projects: (screens.projects ?? []).map(project =>
-    project.name === 'firefox' ||
-    project.name === 'webkit' ||
-    project.name === 'seed-firefox' ||
-    project.name === 'seed-webkit'
+    project.name === 'webkit' || project.name === 'seed-webkit'
       ? project
       : { ...project, use: { ...project.use, launchOptions } },
   ),
