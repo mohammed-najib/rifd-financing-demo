@@ -40,7 +40,7 @@ test('multipage source navigation and document comparison preserve human inspect
   const document = page.getByRole('region', { name: 'Applicant identity evidence', exact: true })
   await document.getByRole('button', { name: 'Find supporting evidence', exact: true }).click()
   const assistance = document.getByRole('region', { name: 'Experimental assistance', exact: true })
-  await expect(assistance.getByRole('img', { name: 'Source page 1', exact: true })).toBeVisible()
+  await expect(assistance.getByRole('img', { name: 'Source page 1', exact: true })).toBeVisible({ timeout: 15_000 })
   await assistance.getByRole('button', { name: 'Next page', exact: true }).focus(); await page.keyboard.press('Enter')
   await expect(assistance.getByRole('img', { name: 'Source page 2', exact: true })).toBeVisible({ timeout: 15_000 })
   await assistance.getByRole('button', { name: 'Previous page', exact: true }).click()

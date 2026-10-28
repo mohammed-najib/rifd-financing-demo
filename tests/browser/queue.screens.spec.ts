@@ -158,7 +158,7 @@ test('queue rows and cards preserve identifying details, keyboard order and exac
       const status = await page.locator('#queue-status').boundingBox()
       const product = await page.locator('#queue-product').boundingBox()
       expect(status && product && (width <= 767 ? product.y > status.y : Math.abs(product.y - status.y) < 1)).toBe(true)
-      if (info.project.name === 'chrome' && [390, 1440].includes(width)) await page.screenshot({ path: `docs/implementation/evidence/08/queue-${language}-${width}.png`, fullPage: true })
+      if (info.project.name === 'chrome' && [390, 1440].includes(width)) await page.screenshot({ path: `artifacts/browser-evidence/08/queue-${language}-${width}.png`, fullPage: true })
     }
   }
   await page.getByRole('button', { name: 'مسح البحث', exact: true }).click()

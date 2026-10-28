@@ -75,7 +75,7 @@ test('gallery fields, feedback, queue views and keyboard dialog work in both dir
     if (info.project.name === 'chrome') {
       await page.setViewportSize({ width: 390, height: 900 })
       await amount.focus()
-      await page.getByRole('region', { name: language === 'ar' ? 'الحقول والتحقق' : 'Fields and validation', exact: true }).screenshot({ path: `docs/implementation/evidence/19/field-error-${language}-390.png` })
+      await page.getByRole('region', { name: language === 'ar' ? 'الحقول والتحقق' : 'Fields and validation', exact: true }).screenshot({ path: `artifacts/browser-evidence/19/field-error-${language}-390.png` })
     }
     await amount.fill('١٠٠٬٠٠٠')
     await expect(amount).toHaveAttribute('aria-invalid', 'false')
@@ -100,7 +100,7 @@ test('gallery fields, feedback, queue views and keyboard dialog work in both dir
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
       await expect(queue.getByRole('table')).toHaveCount(width >= 1200 ? 1 : 0)
       await expect(queue.getByRole('article')).toHaveCount(width < 1200 ? 2 : 0)
-      if (info.project.name === 'chrome' && [390, 1440].includes(width)) await page.screenshot({ path: `docs/implementation/evidence/19/gallery-${language}-${width}.png`, fullPage: true })
+      if (info.project.name === 'chrome' && [390, 1440].includes(width)) await page.screenshot({ path: `artifacts/browser-evidence/19/gallery-${language}-${width}.png`, fullPage: true })
     }
     await queue.getByRole('link', { name: language === 'ar' ? 'فتح الطلب RIFD-2026-EXAMPLE-001' : 'Open application RIFD-2026-EXAMPLE-001', exact: true }).click()
     await expect(queue.getByRole('status')).toContainText('RIFD-2026-EXAMPLE-001')
@@ -117,7 +117,7 @@ test('gallery fields, feedback, queue views and keyboard dialog work in both dir
     await expect(stay).toBeFocused()
     if (info.project.name === 'chrome') for (const width of [390, 1440]) {
       await page.setViewportSize({ width, height: 900 })
-      await page.screenshot({ path: `docs/implementation/evidence/19/dialog-${language}-${width}.png` })
+      await page.screenshot({ path: `artifacts/browser-evidence/19/dialog-${language}-${width}.png` })
     }
     await page.keyboard.press('Escape')
     await expect(dialog).toHaveCount(0)

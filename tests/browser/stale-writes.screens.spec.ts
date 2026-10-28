@@ -41,7 +41,7 @@ for (const language of ['ar', 'en'] as const) test(`${language} stale assessment
     for (const width of [390, 1440]) {
       await page.setViewportSize({ width, height: 950 })
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
-      await page.screenshot({ path: `docs/implementation/evidence/16/recovery-${language}-${width}.png`, fullPage: true })
+      await page.screenshot({ path: `artifacts/browser-evidence/16/recovery-${language}-${width}.png`, fullPage: true })
     }
   }
   await assignments(page).getByRole('button', { name: ar ? 'استرداد من خالد علي' : 'Reclaim from Khaled Ali', exact: true }).click()

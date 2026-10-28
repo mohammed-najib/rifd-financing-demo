@@ -17,7 +17,7 @@ Choose checks that exercise the behavior you changed. A screenshot, model smoke 
 
 The local HTTP tests open temporary loopback servers. The build also opens a temporary prerender server. `listen EPERM` in a sandbox can mean local binding is blocked. Allow the required local server and rerun the affected check before treating it as an application regression.
 
-The Firestore admission test requires its emulator. A skipped emulator test is not a passing emulator check. The emulator invocation and prior results are recorded in [the hosted operation evidence](implementation/jev-hosted-operation.md).
+The Firestore admission test requires its emulator. A skipped emulator test is not a passing emulator check.
 
 ## Browser tests
 
@@ -26,11 +26,11 @@ Install ordinary Google Chrome and Playwright's pinned Firefox and WebKit on a s
 ```sh
 pnpm exec playwright install --with-deps firefox webkit
 pnpm test:browser:api
-pnpm build
+pnpm build:test
 pnpm test:browser
 ```
 
-The API suite uses Chrome and actual IndexedDB through a separate Vite harness on port 4174. Screen tests use the built static application on port 4173 across Chrome, Firefox and WebKit. The harness is not part of the production build.
+The API suite uses Chrome and actual IndexedDB through a separate Vite harness on port 4174. Screen tests use the built static application on port 4173 across Chrome, Firefox and WebKit. `build:test` disables hosted inference even if local production environment files exist. The harness is not part of the production build.
 
 For an affected screen suite, build first and select its file and project:
 
@@ -40,7 +40,7 @@ pnpm exec playwright test tests/browser/drafts.screens.spec.ts --project=chrome
 
 Browser tests use isolated contexts with fictional data. Do not run a reset walkthrough in a browser profile containing work you want to keep. Responsive tests emulate CSS viewports; they do not establish physical-device or branded Safari support.
 
-Failures retain traces and screenshots in `test-results/`. HTML reports are separated into `playwright-report/api` and `playwright-report/screens`. These directories are ignored by Git.
+Failures retain traces and screenshots in `test-results/`. Selected screen tests also write screenshots to `artifacts/browser-evidence/`. HTML reports are separated into `playwright-report/api` and `playwright-report/screens`. These directories are ignored by Git.
 
 ## Full acceptance
 
@@ -68,7 +68,7 @@ Delivery gates start the local Hosting emulator with `demo-rifd`. Performance me
 pnpm verify:performance artifacts/performance/22/your-run-directory/run.json
 ```
 
-Use the actual directory printed by the measurement command. Verification binds results to source and build hashes. A same-source rebuild can change a prerender timestamp, so keep the measured output until verification is complete. The [performance record](implementation/22-evidence.md) explains the original protocol; [delivery evidence](implementation/24-evidence.md) records the reviewed historical measurement correction.
+Use the actual directory printed by the measurement command. Verification binds results to source and build hashes. A same-source rebuild can change a prerender timestamp, so keep the measured output until verification is complete.
 
 ## Testing Jev
 
@@ -82,7 +82,7 @@ For a manual native check:
 4. Save matching work and reopen it. Confirm that reopening does not start another provider request.
 5. Change relevant information and confirm that previous findings stop being current.
 
-Native requests can cost money. Do not automatically retry them to obtain a preferred answer. Partial findings and suppressed highlights are valid outcomes to inspect. Two earlier local identity examples are documented in [the native smoke record](implementation/jev-local-development.md); the [film manifest](demo/film.json) records one additional native call during filming. Those calls do not establish broad bilingual or multipage reliability.
+Native requests can cost money. Do not automatically retry them to obtain a preferred answer. Partial findings and suppressed highlights are valid outcomes to inspect. The [film manifest](demo/film.json) records a native call during filming. That call does not establish broad bilingual or multipage reliability.
 
 ## Documentation checks
 

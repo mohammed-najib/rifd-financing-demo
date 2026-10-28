@@ -58,14 +58,14 @@ for (const language of ['ar', 'en'] as const) test(`${language} only requested t
     for (const width of [390, 1440]) {
       await page.setViewportSize({ width, height: 950 })
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
-      await page.screenshot({ path: `docs/implementation/evidence/12/response-${language}-${width}.png`, fullPage: true })
+      await page.screenshot({ path: `artifacts/browser-evidence/12/response-${language}-${width}.png`, fullPage: true })
     }
   }
   await amount.fill(' invalid ')
   await editor.locator('input[type=file]').setInputFiles({ name: 'DEMO-private.png', mimeType: 'image/png', buffer: Buffer.from('fictional private plan') })
   await expect(editor.getByRole('status').filter({ hasText: ar ? 'جاهز للحفظ' : 'Ready to save' })).toBeVisible()
   await editor.getByRole('button', { name: ar ? 'حفظ التقدم' : 'Save progress', exact: true }).click()
-  await expect(editor.getByRole('status').filter({ hasText: ar ? 'محفوظ' : 'Saved' })).toBeVisible()
+  await expect(editor.getByText(ar ? 'محفوظ' : 'Saved', { exact: true })).toBeVisible()
   await expect(editor.getByRole('button', { name: ar ? 'معاينة الملف المحفوظ' : 'Preview saved file', exact: true })).toBeVisible()
   const submitted = page.getByRole('heading', { name: ar ? 'المعلومات المقدمة' : 'Submitted information', exact: true }).locator('..')
   await expect(submitted).toContainText('600,000')

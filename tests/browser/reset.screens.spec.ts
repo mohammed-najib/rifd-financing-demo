@@ -96,14 +96,14 @@ test('public reset warning is available unsigned and during startup recovery in 
   if (test.info().project.name === 'chrome') for (const width of [390, 1440]) {
     await page.setViewportSize({ width, height: 900 })
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
-    await page.screenshot({ path: `docs/implementation/evidence/18/reset-en-${width}.png`, fullPage: true })
+    await page.screenshot({ path: `artifacts/browser-evidence/18/reset-en-${width}.png`, fullPage: true })
   }
   await dialog.getByRole('button', { name: 'Cancel', exact: true }).click()
   await page.getByRole('button', { name: 'العربية', exact: true }).click()
   await page.getByRole('button', { name: 'إعادة ضبط العرض', exact: true }).last().click()
   if (test.info().project.name === 'chrome') for (const width of [390, 1440]) {
     await page.setViewportSize({ width, height: 900 })
-    await page.screenshot({ path: `docs/implementation/evidence/18/reset-ar-${width}.png`, fullPage: true })
+    await page.screenshot({ path: `artifacts/browser-evidence/18/reset-ar-${width}.png`, fullPage: true })
   }
   // Run the confirmed reset in a foreground page after the captures.
   await page.bringToFront()

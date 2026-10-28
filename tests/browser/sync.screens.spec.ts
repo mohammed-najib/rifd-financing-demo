@@ -94,7 +94,7 @@ test('activation catches missed commits, refreshing clean drafts and retaining d
   await expect(page.getByLabel('Financing amount', { exact: true })).toHaveValue('not a number')
   await page.locator('a[href="?step=documents"]').click()
   const purchase = page.getByRole('region', { name: 'Stock purchase plan', exact: true })
-  await expect(purchase.getByText('DEMO-retained.png', { exact: true })).toBeVisible()
+  await expect(purchase.getByText('DEMO-retained.png', { exact: true }).first()).toBeVisible()
   await expect(page.getByText('Ready to save', { exact: true })).toHaveCount(0)
   await purchase.getByRole('button', { name: 'Preview saved file', exact: true }).click()
   const download = page.getByRole('dialog').locator('a[download="DEMO-retained.png"]')

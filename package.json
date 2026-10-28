@@ -13,6 +13,7 @@
     "dev": "vite --host 127.0.0.1",
     "dev:jev": "node scripts/dev-jev.mjs",
     "build": "vite build",
+    "build:test": "VITE_LIVE_FIREBASE_CONFIG= VITE_LIVE_RECAPTCHA_ENTERPRISE_SITE_KEY= pnpm build",
     "build:functions": "node scripts/build-functions.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",

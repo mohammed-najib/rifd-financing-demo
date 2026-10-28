@@ -21,14 +21,14 @@ test('storage recovery stays usable in both languages and retries without replac
   if (test.info().project.name === 'chrome') for (const width of [390, 1440]) {
     await page.setViewportSize({ width, height: 900 })
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
-    await page.screenshot({ path: `docs/implementation/evidence/17/recovery-en-${width}.png`, fullPage: true })
+    await page.screenshot({ path: `artifacts/browser-evidence/17/recovery-en-${width}.png`, fullPage: true })
   }
   await page.getByRole('button', { name: 'العربية', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'تعذر تجهيز العرض التجريبي', exact: true })).toBeVisible()
   if (test.info().project.name === 'chrome') for (const width of [390, 1440]) {
     await page.setViewportSize({ width, height: 900 })
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
-    await page.screenshot({ path: `docs/implementation/evidence/17/recovery-ar-${width}.png`, fullPage: true })
+    await page.screenshot({ path: `artifacts/browser-evidence/17/recovery-ar-${width}.png`, fullPage: true })
   }
   await page.getByRole('link', { name: 'منتجات التمويل', exact: true }).first().click()
   await expect(page.getByRole('heading', { name: /مشروعك\./ })).toBeVisible()
@@ -120,11 +120,11 @@ for (const language of ['ar', 'en'] as const) test(`${language} loaded offline d
   await page.locator('[data-application="RIFD-2026-004"]').getByRole('link').click()
   await page.locator('a[href^="/applications/RIFD-2026-004/corrections/current"]').first().click()
   const editor = page.getByRole('region', { name: ar ? 'الرد على التصحيحات' : 'Respond to corrections', exact: true })
-  await chooseOption(editor.locator('#purchase-sample'), { label: 'replacement' })
+  await chooseOption(editor.locator('#purchase-sample'), { label: ar ? 'نسخة بديلة' : 'Replacement document' })
   await editor.getByRole('button', { name: ar ? 'استخدام النموذج' : 'Use sample', exact: true }).click()
   await expect(editor.getByText(ar ? 'جاهز للحفظ' : 'Ready to save', { exact: true })).toBeVisible()
   await editor.getByRole('button', { name: ar ? 'حفظ التقدم' : 'Save progress', exact: true }).click()
-  await expect(editor.getByRole('status').filter({ hasText: ar ? 'محفوظ' : 'Saved' })).toBeVisible()
+  await expect(editor.getByText(ar ? 'محفوظ' : 'Saved', { exact: true })).toBeVisible()
   await expect(editor.getByRole('button', { name: ar ? 'معاينة الملف المحفوظ' : 'Preview saved file', exact: true })).toBeVisible()
   await page.getByRole('button', { name: ar ? 'تغيير الهوية' : 'Switch identity', exact: true }).click()
   await page.getByRole('button', { name: ar ? 'سلمى ناصر' : 'Salma Nasser', exact: true }).click()

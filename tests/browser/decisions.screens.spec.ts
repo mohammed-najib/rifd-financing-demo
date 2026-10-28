@@ -28,7 +28,7 @@ for (const language of ['ar', 'en'] as const) test(`${language} a new young busi
   const id = await page.locator('main h1').innerText()
   await page.getByRole('button', { name: ar ? 'تغيير الهوية' : 'Switch identity', exact: true }).click()
   await page.getByRole('button', { name: ar ? 'سلمى ناصر' : 'Salma Nasser', exact: true }).click()
-  await expect(page).toHaveURL(/\/staff\/applications$/)
+  await expect(page).toHaveURL(url => url.pathname === '/staff/applications')
   await page.goto(`/staff/applications/${id}`)
   await page.getByRole('button', { name: ar ? 'استلام الطلب' : 'Claim application', exact: true }).click()
   await page.getByRole('button', { name: ar ? 'بدء المراجعة' : 'Start review', exact: true }).click()

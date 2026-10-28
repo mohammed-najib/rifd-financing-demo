@@ -470,7 +470,7 @@ export function App() {
       await navigate({ to: '/$', params: { _splat: 'sign-in' }, search: {}, ignoreBlocker: true, replace: true })
       const started = await demo.startup()
       if (alive.current) {
-        if (started.ok) acceptContext(started.value); else setStartupError(started.error.kind)
+        if (started.ok) { acceptContext(started.value); setInitializedDemo(demo) } else setStartupError(started.error.kind)
         resetting.current = false; setBusy(false)
       }
     }} />}

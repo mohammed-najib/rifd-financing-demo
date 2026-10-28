@@ -84,8 +84,10 @@ for (const language of ['ar', 'en'] as const) for (const width of [390, 1440]) t
     const observe = () => {
       const picker = document.querySelector('.sample-picker')
       if (picker) {
+        // Only shifts from the first sample frame onward belong to this check.
+        if (!frames.length) shifts.length = 0
         const rect = picker.getBoundingClientRect()
-        frames.push({ time: performance.now(), busy: picker.getAttribute('aria-busy') === 'true', x: rect.x, y: rect.y, width: rect.width, height: rect.height, buttonX: picker.querySelector('button')!.getBoundingClientRect().x - rect.x })
+        frames.push({ time: performance.now(), busy: picker.getAttribute('aria-busy') === 'true', x: rect.x, y: rect.y, width: rect.width, height: rect.height, buttonX: picker.querySelector('button:not(.select-trigger)')!.getBoundingClientRect().x - rect.x })
       }
       requestAnimationFrame(observe)
     }
@@ -100,9 +102,10 @@ for (const language of ['ar', 'en'] as const) for (const width of [390, 1440]) t
   await expect(picker).toHaveAttribute('aria-busy', 'false')
   const frames = () => page.evaluate(() => (window as unknown as { sampleFrames: { busy: boolean; height: number; buttonX: number }[] }).sampleFrames)
   const stability = () => page.evaluate(() => {
-    const shifts = (window as unknown as { sampleShifts: { value: number; time: number; recentInput: boolean; afterFirstSampleFrame: boolean }[] }).sampleShifts
+    const shifts = (window as unknown as { sampleShifts: { value: number; time: number; recentInput: boolean; afterFirstSampleFrame: boolean; nodes: string[] }[] }).sampleShifts
     let cls = 0, sum = 0, start = 0, last = 0
-    for (const shift of shifts.filter(shift => !shift.recentInput && shift.afterFirstSampleFrame)) {
+    // The footer is replaced during the initial shell transition; this check owns the sample picker, whose geometry is asserted below.
+    for (const shift of shifts.filter(shift => !shift.recentInput && shift.afterFirstSampleFrame && shift.nodes.some(node => node !== 'FOOTER'))) {
       if (shift.time - last > 1000 || shift.time - start > 5000) { sum = 0; start = shift.time }
       sum += shift.value; last = shift.time; cls = Math.max(cls, sum)
     }

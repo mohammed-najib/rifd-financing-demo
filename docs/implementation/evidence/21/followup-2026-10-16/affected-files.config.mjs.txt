@@ -1,2 +1,0 @@
-import config from '/home/mdnb/Dev/Projects/project_impress_bank/playwright.config.ts'
-export default {...config,webServer:undefined,use:{...config.use,baseURL:'http://127.0.0.1:4175'},testDir:'/home/mdnb/Dev/Projects/project_impress_bank/tests/browser',testMatch:['queue.screens.spec.ts','acceptance.screens.spec.ts','review.screens.spec.ts','corrections.screens.spec.ts','resubmission.screens.spec.ts']}

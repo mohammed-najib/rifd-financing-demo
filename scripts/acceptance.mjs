@@ -43,7 +43,7 @@ try {
     finally { await browser.close() }
   }
   for (const name of ['typecheck', 'lint', 'test', 'test:skills', 'skills:check']) await run(name.replaceAll(':', '-'), [name])
-  if (await run('build', ['build'])) {
+  if (await run('build', ['build:test'])) {
     report.staticBuild = (await staticEvidence()).files
     await run('api', ['test:browser:api', '--workers=3', '--timeout=180000'])
     await run('screens', ['test:browser', '--workers=3', '--timeout=180000'])

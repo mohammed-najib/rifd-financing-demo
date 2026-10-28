@@ -54,9 +54,9 @@ Local limits include one run start per minute, 20 attempts per guest per UTC day
 
 Usage counters, deduplication, leases and signing state survive restarts in `artifacts/local-jev/metadata.sqlite`. This database does not hold the provider key, source documents, declarations or answer archives. Keep it across restarts. Deleting it resets allowances and does not reconcile unknown usage. Vite blocks browser access to the local server files and database.
 
-The local mode does not change hosted availability. `functions/index.ts` binds the dedicated provider secret, while Firestore admission independently controls dispatch. Hosted inference was enabled and checked in the [18 October release](releases/2026-10-18.md). Existing Auth, App Check, ingress, quotas and unknown-usage stops remain enforced. Historical cloud preparation is in the [hosted operation record](implementation/jev-hosted-operation.md). An operator with the existing admin credentials can close admission without resetting counters using `node scripts/live-control.mjs rifd-portfolio-mdnb disable`.
+The local mode does not change hosted availability. `functions/index.ts` binds the dedicated provider secret, while Firestore admission independently controls dispatch. Hosted inference was enabled and checked in the [18 October release](releases/2026-10-18.md). Existing Auth, App Check, ingress, quotas and unknown-usage stops remain enforced. An operator with the existing admin credentials can close admission without resetting counters using `node scripts/live-control.mjs rifd-portfolio-mdnb disable`.
 
-For the visible workflow, see the [Arabic AI guide](ai-features.md). For actual native smoke results and their limits, see the [local test record](implementation/jev-local-development.md).
+For the visible workflow, see the [Arabic AI guide](ai-features.md).
 
 ## Where things live
 
@@ -81,11 +81,9 @@ Use logical spacing such as `ms-*`, `me-*` and `ps-*` so layouts work in RTL and
 
 Preflight is omitted. Add `border-solid` with border utilities; for a single edge, also clear the other browser-default widths with `border-0`. Keep complete utility names in source rather than constructing fragments. Production class scanning includes `src` only. `pnpm check:css-sources` checks inclusion and exclusion, then leaves a clean production build.
 
-The [migration record](implementation/tailwind-v4.md) contains visual comparisons. It describes that change's test conditions rather than certifying every later screen.
-
 ## Tests and package guidance
 
-Follow [the testing guide](testing.md) for focused checks, browser setup and reports. When changing the domain helpers or their packaged guidance, read [the maintainer workflow](implementation/agent-skills.md). The package's [README](../packages/rifd-domain/README.md) explains its public API.
+Follow [the testing guide](testing.md) for focused checks, browser setup and reports. When changing the domain helpers or their packaged guidance, follow the package skills instructions in `AGENTS.md`. The package's [README](../packages/rifd-domain/README.md) explains its public API.
 
 For work using installed libraries, follow `AGENTS.md`: list permitted skills with `pnpm skills:list --json`, then load a matching skill. Preserve the explicit `intent.skills` and `intent.exclude` policy in `package.json`. An editor hook is not proof that relevant guidance was loaded.
 
@@ -98,3 +96,5 @@ To inspect the Hosting emulator, install Firebase CLI and run `pnpm emulators` a
 ## Files that stay local
 
 Keep `.env.local`, provider keys, local credentials, raw traces, recordings and usage databases out of Git. `artifacts/`, generated builds, test reports and `.scratch/` are ignored. The old `.scratch` planning tree was removed; its tracked history remains available through [historical references](history.md).
+
+Hosted function configuration uses `functions/.env.<project-id>`, which the Firebase CLI loads on deploy and in the emulator. That file stays local; copy `functions/.env.rifd-portfolio-mdnb.example` to `functions/.env.rifd-portfolio-mdnb` and fill in values for your own project. Committed examples use placeholders only.

@@ -1,6 +1,6 @@
 # Architecture
 
-[Documentation index](README.md) · [Development](development.md) · [Detailed browser operations](implementation/architecture.md)
+[Documentation index](README.md) · [Development](development.md)
 
 RIFD has two distinct data paths. Financing records and files stay in the browser. An explicit AI check can send selected pages and relevant declarations to a server-side Jev workflow.
 
@@ -29,7 +29,7 @@ flowchart TD
 | `src/live-assistance` | Client/server contracts, local transport, admission, provider integration and usage accounting. |
 | `functions` | The separately deployed hosted evidence endpoint. |
 
-Screens call complete typed operations rather than constructing database patches. Domain helpers have no browser storage, timers or navigation. Package guidance is maintained through the [domain workflow](implementation/agent-skills.md).
+Screens call complete typed operations rather than constructing database patches. Domain helpers have no browser storage, timers or navigation.
 
 ## Saving, publishing and reviewing
 
@@ -39,7 +39,7 @@ Submission, resubmission, final decisions and reset use transactions with comple
 
 Applicants see their own data and public history. Reviewers see submitted records, including colleague assignments, but writes require the current assignment and permitted status. Applicant analysis and private corrections are excluded from staff projections. Public print excludes internal notes and review checks. These permissions simulate a product workflow in visitor-controlled storage; they are not production banking security.
 
-The [journey guide](user-flow.md) shows statuses, correction publication and recovery. The [detailed reference](implementation/architecture.md) explains command fields and seed records.
+The [journey guide](user-flow.md) shows statuses, correction publication and recovery.
 
 ## Browser storage and recovery
 
@@ -67,7 +67,7 @@ Web Locks coordinate financing commits/reset and analysis retention. Without the
 
 `pnpm dev:jev` starts a loopback-only local API and the app on port 5174. Signed local sessions, exact-origin checks, fixed requests and durable SQLite admission state protect the local endpoint. The provider key stays server-side. [Development](development.md#local-jev-inference) documents key setup, request allowances and restart behavior.
 
-Hosted access uses a separate Cloud Function and its own identity, App Check and transactional admission controls. The hosted provider is bound and admission was enabled for the [18 October release](releases/2026-10-18.md). Building the app or running the local mode does not change that admission state. See the dated [hosted preparation record](implementation/jev-hosted-operation.md) and [workflow record](implementation/jev-workflow.md) for implementation details and unverified native reliability limits.
+Hosted access uses a separate Cloud Function and its own identity, App Check and transactional admission controls. The hosted provider is bound and admission was enabled for the [18 October release](releases/2026-10-18.md). Building the app or running the local mode does not change that admission state.
 
 ## Presentation and delivery
 

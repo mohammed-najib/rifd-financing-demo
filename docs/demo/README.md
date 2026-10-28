@@ -62,4 +62,4 @@ The published refresh also used per-scene trim adjustments to keep stable scene 
 
 Full WebM takes, screenshots, traces, source timings and session/usage evidence are written under ignored `artifacts/`. Do not add raw takes, credentials, native response dumps or local usage state to Git. Only reviewed public media and safe export metadata belong here.
 
-The [original delivery film and evidence](../implementation/24-evidence.md) remain historical. The current film's source/hash and native-call count are in `film.json`; they should change only when the film is actually replaced.
+The current film's source/hash and native-call count are in `film.json`; they should change only when the film is actually replaced.

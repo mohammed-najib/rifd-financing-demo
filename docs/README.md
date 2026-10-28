@@ -24,7 +24,7 @@
 | الوحدات وتدفق البيانات وتكامل الذكاء الاصطناعي | [Architecture](architecture.md) |
 | تعريف المصطلحات | [Glossary](../GLOSSARY.md) |
 | حزمة قواعد الطلب والسداد | [RIFD domain](../packages/rifd-domain/README.md) |
-| صيانة إرشادات الحزمة للوكلاء | [Agent skills](implementation/agent-skills.md) |
+| صيانة إرشادات الحزمة للوكلاء | [Package guidance](../AGENTS.md#package-skills) |
 | إعادة تسجيل الفيديو وتصديره | [Recording guide](demo/README.md) |
 
 ## السجل والأدلة

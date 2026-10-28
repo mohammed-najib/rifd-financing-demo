@@ -1,7 +1,9 @@
 # Package skills
 
-When changing the domain helpers or their packaged guidance, read
-[the maintainer workflow](docs/implementation/agent-skills.md).
+When changing domain helpers or their packaged guidance, review the affected
+skill against its declared sources, run `pnpm skills:stale`, and record the
+review with `pnpm skills:review <skill> --reason '<review performed>'` when
+needed. Run `pnpm skills:check`, `pnpm test:skills`, and `pnpm pack:domain`.
 
 For tasks using installed libraries, run `pnpm skills:list --json`, choose a
 permitted skill whose description matches the task, then run

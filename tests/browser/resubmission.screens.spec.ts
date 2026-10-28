@@ -27,7 +27,7 @@ for (const language of ['ar', 'en'] as const) test(`${language} resubmission pub
   await expect(page.getByRole('status').filter({ hasText: ar ? 'أُعيد تقديم التصحيحات' : 'Corrections resubmitted' })).toBeVisible()
   await page.getByRole('button', { name: ar ? 'تغيير الهوية' : 'Switch identity', exact: true }).click()
   await page.getByRole('button', { name: ar ? 'سلمى ناصر' : 'Salma Nasser', exact: true }).click()
-  await expect(page).toHaveURL(/\/staff\/applications$/)
+  await expect(page).toHaveURL(url => url.pathname === '/staff/applications')
   await page.goto('/staff/applications/RIFD-2026-004')
   const verification = page.getByRole('heading', { name: ar ? 'التحقق من التصحيحات' : 'Correction verification', exact: true }).locator('..')
   await expect(verification).toContainText(ar ? 'تغير عن المرجع' : 'Changed from baseline')
@@ -42,7 +42,7 @@ for (const language of ['ar', 'en'] as const) test(`${language} resubmission pub
   if (test.info().project.name === 'chrome') for (const width of [390, 1440]) {
     await page.setViewportSize({ width, height: 950 })
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
-    await page.screenshot({ path: `docs/implementation/evidence/13/review-${language}-${width}.png`, fullPage: true })
+    await page.screenshot({ path: `artifacts/browser-evidence/13/review-${language}-${width}.png`, fullPage: true })
   }
 })
 
@@ -75,7 +75,7 @@ for (const language of ['ar', 'en'] as const) test(`${language} another request 
   await expect(page).toHaveURL(/\/applications\/RIFD-2026-004$/)
   await page.getByRole('button', { name: ar ? 'تغيير الهوية' : 'Switch identity', exact: true }).click()
   await page.getByRole('button', { name: ar ? 'سلمى ناصر' : 'Salma Nasser', exact: true }).click()
-  await expect(page).toHaveURL(/\/staff\/applications$/)
+  await expect(page).toHaveURL(url => url.pathname === '/staff/applications')
   await page.goto('/staff/applications/RIFD-2026-004')
   const plan = page.getByRole('heading', { name: ar ? 'خطة شراء المخزون' : 'Stock purchase plan', exact: true }).locator('..')
   await plan.getByRole('checkbox', { name: ar ? 'أؤكد أنني فحصت المستند الحالي' : 'I confirm I inspected the current source', exact: true }).check()

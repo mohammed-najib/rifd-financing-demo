@@ -13,6 +13,12 @@ firestore-debug.log
 ui-debug.log
 *.tsbuildinfo
 firepit-log.txt
-.env*.local
+.env
+.env.*
+!.env.example
+!.env.*.example
+.secret
+.secret.*
+!.secret.example
 # Local scratch work can include credentials and provider-account evidence.
 .scratch/
