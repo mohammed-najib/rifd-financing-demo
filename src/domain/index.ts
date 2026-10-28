@@ -1,1 +1,1 @@
-export * from '../../packages/rifd-domain/src/index'
+export * from '../../packages/rifd-domain/src/index';

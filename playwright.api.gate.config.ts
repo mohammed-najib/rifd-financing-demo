@@ -1,5 +1,5 @@
-import { defineConfig } from '@playwright/test'
-import api from './playwright.api.config'
+import { defineConfig } from '@playwright/test';
+import api from './playwright.api.config';
 
 // Core operation paths for the 10-minute gate. Exhaustive assistance,
 // retention, recovery and UI matrices remain in playwright.api.config.ts.
@@ -20,4 +20,4 @@ export default defineConfig({
     '**/platform/sessions.api.spec.ts',
     '**/platform/sync.api.spec.ts',
   ],
-})
+});

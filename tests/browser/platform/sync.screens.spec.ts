@@ -1,124 +1,176 @@
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test';
 
-test.describe.configure({ mode: 'parallel' })
+test.describe.configure({ mode: 'parallel' });
 
 async function openDraft(page: Page) {
-  await page.goto('/applications/RIFD-2026-001/edit?step=financing')
-  const chooser = page.getByRole('button', { name: /^(مريم سالم|Mariam Salem)$/ })
-  await expect(chooser).toBeVisible({ timeout: 30_000 })
-  await chooser.click()
-  await expect(page.getByRole('heading', { name: 'RIFD-2026-001' })).toBeVisible()
-  if (await page.locator('html').getAttribute('lang') === 'ar') {
-    await page.getByRole('button', { name: 'English', exact: true }).click()
-    await expect(page.locator('html')).toHaveAttribute('lang', 'en')
+  await page.goto('/applications/RIFD-2026-001/edit?step=financing');
+  const chooser = page.getByRole('button', { name: /^(مريم سالم|Mariam Salem)$/ });
+  await expect(chooser).toBeVisible({ timeout: 30_000 });
+  await chooser.click();
+  await expect(page.getByRole('heading', { name: 'RIFD-2026-001' })).toBeVisible();
+  if ((await page.locator('html').getAttribute('lang')) === 'ar') {
+    await page.getByRole('button', { name: 'English', exact: true }).click();
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en');
   }
 }
 
-test('a competing language save retains the intended language until inspection and explicit reapplication', async ({ page, context }, info) => {
-  await openDraft(page)
-  const second = await context.newPage()
-  await openDraft(second)
-  await page.getByText('Demo controls', { exact: true }).click()
-  await page.getByLabel('Slow requests', { exact: true }).check()
-  await page.getByRole('button', { name: 'العربية', exact: true }).click()
-  await second.getByRole('button', { name: 'العربية', exact: true }).click()
-  await expect(second.locator('html')).toHaveAttribute('lang', 'ar')
-  const inspect = page.getByRole('button', { name: /^(Inspect latest saved preference|فحص التفضيل المحفوظ الأحدث)$/ })
-  await expect(inspect).toBeVisible()
-  const reapply = page.getByRole('button', { name: /^(Reapply my preference|إعادة تطبيق تفضيلي)$/ })
-  await expect(reapply).toHaveCount(0)
-  await expect(page.getByText(/^(Your unapplied language choice: Arabic|اختيار اللغة غير المطبق: العربية)$/)).toBeVisible()
-  await inspect.click()
-  await expect(page.getByText(/^(Latest saved language: Arabic|اللغة المحفوظة الأحدث: العربية)$/)).toBeVisible()
-  await page.setViewportSize({ width: 390, height: 900 })
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
-  await page.screenshot({ path: info.outputPath('preference-conflict-ar-390.png'), fullPage: true })
-  await second.getByRole('button', { name: 'English', exact: true }).click()
-  await expect(second.locator('html')).toHaveAttribute('lang', 'en')
-  await reapply.click()
-  await expect(reapply).toHaveCount(0)
-  await expect(inspect).toBeVisible()
-  await expect(page.getByText('Your unapplied language choice: Arabic', { exact: true })).toBeVisible()
-  await inspect.click()
-  await expect(page.getByText('Latest saved language: English', { exact: true })).toBeVisible()
-  await page.setViewportSize({ width: 1440, height: 900 })
-  await page.screenshot({ path: info.outputPath('preference-conflict-en-1440.png'), fullPage: true })
-  await reapply.click()
-  await expect(inspect).toHaveCount(0)
-  await page.reload()
-  await expect(page.locator('html')).toHaveAttribute('lang', 'ar')
-})
+test('a competing language save retains the intended language until inspection and explicit reapplication', async ({
+  page,
+  context,
+}, info) => {
+  await openDraft(page);
+  const second = await context.newPage();
+  await openDraft(second);
+  await page.getByText('Demo controls', { exact: true }).click();
+  await page.getByLabel('Slow requests', { exact: true }).check();
+  await page.getByRole('button', { name: 'العربية', exact: true }).click();
+  await second.getByRole('button', { name: 'العربية', exact: true }).click();
+  await expect(second.locator('html')).toHaveAttribute('lang', 'ar');
+  const inspect = page.getByRole('button', {
+    name: /^(Inspect latest saved preference|فحص التفضيل المحفوظ الأحدث)$/,
+  });
+  await expect(inspect).toBeVisible();
+  const reapply = page.getByRole('button', {
+    name: /^(Reapply my preference|إعادة تطبيق تفضيلي)$/,
+  });
+  await expect(reapply).toHaveCount(0);
+  await expect(
+    page.getByText(/^(Your unapplied language choice: Arabic|اختيار اللغة غير المطبق: العربية)$/),
+  ).toBeVisible();
+  await inspect.click();
+  await expect(
+    page.getByText(/^(Latest saved language: Arabic|اللغة المحفوظة الأحدث: العربية)$/),
+  ).toBeVisible();
+  await page.setViewportSize({ width: 390, height: 900 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({
+    path: info.outputPath('preference-conflict-ar-390.png'),
+    fullPage: true,
+  });
+  await second.getByRole('button', { name: 'English', exact: true }).click();
+  await expect(second.locator('html')).toHaveAttribute('lang', 'en');
+  await reapply.click();
+  await expect(reapply).toHaveCount(0);
+  await expect(inspect).toBeVisible();
+  await expect(
+    page.getByText('Your unapplied language choice: Arabic', { exact: true }),
+  ).toBeVisible();
+  await inspect.click();
+  await expect(page.getByText('Latest saved language: English', { exact: true })).toBeVisible();
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.screenshot({
+    path: info.outputPath('preference-conflict-en-1440.png'),
+    fullPage: true,
+  });
+  await reapply.click();
+  await expect(inspect).toHaveCount(0);
+  await page.reload();
+  await expect(page.locator('html')).toHaveAttribute('lang', 'ar');
+});
 
-test('activation catches missed commits, refreshing clean drafts and retaining dirty input and ready bytes', async ({ page, context }, info) => {
+test('activation catches missed commits, refreshing clean drafts and retaining dirty input and ready bytes', async ({
+  page,
+  context,
+}, info) => {
   // Lose outgoing broadcasts at the browser boundary, without changing storage.
-  await context.addInitScript(() => { BroadcastChannel.prototype.postMessage = () => {} })
-  await openDraft(page)
-  const second = await context.newPage()
-  await openDraft(second)
-  const firstInput = page.getByLabel('Purchase explanation', { exact: true })
-  const secondInput = second.getByLabel('Purchase explanation', { exact: true })
-  await secondInput.fill('saved in another tab')
-  await second.getByRole('button', { name: 'Save progress', exact: true }).click()
-  await expect(second.getByText('Saved', { exact: true })).toBeVisible()
-  await expect(firstInput).toHaveValue('')
-  await page.evaluate(() => window.dispatchEvent(new Event('focus')))
-  await expect(firstInput).toHaveValue('saved in another tab')
+  await context.addInitScript(() => {
+    BroadcastChannel.prototype.postMessage = () => {};
+  });
+  await openDraft(page);
+  const second = await context.newPage();
+  await openDraft(second);
+  const firstInput = page.getByLabel('Purchase explanation', { exact: true });
+  const secondInput = second.getByLabel('Purchase explanation', { exact: true });
+  await secondInput.fill('saved in another tab');
+  await second.getByRole('button', { name: 'Save progress', exact: true }).click();
+  await expect(second.getByText('Saved', { exact: true })).toBeVisible();
+  await expect(firstInput).toHaveValue('');
+  await page.evaluate(() => window.dispatchEvent(new Event('focus')));
+  await expect(firstInput).toHaveValue('saved in another tab');
 
-  await firstInput.fill('my retained explanation')
-  await page.getByLabel('Financing amount', { exact: true }).fill('not a number')
-  await page.locator('a[href="?step=documents"]').click()
-  await page.locator('#purchase-file').setInputFiles({ name: 'DEMO-retained.png', mimeType: 'image/png', buffer: Buffer.from('retained fictional bytes') })
-  await expect(page.getByText('Ready to save', { exact: true })).toBeVisible()
-  await secondInput.fill('latest saved explanation')
-  await second.getByRole('button', { name: 'Save progress', exact: true }).click()
-  await expect(second.getByText('Saved', { exact: true })).toBeVisible()
-  await page.evaluate(() => window.dispatchEvent(new Event('pageshow')))
-  await expect(page.getByRole('button', { name: 'Inspect latest draft', exact: true })).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Save progress', exact: true })).toBeDisabled()
-  await expect(page.getByText('Ready to save', { exact: true })).toBeVisible()
-  await page.locator('a[href="?step=financing"]').click()
-  await expect(firstInput).toHaveValue('my retained explanation')
-  await expect(page.getByLabel('Financing amount', { exact: true })).toHaveValue('not a number')
-  await page.getByRole('button', { name: 'Inspect latest draft', exact: true }).click()
-  await expect(page.getByText('Latest saved purchase explanation: latest saved explanation', { exact: true })).toBeVisible()
-  await page.setViewportSize({ width: 390, height: 900 })
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
-  await page.screenshot({ path: info.outputPath('draft-conflict-en-390.png'), fullPage: true })
-  await page.getByRole('button', { name: 'Reapply my edits', exact: true }).click()
-  await page.getByRole('button', { name: 'Save progress', exact: true }).click()
-  await expect(page.getByText('Saved', { exact: true })).toBeVisible()
-  await second.evaluate(() => window.dispatchEvent(new Event('focus')))
-  await expect(secondInput).toHaveValue('my retained explanation')
-  await page.reload()
-  await expect(firstInput).toHaveValue('my retained explanation')
-  await expect(page.getByLabel('Financing amount', { exact: true })).toHaveValue('not a number')
-  await page.locator('a[href="?step=documents"]').click()
-  const purchase = page.getByRole('region', { name: 'Stock purchase plan', exact: true })
-  await expect(purchase.getByText('DEMO-retained.png', { exact: true }).first()).toBeVisible()
-  await expect(page.getByText('Ready to save', { exact: true })).toHaveCount(0)
-  await purchase.getByRole('button', { name: 'Preview saved file', exact: true }).click()
-  const download = page.getByRole('dialog').locator('a[download="DEMO-retained.png"]')
-  await expect(download).toBeVisible()
-  const url = await download.getAttribute('href')
-  expect(await page.evaluate(async url => new TextDecoder().decode(await (await fetch(url!)).arrayBuffer()), url)).toBe('retained fictional bytes')
-})
+  await firstInput.fill('my retained explanation');
+  await page.getByLabel('Financing amount', { exact: true }).fill('not a number');
+  await page.locator('a[href="?step=documents"]').click();
+  await page.locator('#purchase-file').setInputFiles({
+    name: 'DEMO-retained.png',
+    mimeType: 'image/png',
+    buffer: Buffer.from('retained fictional bytes'),
+  });
+  await expect(page.getByText('Ready to save', { exact: true })).toBeVisible();
+  await secondInput.fill('latest saved explanation');
+  await second.getByRole('button', { name: 'Save progress', exact: true }).click();
+  await expect(second.getByText('Saved', { exact: true })).toBeVisible();
+  await page.evaluate(() => window.dispatchEvent(new Event('pageshow')));
+  await expect(
+    page.getByRole('button', { name: 'Inspect latest draft', exact: true }),
+  ).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Save progress', exact: true })).toBeDisabled();
+  await expect(page.getByText('Ready to save', { exact: true })).toBeVisible();
+  await page.locator('a[href="?step=financing"]').click();
+  await expect(firstInput).toHaveValue('my retained explanation');
+  await expect(page.getByLabel('Financing amount', { exact: true })).toHaveValue('not a number');
+  await page.getByRole('button', { name: 'Inspect latest draft', exact: true }).click();
+  await expect(
+    page.getByText('Latest saved purchase explanation: latest saved explanation', { exact: true }),
+  ).toBeVisible();
+  await page.setViewportSize({ width: 390, height: 900 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({ path: info.outputPath('draft-conflict-en-390.png'), fullPage: true });
+  await page.getByRole('button', { name: 'Reapply my edits', exact: true }).click();
+  await page.getByRole('button', { name: 'Save progress', exact: true }).click();
+  await expect(page.getByText('Saved', { exact: true })).toBeVisible();
+  await second.evaluate(() => window.dispatchEvent(new Event('focus')));
+  await expect(secondInput).toHaveValue('my retained explanation');
+  await page.reload();
+  await expect(firstInput).toHaveValue('my retained explanation');
+  await expect(page.getByLabel('Financing amount', { exact: true })).toHaveValue('not a number');
+  await page.locator('a[href="?step=documents"]').click();
+  const purchase = page.getByRole('region', { name: 'Stock purchase plan', exact: true });
+  await expect(purchase.getByText('DEMO-retained.png', { exact: true }).first()).toBeVisible();
+  await expect(page.getByText('Ready to save', { exact: true })).toHaveCount(0);
+  await purchase.getByRole('button', { name: 'Preview saved file', exact: true }).click();
+  const download = page.getByRole('dialog').locator('a[download="DEMO-retained.png"]');
+  await expect(download).toBeVisible();
+  const url = await download.getAttribute('href');
+  expect(
+    await page.evaluate(
+      async url => new TextDecoder().decode(await (await fetch(url!)).arrayBuffer()),
+      url,
+    ),
+  ).toBe('retained fictional bytes');
+});
 
-test('an opener-created tab explains its inherited identity and then signs out and switches independently', async ({ page }) => {
-  await openDraft(page)
-  const popupPromise = page.waitForEvent('popup')
-  await page.evaluate(() => window.open('/applications/RIFD-2026-001/edit?step=financing', '_blank'))
-  const popup = await popupPromise
-  await expect(popup.getByRole('heading', { name: 'RIFD-2026-001' })).toBeVisible()
-  await expect(popup.locator('.identity-name')).toContainText('Mariam Salem')
-  await expect(popup.getByText('A duplicated tab or one opened from another demo tab may start with the same identity. Activity, sign-out and identity changes are independent in each tab.', { exact: true })).toBeVisible()
-  await popup.getByRole('button', { name: 'Sign out', exact: true }).click()
-  await expect(popup.getByRole('heading', { name: 'Choose a demo identity', exact: true })).toBeVisible()
-  await expect(page.locator('.identity-name')).toContainText('Mariam Salem')
-  await popup.getByRole('button', { name: 'Salma Nasser', exact: true }).click()
-  await expect(popup.getByRole('heading', { name: 'Application queue', exact: true })).toBeVisible()
-  await page.evaluate(() => window.dispatchEvent(new Event('focus')))
-  await expect(page.locator('.identity-name')).toContainText('Mariam Salem')
-  await page.getByRole('button', { name: 'Expire session', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'Choose a demo identity', exact: true })).toBeVisible()
-  await expect(popup.locator('.identity-name')).toContainText('Salma Nasser')
-})
+test('an opener-created tab explains its inherited identity and then signs out and switches independently', async ({
+  page,
+}) => {
+  await openDraft(page);
+  const popupPromise = page.waitForEvent('popup');
+  await page.evaluate(() =>
+    window.open('/applications/RIFD-2026-001/edit?step=financing', '_blank'),
+  );
+  const popup = await popupPromise;
+  await expect(popup.getByRole('heading', { name: 'RIFD-2026-001' })).toBeVisible();
+  await expect(popup.locator('.identity-name')).toContainText('Mariam Salem');
+  await expect(
+    popup.getByText(
+      'A duplicated tab or one opened from another demo tab may start with the same identity. Activity, sign-out and identity changes are independent in each tab.',
+      { exact: true },
+    ),
+  ).toBeVisible();
+  await popup.getByRole('button', { name: 'Sign out', exact: true }).click();
+  await expect(
+    popup.getByRole('heading', { name: 'Choose a demo identity', exact: true }),
+  ).toBeVisible();
+  await expect(page.locator('.identity-name')).toContainText('Mariam Salem');
+  await popup.getByRole('button', { name: 'Salma Nasser', exact: true }).click();
+  await expect(
+    popup.getByRole('heading', { name: 'Application queue', exact: true }),
+  ).toBeVisible();
+  await page.evaluate(() => window.dispatchEvent(new Event('focus')));
+  await expect(page.locator('.identity-name')).toContainText('Mariam Salem');
+  await page.getByRole('button', { name: 'Expire session', exact: true }).click();
+  await expect(
+    page.getByRole('heading', { name: 'Choose a demo identity', exact: true }),
+  ).toBeVisible();
+  await expect(popup.locator('.identity-name')).toContainText('Salma Nasser');
+});

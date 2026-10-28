@@ -12,11 +12,7 @@
     "language": "en",
     "product": null,
     "initialSubmissionMonth": "2026-10",
-    "expectedCompletedMonths": [
-      "2026-07",
-      "2026-08",
-      "2026-09"
-    ],
+    "expectedCompletedMonths": ["2026-07", "2026-08", "2026-09"],
     "comparisons": {
       "period": "July to September 2026",
       "averageRevenue": "163200 YER",
@@ -55,10 +51,7 @@
   "candidateDisplayPolicy": "candidate-display-v1-dev10",
   "staticSelectionVersion": "checked-static-capture-v1",
   "staticSelectionRule": "Retain the actual candidate findings. Permit only individually source-checked certified overlays in this saved example. This post-capture selection is not a new live policy or fresh held-out validation.",
-  "capturedAt": [
-    "2026-10-17T04:51:51.022Z",
-    "2026-10-17T04:51:51.844Z"
-  ],
+  "capturedAt": ["2026-10-17T04:51:51.022Z", "2026-10-17T04:51:51.844Z"],
   "captures": [
     {
       "path": "../captures/evaluation/17f106f8-2adf-459c-a009-5ed4491ac3f5-1.json",
@@ -73,12 +66,8 @@
     {
       "kind": "page-1",
       "coverage": {
-        "selectedPages": [
-          1
-        ],
-        "analyzedPages": [
-          1
-        ],
+        "selectedPages": [1],
+        "analyzedPages": [1],
         "complete": false
       },
       "analysis": {
@@ -635,12 +624,8 @@
     {
       "kind": "comparison",
       "coverage": {
-        "selectedPages": [
-          1
-        ],
-        "analyzedPages": [
-          1
-        ],
+        "selectedPages": [1],
+        "analyzedPages": [1],
         "complete": true
       },
       "analysis": {

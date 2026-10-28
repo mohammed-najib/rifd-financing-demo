@@ -1,59 +1,176 @@
 @layer components {
-  .document-check { @apply my-5 min-w-0 border-0 border-t border-solid border-border pt-5; }
-  .check-heading h4 { @apply m-0 text-[16px] font-semibold text-accent; }
-  .check-heading p, .check-notice { @apply mt-1 mb-3 text-[13px] text-muted; }
-  .check-progress { @apply my-4 flex items-center gap-3 rounded-card bg-summary px-4 py-3 text-[14px] font-semibold; }
-  .check-progress .button-spinner { @apply shrink-0 text-accent; }
-  .check-controls, .check-next-actions { @apply my-4; }
-  .check-result { @apply my-5 rounded-card border border-solid border-summary-border bg-surface p-4; }
-  .check-result > h5 { @apply m-0 mb-3 text-[16px] text-accent; }
-  .check-result-attention { border-inline-start: 4px solid var(--color-status-corrections-text); }
-  .check-result-attention > h5 { color: var(--color-status-corrections-text); }
-  .check-correction { @apply my-4 rounded-card bg-status-corrections p-4 text-[14px] text-status-corrections-text; }
-  .check-correction h5 { @apply m-0 mb-2 text-[14px]; }
-  .check-correction ul { @apply m-0; }
-  .check-findings { @apply m-0; }
-  .check-findings > div { @apply border-0 border-b border-solid border-border py-3; }
-  .check-findings > div:last-child { @apply border-b-0; }
-  .check-findings dt { @apply mb-1 text-[13px] font-semibold text-muted; }
-  .check-findings dd { @apply m-0 text-[14px] wrap-anywhere; }
-  .check-findings dd button { @apply mt-2 flex px-3 py-1.5 text-[12px]; }
-  .check-details { @apply mt-4 border-0 border-t border-solid border-border pt-3 text-[13px] text-muted; }
-  .check-details > summary, .check-inspection > summary { @apply py-2 font-semibold text-accent; }
-  .check-details h5 { @apply mt-4 mb-2 text-[14px] text-ink; }
-  .check-details > button { @apply mt-3; }
-  .check-pages { @apply my-3 rounded-card border border-solid border-border p-3 text-[13px]; }
-  .check-pages p { @apply mb-1; }
-  .check-pages fieldset { @apply m-0 border-0 p-0; }
-  .check-page-options { @apply mt-3 flex max-h-48 flex-wrap gap-2 overflow-auto; }
-  .draft-editor .check-page-options label { @apply m-0 flex min-h-11 items-center gap-2 rounded-control bg-summary px-3 py-2; }
-  .check-source { @apply my-5 rounded-card border border-solid border-border bg-summary p-3; }
-  .check-scope-warning { @apply rounded-control bg-status-corrections p-3 text-[13px] text-status-corrections-text; }
-  .source-region-dialog { @apply w-[960px] p-0; }
-  .source-region-heading { @apply sticky top-0 z-10 flex flex-wrap items-center justify-between gap-3 border-0 border-b border-solid border-border bg-surface px-5 py-4; }
-  .source-region-heading h2 { @apply m-0 text-[20px] text-accent; }
-  .source-region-heading p { @apply mt-1 mb-0 text-[13px] text-muted; }
-  .source-region-content { @apply min-w-0 p-5; }
+  .document-check {
+    @apply my-5 min-w-0 border-0 border-t border-solid border-border pt-5;
+  }
+  .check-heading h4 {
+    @apply m-0 text-[16px] font-semibold text-accent;
+  }
+  .check-heading p,
+  .check-notice {
+    @apply mt-1 mb-3 text-[13px] text-muted;
+  }
+  .check-progress {
+    @apply my-4 flex items-center gap-3 rounded-card bg-summary px-4 py-3 text-[14px] font-semibold;
+  }
+  .check-progress .button-spinner {
+    @apply shrink-0 text-accent;
+  }
+  .check-controls,
+  .check-next-actions {
+    @apply my-4;
+  }
+  .check-result {
+    @apply my-5 rounded-card border border-solid border-summary-border bg-surface p-4;
+  }
+  .check-result > h5 {
+    @apply m-0 mb-3 text-[16px] text-accent;
+  }
+  .check-result-attention {
+    border-inline-start: 4px solid var(--color-status-corrections-text);
+  }
+  .check-result-attention > h5 {
+    color: var(--color-status-corrections-text);
+  }
+  .check-correction {
+    @apply my-4 rounded-card bg-status-corrections p-4 text-[14px] text-status-corrections-text;
+  }
+  .check-correction h5 {
+    @apply m-0 mb-2 text-[14px];
+  }
+  .check-correction ul {
+    @apply m-0;
+  }
+  .check-findings {
+    @apply m-0;
+  }
+  .check-findings > div {
+    @apply border-0 border-b border-solid border-border py-3;
+  }
+  .check-findings > div:last-child {
+    @apply border-b-0;
+  }
+  .check-findings dt {
+    @apply mb-1 text-[13px] font-semibold text-muted;
+  }
+  .check-findings dd {
+    @apply m-0 text-[14px] wrap-anywhere;
+  }
+  .check-findings dd button {
+    @apply mt-2 flex px-3 py-1.5 text-[12px];
+  }
+  .check-details {
+    @apply mt-4 border-0 border-t border-solid border-border pt-3 text-[13px] text-muted;
+  }
+  .check-details > summary,
+  .check-inspection > summary {
+    @apply py-2 font-semibold text-accent;
+  }
+  .check-details h5 {
+    @apply mt-4 mb-2 text-[14px] text-ink;
+  }
+  .check-details > button {
+    @apply mt-3;
+  }
+  .check-pages {
+    @apply my-3 rounded-card border border-solid border-border p-3 text-[13px];
+  }
+  .check-pages p {
+    @apply mb-1;
+  }
+  .check-pages fieldset {
+    @apply m-0 border-0 p-0;
+  }
+  .check-page-options {
+    @apply mt-3 flex max-h-48 flex-wrap gap-2 overflow-auto;
+  }
+  .draft-editor .check-page-options label {
+    @apply m-0 flex min-h-11 items-center gap-2 rounded-control bg-summary px-3 py-2;
+  }
+  .check-source {
+    @apply my-5 rounded-card border border-solid border-border bg-summary p-3;
+  }
+  .check-scope-warning {
+    @apply rounded-control bg-status-corrections p-3 text-[13px] text-status-corrections-text;
+  }
+  .source-region-dialog {
+    @apply w-[960px] p-0;
+  }
+  .source-region-heading {
+    @apply sticky top-0 z-10 flex flex-wrap items-center justify-between gap-3 border-0 border-b border-solid border-border bg-surface px-5 py-4;
+  }
+  .source-region-heading h2 {
+    @apply m-0 text-[20px] text-accent;
+  }
+  .source-region-heading p {
+    @apply mt-1 mb-0 text-[13px] text-muted;
+  }
+  .source-region-content {
+    @apply min-w-0 p-5;
+  }
 }
 
 @layer utilities {
-  .draft-editor { counter-reset: document-slot; }
-  .draft-editor section:is([aria-labelledby="identity-heading"], [aria-labelledby="business-heading"], [aria-labelledby="financial-heading"], [aria-labelledby="purchase-heading"]) {
+  .draft-editor {
+    counter-reset: document-slot;
+  }
+  .draft-editor
+    section:is(
+      [aria-labelledby='identity-heading'],
+      [aria-labelledby='business-heading'],
+      [aria-labelledby='financial-heading'],
+      [aria-labelledby='purchase-heading']
+    ) {
     counter-increment: document-slot;
-    margin-block-end: 28px; padding: 22px;
+    margin-block-end: 28px;
+    padding: 22px;
     border: 1px solid var(--color-summary-border);
     border-inline-start: 4px solid var(--color-accent);
-    border-radius: var(--radius-card); background: var(--color-surface);
-    box-shadow: 0 3px 12px rgb(17 47 40 / .035);
+    border-radius: var(--radius-card);
+    background: var(--color-surface);
+    box-shadow: 0 3px 12px rgb(17 47 40 / 0.035);
   }
-  .draft-editor section:is([aria-labelledby="identity-heading"], [aria-labelledby="business-heading"], [aria-labelledby="financial-heading"], [aria-labelledby="purchase-heading"]) > h3 {
-    display: flex; align-items: center; gap: 10px; margin-block-start: 0;
+  .draft-editor
+    section:is(
+      [aria-labelledby='identity-heading'],
+      [aria-labelledby='business-heading'],
+      [aria-labelledby='financial-heading'],
+      [aria-labelledby='purchase-heading']
+    )
+    > h3 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-block-start: 0;
   }
-  .draft-editor section:is([aria-labelledby="identity-heading"], [aria-labelledby="business-heading"], [aria-labelledby="financial-heading"], [aria-labelledby="purchase-heading"]) > h3::before {
-    content: counter(document-slot); display: inline-flex; flex: none; align-items: center; justify-content: center;
-    width: 30px; height: 30px; border-radius: 50%; background: var(--color-summary); color: var(--color-accent); font-size: 14px;
+  .draft-editor
+    section:is(
+      [aria-labelledby='identity-heading'],
+      [aria-labelledby='business-heading'],
+      [aria-labelledby='financial-heading'],
+      [aria-labelledby='purchase-heading']
+    )
+    > h3::before {
+    content: counter(document-slot);
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--color-summary);
+    color: var(--color-accent);
+    font-size: 14px;
   }
   @media (max-width: 767px) {
-    .draft-editor section:is([aria-labelledby="identity-heading"], [aria-labelledby="business-heading"], [aria-labelledby="financial-heading"], [aria-labelledby="purchase-heading"]) { padding: 15px; }
+    .draft-editor
+      section:is(
+        [aria-labelledby='identity-heading'],
+        [aria-labelledby='business-heading'],
+        [aria-labelledby='financial-heading'],
+        [aria-labelledby='purchase-heading']
+      ) {
+      padding: 15px;
+    }
   }
 }

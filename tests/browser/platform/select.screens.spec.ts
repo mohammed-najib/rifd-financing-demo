@@ -1,59 +1,76 @@
-import { expect, test } from '@playwright/test'
+import { expect, test } from '@playwright/test';
 
-for (const language of ['ar', 'en'] as const) test(`${language} linen product menus support keyboard selection, dismissal and small screens`, async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 800 })
-  await page.emulateMedia({ reducedMotion: 'reduce' })
-  await page.goto('/products')
-  await expect(page.locator('[data-workspace-ready=true]')).toBeVisible({ timeout: 30_000 })
-  if (language === 'en') await page.getByRole('button', { name: 'English', exact: true }).click()
-  await expect(page.locator('html')).toHaveAttribute('lang', language)
-  await expect(page.locator('html')).toHaveCSS('background-color', 'rgb(244, 239, 230)')
-  await expect(page.locator('.product-card').first()).toHaveCSS('border-radius', '8px')
-  await expect(page.locator('select, .prototype-switcher')).toHaveCount(0)
-  const control = page.getByRole('combobox').last()
-  await expect(control).toHaveCSS('border-radius', '4px')
-  await control.focus()
-  await page.keyboard.press('Space'); await page.keyboard.press('End')
-  const activeId = await control.getAttribute('aria-activedescendant')
-  await expect(page.locator(`[id="${activeId}"]`)).toHaveAttribute('data-value', '24')
-  await page.keyboard.press('Escape')
-  await expect(control).toBeFocused()
-  await expect(control).toHaveAttribute('data-value', '12')
-  await expect(page.getByRole('listbox')).toHaveCount(0)
-  await page.keyboard.press('Enter'); await page.keyboard.press('End'); await page.keyboard.press('Enter')
-  await expect(control).toHaveAttribute('data-value', '24')
-  await page.keyboard.press('Enter'); await page.keyboard.press('Home'); await page.keyboard.press('Tab')
-  await expect(control).toHaveAttribute('data-value', '24')
-  await expect(page.getByRole('listbox')).toHaveCount(0)
-  await control.click()
-  await page.getByRole('option').first().click()
-  await expect(control).toBeFocused()
-  await expect(control).toHaveAttribute('data-value', '12')
-  await control.click()
-  await page.locator('.product-description').last().click()
-  await expect(page.getByRole('listbox')).toHaveCount(0)
-  await page.setViewportSize({ width: 320, height: 600 })
-  await control.click()
-  const menu = page.getByRole('listbox')
-  await expect(menu).toHaveCSS('animation-name', 'none')
-  expect(await menu.evaluate(element => { const r = element.getBoundingClientRect(); return r.left >= 0 && r.right <= innerWidth && r.top >= 0 && r.bottom <= innerHeight })).toBe(true)
-  await expect(menu.getByRole('option', { selected: true })).toHaveCount(1)
-  await page.keyboard.press('Escape')
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
-})
+for (const language of ['ar', 'en'] as const)
+  test(`${language} linen product menus support keyboard selection, dismissal and small screens`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 800 });
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto('/products');
+    await expect(page.locator('[data-workspace-ready=true]')).toBeVisible({ timeout: 30_000 });
+    if (language === 'en') await page.getByRole('button', { name: 'English', exact: true }).click();
+    await expect(page.locator('html')).toHaveAttribute('lang', language);
+    await expect(page.locator('html')).toHaveCSS('background-color', 'rgb(244, 239, 230)');
+    await expect(page.locator('.product-card').first()).toHaveCSS('border-radius', '8px');
+    await expect(page.locator('select, .prototype-switcher')).toHaveCount(0);
+    const control = page.getByRole('combobox').last();
+    await expect(control).toHaveCSS('border-radius', '4px');
+    await control.focus();
+    await page.keyboard.press('Space');
+    await page.keyboard.press('End');
+    const activeId = await control.getAttribute('aria-activedescendant');
+    await expect(page.locator(`[id="${activeId}"]`)).toHaveAttribute('data-value', '24');
+    await page.keyboard.press('Escape');
+    await expect(control).toBeFocused();
+    await expect(control).toHaveAttribute('data-value', '12');
+    await expect(page.getByRole('listbox')).toHaveCount(0);
+    await page.keyboard.press('Enter');
+    await page.keyboard.press('End');
+    await page.keyboard.press('Enter');
+    await expect(control).toHaveAttribute('data-value', '24');
+    await page.keyboard.press('Enter');
+    await page.keyboard.press('Home');
+    await page.keyboard.press('Tab');
+    await expect(control).toHaveAttribute('data-value', '24');
+    await expect(page.getByRole('listbox')).toHaveCount(0);
+    await control.click();
+    await page.getByRole('option').first().click();
+    await expect(control).toBeFocused();
+    await expect(control).toHaveAttribute('data-value', '12');
+    await control.click();
+    await page.locator('.product-description').last().click();
+    await expect(page.getByRole('listbox')).toHaveCount(0);
+    await page.setViewportSize({ width: 320, height: 600 });
+    await control.click();
+    const menu = page.getByRole('listbox');
+    await expect(menu).toHaveCSS('animation-name', 'none');
+    expect(
+      await menu.evaluate(element => {
+        const r = element.getBoundingClientRect();
+        return r.left >= 0 && r.right <= innerWidth && r.top >= 0 && r.bottom <= innerHeight;
+      }),
+    ).toBe(true);
+    await expect(menu.getByRole('option', { selected: true })).toHaveCount(1);
+    await page.keyboard.press('Escape');
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+      true,
+    );
+  });
 
-test('a constrained menu scrolls to its active option without dismissing or changing the value', async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 360 })
-  await page.goto('/components')
-  await page.getByRole('button', { name: 'English', exact: true }).click()
-  await expect(page.locator('html')).toHaveAttribute('lang', 'en')
-  const control = page.locator('#gallery-save-state')
-  await control.click()
-  await page.keyboard.press('End')
-  const option = page.getByRole('option', { name: 'Save outcome unknown', exact: true })
-  await expect(option).toBeInViewport()
-  await expect(control).toHaveAttribute('data-value', 'failed')
-  await page.keyboard.press('Enter')
-  await expect(control).toHaveAttribute('data-value', 'unknown')
-  await expect(control).toBeFocused()
-})
+test('a constrained menu scrolls to its active option without dismissing or changing the value', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 360 });
+  await page.goto('/components');
+  await page.getByRole('button', { name: 'English', exact: true }).click();
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+  const control = page.locator('#gallery-save-state');
+  await control.click();
+  await page.keyboard.press('End');
+  const option = page.getByRole('option', { name: 'Save outcome unknown', exact: true });
+  await expect(option).toBeInViewport();
+  await expect(control).toHaveAttribute('data-value', 'failed');
+  await page.keyboard.press('Enter');
+  await expect(control).toHaveAttribute('data-value', 'unknown');
+  await expect(control).toBeFocused();
+});

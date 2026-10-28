@@ -1,2 +1,2 @@
-import { createFileRoute } from '@tanstack/react-router'
-export const Route = createFileRoute('/')({ codeSplitGroupings: [], component: () => null })
+import { createFileRoute } from '@tanstack/react-router';
+export const Route = createFileRoute('/')({ codeSplitGroupings: [], component: () => null });

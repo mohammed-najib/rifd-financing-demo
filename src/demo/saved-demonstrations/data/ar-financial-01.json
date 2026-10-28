@@ -12,11 +12,7 @@
     "language": "ar",
     "product": null,
     "initialSubmissionMonth": "2026-10",
-    "expectedCompletedMonths": [
-      "2026-07",
-      "2026-08",
-      "2026-09"
-    ],
+    "expectedCompletedMonths": ["2026-07", "2026-08", "2026-09"],
     "comparisons": {
       "period": "يوليو إلى سبتمبر ٢٠٢٦",
       "averageRevenue": "١١٦٩٠٠ ريال",
@@ -151,15 +147,8 @@
     {
       "kind": "page-1",
       "coverage": {
-        "selectedPages": [
-          1,
-          2,
-          3,
-          4
-        ],
-        "analyzedPages": [
-          1
-        ],
+        "selectedPages": [1, 2, 3, 4],
+        "analyzedPages": [1],
         "complete": false
       },
       "analysis": {
@@ -716,15 +705,8 @@
     {
       "kind": "page-2",
       "coverage": {
-        "selectedPages": [
-          1,
-          2,
-          3,
-          4
-        ],
-        "analyzedPages": [
-          2
-        ],
+        "selectedPages": [1, 2, 3, 4],
+        "analyzedPages": [2],
         "complete": false
       },
       "analysis": {
@@ -1281,15 +1263,8 @@
     {
       "kind": "page-3",
       "coverage": {
-        "selectedPages": [
-          1,
-          2,
-          3,
-          4
-        ],
-        "analyzedPages": [
-          3
-        ],
+        "selectedPages": [1, 2, 3, 4],
+        "analyzedPages": [3],
         "complete": false
       },
       "analysis": {
@@ -1571,15 +1546,8 @@
     {
       "kind": "page-4",
       "coverage": {
-        "selectedPages": [
-          1,
-          2,
-          3,
-          4
-        ],
-        "analyzedPages": [
-          4
-        ],
+        "selectedPages": [1, 2, 3, 4],
+        "analyzedPages": [4],
         "complete": false
       },
       "analysis": {
@@ -1861,16 +1829,8 @@
     {
       "kind": "comparison",
       "coverage": {
-        "selectedPages": [
-          1,
-          2,
-          3,
-          4
-        ],
-        "analyzedPages": [
-          1,
-          2
-        ],
+        "selectedPages": [1, 2, 3, 4],
+        "analyzedPages": [1, 2],
         "complete": false
       },
       "analysis": {

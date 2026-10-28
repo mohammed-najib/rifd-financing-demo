@@ -5,20 +5,44 @@ export const assignmentText = {
   transfer: { ar: 'نقل إلى خالد علي', en: 'Transfer to Khaled Ali' },
   reclaim: { ar: 'استرداد من خالد علي', en: 'Reclaim from Khaled Ali' },
   start: { ar: 'بدء المراجعة', en: 'Start review' },
-  separate: { ar: 'استلام الطلب يحدد المسؤول عنه. تبدأ المراجعة بإجراء منفصل.', en: 'Claiming sets responsibility. Start review is a separate action.' },
-  readOnly: { ar: 'يمكنك قراءة الطلب. تتطلب إجراءات المراجعة إسناده إليك.', en: 'You can read this application. Review actions require assignment to you.' },
-  reviewing: { ar: 'بدأت المراجعة. يحتفظ نقل الإسناد بنتائج المراجعة الحالية.', en: 'Review has started. Transferring assignment retains existing review work.' },
-  corrections: { ar: 'بانتظار تصحيحات مقدم الطلب. يحتفظ نقل الإسناد بالتصحيحات ونتائج المراجعة.', en: 'Waiting for applicant corrections. Transfers retain corrections and review work.' },
-  locked: { ar: 'القرار نهائي والإسناد مقفل.', en: 'The decision is final and assignment is locked.' },
+  separate: {
+    ar: 'استلام الطلب يحدد المسؤول عنه. تبدأ المراجعة بإجراء منفصل.',
+    en: 'Claiming sets responsibility. Start review is a separate action.',
+  },
+  readOnly: {
+    ar: 'يمكنك قراءة الطلب. تتطلب إجراءات المراجعة إسناده إليك.',
+    en: 'You can read this application. Review actions require assignment to you.',
+  },
+  reviewing: {
+    ar: 'بدأت المراجعة. يحتفظ نقل الإسناد بنتائج المراجعة الحالية.',
+    en: 'Review has started. Transferring assignment retains existing review work.',
+  },
+  corrections: {
+    ar: 'بانتظار تصحيحات مقدم الطلب. يحتفظ نقل الإسناد بالتصحيحات ونتائج المراجعة.',
+    en: 'Waiting for applicant corrections. Transfers retain corrections and review work.',
+  },
+  locked: {
+    ar: 'القرار نهائي والإسناد مقفل.',
+    en: 'The decision is final and assignment is locked.',
+  },
   confirmHeading: { ar: 'تأكيد نقل الإسناد', en: 'Confirm reviewer transfer' },
   confirm: { ar: 'تأكيد النقل', en: 'Confirm transfer' },
   cancel: { ar: 'إلغاء', en: 'Cancel' },
-  keepWork: { ar: 'ستبقى حالة الطلب والمعلومات وجميع نتائج المراجعة محفوظة.', en: 'Application status, supplied information and all review work will be preserved.' },
+  keepWork: {
+    ar: 'ستبقى حالة الطلب والمعلومات وجميع نتائج المراجعة محفوظة.',
+    en: 'Application status, supplied information and all review work will be preserved.',
+  },
   completed: { ar: 'اكتمل الإجراء.', en: 'Action completed.' },
   working: { ar: 'جارٍ تنفيذ الإجراء…', en: 'Completing action…' },
-  changed: { ar: 'تغير الطلب وأُلغي التأكيد السابق. افحص المعلومات الحالية قبل اختيار إجراء.', en: 'The application changed and the previous confirmation was cleared. Inspect current information before choosing an action.' },
+  changed: {
+    ar: 'تغير الطلب وأُلغي التأكيد السابق. افحص المعلومات الحالية قبل اختيار إجراء.',
+    en: 'The application changed and the previous confirmation was cleared. Inspect current information before choosing an action.',
+  },
   latest: { ar: 'تحميل الأحدث', en: 'Load latest' },
-  loaded: { ar: 'حُمّل الطلب الحالي. افحصه قبل اختيار إجراء جديد.', en: 'Latest application loaded. Inspect it before choosing a new action.' },
+  loaded: {
+    ar: 'حُمّل الطلب الحالي. افحصه قبل اختيار إجراء جديد.',
+    en: 'Latest application loaded. Inspect it before choosing a new action.',
+  },
   inspect: { ar: 'فحص نتيجة الإجراء', en: 'Inspect action outcome' },
   retry: { ar: 'إعادة محاولة الإجراء', en: 'Retry action' },
-} as const
+} as const;

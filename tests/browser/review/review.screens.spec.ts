@@ -1,213 +1,372 @@
-import { expect, test, type Page } from '@playwright/test'
-import { loseNextWriteCompletion } from '../support/storage-faults'
+import { expect, test, type Page } from '@playwright/test';
+import { loseNextWriteCompletion } from '../support/storage-faults';
 
-test.describe.configure({ mode: 'parallel' })
+test.describe.configure({ mode: 'parallel' });
 async function start(page: Page, language: 'ar' | 'en' = 'en', id = '007') {
-  await page.goto(`/staff/applications/RIFD-2026-${id}`)
-  await expect(page.locator('[data-workspace-ready="true"]')).toBeVisible({ timeout: 30_000 })
-  if (await page.locator('html').getAttribute('lang') !== language) await page.getByRole('button', { name: language === 'en' ? 'English' : 'العربية', exact: true }).click()
-  await page.getByRole('button', { name: language === 'en' ? 'Salma Nasser' : 'سلمى ناصر', exact: true }).click()
-  await expect(page.getByRole('heading', { name: `RIFD-2026-${id}`, exact: true })).toBeVisible()
+  await page.goto(`/staff/applications/RIFD-2026-${id}`);
+  await expect(page.locator('[data-workspace-ready="true"]')).toBeVisible({ timeout: 30_000 });
+  if ((await page.locator('html').getAttribute('lang')) !== language)
+    await page
+      .getByRole('button', { name: language === 'en' ? 'English' : 'العربية', exact: true })
+      .click();
+  await page
+    .getByRole('button', { name: language === 'en' ? 'Salma Nasser' : 'سلمى ناصر', exact: true })
+    .click();
+  await expect(page.getByRole('heading', { name: `RIFD-2026-${id}`, exact: true })).toBeVisible();
 }
 
-for (const language of ['ar', 'en'] as const) test(`${language} keyboard evidence assessment, independent checks and explicit note saving`, async ({ page }) => {
-  const ar = language === 'ar'
-  await page.setViewportSize({ width: ar ? 390 : 1440, height: 950 })
-  await start(page, language)
-  const activity = page.getByRole('region', { name: ar ? 'نشاط داخلي' : 'Internal activity', exact: true })
-  await expect(activity).not.toContainText('reviewStarted')
-  await expect(activity).not.toContainText('identity: accepted')
-  const navigation = page.getByRole('navigation', { name: ar ? 'أقسام المراجعة' : 'Review sections' })
-  const link = navigation.getByRole('link', { name: ar ? 'فحوص المراجعة' : 'Review checks', exact: true })
-  await link.focus(); await page.keyboard.press('Enter')
-  await expect(page.getByRole('heading', { name: ar ? 'فحوص المراجعة' : 'Review checks', exact: true })).toBeFocused()
-  const evidence = page.getByRole('group', { name: ar ? 'اتساق المستندات والبيانات' : 'Evidence consistency', exact: true })
-  await expect(evidence.getByRole('button', { name: ar ? 'اجتاز' : 'Passed', exact: true })).toBeDisabled()
-  const financial = page.getByRole('region', { name: ar ? 'ملخص الإيرادات والمصروفات' : 'Revenue and expense summary', exact: true })
-  const preview = financial.getByRole('button', { name: /Preview|معاينة/ })
-  await preview.focus(); await page.keyboard.press('Enter')
-  await expect(page.getByRole('dialog')).toBeVisible()
-  await expect(page.getByRole('dialog').getByText(ar ? 'ملخص الإيرادات والمصروفات' : 'Revenue and expense summary', { exact: true })).toBeVisible()
-  await page.keyboard.press('Escape'); await expect(preview).toBeFocused()
-  const confirmation = financial.getByRole('checkbox', { name: ar ? 'أؤكد أنني فحصت المستند الحالي' : 'I confirm I inspected the current source', exact: true })
-  await expect(confirmation).not.toBeChecked()
-  await expect(financial.getByRole('button', { name: ar ? 'قبول المستند' : 'Accept document', exact: true })).toBeDisabled()
-  await confirmation.focus(); await page.keyboard.press('Space')
-  await expect(confirmation).toBeChecked()
-  await financial.getByRole('button', { name: ar ? 'يحتاج إلى استبدال' : 'Needs replacement', exact: true }).click()
-  await page.getByRole('textbox', { name: ar ? 'سبب الاستبدال' : 'Replacement reason', exact: true }).fill(ar ? 'الملخص غير مقروء.' : 'The summary is unreadable.')
-  await page.getByRole('button', { name: ar ? 'حفظ التقييم' : 'Save assessment', exact: true }).focus(); await page.keyboard.press('Enter')
-  await expect(financial).toContainText(ar ? 'الملخص غير مقروء.' : 'The summary is unreadable.')
-  await expect(financial.getByRole('button', { name: ar ? 'يحتاج إلى استبدال' : 'Needs replacement', exact: true })).toBeFocused()
-  const accept = financial.getByRole('button', { name: ar ? 'قبول المستند' : 'Accept document', exact: true })
-  await expect(page.getByRole('textbox', { name: ar ? 'سبب الاستبدال' : 'Replacement reason', exact: true })).toHaveCount(0)
-  await expect(accept).toBeEnabled()
-  const assessments = activity.getByText(ar ? 'تقييم مستند' : 'Document assessed', { exact: true })
-  const beforeAccept = await assessments.count()
-  await accept.focus(); await page.keyboard.press('Enter')
-  await expect(page.locator('.summary[aria-busy="true"]')).toBeVisible()
-  await expect(accept).toBeFocused()
-  await page.keyboard.press('Enter')
-  await expect(financial.getByText(ar ? 'مقبول' : 'Accepted', { exact: true })).toBeVisible()
-  await expect(accept).toBeFocused()
-  await expect(assessments).toHaveCount(beforeAccept + 1)
-  const purchase = page.getByRole('region', { name: ar ? 'عرض سعر المعدات' : 'Supplier quotation', exact: true })
-  await purchase.getByRole('checkbox', { name: ar ? 'أؤكد أنني فحصت المستند الحالي' : 'I confirm I inspected the current source', exact: true }).check()
-  await purchase.getByRole('button', { name: ar ? 'قبول المستند' : 'Accept document', exact: true }).click()
-  await expect(evidence.getByRole('button', { name: ar ? 'اجتاز' : 'Passed', exact: true })).toBeEnabled()
-  await evidence.getByRole('button', { name: ar ? 'اجتاز' : 'Passed', exact: true }).focus(); await page.keyboard.press('Enter')
-  await expect(evidence.getByText(ar ? 'اجتاز' : 'Passed', { exact: true }).first()).toBeVisible()
-  await expect(evidence.getByRole('button', { name: ar ? 'اجتاز' : 'Passed', exact: true })).toBeFocused()
-  const note = page.getByRole('textbox', { name: ar ? 'ملاحظة داخلية' : 'Internal note', exact: true })
-  await note.fill(ar ? 'ملاحظة خاصة بعد معاينة المستندات.' : 'Private context after inspecting evidence.')
-  await page.getByRole('button', { name: ar ? 'حفظ الملاحظة' : 'Save note', exact: true }).click()
-  await expect(note).toHaveValue('')
-  await page.reload()
-  await expect(page.getByText(ar ? 'ملاحظة خاصة بعد معاينة المستندات.' : 'Private context after inspecting evidence.', { exact: true })).toBeVisible()
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
-})
+for (const language of ['ar', 'en'] as const)
+  test(`${language} keyboard evidence assessment, independent checks and explicit note saving`, async ({
+    page,
+  }) => {
+    const ar = language === 'ar';
+    await page.setViewportSize({ width: ar ? 390 : 1440, height: 950 });
+    await start(page, language);
+    const activity = page.getByRole('region', {
+      name: ar ? 'نشاط داخلي' : 'Internal activity',
+      exact: true,
+    });
+    await expect(activity).not.toContainText('reviewStarted');
+    await expect(activity).not.toContainText('identity: accepted');
+    const navigation = page.getByRole('navigation', {
+      name: ar ? 'أقسام المراجعة' : 'Review sections',
+    });
+    const link = navigation.getByRole('link', {
+      name: ar ? 'فحوص المراجعة' : 'Review checks',
+      exact: true,
+    });
+    await link.focus();
+    await page.keyboard.press('Enter');
+    await expect(
+      page.getByRole('heading', { name: ar ? 'فحوص المراجعة' : 'Review checks', exact: true }),
+    ).toBeFocused();
+    const evidence = page.getByRole('group', {
+      name: ar ? 'اتساق المستندات والبيانات' : 'Evidence consistency',
+      exact: true,
+    });
+    await expect(
+      evidence.getByRole('button', { name: ar ? 'اجتاز' : 'Passed', exact: true }),
+    ).toBeDisabled();
+    const financial = page.getByRole('region', {
+      name: ar ? 'ملخص الإيرادات والمصروفات' : 'Revenue and expense summary',
+      exact: true,
+    });
+    const preview = financial.getByRole('button', { name: /Preview|معاينة/ });
+    await preview.focus();
+    await page.keyboard.press('Enter');
+    await expect(page.getByRole('dialog')).toBeVisible();
+    await expect(
+      page
+        .getByRole('dialog')
+        .getByText(ar ? 'ملخص الإيرادات والمصروفات' : 'Revenue and expense summary', {
+          exact: true,
+        }),
+    ).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(preview).toBeFocused();
+    const confirmation = financial.getByRole('checkbox', {
+      name: ar ? 'أؤكد أنني فحصت المستند الحالي' : 'I confirm I inspected the current source',
+      exact: true,
+    });
+    await expect(confirmation).not.toBeChecked();
+    await expect(
+      financial.getByRole('button', { name: ar ? 'قبول المستند' : 'Accept document', exact: true }),
+    ).toBeDisabled();
+    await confirmation.focus();
+    await page.keyboard.press('Space');
+    await expect(confirmation).toBeChecked();
+    await financial
+      .getByRole('button', { name: ar ? 'يحتاج إلى استبدال' : 'Needs replacement', exact: true })
+      .click();
+    await page
+      .getByRole('textbox', { name: ar ? 'سبب الاستبدال' : 'Replacement reason', exact: true })
+      .fill(ar ? 'الملخص غير مقروء.' : 'The summary is unreadable.');
+    await page
+      .getByRole('button', { name: ar ? 'حفظ التقييم' : 'Save assessment', exact: true })
+      .focus();
+    await page.keyboard.press('Enter');
+    await expect(financial).toContainText(ar ? 'الملخص غير مقروء.' : 'The summary is unreadable.');
+    await expect(
+      financial.getByRole('button', {
+        name: ar ? 'يحتاج إلى استبدال' : 'Needs replacement',
+        exact: true,
+      }),
+    ).toBeFocused();
+    const accept = financial.getByRole('button', {
+      name: ar ? 'قبول المستند' : 'Accept document',
+      exact: true,
+    });
+    await expect(
+      page.getByRole('textbox', { name: ar ? 'سبب الاستبدال' : 'Replacement reason', exact: true }),
+    ).toHaveCount(0);
+    await expect(accept).toBeEnabled();
+    const assessments = activity.getByText(ar ? 'تقييم مستند' : 'Document assessed', {
+      exact: true,
+    });
+    const beforeAccept = await assessments.count();
+    await accept.focus();
+    await page.keyboard.press('Enter');
+    await expect(page.locator('.summary[aria-busy="true"]')).toBeVisible();
+    await expect(accept).toBeFocused();
+    await page.keyboard.press('Enter');
+    await expect(financial.getByText(ar ? 'مقبول' : 'Accepted', { exact: true })).toBeVisible();
+    await expect(accept).toBeFocused();
+    await expect(assessments).toHaveCount(beforeAccept + 1);
+    const purchase = page.getByRole('region', {
+      name: ar ? 'عرض سعر المعدات' : 'Supplier quotation',
+      exact: true,
+    });
+    await purchase
+      .getByRole('checkbox', {
+        name: ar ? 'أؤكد أنني فحصت المستند الحالي' : 'I confirm I inspected the current source',
+        exact: true,
+      })
+      .check();
+    await purchase
+      .getByRole('button', { name: ar ? 'قبول المستند' : 'Accept document', exact: true })
+      .click();
+    await expect(
+      evidence.getByRole('button', { name: ar ? 'اجتاز' : 'Passed', exact: true }),
+    ).toBeEnabled();
+    await evidence.getByRole('button', { name: ar ? 'اجتاز' : 'Passed', exact: true }).focus();
+    await page.keyboard.press('Enter');
+    await expect(
+      evidence.getByText(ar ? 'اجتاز' : 'Passed', { exact: true }).first(),
+    ).toBeVisible();
+    await expect(
+      evidence.getByRole('button', { name: ar ? 'اجتاز' : 'Passed', exact: true }),
+    ).toBeFocused();
+    const note = page.getByRole('textbox', {
+      name: ar ? 'ملاحظة داخلية' : 'Internal note',
+      exact: true,
+    });
+    await note.fill(
+      ar ? 'ملاحظة خاصة بعد معاينة المستندات.' : 'Private context after inspecting evidence.',
+    );
+    await page
+      .getByRole('button', { name: ar ? 'حفظ الملاحظة' : 'Save note', exact: true })
+      .click();
+    await expect(note).toHaveValue('');
+    await page.reload();
+    await expect(
+      page.getByText(
+        ar ? 'ملاحظة خاصة بعد معاينة المستندات.' : 'Private context after inspecting evidence.',
+        { exact: true },
+      ),
+    ).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+      true,
+    );
+  });
 
-test('save note and leave navigates only after success and expiry retains a private note', async ({ page }) => {
-  await start(page)
-  const note = page.getByRole('textbox', { name: 'Internal note', exact: true })
-  await note.fill('Retain this private staff note.')
-  await page.getByRole('link', { name: 'Back to queue', exact: true }).click()
-  const dialog = page.getByRole('dialog', { name: 'You have unsaved work' })
-  await expect(dialog).not.toContainText('Wait for saving or preparation.')
-  await dialog.getByRole('button', { name: 'Stay', exact: true }).click()
-  await expect(note).toHaveValue('Retain this private staff note.')
-  await page.getByRole('button', { name: 'Expire session', exact: true }).click()
-  await expect(note).toHaveCount(0)
-  await page.getByRole('button', { name: 'Huda Ali', exact: true }).click()
-  await expect(dialog.getByRole('button', { name: 'Save note and leave', exact: true })).toHaveCount(0)
-  await dialog.getByRole('button', { name: 'Stay', exact: true }).click()
-  await page.getByRole('button', { name: 'Salma Nasser', exact: true }).click()
-  await expect(note).toHaveValue('Retain this private staff note.')
-  await page.getByRole('link', { name: 'Back to queue', exact: true }).click()
-  await dialog.getByRole('button', { name: 'Save note and leave', exact: true }).click()
-  await expect(page).toHaveURL(url => url.pathname === '/staff/applications')
-  await page.getByRole('searchbox', { name: 'Search applications', exact: true }).fill('RIFD-2026-007')
-  await page.getByRole('link', { name: 'Open application RIFD-2026-007', exact: true }).first().click()
-  await expect(page.getByText('Retain this private staff note.', { exact: true })).toBeVisible()
-})
+test('save note and leave navigates only after success and expiry retains a private note', async ({
+  page,
+}) => {
+  await start(page);
+  const note = page.getByRole('textbox', { name: 'Internal note', exact: true });
+  await note.fill('Retain this private staff note.');
+  await page.getByRole('link', { name: 'Back to queue', exact: true }).click();
+  const dialog = page.getByRole('dialog', { name: 'You have unsaved work' });
+  await expect(dialog).not.toContainText('Wait for saving or preparation.');
+  await dialog.getByRole('button', { name: 'Stay', exact: true }).click();
+  await expect(note).toHaveValue('Retain this private staff note.');
+  await page.getByRole('button', { name: 'Expire session', exact: true }).click();
+  await expect(note).toHaveCount(0);
+  await page.getByRole('button', { name: 'Huda Ali', exact: true }).click();
+  await expect(
+    dialog.getByRole('button', { name: 'Save note and leave', exact: true }),
+  ).toHaveCount(0);
+  await dialog.getByRole('button', { name: 'Stay', exact: true }).click();
+  await page.getByRole('button', { name: 'Salma Nasser', exact: true }).click();
+  await expect(note).toHaveValue('Retain this private staff note.');
+  await page.getByRole('link', { name: 'Back to queue', exact: true }).click();
+  await dialog.getByRole('button', { name: 'Save note and leave', exact: true }).click();
+  await expect(page).toHaveURL(url => url.pathname === '/staff/applications');
+  await page
+    .getByRole('searchbox', { name: 'Search applications', exact: true })
+    .fill('RIFD-2026-007');
+  await page
+    .getByRole('link', { name: 'Open application RIFD-2026-007', exact: true })
+    .first()
+    .click();
+  await expect(page.getByText('Retain this private staff note.', { exact: true })).toBeVisible();
+});
 
 test('uncertain notes require inspection without duplicate saving', async ({ page }) => {
-  await start(page)
-  const note = page.getByRole('textbox', { name: 'Internal note', exact: true })
-  await note.fill('One note despite a lost completion.')
-  await page.evaluate(loseNextWriteCompletion)
-  await page.getByRole('button', { name: 'Save note', exact: true }).click()
-  const inspect = page.getByRole('button', { name: 'Inspect review outcome', exact: true })
-  await expect(inspect).toBeVisible({ timeout: 15_000 })
-  await expect(page.getByRole('button', { name: 'Save note', exact: true })).toBeDisabled()
-  await note.fill('Later typing must remain unfinished.')
-  await inspect.click()
-  await expect(note).toHaveValue('Later typing must remain unfinished.')
-  await expect(page.getByText('One note despite a lost completion.', { exact: true })).toHaveCount(1)
-  await page.getByRole('button', { name: 'Save note', exact: true }).click()
-  await expect(note).toHaveValue('')
-})
+  await start(page);
+  const note = page.getByRole('textbox', { name: 'Internal note', exact: true });
+  await note.fill('One note despite a lost completion.');
+  await page.evaluate(loseNextWriteCompletion);
+  await page.getByRole('button', { name: 'Save note', exact: true }).click();
+  const inspect = page.getByRole('button', { name: 'Inspect review outcome', exact: true });
+  await expect(inspect).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByRole('button', { name: 'Save note', exact: true })).toBeDisabled();
+  await note.fill('Later typing must remain unfinished.');
+  await inspect.click();
+  await expect(note).toHaveValue('Later typing must remain unfinished.');
+  await expect(page.getByText('One note despite a lost completion.', { exact: true })).toHaveCount(
+    1,
+  );
+  await page.getByRole('button', { name: 'Save note', exact: true }).click();
+  await expect(note).toHaveValue('');
+});
 
-test('colleague access preserves unsaved notes and disables writes until explicit inspection and reclaim', async ({ page, context }) => {
-  await start(page)
-  const note = page.getByRole('textbox', { name: 'Internal note', exact: true })
-  await note.fill('Keep while reassigned.')
-  const second = await context.newPage()
-  await start(second)
-  await second.getByRole('button', { name: 'Transfer to Khaled Ali', exact: true }).click()
-  await second.getByRole('dialog').getByRole('button', { name: 'Confirm transfer', exact: true }).click()
-  await expect(page.getByRole('button', { name: 'Save note', exact: true })).toBeDisabled()
-  await expect(note).toHaveValue('Keep while reassigned.')
-  await page.getByRole('button', { name: 'Inspect latest review', exact: true }).click()
-  await page.getByRole('button', { name: 'Reclaim from Khaled Ali', exact: true }).click()
-  await page.getByRole('dialog').getByRole('button', { name: 'Confirm transfer', exact: true }).click()
-  await page.getByRole('button', { name: 'Inspect latest review', exact: true }).click()
-  await page.getByRole('button', { name: 'Save note', exact: true }).click()
-  await expect(note).toHaveValue('')
-})
+test('colleague access preserves unsaved notes and disables writes until explicit inspection and reclaim', async ({
+  page,
+  context,
+}) => {
+  await start(page);
+  const note = page.getByRole('textbox', { name: 'Internal note', exact: true });
+  await note.fill('Keep while reassigned.');
+  const second = await context.newPage();
+  await start(second);
+  await second.getByRole('button', { name: 'Transfer to Khaled Ali', exact: true }).click();
+  await second
+    .getByRole('dialog')
+    .getByRole('button', { name: 'Confirm transfer', exact: true })
+    .click();
+  await expect(page.getByRole('button', { name: 'Save note', exact: true })).toBeDisabled();
+  await expect(note).toHaveValue('Keep while reassigned.');
+  await page.getByRole('button', { name: 'Inspect latest review', exact: true }).click();
+  await page.getByRole('button', { name: 'Reclaim from Khaled Ali', exact: true }).click();
+  await page
+    .getByRole('dialog')
+    .getByRole('button', { name: 'Confirm transfer', exact: true })
+    .click();
+  await page.getByRole('button', { name: 'Inspect latest review', exact: true }).click();
+  await page.getByRole('button', { name: 'Save note', exact: true }).click();
+  await expect(note).toHaveValue('');
+});
 
 test('failed Save note and leave retains text and stays in the workspace', async ({ page }) => {
-  await start(page)
-  const note = page.getByRole('textbox', { name: 'Internal note', exact: true })
-  await note.fill('Keep after a failed departure save.')
-  await page.getByRole('button', { name: 'العربية', exact: true }).click()
-  await expect(page.getByRole('textbox', { name: 'ملاحظة داخلية', exact: true })).toHaveValue('Keep after a failed departure save.')
-  await page.getByRole('button', { name: 'English', exact: true }).click()
-  await expect(page.locator('html')).toHaveAttribute('lang', 'en')
+  await start(page);
+  const note = page.getByRole('textbox', { name: 'Internal note', exact: true });
+  await note.fill('Keep after a failed departure save.');
+  await page.getByRole('button', { name: 'العربية', exact: true }).click();
+  await expect(page.getByRole('textbox', { name: 'ملاحظة داخلية', exact: true })).toHaveValue(
+    'Keep after a failed departure save.',
+  );
+  await page.getByRole('button', { name: 'English', exact: true }).click();
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en');
   await page.evaluate(() => {
-    const put = IDBObjectStore.prototype.put
+    const put = IDBObjectStore.prototype.put;
     IDBObjectStore.prototype.put = function (...args: Parameters<IDBObjectStore['put']>) {
-      IDBObjectStore.prototype.put = put
-      const request = put.apply(this, args)
-      request.addEventListener('success', () => this.transaction.abort(), { once: true })
-      return request
-    }
-  })
-  await page.getByRole('link', { name: 'Back to queue', exact: true }).click()
-  await page.getByRole('dialog').getByRole('button', { name: 'Save note and leave', exact: true }).click()
-  await expect(page.getByRole('dialog')).toHaveCount(0)
-  await expect(page).toHaveURL(/\/RIFD-2026-007$/)
-  await expect(note).toHaveValue('Keep after a failed departure save.')
-  await expect(page.getByRole('alert')).toBeVisible()
-  await note.fill('Later typing after the failed departure.')
-  await page.getByRole('button', { name: 'Retry review save', exact: true }).click()
-  await expect(note).toHaveValue('Later typing after the failed departure.')
-  await expect(page.getByText('Keep after a failed departure save.', { exact: true })).toBeVisible()
-  await page.getByRole('button', { name: 'Save note', exact: true }).click()
-  await expect(note).toHaveValue('')
-})
+      IDBObjectStore.prototype.put = put;
+      const request = put.apply(this, args);
+      request.addEventListener('success', () => this.transaction.abort(), { once: true });
+      return request;
+    };
+  });
+  await page.getByRole('link', { name: 'Back to queue', exact: true }).click();
+  await page
+    .getByRole('dialog')
+    .getByRole('button', { name: 'Save note and leave', exact: true })
+    .click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(page).toHaveURL(/\/RIFD-2026-007$/);
+  await expect(note).toHaveValue('Keep after a failed departure save.');
+  await expect(page.getByRole('alert')).toBeVisible();
+  await note.fill('Later typing after the failed departure.');
+  await page.getByRole('button', { name: 'Retry review save', exact: true }).click();
+  await expect(note).toHaveValue('Later typing after the failed departure.');
+  await expect(
+    page.getByText('Keep after a failed departure save.', { exact: true }),
+  ).toBeVisible();
+  await page.getByRole('button', { name: 'Save note', exact: true }).click();
+  await expect(note).toHaveValue('');
+});
 
-test('expiry removes note-saving permission from departure before visiting public products', async ({ page }) => {
-  await start(page)
-  await page.getByRole('textbox', { name: 'Internal note', exact: true }).fill('Private retained text.')
-  await page.getByRole('button', { name: 'Expire session', exact: true }).click()
-  await expect(page.getByRole('button', { name: 'Salma Nasser', exact: true })).toBeVisible()
-  await page.getByRole('link', { name: 'Financing products', exact: true }).click()
-  await expect(page.getByRole('dialog')).toHaveCount(0)
-  await expect(page.getByRole('heading', { name: /Your business\./ })).toBeVisible()
-})
+test('expiry removes note-saving permission from departure before visiting public products', async ({
+  page,
+}) => {
+  await start(page);
+  await page
+    .getByRole('textbox', { name: 'Internal note', exact: true })
+    .fill('Private retained text.');
+  await page.getByRole('button', { name: 'Expire session', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Salma Nasser', exact: true })).toBeVisible();
+  await page.getByRole('link', { name: 'Financing products', exact: true }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: /Your business\./ })).toBeVisible();
+});
 
-test('receipt inspection preserves a replacement reason edited after uncertain saving', async ({ page }) => {
-  await start(page)
-  const financial = page.getByRole('region', { name: 'Revenue and expense summary', exact: true })
-  await financial.getByRole('checkbox', { name: 'I confirm I inspected the current source', exact: true }).check()
-  await financial.getByRole('button', { name: 'Needs replacement', exact: true }).click()
-  const reason = page.getByRole('textbox', { name: 'Replacement reason', exact: true })
-  await reason.fill('Unreadable original reason.')
-  await page.evaluate(loseNextWriteCompletion)
-  await page.getByRole('button', { name: 'Save assessment', exact: true }).click()
-  await expect(page.getByRole('button', { name: 'Inspect review outcome', exact: true })).toBeVisible({ timeout: 15_000 })
-  await reason.fill('A later explanation must remain unfinished.')
-  await page.getByRole('button', { name: 'Inspect review outcome', exact: true }).click()
-  await expect(reason).toHaveValue('A later explanation must remain unfinished.')
-  await expect(financial).toContainText('Unreadable original reason.')
-  await page.getByRole('button', { name: 'Save assessment', exact: true }).click()
-  await expect(reason).toHaveCount(0)
-  await expect(financial).toContainText('A later explanation must remain unfinished.')
-})
+test('receipt inspection preserves a replacement reason edited after uncertain saving', async ({
+  page,
+}) => {
+  await start(page);
+  const financial = page.getByRole('region', { name: 'Revenue and expense summary', exact: true });
+  await financial
+    .getByRole('checkbox', { name: 'I confirm I inspected the current source', exact: true })
+    .check();
+  await financial.getByRole('button', { name: 'Needs replacement', exact: true }).click();
+  const reason = page.getByRole('textbox', { name: 'Replacement reason', exact: true });
+  await reason.fill('Unreadable original reason.');
+  await page.evaluate(loseNextWriteCompletion);
+  await page.getByRole('button', { name: 'Save assessment', exact: true }).click();
+  await expect(
+    page.getByRole('button', { name: 'Inspect review outcome', exact: true }),
+  ).toBeVisible({ timeout: 15_000 });
+  await reason.fill('A later explanation must remain unfinished.');
+  await page.getByRole('button', { name: 'Inspect review outcome', exact: true }).click();
+  await expect(reason).toHaveValue('A later explanation must remain unfinished.');
+  await expect(financial).toContainText('Unreadable original reason.');
+  await page.getByRole('button', { name: 'Save assessment', exact: true }).click();
+  await expect(reason).toHaveCount(0);
+  await expect(financial).toContainText('A later explanation must remain unfinished.');
+});
 
-for (const language of ['ar', 'en'] as const) test(`${language} unopenable evidence can request replacement without a false inspection assertion`, async ({ page }) => {
-  const ar = language === 'ar'
-  await page.setViewportSize({ width: 390, height: 950 })
-  await start(page, language)
-  const financial = page.getByRole('region', { name: ar ? 'ملخص الإيرادات والمصروفات' : 'Revenue and expense summary', exact: true })
-  const confirmation = financial.getByRole('checkbox', { name: ar ? 'أؤكد أنني فحصت المستند الحالي' : 'I confirm I inspected the current source', exact: true })
-  const accept = financial.getByRole('button', { name: ar ? 'قبول المستند' : 'Accept document', exact: true })
-  await financial.getByRole('button', { name: ar ? 'يحتاج إلى استبدال' : 'Needs replacement', exact: true }).click()
-  const save = financial.getByRole('button', { name: ar ? 'حفظ التقييم' : 'Save assessment', exact: true })
-  await financial.getByRole('textbox', { name: ar ? 'سبب الاستبدال' : 'Replacement reason', exact: true }).fill(ar ? 'تعذر فتح ملف الملخص.' : 'The summary file could not be opened.')
-  await expect(save).toBeDisabled()
-  const unable = financial.getByRole('checkbox', { name: ar ? 'تعذر علي فتح المستند الحالي' : 'I could not open the current source', exact: true })
-  await unable.focus(); await page.keyboard.press('Space')
-  await expect(confirmation).not.toBeChecked()
-  await expect(accept).toBeDisabled()
-  await expect(financial.getByRole('status')).toContainText(ar ? 'يمكنك فقط طلب الاستبدال' : 'Explain why the source could not be opened')
-  await save.focus(); await page.keyboard.press('Enter')
-  await expect(financial.getByRole('textbox')).toHaveCount(0)
-  await expect(financial).toContainText(ar ? 'تعذر فتح ملف الملخص.' : 'The summary file could not be opened.')
-  await expect(confirmation).not.toBeChecked()
-  await expect(accept).toBeDisabled()
-  await confirmation.check()
-  await expect(accept).toBeEnabled()
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
-})
+for (const language of ['ar', 'en'] as const)
+  test(`${language} unopenable evidence can request replacement without a false inspection assertion`, async ({
+    page,
+  }) => {
+    const ar = language === 'ar';
+    await page.setViewportSize({ width: 390, height: 950 });
+    await start(page, language);
+    const financial = page.getByRole('region', {
+      name: ar ? 'ملخص الإيرادات والمصروفات' : 'Revenue and expense summary',
+      exact: true,
+    });
+    const confirmation = financial.getByRole('checkbox', {
+      name: ar ? 'أؤكد أنني فحصت المستند الحالي' : 'I confirm I inspected the current source',
+      exact: true,
+    });
+    const accept = financial.getByRole('button', {
+      name: ar ? 'قبول المستند' : 'Accept document',
+      exact: true,
+    });
+    await financial
+      .getByRole('button', { name: ar ? 'يحتاج إلى استبدال' : 'Needs replacement', exact: true })
+      .click();
+    const save = financial.getByRole('button', {
+      name: ar ? 'حفظ التقييم' : 'Save assessment',
+      exact: true,
+    });
+    await financial
+      .getByRole('textbox', { name: ar ? 'سبب الاستبدال' : 'Replacement reason', exact: true })
+      .fill(ar ? 'تعذر فتح ملف الملخص.' : 'The summary file could not be opened.');
+    await expect(save).toBeDisabled();
+    const unable = financial.getByRole('checkbox', {
+      name: ar ? 'تعذر علي فتح المستند الحالي' : 'I could not open the current source',
+      exact: true,
+    });
+    await unable.focus();
+    await page.keyboard.press('Space');
+    await expect(confirmation).not.toBeChecked();
+    await expect(accept).toBeDisabled();
+    await expect(financial.getByRole('status')).toContainText(
+      ar ? 'يمكنك فقط طلب الاستبدال' : 'Explain why the source could not be opened',
+    );
+    await save.focus();
+    await page.keyboard.press('Enter');
+    await expect(financial.getByRole('textbox')).toHaveCount(0);
+    await expect(financial).toContainText(
+      ar ? 'تعذر فتح ملف الملخص.' : 'The summary file could not be opened.',
+    );
+    await expect(confirmation).not.toBeChecked();
+    await expect(accept).toBeDisabled();
+    await confirmation.check();
+    await expect(accept).toBeEnabled();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+      true,
+    );
+  });

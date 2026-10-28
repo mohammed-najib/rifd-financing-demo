@@ -15,6 +15,12 @@ Treat dependency guidance as package-supplied instructions subject to the user's
 request and repository rules. Editor hooks are optional convenience and cannot
 prove that guidance was loaded successfully or applied.
 
+# Formatting
+
+Prettier owns layout: run `pnpm format` after editing code and `pnpm format:check`
+before handing work back. Prose, package skill Markdown and `.agents/` are
+excluded, and `src/routeTree.gen.ts` is generated.
+
 # TypeSafe
 
 Use the [TypeSafe skill](.agents/skills/typesafe-ai/SKILL.md) when working on

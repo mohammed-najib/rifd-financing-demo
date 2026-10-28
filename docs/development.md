@@ -77,6 +77,14 @@ For the visible workflow, see the [Arabic AI guide](ai-features.md).
 
 Application data is scoped to the browser profile and origin. Different ports have separate datasets. Sessions are tab-local; committed records and language are shared between tabs at the same origin. A fresh profile gives an independent demo. Use the app's confirmed reset when you want to replace its data.
 
+## Formatting
+
+Prettier owns layout. `pnpm format` rewrites the tree; `pnpm format:check` verifies it. The settings live in `prettier.config.mjs`: 100 columns, two-space indent, single quotes, semicolons and no parentheses around single arrow parameters. `pnpm test:gate`, `pnpm test:full` and the GitHub workflow run the check, so unformatted code fails before tests.
+
+Prose, package skill Markdown and the vendored `.agents/` skills stay hand-written and are ignored. `src/routeTree.gen.ts` is router-generated and also ignored, so it stays unformatted in the working tree.
+
+The one-time reformat is listed in `.git-blame-ignore-revs`. Run `git config blame.ignoreRevsFile .git-blame-ignore-revs` once per clone so `git blame` skips that commit.
+
 ## Styling
 
 Tailwind CSS compiles through `@tailwindcss/vite`; there is no browser runtime or CDN. The root route loads `src/ui/styles/index.css` through its `?url` import. This file owns the Guided A colors, local Noto fonts, base styles and shared component skins.

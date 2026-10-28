@@ -25,6 +25,7 @@ jobs:
         run: node scripts/skills/skill-sources.mjs --check
       - name: Report Intent stale signals
         run: pnpm exec intent stale packages/rifd-domain --json
+      - run: pnpm format:check
       - run: pnpm typecheck && pnpm lint && pnpm test && pnpm test:skills
       - name: Pack and inspect release artifact
         run: pnpm pack:domain

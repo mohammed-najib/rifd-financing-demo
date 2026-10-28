@@ -1,16 +1,31 @@
 export const galleryText = {
   title: { ar: 'مكونات الواجهة', en: 'Interface components' },
-  intro: { ar: 'المرجع الموحد لمكونات الموقع وألوانه وحركاته. الأمثلة تستخدم المكونات نفسها في صفحات المتقدم والمراجعة. تفاعلاتك هنا تخص الأمثلة فقط ولا تحفظ طلبات أو ملفات.', en: 'The canonical reference for the site’s components, colors, and motion. Examples use the same components as applicant and reviewer pages. Interactions here affect only the examples and do not save applications or files.' },
+  intro: {
+    ar: 'المرجع الموحد لمكونات الموقع وألوانه وحركاته. الأمثلة تستخدم المكونات نفسها في صفحات المتقدم والمراجعة. تفاعلاتك هنا تخص الأمثلة فقط ولا تحفظ طلبات أو ملفات.',
+    en: 'The canonical reference for the site’s components, colors, and motion. Examples use the same components as applicant and reviewer pages. Interactions here affect only the examples and do not save applications or files.',
+  },
   fields: { ar: 'الحقول والتحقق', en: 'Fields and validation' },
-  focus: { ar: 'استخدم Tab للوصول إلى الحقول والأزرار وفحص إطار التركيز. صحح المبلغ لإزالة الخطأ.', en: 'Use Tab to reach fields and buttons and inspect the focus outline. Correct the amount to clear its error.' },
+  focus: {
+    ar: 'استخدم Tab للوصول إلى الحقول والأزرار وفحص إطار التركيز. صحح المبلغ لإزالة الخطأ.',
+    en: 'Use Tab to reach fields and buttons and inspect the focus outline. Correct the amount to clear its error.',
+  },
   statuses: { ar: 'حالات الطلب والمراجعة', en: 'Application and review states' },
   applicationStatus: { ar: 'حالة الطلب', en: 'Application status' },
   documentStatus: { ar: 'تقييم المستند', en: 'Document review status' },
   checkStatus: { ar: 'نتيجة فحص المراجعة', en: 'Review check outcome' },
-  distinctions: { ar: 'الموافقة على الطلب تختلف عن قبول مستند أو اجتياز فحص. مطلوب تصحيح لا يعني مرفوض.', en: 'Application approval, document acceptance and a passed check are distinct. Corrections requested differs from Rejected.' },
+  distinctions: {
+    ar: 'الموافقة على الطلب تختلف عن قبول مستند أو اجتياز فحص. مطلوب تصحيح لا يعني مرفوض.',
+    en: 'Application approval, document acceptance and a passed check are distinct. Corrections requested differs from Rejected.',
+  },
   attachments: { ar: 'تجهيز المستندات وحفظها', en: 'Attachment preparation and save' },
-  attachmentHint: { ar: 'الملف المختار ثم الجاهز لم يُحفظ بعد. يبقى الملف المحفوظ متاحًا عند فشل البديل. هذه أمثلة للحالات ولا تتضمن ملفات قابلة للمعاينة.', en: 'Selected and ready files are still unsaved. A saved file remains available if its replacement fails. These state examples contain no previewable files.' },
-  previewHint: { ar: 'هذا مثال لحالة الملف فقط. عاين مستندًا محفوظًا من طلب بعد اختيار هوية تجريبية.', en: 'This is a file-state example. Preview a stored document from an application after choosing a demo identity.' },
+  attachmentHint: {
+    ar: 'الملف المختار ثم الجاهز لم يُحفظ بعد. يبقى الملف المحفوظ متاحًا عند فشل البديل. هذه أمثلة للحالات ولا تتضمن ملفات قابلة للمعاينة.',
+    en: 'Selected and ready files are still unsaved. A saved file remains available if its replacement fails. These state examples contain no previewable files.',
+  },
+  previewHint: {
+    ar: 'هذا مثال لحالة الملف فقط. عاين مستندًا محفوظًا من طلب بعد اختيار هوية تجريبية.',
+    en: 'This is a file-state example. Preview a stored document from an application after choosing a demo identity.',
+  },
   restore: { ar: 'إعادة إظهار المثال', en: 'Restore example' },
   saves: { ar: 'الحفظ والاسترداد', en: 'Save and recovery' },
   saveState: { ar: 'حالة الحفظ في المثال', en: 'Example save state' },
@@ -18,9 +33,15 @@ export const galleryText = {
   retry: { ar: 'أعد إظهار إخفاق القراءة', en: 'Show read failure again' },
   retryDone: { ar: 'اكتملت إعادة المحاولة في المثال.', en: 'Example retry completed.' },
   queue: { ar: 'قائمة الطلبات', en: 'Queue views' },
-  queueHint: { ar: 'نفس الصفوف المستخدمة في قائمة الموظف. تتحول إلى بطاقات عند العرض الضيق. فتح صف يحدد المثال هنا فقط.', en: 'The staff queue rows become cards at narrow widths. Opening a row selects the example here.' },
+  queueHint: {
+    ar: 'نفس الصفوف المستخدمة في قائمة الموظف. تتحول إلى بطاقات عند العرض الضيق. فتح صف يحدد المثال هنا فقط.',
+    en: 'The staff queue rows become cards at narrow widths. Opening a row selects the example here.',
+  },
   selected: { ar: 'المثال المحدد', en: 'Selected example' },
   dialogs: { ar: 'الحوار والتنقل بلوحة المفاتيح', en: 'Dialog and keyboard navigation' },
-  dialogHint: { ar: 'يفتح حوار العمل غير المحفوظ المستخدم في الرحلات. ينتقل التركيز داخله ثم يعود إلى زر الفتح عند الإغلاق.', en: 'Open the unsaved-work dialog used in the journeys. Focus stays inside and returns to the opener when it closes.' },
+  dialogHint: {
+    ar: 'يفتح حوار العمل غير المحفوظ المستخدم في الرحلات. ينتقل التركيز داخله ثم يعود إلى زر الفتح عند الإغلاق.',
+    en: 'Open the unsaved-work dialog used in the journeys. Focus stays inside and returns to the opener when it closes.',
+  },
   openDialog: { ar: 'فتح حوار العمل غير المحفوظ', en: 'Open unsaved-work dialog' },
-}
+};

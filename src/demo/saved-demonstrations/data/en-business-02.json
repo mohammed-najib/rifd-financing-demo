@@ -51,10 +51,7 @@
   "candidateDisplayPolicy": "candidate-display-v1-dev10",
   "staticSelectionVersion": "checked-static-capture-v1",
   "staticSelectionRule": "Retain the actual candidate findings. Permit only individually source-checked certified overlays in this saved example. This post-capture selection is not a new live policy or fresh held-out validation.",
-  "capturedAt": [
-    "2026-10-17T04:49:12.655Z",
-    "2026-10-17T04:49:14.426Z"
-  ],
+  "capturedAt": ["2026-10-17T04:49:12.655Z", "2026-10-17T04:49:14.426Z"],
   "captures": [
     {
       "path": "../captures/development/recovery-31255cce-a84f-4333-bc7b-b1514ed08254-50037c2f-260f-4cd8-93e4-170cc9b32907-1.json",
@@ -69,12 +66,8 @@
     {
       "kind": "page-1",
       "coverage": {
-        "selectedPages": [
-          1
-        ],
-        "analyzedPages": [
-          1
-        ],
+        "selectedPages": [1],
+        "analyzedPages": [1],
         "complete": false
       },
       "analysis": {
@@ -331,12 +324,8 @@
     {
       "kind": "comparison",
       "coverage": {
-        "selectedPages": [
-          1
-        ],
-        "analyzedPages": [
-          1
-        ],
+        "selectedPages": [1],
+        "analyzedPages": [1],
         "complete": true
       },
       "analysis": {

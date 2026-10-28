@@ -10,6 +10,7 @@ Choose checks that exercise the behavior you changed. A screenshot, model smoke 
 | --- | --- |
 | `pnpm typecheck` | TypeScript contracts in the application, server code and tests. |
 | `pnpm lint` | Repository lint rules. |
+| `pnpm format` | Rewrites the code with Prettier; `pnpm format:check` only reports. |
 | `pnpm test` | Pure domain rules and evidence-service/controller logic, including local fake-provider tests. |
 | `pnpm test:skills` | Packaged guidance and its consumer policy. |
 | `pnpm build` | Production client/server compilation and SPA prerendering. |

@@ -1,1 +1,1 @@
-export * from '../../packages/rifd-domain/src/application'
+export * from '../../packages/rifd-domain/src/application';

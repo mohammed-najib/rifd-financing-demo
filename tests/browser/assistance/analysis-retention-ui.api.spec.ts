@@ -1,36 +1,61 @@
-import { expect, test } from '@playwright/test'
-import { nativeIdentity } from '../support/evidence-transport'
+import { expect, test } from '@playwright/test';
+import { nativeIdentity } from '../support/evidence-transport';
 
-test('the draft restores previous analysis, clears it in both languages and keeps ordinary viewing', async ({ page }) => {
-  let requests = 0
-  await page.route('**/fake-provider/systemone', async route => { requests++; await route.fulfill({ json: nativeIdentity() }) })
-  await page.goto('/tests/browser/support/evidence-screen.html')
-  await page.getByRole('button', { name: 'English', exact: true }).click()
-  await page.locator('section[aria-labelledby="identity-heading"]').getByRole('button', { name: 'Check document', exact: true }).click()
-  let assistance = page.locator('section[aria-labelledby="identity-heading"]').getByRole('region', { name: 'Experimental assistance', exact: true })
-  await assistance.getByRole('button', { name: 'Run check', exact: true }).click()
-  await assistance.getByText('Check details', { exact: true }).click()
-  await expect(assistance.getByText('Saved in this browser for seven days after completion.', { exact: true })).toBeVisible()
-  expect(requests).toBe(1)
-  await page.reload()
-  await page.locator('section[aria-labelledby="identity-heading"]').getByRole('button', { name: 'فحص المستند', exact: true }).click()
-  assistance = page.locator('section[aria-labelledby="identity-heading"]').getByRole('region', { name: 'مساعدة تجريبية', exact: true })
-  await expect(assistance.getByText('تحليل مباشر سابق', { exact: true })).toBeVisible()
-  expect(requests).toBe(1)
-  await assistance.getByRole('button', { name: 'عرض المصدر الحالي', exact: true }).click()
-  await expect(assistance.getByRole('img')).toBeVisible()
-  const before = await page.evaluate(() => window.demo.readApplication('RIFD-2026-001'))
-  await assistance.getByText('تفاصيل الفحص', { exact: true }).click()
-  await assistance.getByRole('button', { name: 'مسح التحليل المحفوظ', exact: true }).click()
-  await expect(assistance.getByText('مُسح التحليل. احتُفظ ببيانات التمويل.', { exact: true })).toBeVisible()
-  await expect(assistance.getByRole('img')).toBeVisible()
-  await expect(assistance.getByText('يبدو الاسم المطبوع مختلفًا عن الاسم المعلن', { exact: true })).toHaveCount(0)
-  await page.getByRole('button', { name: 'English', exact: true }).click()
-  assistance = page.locator('section[aria-labelledby="identity-heading"]').getByRole('region', { name: 'Experimental assistance', exact: true })
-  await assistance.getByRole('button', { name: 'Clear saved analysis', exact: true }).click()
-  await expect(assistance.getByText('Analysis cleared. Financing data retained.', { exact: true })).toBeVisible()
-  expect(await page.evaluate(() => window.demo.readApplication('RIFD-2026-001'))).toEqual(before)
-  await page.emulateMedia({ media: 'print' })
-  await expect(assistance).toBeHidden()
-  expect(requests).toBe(1)
-})
+test('the draft restores previous analysis, clears it in both languages and keeps ordinary viewing', async ({
+  page,
+}) => {
+  let requests = 0;
+  await page.route('**/fake-provider/systemone', async route => {
+    requests++;
+    await route.fulfill({ json: nativeIdentity() });
+  });
+  await page.goto('/tests/browser/support/evidence-screen.html');
+  await page.getByRole('button', { name: 'English', exact: true }).click();
+  await page
+    .locator('section[aria-labelledby="identity-heading"]')
+    .getByRole('button', { name: 'Check document', exact: true })
+    .click();
+  let assistance = page
+    .locator('section[aria-labelledby="identity-heading"]')
+    .getByRole('region', { name: 'Experimental assistance', exact: true });
+  await assistance.getByRole('button', { name: 'Run check', exact: true }).click();
+  await assistance.getByText('Check details', { exact: true }).click();
+  await expect(
+    assistance.getByText('Saved in this browser for seven days after completion.', { exact: true }),
+  ).toBeVisible();
+  expect(requests).toBe(1);
+  await page.reload();
+  await page
+    .locator('section[aria-labelledby="identity-heading"]')
+    .getByRole('button', { name: 'فحص المستند', exact: true })
+    .click();
+  assistance = page
+    .locator('section[aria-labelledby="identity-heading"]')
+    .getByRole('region', { name: 'مساعدة تجريبية', exact: true });
+  await expect(assistance.getByText('تحليل مباشر سابق', { exact: true })).toBeVisible();
+  expect(requests).toBe(1);
+  await assistance.getByRole('button', { name: 'عرض المصدر الحالي', exact: true }).click();
+  await expect(assistance.getByRole('img')).toBeVisible();
+  const before = await page.evaluate(() => window.demo.readApplication('RIFD-2026-001'));
+  await assistance.getByText('تفاصيل الفحص', { exact: true }).click();
+  await assistance.getByRole('button', { name: 'مسح التحليل المحفوظ', exact: true }).click();
+  await expect(
+    assistance.getByText('مُسح التحليل. احتُفظ ببيانات التمويل.', { exact: true }),
+  ).toBeVisible();
+  await expect(assistance.getByRole('img')).toBeVisible();
+  await expect(
+    assistance.getByText('يبدو الاسم المطبوع مختلفًا عن الاسم المعلن', { exact: true }),
+  ).toHaveCount(0);
+  await page.getByRole('button', { name: 'English', exact: true }).click();
+  assistance = page
+    .locator('section[aria-labelledby="identity-heading"]')
+    .getByRole('region', { name: 'Experimental assistance', exact: true });
+  await assistance.getByRole('button', { name: 'Clear saved analysis', exact: true }).click();
+  await expect(
+    assistance.getByText('Analysis cleared. Financing data retained.', { exact: true }),
+  ).toBeVisible();
+  expect(await page.evaluate(() => window.demo.readApplication('RIFD-2026-001'))).toEqual(before);
+  await page.emulateMedia({ media: 'print' });
+  await expect(assistance).toBeHidden();
+  expect(requests).toBe(1);
+});

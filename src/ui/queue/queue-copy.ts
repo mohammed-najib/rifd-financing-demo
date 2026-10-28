@@ -1,7 +1,10 @@
 export const queueText = {
   all: { ar: 'الكل', en: 'All' },
   search: { ar: 'البحث في الطلبات', en: 'Search applications' },
-  searchHint: { ar: 'ابحث بالمرجع أو اسم المتقدم أو النشاط التجاري', en: 'Search by reference, applicant or business' },
+  searchHint: {
+    ar: 'ابحث بالمرجع أو اسم المتقدم أو النشاط التجاري',
+    en: 'Search by reference, applicant or business',
+  },
   status: { ar: 'تصفية الحالة', en: 'Status filter' },
   product: { ar: 'تصفية المنتج', en: 'Product filter' },
   assignment: { ar: 'تصفية الإسناد', en: 'Assignment filter' },
@@ -14,7 +17,10 @@ export const queueText = {
   clear: { ar: 'مسح البحث', en: 'Clear search' },
   reset: { ar: 'إعادة ضبط عوامل التصفية', en: 'Reset filters' },
   empty: { ar: 'لا توجد طلبات مطابقة', en: 'No matching applications' },
-  emptyHint: { ar: 'جرّب مسح البحث أو إعادة ضبط عوامل التصفية.', en: 'Try clearing the search or resetting the filters.' },
+  emptyHint: {
+    ar: 'جرّب مسح البحث أو إعادة ضبط عوامل التصفية.',
+    en: 'Try clearing the search or resetting the filters.',
+  },
   previous: { ar: 'الصفحة السابقة', en: 'Previous page' },
   next: { ar: 'الصفحة التالية', en: 'Next page' },
   pagination: { ar: 'صفحات قائمة الطلبات', en: 'Application queue pages' },
@@ -27,4 +33,4 @@ export const queueText = {
   inspect: { ar: 'فحص تفضيلات القائمة المحفوظة', en: 'Inspect saved queue preferences' },
   reapply: { ar: 'إعادة تطبيق اختياري', en: 'Reapply my choice' },
   useLatest: { ar: 'استخدام التفضيلات الأحدث', en: 'Use latest preferences' },
-}
+};

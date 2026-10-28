@@ -2,15 +2,24 @@ export const decisionText = {
   title: { ar: 'تسجيل القرار النهائي', en: 'Record final decision' },
   back: { ar: 'العودة إلى المراجعة', en: 'Back to review' },
   reason: { ar: 'سبب القرار الظاهر للمتقدم', en: 'Applicant-visible decision reason' },
-  instruction: { ar: 'اكتب سببًا واضحًا للمتقدم، ثم افحص القرار وأكّده صراحةً.', en: 'Write a clear reason for the applicant, then inspect and explicitly confirm the decision.' },
+  instruction: {
+    ar: 'اكتب سببًا واضحًا للمتقدم، ثم افحص القرار وأكّده صراحةً.',
+    en: 'Write a clear reason for the applicant, then inspect and explicitly confirm the decision.',
+  },
   terms: { ar: 'شروط التمويل المقدمة', en: 'Submitted financing terms' },
   approval: { ar: 'متطلبات الموافقة', en: 'Approval prerequisites' },
   documents: { ar: 'المستندات التي تنتظر القبول', en: 'Documents awaiting acceptance' },
   checks: { ar: 'الفحوص التي تنتظر الاجتياز', en: 'Checks awaiting a pass' },
   corrections: { ar: 'التصحيحات التي تنتظر التحقق', en: 'Corrections awaiting verification' },
-  ready: { ar: 'اكتملت جميع متطلبات المراجعة للموافقة.', en: 'All review prerequisites for approval are complete.' },
+  ready: {
+    ar: 'اكتملت جميع متطلبات المراجعة للموافقة.',
+    en: 'All review prerequisites for approval are complete.',
+  },
   rejection: { ar: 'متطلبات الرفض', en: 'Rejection prerequisite' },
-  rejectionRule: { ar: 'يتطلب الرفض إخفاق معيار جوهري واحد على الأقل: مدة النشاط أو ملاءمة الغرض أو تغطية الميزانية أو القدرة على السداد. نقص المستندات أو عدم اتساقها وحده لا يبرر الرفض.', en: 'Rejection requires at least one failed substantive check: operating history, product purpose, budget coverage or repayment capacity. Missing or inconsistent evidence alone cannot justify rejection.' },
+  rejectionRule: {
+    ar: 'يتطلب الرفض إخفاق معيار جوهري واحد على الأقل: مدة النشاط أو ملاءمة الغرض أو تغطية الميزانية أو القدرة على السداد. نقص المستندات أو عدم اتساقها وحده لا يبرر الرفض.',
+    en: 'Rejection requires at least one failed substantive check: operating history, product purpose, budget coverage or repayment capacity. Missing or inconsistent evidence alone cannot justify rejection.',
+  },
   failed: { ar: 'يوجد معيار جوهري لم يجتز الفحص.', en: 'A substantive check has failed.' },
   inspectApprove: { ar: 'فحص الموافقة', en: 'Inspect approval' },
   inspectReject: { ar: 'فحص الرفض', en: 'Inspect rejection' },
@@ -18,12 +27,24 @@ export const decisionText = {
   confirmReject: { ar: 'تأكيد الرفض', en: 'Confirm rejection' },
   confirm: { ar: 'تأكيد القرار النهائي', en: 'Confirm final decision' },
   cancel: { ar: 'العودة إلى التحرير', en: 'Return to editing' },
-  lock: { ar: 'القرار نهائي. تُقفل البيانات والمستندات والفحوص والإسناد. تقبل الموافقة شروط المتقدم وتثبت جدول السداد التوضيحي.', en: 'The decision is final. It locks fields, documents, checks and assignment. Approval accepts the submitted terms and freezes the fictional repayment schedule.' },
-  readOnly: { ar: 'يتطلب القرار طلبًا قيد المراجعة مسندًا إليك.', en: 'A decision requires an Under review application assigned to you.' },
-  changed: { ar: 'تغيّر الطلب. افحص أحدث نسخة قبل تأكيد قرار جديد. احتُفظ بالسبب غير المرسل.', en: 'The application changed. Inspect the latest version before confirming a new decision. Your unsent reason is retained.' },
+  lock: {
+    ar: 'القرار نهائي. تُقفل البيانات والمستندات والفحوص والإسناد. تقبل الموافقة شروط المتقدم وتثبت جدول السداد التوضيحي.',
+    en: 'The decision is final. It locks fields, documents, checks and assignment. Approval accepts the submitted terms and freezes the fictional repayment schedule.',
+  },
+  readOnly: {
+    ar: 'يتطلب القرار طلبًا قيد المراجعة مسندًا إليك.',
+    en: 'A decision requires an Under review application assigned to you.',
+  },
+  changed: {
+    ar: 'تغيّر الطلب. افحص أحدث نسخة قبل تأكيد قرار جديد. احتُفظ بالسبب غير المرسل.',
+    en: 'The application changed. Inspect the latest version before confirming a new decision. Your unsent reason is retained.',
+  },
   latest: { ar: 'فحص أحدث نسخة من الطلب', en: 'Inspect latest application' },
   outcome: { ar: 'فحص نتيجة القرار', en: 'Inspect decision outcome' },
   working: { ar: 'جارٍ حفظ القرار…', en: 'Saving the decision…' },
   saved: { ar: 'حُفظ القرار النهائي.', en: 'Final decision saved.' },
-  retry: { ar: 'لم يُحفظ القرار. افحصه وأكّده مجددًا للمحاولة.', en: 'The decision was not saved. Inspect and confirm it again to retry.' },
-} as const
+  retry: {
+    ar: 'لم يُحفظ القرار. افحصه وأكّده مجددًا للمحاولة.',
+    en: 'The decision was not saved. Inspect and confirm it again to retry.',
+  },
+} as const;

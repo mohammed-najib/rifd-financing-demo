@@ -84,6 +84,9 @@ importers:
       pdf-lib:
         specifier: 1.17.1
         version: 1.17.1
+      prettier:
+        specifier: 3.9.10
+        version: 3.9.10
       puppeteer-core:
         specifier: 25.9.0
         version: 25.9.0

@@ -1,194 +1,277 @@
-import { chooseOption } from '../support/select'
-import { expect, test, type Page } from '@playwright/test'
+import { chooseOption } from '../support/select';
+import { expect, test, type Page } from '@playwright/test';
 
 async function openEditor(page: Page, step = 'personal') {
-  await page.goto(`/applications/RIFD-2026-001/edit?step=${step}`)
-  await expect(page.getByRole('button', { name: 'مريم سالم', exact: true })).toBeVisible({ timeout: 30_000 })
-  await page.getByRole('button', { name: 'مريم سالم', exact: true }).click()
-  await page.getByRole('button', { name: 'English', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'Prepare draft', exact: true })).toBeVisible()
+  await page.goto(`/applications/RIFD-2026-001/edit?step=${step}`);
+  await expect(page.getByRole('button', { name: 'مريم سالم', exact: true })).toBeVisible({
+    timeout: 30_000,
+  });
+  await page.getByRole('button', { name: 'مريم سالم', exact: true }).click();
+  await page.getByRole('button', { name: 'English', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Prepare draft', exact: true })).toBeVisible();
 }
 
-test('product choice survives sign-in and offers explicit new or resume without changing the saved draft', async ({ page }) => {
-  await page.goto('/products')
-  await page.getByRole('button', { name: 'English', exact: true }).click()
-  const equipment = page.getByRole('article', { name: 'Equipment financing', exact: true })
-  await expect(equipment).toContainText('500,000')
-  await expect(equipment).toContainText('3,000,000')
-  await expect(equipment).toContainText('12 / 18 / 24')
-  await expect(equipment).toContainText('8%')
-  await chooseOption(equipment.getByRole('combobox'), '24')
-  await equipment.getByRole('button', { name: 'Choose this product', exact: true }).click()
-  await page.getByRole('button', { name: 'Mariam Salem', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'Start new or resume a draft?', exact: true })).toBeVisible()
-  await page.getByRole('button', { name: 'New application', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'Personal', exact: true })).toBeVisible()
-  await page.getByLabel('Applicant full name', { exact: true }).fill('  raw x  ')
-  await page.getByRole('link', { name: '3. Financing', exact: true }).click()
-  await expect(page.getByLabel('Financing product', { exact: true })).toHaveAttribute('data-value', 'equipment')
-  await expect(page.getByLabel('Repayment term', { exact: true })).toHaveValue('24')
-  await page.getByLabel('Financing amount', { exact: true }).fill('١,٠٠')
-  await page.getByRole('button', { name: 'Save progress', exact: true }).click()
-  await expect(page.getByText('Saved', { exact: true })).toBeVisible()
-  await expect(page).toHaveURL(/\/applications\/RIFD-2026-.*\/edit\?step=financing/)
-  await page.reload()
-  await expect(page.getByLabel('Financing amount', { exact: true })).toHaveValue('١,٠٠')
-  await page.getByRole('link', { name: '1. Personal', exact: true }).click()
-  await expect(page.getByLabel('Applicant full name', { exact: true })).toHaveValue('  raw x  ')
-})
+test('product choice survives sign-in and offers explicit new or resume without changing the saved draft', async ({
+  page,
+}) => {
+  await page.goto('/products');
+  await page.getByRole('button', { name: 'English', exact: true }).click();
+  const equipment = page.getByRole('article', { name: 'Equipment financing', exact: true });
+  await expect(equipment).toContainText('500,000');
+  await expect(equipment).toContainText('3,000,000');
+  await expect(equipment).toContainText('12 / 18 / 24');
+  await expect(equipment).toContainText('8%');
+  await chooseOption(equipment.getByRole('combobox'), '24');
+  await equipment.getByRole('button', { name: 'Choose this product', exact: true }).click();
+  await page.getByRole('button', { name: 'Mariam Salem', exact: true }).click();
+  await expect(
+    page.getByRole('heading', { name: 'Start new or resume a draft?', exact: true }),
+  ).toBeVisible();
+  await page.getByRole('button', { name: 'New application', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Personal', exact: true })).toBeVisible();
+  await page.getByLabel('Applicant full name', { exact: true }).fill('  raw x  ');
+  await page.getByRole('link', { name: '3. Financing', exact: true }).click();
+  await expect(page.getByLabel('Financing product', { exact: true })).toHaveAttribute(
+    'data-value',
+    'equipment',
+  );
+  await expect(page.getByLabel('Repayment term', { exact: true })).toHaveValue('24');
+  await page.getByLabel('Financing amount', { exact: true }).fill('١,٠٠');
+  await page.getByRole('button', { name: 'Save progress', exact: true }).click();
+  await expect(page.getByText('Saved', { exact: true })).toBeVisible();
+  await expect(page).toHaveURL(/\/applications\/RIFD-2026-.*\/edit\?step=financing/);
+  await page.reload();
+  await expect(page.getByLabel('Financing amount', { exact: true })).toHaveValue('١,٠٠');
+  await page.getByRole('link', { name: '1. Personal', exact: true }).click();
+  await expect(page.getByLabel('Applicant full name', { exact: true })).toHaveValue('  raw x  ');
+});
 
-test('linked bilingual errors open incomplete steps, while language and step changes preserve raw input and preparation', async ({ page }) => {
-  await openEditor(page, 'invalid')
-  await expect(page.getByRole('heading', { name: 'Personal', exact: true })).toBeVisible()
-  const name = page.locator('#field-fullName')
-  await name.fill('Name preserving caret')
-  await name.focus()
-  await name.evaluate((element: HTMLInputElement) => element.setSelectionRange(5, 5))
-  await page.getByRole('button', { name: 'العربية', exact: true }).click()
-  await expect(page.getByLabel('اسم المتقدم الكامل', { exact: true })).toHaveValue('Name preserving caret')
-  expect(await name.evaluate((element: HTMLInputElement) => element.selectionStart)).toBe(5)
-  await page.getByRole('button', { name: 'English', exact: true }).click()
-  await page.getByRole('link', { name: '4. Documents', exact: true }).click()
-  const purchase = page.getByRole('heading', { name: 'Stock purchase plan', exact: true }).locator('..')
-  await purchase.getByRole('button', { name: 'Use sample', exact: true }).click()
-  await page.getByRole('link', { name: '2. Business', exact: true }).click()
-  await page.getByLabel('Average monthly revenue', { exact: true }).fill('٥٠٬٠٠٠٬٠٠٠')
-  await page.getByRole('link', { name: '5. Review', exact: true }).click()
-  await page.getByRole('button', { name: 'Check application', exact: true }).click()
-  await expect(page.locator('#validation-summary')).toBeFocused()
-  await page.locator('#validation-summary').getByRole('link', { name: /Purchase explanation/ }).click()
-  await expect(page.getByLabel('Purchase explanation', { exact: true })).toBeFocused()
-  await page.getByRole('link', { name: '4. Documents', exact: true }).click()
-  await expect(purchase.getByText('Ready to save', { exact: true })).toBeVisible()
-  await expect(page.getByText('Unsaved changes', { exact: true })).toBeVisible()
+test('linked bilingual errors open incomplete steps, while language and step changes preserve raw input and preparation', async ({
+  page,
+}) => {
+  await openEditor(page, 'invalid');
+  await expect(page.getByRole('heading', { name: 'Personal', exact: true })).toBeVisible();
+  const name = page.locator('#field-fullName');
+  await name.fill('Name preserving caret');
+  await name.focus();
+  await name.evaluate((element: HTMLInputElement) => element.setSelectionRange(5, 5));
+  await page.getByRole('button', { name: 'العربية', exact: true }).click();
+  await expect(page.getByLabel('اسم المتقدم الكامل', { exact: true })).toHaveValue(
+    'Name preserving caret',
+  );
+  expect(await name.evaluate((element: HTMLInputElement) => element.selectionStart)).toBe(5);
+  await page.getByRole('button', { name: 'English', exact: true }).click();
+  await page.getByRole('link', { name: '4. Documents', exact: true }).click();
+  const purchase = page
+    .getByRole('heading', { name: 'Stock purchase plan', exact: true })
+    .locator('..');
+  await purchase.getByRole('button', { name: 'Use sample', exact: true }).click();
+  await page.getByRole('link', { name: '2. Business', exact: true }).click();
+  await page.getByLabel('Average monthly revenue', { exact: true }).fill('٥٠٬٠٠٠٬٠٠٠');
+  await page.getByRole('link', { name: '5. Review', exact: true }).click();
+  await page.getByRole('button', { name: 'Check application', exact: true }).click();
+  await expect(page.locator('#validation-summary')).toBeFocused();
+  await page
+    .locator('#validation-summary')
+    .getByRole('link', { name: /Purchase explanation/ })
+    .click();
+  await expect(page.getByLabel('Purchase explanation', { exact: true })).toBeFocused();
+  await page.getByRole('link', { name: '4. Documents', exact: true }).click();
+  await expect(purchase.getByText('Ready to save', { exact: true })).toBeVisible();
+  await expect(page.getByText('Unsaved changes', { exact: true })).toBeVisible();
   for (const width of [360, 390, 768, 1440]) {
-    await page.setViewportSize({ width, height: 900 })
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+    await page.setViewportSize({ width, height: 900 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+      true,
+    );
   }
-})
+});
 
-test('cancel and confirm switching retain raw amount and term and stage document removal until saving', async ({ page }) => {
-  await openEditor(page, 'financing')
-  await page.getByLabel('Financing amount', { exact: true }).fill('١٠٠٬٠٠٠')
-  await page.getByLabel('Repayment term', { exact: true }).fill('٦')
-  await chooseOption(page.getByLabel('Financing product', { exact: true }), 'equipment')
-  await expect(page.getByRole('dialog', { name: 'Remove the previous product document?' })).toBeVisible()
-  await page.getByRole('button', { name: 'Cancel', exact: true }).click()
-  await expect(page.getByLabel('Financing product', { exact: true })).toHaveAttribute('data-value', 'inventory')
-  await expect(page.getByLabel('Financing product', { exact: true })).toBeFocused()
-  await chooseOption(page.getByLabel('Financing product', { exact: true }), 'equipment')
-  await page.keyboard.press('Escape')
-  await expect(page.getByLabel('Financing product', { exact: true })).toBeFocused()
-  await expect(page.getByLabel('Financing product', { exact: true })).toHaveAttribute('data-value', 'inventory')
-  await chooseOption(page.getByLabel('Financing product', { exact: true }), 'equipment')
-  await page.getByRole('button', { name: 'Switch product and remove document', exact: true }).click()
-  await expect(page.getByLabel('Financing product', { exact: true })).toBeFocused()
-  await expect(page.getByLabel('Financing amount', { exact: true })).toHaveValue('١٠٠٬٠٠٠')
-  await expect(page.getByLabel('Financing amount', { exact: true })).toHaveAttribute('aria-invalid', 'true')
-  await expect(page.getByLabel('Repayment term', { exact: true })).toHaveValue('٦')
-  await expect(page.getByText('Removal of the previous document is unsaved.', { exact: true })).toBeVisible()
-  await page.getByRole('button', { name: 'Save progress', exact: true }).click()
-  await expect(page.getByText('Saved', { exact: true })).toBeVisible()
-  await page.reload()
-  await expect(page.getByLabel('Financing product', { exact: true })).toHaveAttribute('data-value', 'equipment')
-  await expect(page.getByLabel('Repayment term', { exact: true })).toHaveValue('٦')
-  await page.getByRole('link', { name: '4. Documents', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'Supplier quotation', exact: true })).toBeVisible()
-  const purchase = page.getByRole('heading', { name: 'Supplier quotation', exact: true }).locator('..')
-  await expect(purchase.getByText('No document supplied', { exact: true })).toBeVisible()
-})
+test('cancel and confirm switching retain raw amount and term and stage document removal until saving', async ({
+  page,
+}) => {
+  await openEditor(page, 'financing');
+  await page.getByLabel('Financing amount', { exact: true }).fill('١٠٠٬٠٠٠');
+  await page.getByLabel('Repayment term', { exact: true }).fill('٦');
+  await chooseOption(page.getByLabel('Financing product', { exact: true }), 'equipment');
+  await expect(
+    page.getByRole('dialog', { name: 'Remove the previous product document?' }),
+  ).toBeVisible();
+  await page.getByRole('button', { name: 'Cancel', exact: true }).click();
+  await expect(page.getByLabel('Financing product', { exact: true })).toHaveAttribute(
+    'data-value',
+    'inventory',
+  );
+  await expect(page.getByLabel('Financing product', { exact: true })).toBeFocused();
+  await chooseOption(page.getByLabel('Financing product', { exact: true }), 'equipment');
+  await page.keyboard.press('Escape');
+  await expect(page.getByLabel('Financing product', { exact: true })).toBeFocused();
+  await expect(page.getByLabel('Financing product', { exact: true })).toHaveAttribute(
+    'data-value',
+    'inventory',
+  );
+  await chooseOption(page.getByLabel('Financing product', { exact: true }), 'equipment');
+  await page
+    .getByRole('button', { name: 'Switch product and remove document', exact: true })
+    .click();
+  await expect(page.getByLabel('Financing product', { exact: true })).toBeFocused();
+  await expect(page.getByLabel('Financing amount', { exact: true })).toHaveValue('١٠٠٬٠٠٠');
+  await expect(page.getByLabel('Financing amount', { exact: true })).toHaveAttribute(
+    'aria-invalid',
+    'true',
+  );
+  await expect(page.getByLabel('Repayment term', { exact: true })).toHaveValue('٦');
+  await expect(
+    page.getByText('Removal of the previous document is unsaved.', { exact: true }),
+  ).toBeVisible();
+  await page.getByRole('button', { name: 'Save progress', exact: true }).click();
+  await expect(page.getByText('Saved', { exact: true })).toBeVisible();
+  await page.reload();
+  await expect(page.getByLabel('Financing product', { exact: true })).toHaveAttribute(
+    'data-value',
+    'equipment',
+  );
+  await expect(page.getByLabel('Repayment term', { exact: true })).toHaveValue('٦');
+  await page.getByRole('link', { name: '4. Documents', exact: true }).click();
+  await expect(
+    page.getByRole('heading', { name: 'Supplier quotation', exact: true }),
+  ).toBeVisible();
+  const purchase = page
+    .getByRole('heading', { name: 'Supplier quotation', exact: true })
+    .locator('..');
+  await expect(purchase.getByText('No document supplied', { exact: true })).toBeVisible();
+});
 
-test('all five steps support a complete Equipment draft, four sample files and keyboard review in both directions', async ({ page }, info) => {
-  await page.goto('/applications/new?product=equipment')
-  await expect(page.getByRole('button', { name: 'عمر حسن', exact: true })).toBeVisible({ timeout: 30_000 })
-  await page.getByRole('button', { name: 'عمر حسن', exact: true }).click()
-  await page.getByRole('button', { name: 'طلب جديد', exact: true }).click()
-  await page.getByRole('link', { name: '2. النشاط التجاري', exact: true }).focus()
-  await page.keyboard.press('Enter')
-  await expect(page.getByRole('heading', { name: 'النشاط التجاري', exact: true })).toBeFocused()
-  await page.getByLabel('اسم النشاط التجاري', { exact: true }).fill('نشاط عمر الافتراضي')
-  await chooseOption(page.getByLabel('نوع النشاط', { exact: true }), 'production')
-  await page.getByLabel('عنوان النشاط', { exact: true }).fill('شارع السوق، تعز')
-  await page.getByLabel('بداية النشاط', { exact: true }).fill('٢٠٢٦-٠٨')
-  await page.getByLabel('متوسط الإيرادات الشهرية', { exact: true }).fill('٩٠٠٬٠٠٠')
-  await page.getByLabel('متوسط المصروفات الشهرية', { exact: true }).fill('٦٠٠٬٠٠٠')
-  await page.getByRole('link', { name: '3. التمويل', exact: true }).click()
-  await page.getByLabel('مبلغ التمويل', { exact: true }).fill('١٬٢٠٠٬٠٠٠')
-  await page.getByLabel('مدة السداد', { exact: true }).fill('١٨')
-  await page.getByLabel('تكلفة الشراء', { exact: true }).fill('١٬٣٠٠٬٠٠٠')
-  await page.getByLabel('شرح الشراء', { exact: true }).fill('شراء معدات إنتاجية جديدة للنشاط التجاري الافتراضي.')
-  await page.getByRole('link', { name: '4. المستندات', exact: true }).click()
-  for (const label of ['إثبات هوية المتقدم', 'إثبات النشاط التجاري', 'ملخص الإيرادات والمصروفات', 'عرض سعر المعدات']) {
-    const slot = page.getByRole('heading', { name: label, exact: true }).locator('..')
-    await slot.getByRole('button', { name: 'استخدام النموذج', exact: true }).click()
-    await expect(slot.getByText('جاهز للحفظ', { exact: true })).toBeVisible()
+test('all five steps support a complete Equipment draft, four sample files and keyboard review in both directions', async ({
+  page,
+}, info) => {
+  await page.goto('/applications/new?product=equipment');
+  await expect(page.getByRole('button', { name: 'عمر حسن', exact: true })).toBeVisible({
+    timeout: 30_000,
+  });
+  await page.getByRole('button', { name: 'عمر حسن', exact: true }).click();
+  await page.getByRole('button', { name: 'طلب جديد', exact: true }).click();
+  await page.getByRole('link', { name: '2. النشاط التجاري', exact: true }).focus();
+  await page.keyboard.press('Enter');
+  await expect(page.getByRole('heading', { name: 'النشاط التجاري', exact: true })).toBeFocused();
+  await page.getByLabel('اسم النشاط التجاري', { exact: true }).fill('نشاط عمر الافتراضي');
+  await chooseOption(page.getByLabel('نوع النشاط', { exact: true }), 'production');
+  await page.getByLabel('عنوان النشاط', { exact: true }).fill('شارع السوق، تعز');
+  await page.getByLabel('بداية النشاط', { exact: true }).fill('٢٠٢٦-٠٨');
+  await page.getByLabel('متوسط الإيرادات الشهرية', { exact: true }).fill('٩٠٠٬٠٠٠');
+  await page.getByLabel('متوسط المصروفات الشهرية', { exact: true }).fill('٦٠٠٬٠٠٠');
+  await page.getByRole('link', { name: '3. التمويل', exact: true }).click();
+  await page.getByLabel('مبلغ التمويل', { exact: true }).fill('١٬٢٠٠٬٠٠٠');
+  await page.getByLabel('مدة السداد', { exact: true }).fill('١٨');
+  await page.getByLabel('تكلفة الشراء', { exact: true }).fill('١٬٣٠٠٬٠٠٠');
+  await page
+    .getByLabel('شرح الشراء', { exact: true })
+    .fill('شراء معدات إنتاجية جديدة للنشاط التجاري الافتراضي.');
+  await page.getByRole('link', { name: '4. المستندات', exact: true }).click();
+  for (const label of [
+    'إثبات هوية المتقدم',
+    'إثبات النشاط التجاري',
+    'ملخص الإيرادات والمصروفات',
+    'عرض سعر المعدات',
+  ]) {
+    const slot = page.getByRole('heading', { name: label, exact: true }).locator('..');
+    await slot.getByRole('button', { name: 'استخدام النموذج', exact: true }).click();
+    await expect(slot.getByText('جاهز للحفظ', { exact: true })).toBeVisible();
   }
-  await page.getByRole('link', { name: '5. المراجعة', exact: true }).focus()
-  await page.keyboard.press('Enter')
-  await page.getByRole('button', { name: 'فحص اكتمال الطلب', exact: true }).click()
-  await expect(page.locator('#validation-summary')).toHaveCount(0)
-  await expect(page.getByText(/اكتملت متطلبات الصيغة والمستندات/)).toBeVisible()
-  await page.setViewportSize({ width: 390, height: 900 })
-  await page.screenshot({ path: info.outputPath('review-ar-390.png'), fullPage: true })
-  await page.getByRole('button', { name: 'English', exact: true }).click()
-  await expect(page.locator('html')).toHaveAttribute('lang', 'en')
-  await expect(page.getByText('1,200,000 YER', { exact: true })).toBeVisible()
-  await page.setViewportSize({ width: 1440, height: 900 })
-  await page.screenshot({ path: info.outputPath('review-en-1440.png'), fullPage: true })
-  await page.getByRole('button', { name: 'Save progress', exact: true }).click()
-  await expect(page.getByText('Saved', { exact: true })).toBeVisible()
-  await page.reload()
-  await expect(page.getByRole('heading', { name: 'Review', level: 2, exact: true })).toBeVisible()
-  await page.getByRole('button', { name: 'Check application', exact: true }).click()
-  await expect(page.getByText(/Field formats and document requirements are complete/)).toBeVisible()
-})
+  await page.getByRole('link', { name: '5. المراجعة', exact: true }).focus();
+  await page.keyboard.press('Enter');
+  await page.getByRole('button', { name: 'فحص اكتمال الطلب', exact: true }).click();
+  await expect(page.locator('#validation-summary')).toHaveCount(0);
+  await expect(page.getByText(/اكتملت متطلبات الصيغة والمستندات/)).toBeVisible();
+  await page.setViewportSize({ width: 390, height: 900 });
+  await page.screenshot({ path: info.outputPath('review-ar-390.png'), fullPage: true });
+  await page.getByRole('button', { name: 'English', exact: true }).click();
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+  await expect(page.getByText('1,200,000 YER', { exact: true })).toBeVisible();
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.screenshot({ path: info.outputPath('review-en-1440.png'), fullPage: true });
+  await page.getByRole('button', { name: 'Save progress', exact: true }).click();
+  await expect(page.getByText('Saved', { exact: true })).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole('heading', { name: 'Review', level: 2, exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Check application', exact: true }).click();
+  await expect(
+    page.getByText(/Field formats and document requirements are complete/),
+  ).toBeVisible();
+});
 
-test('same-identity recovery after expiry restores an unsaved new application and its ready file', async ({ page }) => {
-  await page.clock.install()
-  await page.goto('/applications/new?product=equipment')
-  await expect(page.getByRole('button', { name: 'مريم سالم', exact: true })).toBeVisible({ timeout: 30_000 })
-  await page.getByRole('button', { name: 'مريم سالم', exact: true }).click()
-  await page.getByRole('button', { name: 'English', exact: true }).click()
-  await page.getByRole('button', { name: 'New application', exact: true }).click()
-  await page.getByLabel('Applicant full name', { exact: true }).fill('Retained new applicant')
-  await page.getByRole('link', { name: '4. Documents', exact: true }).click()
-  const identity = page.getByRole('heading', { name: 'Applicant identity evidence', exact: true }).locator('..')
-  await identity.getByRole('button', { name: 'Use sample', exact: true }).click()
-  await expect(identity.getByText('Ready to save', { exact: true })).toBeVisible()
-  await page.clock.runFor(15 * 60 * 1000 + 1)
-  await expect(page.getByRole('button', { name: 'Mariam Salem', exact: true })).toBeVisible()
-  await page.getByRole('button', { name: 'Mariam Salem', exact: true }).click()
-  await expect(identity.getByText('Ready to save', { exact: true })).toBeVisible()
-  await page.getByRole('link', { name: '1. Personal', exact: true }).click()
-  await expect(page.getByLabel('Applicant full name', { exact: true })).toHaveValue('Retained new applicant')
-  await page.getByRole('button', { name: 'Save progress', exact: true }).click()
-  await expect(page.getByText('Saved', { exact: true })).toBeVisible()
-})
+test('same-identity recovery after expiry restores an unsaved new application and its ready file', async ({
+  page,
+}) => {
+  await page.clock.install();
+  await page.goto('/applications/new?product=equipment');
+  await expect(page.getByRole('button', { name: 'مريم سالم', exact: true })).toBeVisible({
+    timeout: 30_000,
+  });
+  await page.getByRole('button', { name: 'مريم سالم', exact: true }).click();
+  await page.getByRole('button', { name: 'English', exact: true }).click();
+  await page.getByRole('button', { name: 'New application', exact: true }).click();
+  await page.getByLabel('Applicant full name', { exact: true }).fill('Retained new applicant');
+  await page.getByRole('link', { name: '4. Documents', exact: true }).click();
+  const identity = page
+    .getByRole('heading', { name: 'Applicant identity evidence', exact: true })
+    .locator('..');
+  await identity.getByRole('button', { name: 'Use sample', exact: true }).click();
+  await expect(identity.getByText('Ready to save', { exact: true })).toBeVisible();
+  await page.clock.runFor(15 * 60 * 1000 + 1);
+  await expect(page.getByRole('button', { name: 'Mariam Salem', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Mariam Salem', exact: true }).click();
+  await expect(identity.getByText('Ready to save', { exact: true })).toBeVisible();
+  await page.getByRole('link', { name: '1. Personal', exact: true }).click();
+  await expect(page.getByLabel('Applicant full name', { exact: true })).toHaveValue(
+    'Retained new applicant',
+  );
+  await page.getByRole('button', { name: 'Save progress', exact: true }).click();
+  await expect(page.getByText('Saved', { exact: true })).toBeVisible();
+});
 
-test('reapplication after another tab changes product confirms incompatible evidence removal', async ({ page, context }) => {
-  await openEditor(page, 'financing')
-  await page.getByLabel('Purchase explanation', { exact: true }).fill('My retained inventory purchase explanation.')
-  const second = await context.newPage()
-  await second.goto('/applications/RIFD-2026-001/edit?step=financing')
-  await second.getByRole('button', { name: 'Mariam Salem', exact: true }).click()
-  await chooseOption(second.getByLabel('Financing product', { exact: true }), 'equipment')
-  await second.getByRole('button', { name: 'Switch product and remove document', exact: true }).click()
-  await second.getByRole('link', { name: '4. Documents', exact: true }).click()
-  const quotation = second.getByRole('heading', { name: 'Supplier quotation', exact: true }).locator('..')
-  await quotation.getByRole('button', { name: 'Use sample', exact: true }).click()
-  await expect(quotation.getByText('Ready to save', { exact: true })).toBeVisible()
-  await second.getByRole('button', { name: 'Save progress', exact: true }).click()
-  await expect(second.getByText('Saved', { exact: true })).toBeVisible()
-  await page.getByRole('button', { name: 'Inspect latest draft', exact: true }).click()
-  await page.getByRole('button', { name: 'Reapply my edits', exact: true }).click()
-  await expect(page.getByRole('dialog', { name: 'Remove the previous product document?' })).toBeVisible()
-  await page.keyboard.press('Escape')
-  await expect(page.getByRole('button', { name: 'Save progress', exact: true })).toBeDisabled()
-  await page.getByRole('button', { name: 'Reapply my edits', exact: true }).click()
-  await page.getByRole('button', { name: 'Switch product and remove document', exact: true }).click()
-  await page.getByRole('button', { name: 'Save progress', exact: true }).click()
-  await expect(page.getByText('Saved', { exact: true })).toBeVisible()
-  await page.reload()
-  await expect(page.getByLabel('Financing product', { exact: true })).toHaveAttribute('data-value', 'inventory')
-  await expect(page.getByLabel('Purchase explanation', { exact: true })).toHaveValue('My retained inventory purchase explanation.')
-})
+test('reapplication after another tab changes product confirms incompatible evidence removal', async ({
+  page,
+  context,
+}) => {
+  await openEditor(page, 'financing');
+  await page
+    .getByLabel('Purchase explanation', { exact: true })
+    .fill('My retained inventory purchase explanation.');
+  const second = await context.newPage();
+  await second.goto('/applications/RIFD-2026-001/edit?step=financing');
+  await second.getByRole('button', { name: 'Mariam Salem', exact: true }).click();
+  await chooseOption(second.getByLabel('Financing product', { exact: true }), 'equipment');
+  await second
+    .getByRole('button', { name: 'Switch product and remove document', exact: true })
+    .click();
+  await second.getByRole('link', { name: '4. Documents', exact: true }).click();
+  const quotation = second
+    .getByRole('heading', { name: 'Supplier quotation', exact: true })
+    .locator('..');
+  await quotation.getByRole('button', { name: 'Use sample', exact: true }).click();
+  await expect(quotation.getByText('Ready to save', { exact: true })).toBeVisible();
+  await second.getByRole('button', { name: 'Save progress', exact: true }).click();
+  await expect(second.getByText('Saved', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Inspect latest draft', exact: true }).click();
+  await page.getByRole('button', { name: 'Reapply my edits', exact: true }).click();
+  await expect(
+    page.getByRole('dialog', { name: 'Remove the previous product document?' }),
+  ).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('button', { name: 'Save progress', exact: true })).toBeDisabled();
+  await page.getByRole('button', { name: 'Reapply my edits', exact: true }).click();
+  await page
+    .getByRole('button', { name: 'Switch product and remove document', exact: true })
+    .click();
+  await page.getByRole('button', { name: 'Save progress', exact: true }).click();
+  await expect(page.getByText('Saved', { exact: true })).toBeVisible();
+  await page.reload();
+  await expect(page.getByLabel('Financing product', { exact: true })).toHaveAttribute(
+    'data-value',
+    'inventory',
+  );
+  await expect(page.getByLabel('Purchase explanation', { exact: true })).toHaveValue(
+    'My retained inventory purchase explanation.',
+  );
+});

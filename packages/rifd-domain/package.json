@@ -5,18 +5,43 @@
   "description": "Pure TypeScript helpers and Agent Skills for the fictional RIFD financing demo",
   "license": "UNLICENSED",
   "type": "module",
-  "engines": { "node": ">=22.12.0" },
-  "keywords": ["tanstack-intent", "agent-skills", "typescript"],
-  "files": ["dist", "src", "skills"],
-  "intent": { "version": 1, "repo": ".", "docs": "skills" },
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "keywords": [
+    "tanstack-intent",
+    "agent-skills",
+    "typescript"
+  ],
+  "files": [
+    "dist",
+    "src",
+    "skills"
+  ],
+  "intent": {
+    "version": 1,
+    "repo": ".",
+    "docs": "skills"
+  },
   "exports": {
-    ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" },
-    "./model": { "types": "./dist/model.d.ts", "import": "./dist/model.js" },
-    "./application": { "types": "./dist/application.d.ts", "import": "./dist/application.js" }
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./model": {
+      "types": "./dist/model.d.ts",
+      "import": "./dist/model.js"
+    },
+    "./application": {
+      "types": "./dist/application.d.ts",
+      "import": "./dist/application.js"
+    }
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "prepack": "pnpm run build && pnpm exec intent validate . --check && node ../../scripts/skills/skill-sources.mjs --check"
   },
-  "dependencies": { "zod": "4.3.6" }
+  "dependencies": {
+    "zod": "4.3.6"
+  }
 }

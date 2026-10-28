@@ -1,0 +1,26 @@
+# Generated or vendored output.
+node_modules/
+dist/
+packages/*/dist/
+functions/dist/
+public/pdfjs/
+.output/
+.tanstack/
+artifacts/
+test-results/
+playwright-report/
+.firebase/
+
+# Vendored agent instructions; formatting them would rewrite third-party skills.
+.agents/
+
+# Router-generated route tree.
+src/routeTree.gen.ts
+
+# Generated lockfile.
+pnpm-lock.yaml
+
+# Prose and package skills stay hand-written.
+**/*.md
+
+*.tgz

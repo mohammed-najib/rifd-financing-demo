@@ -1,164 +1,351 @@
-import { expect, test, type Page } from '@playwright/test'
-import { loseNextWriteCompletion } from '../support/storage-faults'
+import { expect, test, type Page } from '@playwright/test';
+import { loseNextWriteCompletion } from '../support/storage-faults';
 
-test.describe.configure({ mode: 'parallel' })
+test.describe.configure({ mode: 'parallel' });
 
 async function start(page: Page, language: 'ar' | 'en' = 'en', suffix = '') {
-  await page.goto(`/staff/applications/RIFD-2026-007${suffix}`)
-  await expect(page.locator('[data-workspace-ready="true"]')).toBeVisible({ timeout: 30_000 })
-  if (await page.locator('html').getAttribute('lang') !== language) await page.getByRole('button', { name: language === 'en' ? 'English' : 'العربية', exact: true }).click()
-  await page.getByRole('button', { name: language === 'en' ? 'Salma Nasser' : 'سلمى ناصر', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'RIFD-2026-007', exact: true })).toBeVisible()
+  await page.goto(`/staff/applications/RIFD-2026-007${suffix}`);
+  await expect(page.locator('[data-workspace-ready="true"]')).toBeVisible({ timeout: 30_000 });
+  if ((await page.locator('html').getAttribute('lang')) !== language)
+    await page
+      .getByRole('button', { name: language === 'en' ? 'English' : 'العربية', exact: true })
+      .click();
+  await page
+    .getByRole('button', { name: language === 'en' ? 'Salma Nasser' : 'سلمى ناصر', exact: true })
+    .click();
+  await expect(page.getByRole('heading', { name: 'RIFD-2026-007', exact: true })).toBeVisible();
 }
 
-for (const language of ['ar', 'en'] as const) test(`${language} stale assessment retains text, updates other tabs, and requires reclaim and inspection`, async ({ page, context }, info) => {
-  const ar = language === 'ar'
-  await page.setViewportSize({ width: ar ? 390 : 1440, height: 950 })
-  await start(page, language)
-  const second = await context.newPage()
-  await start(second, language)
-  const assignments = (target: Page) => target.getByRole('region', { name: ar ? 'الإسناد والمراجعة' : 'Assignment and review' })
-  await page.getByLabel(ar ? 'ملاحظة داخلية' : 'Internal note', { exact: true }).fill('Unapplied internal note')
-  await page.getByRole('checkbox', { name: ar ? 'أؤكد أنني فحصت المستند الحالي' : 'I confirm I inspected the current source', exact: true }).first().check()
-  await page.getByRole('button', { name: ar ? 'يحتاج إلى استبدال' : 'Needs replacement', exact: true }).first().click()
-  const reason = page.getByLabel(ar ? 'سبب الاستبدال' : 'Replacement reason', { exact: true })
-  await reason.fill('Unapplied replacement reason')
-  await page.getByRole('button', { name: ar ? 'محاكاة إسناد الطلب إلى خالد' : 'Simulate reassignment to Khaled', exact: true }).click()
-  await expect(page.getByRole('status').filter({ hasText: ar ? 'بقي هذا العرض' : 'This view is held' })).toBeVisible()
-  await expect(assignments(second).getByRole('button', { name: ar ? 'استرداد من خالد علي' : 'Reclaim from Khaled Ali', exact: true })).toBeVisible()
-  await page.bringToFront()
-  await expect(assignments(page).getByText(ar ? 'مسند إليك' : 'Assigned to you', { exact: true })).toBeVisible()
-  await page.getByRole('button', { name: ar ? 'حفظ التقييم' : 'Save assessment', exact: true }).click()
-  await expect(page.getByRole('alert')).toContainText(ar ? 'تغير الطلب' : 'The application changed')
-  await page.getByRole('button', { name: ar ? 'تحميل الأحدث' : 'Load latest', exact: true }).click()
-  await expect(reason).toHaveValue('Unapplied replacement reason')
-  await expect(reason).toHaveJSProperty('readOnly', true)
-  await expect(page.getByLabel(ar ? 'ملاحظة داخلية' : 'Internal note', { exact: true })).toHaveValue('Unapplied internal note')
-  await expect(page.getByRole('button', { name: ar ? 'حفظ التقييم' : 'Save assessment', exact: true })).toBeDisabled()
-  await expect(page.getByText(ar ? 'نقل تجريبي من سلمى ناصر إلى خالد علي.' : 'Simulated transfer from Salma Nasser to Khaled Ali.', { exact: true })).toBeVisible()
-  if (info.project.name === 'chrome') {
-    await page.evaluate(() => document.fonts.ready)
-    for (const width of [390, 1440]) {
-      await page.setViewportSize({ width, height: 950 })
-      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
-      await page.screenshot({ path: `artifacts/browser-evidence/16/recovery-${language}-${width}.png`, fullPage: true })
+for (const language of ['ar', 'en'] as const)
+  test(`${language} stale assessment retains text, updates other tabs, and requires reclaim and inspection`, async ({
+    page,
+    context,
+  }, info) => {
+    const ar = language === 'ar';
+    await page.setViewportSize({ width: ar ? 390 : 1440, height: 950 });
+    await start(page, language);
+    const second = await context.newPage();
+    await start(second, language);
+    const assignments = (target: Page) =>
+      target.getByRole('region', { name: ar ? 'الإسناد والمراجعة' : 'Assignment and review' });
+    await page
+      .getByLabel(ar ? 'ملاحظة داخلية' : 'Internal note', { exact: true })
+      .fill('Unapplied internal note');
+    await page
+      .getByRole('checkbox', {
+        name: ar ? 'أؤكد أنني فحصت المستند الحالي' : 'I confirm I inspected the current source',
+        exact: true,
+      })
+      .first()
+      .check();
+    await page
+      .getByRole('button', { name: ar ? 'يحتاج إلى استبدال' : 'Needs replacement', exact: true })
+      .first()
+      .click();
+    const reason = page.getByLabel(ar ? 'سبب الاستبدال' : 'Replacement reason', { exact: true });
+    await reason.fill('Unapplied replacement reason');
+    await page
+      .getByRole('button', {
+        name: ar ? 'محاكاة إسناد الطلب إلى خالد' : 'Simulate reassignment to Khaled',
+        exact: true,
+      })
+      .click();
+    await expect(
+      page.getByRole('status').filter({ hasText: ar ? 'بقي هذا العرض' : 'This view is held' }),
+    ).toBeVisible();
+    await expect(
+      assignments(second).getByRole('button', {
+        name: ar ? 'استرداد من خالد علي' : 'Reclaim from Khaled Ali',
+        exact: true,
+      }),
+    ).toBeVisible();
+    await page.bringToFront();
+    await expect(
+      assignments(page).getByText(ar ? 'مسند إليك' : 'Assigned to you', { exact: true }),
+    ).toBeVisible();
+    await page
+      .getByRole('button', { name: ar ? 'حفظ التقييم' : 'Save assessment', exact: true })
+      .click();
+    await expect(page.getByRole('alert')).toContainText(
+      ar ? 'تغير الطلب' : 'The application changed',
+    );
+    await page
+      .getByRole('button', { name: ar ? 'تحميل الأحدث' : 'Load latest', exact: true })
+      .click();
+    await expect(reason).toHaveValue('Unapplied replacement reason');
+    await expect(reason).toHaveJSProperty('readOnly', true);
+    await expect(
+      page.getByLabel(ar ? 'ملاحظة داخلية' : 'Internal note', { exact: true }),
+    ).toHaveValue('Unapplied internal note');
+    await expect(
+      page.getByRole('button', { name: ar ? 'حفظ التقييم' : 'Save assessment', exact: true }),
+    ).toBeDisabled();
+    await expect(
+      page.getByText(
+        ar
+          ? 'نقل تجريبي من سلمى ناصر إلى خالد علي.'
+          : 'Simulated transfer from Salma Nasser to Khaled Ali.',
+        { exact: true },
+      ),
+    ).toBeVisible();
+    if (info.project.name === 'chrome') {
+      await page.evaluate(() => document.fonts.ready);
+      for (const width of [390, 1440]) {
+        await page.setViewportSize({ width, height: 950 });
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+          true,
+        );
+        await page.screenshot({
+          path: `artifacts/browser-evidence/16/recovery-${language}-${width}.png`,
+          fullPage: true,
+        });
+      }
     }
-  }
-  await assignments(page).getByRole('button', { name: ar ? 'استرداد من خالد علي' : 'Reclaim from Khaled Ali', exact: true }).click()
-  await page.getByRole('dialog').getByRole('button', { name: ar ? 'تأكيد النقل' : 'Confirm transfer', exact: true }).click()
-  await expect(page.getByRole('button', { name: ar ? 'حفظ التقييم' : 'Save assessment', exact: true })).toBeDisabled()
-  await page.getByRole('button', { name: ar ? 'فحص أحدث مراجعة' : 'Inspect latest review', exact: true }).click()
-  await expect(page.getByRole('checkbox', { name: ar ? 'أؤكد أنني فحصت المستند الحالي' : 'I confirm I inspected the current source', exact: true }).first()).not.toBeChecked()
-  await expect(page.getByRole('button', { name: ar ? 'حفظ التقييم' : 'Save assessment', exact: true })).toBeDisabled()
-  await page.getByRole('checkbox', { name: ar ? 'أؤكد أنني فحصت المستند الحالي' : 'I confirm I inspected the current source', exact: true }).first().check()
-  await page.getByRole('button', { name: ar ? 'حفظ التقييم' : 'Save assessment', exact: true }).click()
-  await expect(reason).toHaveCount(0)
-  await page.getByRole('button', { name: ar ? 'حفظ الملاحظة' : 'Save note', exact: true }).click()
-  await expect(page.getByLabel(ar ? 'ملاحظة داخلية' : 'Internal note', { exact: true })).toHaveValue('')
-  await expect(page.getByText('Unapplied internal note', { exact: true })).toHaveCount(1)
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
-})
+    await assignments(page)
+      .getByRole('button', {
+        name: ar ? 'استرداد من خالد علي' : 'Reclaim from Khaled Ali',
+        exact: true,
+      })
+      .click();
+    await page
+      .getByRole('dialog')
+      .getByRole('button', { name: ar ? 'تأكيد النقل' : 'Confirm transfer', exact: true })
+      .click();
+    await expect(
+      page.getByRole('button', { name: ar ? 'حفظ التقييم' : 'Save assessment', exact: true }),
+    ).toBeDisabled();
+    await page
+      .getByRole('button', { name: ar ? 'فحص أحدث مراجعة' : 'Inspect latest review', exact: true })
+      .click();
+    await expect(
+      page
+        .getByRole('checkbox', {
+          name: ar ? 'أؤكد أنني فحصت المستند الحالي' : 'I confirm I inspected the current source',
+          exact: true,
+        })
+        .first(),
+    ).not.toBeChecked();
+    await expect(
+      page.getByRole('button', { name: ar ? 'حفظ التقييم' : 'Save assessment', exact: true }),
+    ).toBeDisabled();
+    await page
+      .getByRole('checkbox', {
+        name: ar ? 'أؤكد أنني فحصت المستند الحالي' : 'I confirm I inspected the current source',
+        exact: true,
+      })
+      .first()
+      .check();
+    await page
+      .getByRole('button', { name: ar ? 'حفظ التقييم' : 'Save assessment', exact: true })
+      .click();
+    await expect(reason).toHaveCount(0);
+    await page
+      .getByRole('button', { name: ar ? 'حفظ الملاحظة' : 'Save note', exact: true })
+      .click();
+    await expect(
+      page.getByLabel(ar ? 'ملاحظة داخلية' : 'Internal note', { exact: true }),
+    ).toHaveValue('');
+    await expect(page.getByText('Unapplied internal note', { exact: true })).toHaveCount(1);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+      true,
+    );
+  });
 
-for (const language of ['ar', 'en'] as const) test(`${language} stale decision and expiry preserve reason and require a new final confirmation after reclaim`, async ({ page }) => {
-  const ar = language === 'ar'
-  await page.clock.install()
-  await start(page, language)
-  const purpose = page.getByRole('group', { name: ar ? 'ملاءمة الغرض لمنتج التمويل' : 'Product purpose fit', exact: true })
-  await purpose.getByRole('button', { name: ar ? 'لم يجتز' : 'Failed', exact: true }).click()
-  await expect(purpose.getByRole('button', { name: ar ? 'لم يجتز' : 'Failed', exact: true })).toHaveAttribute('aria-pressed', 'true')
-  await page.getByRole('link', { name: ar ? 'تسجيل القرار النهائي' : 'Record final decision', exact: true }).click()
-  const reason = page.getByLabel(ar ? 'سبب القرار الظاهر للمتقدم' : 'Applicant-visible decision reason', { exact: true })
-  await reason.fill('Retained decision explanation')
-  await page.getByRole('button', { name: ar ? 'محاكاة إسناد الطلب إلى خالد' : 'Simulate reassignment to Khaled', exact: true }).click()
-  await expect(page.getByRole('status').filter({ hasText: ar ? 'بقي هذا العرض' : 'This view is held' })).toBeVisible()
-  const inspect = page.getByRole('button', { name: ar ? 'فحص الرفض' : 'Inspect rejection', exact: true })
-  await inspect.click()
-  const confirm = () => page.getByRole('dialog').getByRole('button', { name: ar ? 'تأكيد القرار النهائي' : 'Confirm final decision', exact: true })
-  await confirm().click()
-  await expect(page.getByRole('alert')).toContainText(ar ? 'تغير الطلب' : 'The application changed')
-  await page.getByRole('button', { name: ar ? 'تحميل الأحدث' : 'Load latest', exact: true }).click()
-  await expect(reason).toHaveValue('Retained decision explanation')
-  await expect(reason).toHaveJSProperty('readOnly', true)
-  await expect(page.getByRole('dialog')).toHaveCount(0)
-  await page.getByRole('button', { name: ar ? 'إنهاء الجلسة' : 'Expire session', exact: true }).click()
-  await page.getByRole('button', { name: ar ? 'سلمى ناصر' : 'Salma Nasser', exact: true }).click()
-  await expect(reason).toHaveValue('Retained decision explanation')
-  await expect(reason).toHaveJSProperty('readOnly', true)
-  await expect(page.getByRole('dialog')).toHaveCount(0)
-  await page.getByRole('button', { name: ar ? 'استرداد من خالد علي' : 'Reclaim from Khaled Ali', exact: true }).click()
-  await page.getByRole('dialog').getByRole('button', { name: ar ? 'تأكيد النقل' : 'Confirm transfer', exact: true }).click()
-  await expect(inspect).toBeDisabled()
-  await page.getByRole('button', { name: ar ? 'فحص أحدث نسخة من الطلب' : 'Inspect latest application', exact: true }).click()
-  await expect(inspect).toBeEnabled()
-  await inspect.focus(); await page.keyboard.press('Enter')
-  await expect(page.getByRole('dialog')).toContainText('Retained decision explanation')
-  await page.keyboard.press('Escape')
-  await expect(inspect).toBeFocused()
-  await inspect.click(); await confirm().click()
-  await expect(page.getByRole('status').filter({ hasText: ar ? 'حُفظ القرار النهائي.' : 'Final decision saved.' })).toBeVisible()
-  await expect(page.getByText('Retained decision explanation', { exact: true })).toHaveCount(1)
-})
+for (const language of ['ar', 'en'] as const)
+  test(`${language} stale decision and expiry preserve reason and require a new final confirmation after reclaim`, async ({
+    page,
+  }) => {
+    const ar = language === 'ar';
+    await page.clock.install();
+    await start(page, language);
+    const purpose = page.getByRole('group', {
+      name: ar ? 'ملاءمة الغرض لمنتج التمويل' : 'Product purpose fit',
+      exact: true,
+    });
+    await purpose.getByRole('button', { name: ar ? 'لم يجتز' : 'Failed', exact: true }).click();
+    await expect(
+      purpose.getByRole('button', { name: ar ? 'لم يجتز' : 'Failed', exact: true }),
+    ).toHaveAttribute('aria-pressed', 'true');
+    await page
+      .getByRole('link', {
+        name: ar ? 'تسجيل القرار النهائي' : 'Record final decision',
+        exact: true,
+      })
+      .click();
+    const reason = page.getByLabel(
+      ar ? 'سبب القرار الظاهر للمتقدم' : 'Applicant-visible decision reason',
+      { exact: true },
+    );
+    await reason.fill('Retained decision explanation');
+    await page
+      .getByRole('button', {
+        name: ar ? 'محاكاة إسناد الطلب إلى خالد' : 'Simulate reassignment to Khaled',
+        exact: true,
+      })
+      .click();
+    await expect(
+      page.getByRole('status').filter({ hasText: ar ? 'بقي هذا العرض' : 'This view is held' }),
+    ).toBeVisible();
+    const inspect = page.getByRole('button', {
+      name: ar ? 'فحص الرفض' : 'Inspect rejection',
+      exact: true,
+    });
+    await inspect.click();
+    const confirm = () =>
+      page.getByRole('dialog').getByRole('button', {
+        name: ar ? 'تأكيد القرار النهائي' : 'Confirm final decision',
+        exact: true,
+      });
+    await confirm().click();
+    await expect(page.getByRole('alert')).toContainText(
+      ar ? 'تغير الطلب' : 'The application changed',
+    );
+    await page
+      .getByRole('button', { name: ar ? 'تحميل الأحدث' : 'Load latest', exact: true })
+      .click();
+    await expect(reason).toHaveValue('Retained decision explanation');
+    await expect(reason).toHaveJSProperty('readOnly', true);
+    await expect(page.getByRole('dialog')).toHaveCount(0);
+    await page
+      .getByRole('button', { name: ar ? 'إنهاء الجلسة' : 'Expire session', exact: true })
+      .click();
+    await page
+      .getByRole('button', { name: ar ? 'سلمى ناصر' : 'Salma Nasser', exact: true })
+      .click();
+    await expect(reason).toHaveValue('Retained decision explanation');
+    await expect(reason).toHaveJSProperty('readOnly', true);
+    await expect(page.getByRole('dialog')).toHaveCount(0);
+    await page
+      .getByRole('button', {
+        name: ar ? 'استرداد من خالد علي' : 'Reclaim from Khaled Ali',
+        exact: true,
+      })
+      .click();
+    await page
+      .getByRole('dialog')
+      .getByRole('button', { name: ar ? 'تأكيد النقل' : 'Confirm transfer', exact: true })
+      .click();
+    await expect(inspect).toBeDisabled();
+    await page
+      .getByRole('button', {
+        name: ar ? 'فحص أحدث نسخة من الطلب' : 'Inspect latest application',
+        exact: true,
+      })
+      .click();
+    await expect(inspect).toBeEnabled();
+    await inspect.focus();
+    await page.keyboard.press('Enter');
+    await expect(page.getByRole('dialog')).toContainText('Retained decision explanation');
+    await page.keyboard.press('Escape');
+    await expect(inspect).toBeFocused();
+    await inspect.click();
+    await confirm().click();
+    await expect(
+      page
+        .getByRole('status')
+        .filter({ hasText: ar ? 'حُفظ القرار النهائي.' : 'Final decision saved.' }),
+    ).toBeVisible();
+    await expect(page.getByText('Retained decision explanation', { exact: true })).toHaveCount(1);
+  });
 
-test('an unobserved simulation commit is inspected before the held view refuses a note', async ({ page }) => {
-  await start(page)
-  await page.getByLabel('Internal note', { exact: true }).fill('Retain through uncertain simulation')
-  await page.evaluate(loseNextWriteCompletion)
-  await page.getByRole('button', { name: 'Simulate reassignment to Khaled', exact: true }).click()
-  await page.getByRole('button', { name: 'Inspect action outcome', exact: true }).click({ timeout: 20_000 })
-  await expect(page.getByRole('status').filter({ hasText: 'This view is held' })).toBeVisible()
-  await page.getByRole('button', { name: 'Save note', exact: true }).click()
-  await expect(page.getByRole('alert')).toContainText('The application changed')
-  await page.getByRole('button', { name: 'Load latest', exact: true }).click()
-  await expect(page.getByLabel('Internal note', { exact: true })).toHaveValue('Retain through uncertain simulation')
-  await expect(page.getByRole('button', { name: 'Save note', exact: true })).toBeDisabled()
-  await expect(page.getByText('Simulated transfer from Salma Nasser to Khaled Ali.', { exact: true })).toHaveCount(1)
-})
+test('an unobserved simulation commit is inspected before the held view refuses a note', async ({
+  page,
+}) => {
+  await start(page);
+  await page
+    .getByLabel('Internal note', { exact: true })
+    .fill('Retain through uncertain simulation');
+  await page.evaluate(loseNextWriteCompletion);
+  await page.getByRole('button', { name: 'Simulate reassignment to Khaled', exact: true }).click();
+  await page
+    .getByRole('button', { name: 'Inspect action outcome', exact: true })
+    .click({ timeout: 20_000 });
+  await expect(page.getByRole('status').filter({ hasText: 'This view is held' })).toBeVisible();
+  await page.getByRole('button', { name: 'Save note', exact: true }).click();
+  await expect(page.getByRole('alert')).toContainText('The application changed');
+  await page.getByRole('button', { name: 'Load latest', exact: true }).click();
+  await expect(page.getByLabel('Internal note', { exact: true })).toHaveValue(
+    'Retain through uncertain simulation',
+  );
+  await expect(page.getByRole('button', { name: 'Save note', exact: true })).toBeDisabled();
+  await expect(
+    page.getByText('Simulated transfer from Salma Nasser to Khaled Ali.', { exact: true }),
+  ).toHaveCount(1);
+});
 
 test('the control appears only for an eligible assigned Under review record', async ({ page }) => {
-  await start(page)
-  const control = page.getByRole('button', { name: 'Simulate reassignment to Khaled', exact: true })
-  await expect(control).toBeVisible()
+  await start(page);
+  const control = page.getByRole('button', {
+    name: 'Simulate reassignment to Khaled',
+    exact: true,
+  });
+  await expect(control).toBeVisible();
   for (const suffix of ['003', '004', '005', '008']) {
-    await page.goto(`/staff/applications/RIFD-2026-${suffix}`)
-    await expect(page.getByRole('heading', { name: `RIFD-2026-${suffix}`, exact: true })).toBeVisible()
-    await expect(control).toHaveCount(0)
+    await page.goto(`/staff/applications/RIFD-2026-${suffix}`);
+    await expect(
+      page.getByRole('heading', { name: `RIFD-2026-${suffix}`, exact: true }),
+    ).toBeVisible();
+    await expect(control).toHaveCount(0);
   }
-})
+});
 
-test('stale correction request retains its target reason through read-only inspection and confirmed reclaim', async ({ page }) => {
-  await start(page, 'en', '/correction-request')
-  await page.getByRole('checkbox', { name: 'Applicant full name', exact: true }).check()
-  const reason = page.getByLabel('Correction reason: Applicant full name', { exact: true })
-  await reason.fill('Retained correction explanation')
-  await page.getByRole('button', { name: 'Simulate reassignment to Khaled', exact: true }).click()
-  await expect(page.getByRole('status').filter({ hasText: 'This view is held' })).toBeVisible()
-  await page.getByRole('button', { name: 'Inspect correction request', exact: true }).click()
-  await page.getByRole('dialog').getByRole('button', { name: 'Confirm and send request', exact: true }).click()
-  await expect(page.getByRole('alert')).toContainText('The application changed')
-  await page.getByRole('button', { name: 'Load latest', exact: true }).click()
-  await expect(reason).toHaveValue('Retained correction explanation')
-  await expect(reason).toHaveJSProperty('readOnly', true)
-  await expect(page.getByRole('button', { name: 'Inspect correction request', exact: true })).toBeDisabled()
-  await page.getByRole('button', { name: 'Reclaim from Khaled Ali', exact: true }).click()
-  await page.getByRole('dialog').getByRole('button', { name: 'Confirm transfer', exact: true }).click()
-  await page.getByRole('button', { name: 'Inspect latest application', exact: true }).click()
-  await page.getByRole('button', { name: 'Inspect correction request', exact: true }).click()
-  await page.getByRole('dialog').getByRole('button', { name: 'Confirm and send request', exact: true }).click()
-  await expect(page.getByRole('status').filter({ hasText: 'Correction request sent.' })).toBeVisible()
-})
+test('stale correction request retains its target reason through read-only inspection and confirmed reclaim', async ({
+  page,
+}) => {
+  await start(page, 'en', '/correction-request');
+  await page.getByRole('checkbox', { name: 'Applicant full name', exact: true }).check();
+  const reason = page.getByLabel('Correction reason: Applicant full name', { exact: true });
+  await reason.fill('Retained correction explanation');
+  await page.getByRole('button', { name: 'Simulate reassignment to Khaled', exact: true }).click();
+  await expect(page.getByRole('status').filter({ hasText: 'This view is held' })).toBeVisible();
+  await page.getByRole('button', { name: 'Inspect correction request', exact: true }).click();
+  await page
+    .getByRole('dialog')
+    .getByRole('button', { name: 'Confirm and send request', exact: true })
+    .click();
+  await expect(page.getByRole('alert')).toContainText('The application changed');
+  await page.getByRole('button', { name: 'Load latest', exact: true }).click();
+  await expect(reason).toHaveValue('Retained correction explanation');
+  await expect(reason).toHaveJSProperty('readOnly', true);
+  await expect(
+    page.getByRole('button', { name: 'Inspect correction request', exact: true }),
+  ).toBeDisabled();
+  await page.getByRole('button', { name: 'Reclaim from Khaled Ali', exact: true }).click();
+  await page
+    .getByRole('dialog')
+    .getByRole('button', { name: 'Confirm transfer', exact: true })
+    .click();
+  await page.getByRole('button', { name: 'Inspect latest application', exact: true }).click();
+  await page.getByRole('button', { name: 'Inspect correction request', exact: true }).click();
+  await page
+    .getByRole('dialog')
+    .getByRole('button', { name: 'Confirm and send request', exact: true })
+    .click();
+  await expect(
+    page.getByRole('status').filter({ hasText: 'Correction request sent.' }),
+  ).toBeVisible();
+});
 
-test('a stale checklist action without retained text still requires inspection after reclaim', async ({ page }) => {
-  await start(page)
-  await page.getByRole('button', { name: 'Simulate reassignment to Khaled', exact: true }).click()
-  await expect(page.getByRole('status').filter({ hasText: 'This view is held' })).toBeVisible()
-  const purpose = page.getByRole('group', { name: 'Product purpose fit', exact: true })
-  await purpose.getByRole('button', { name: 'Passed', exact: true }).click()
-  await page.getByRole('button', { name: 'Load latest', exact: true }).click()
-  await page.getByRole('button', { name: 'Reclaim from Khaled Ali', exact: true }).click()
-  await page.getByRole('dialog').getByRole('button', { name: 'Confirm transfer', exact: true }).click()
-  await expect(purpose.getByRole('button', { name: 'Passed', exact: true })).toBeVisible()
-  await expect(purpose.getByRole('button', { name: 'Passed', exact: true })).toBeDisabled()
-  await page.getByRole('button', { name: 'Inspect latest review', exact: true }).click()
-  await purpose.getByRole('button', { name: 'Passed', exact: true }).click()
-  await expect(purpose.getByRole('button', { name: 'Passed', exact: true })).toHaveAttribute('aria-pressed', 'true')
-})
+test('a stale checklist action without retained text still requires inspection after reclaim', async ({
+  page,
+}) => {
+  await start(page);
+  await page.getByRole('button', { name: 'Simulate reassignment to Khaled', exact: true }).click();
+  await expect(page.getByRole('status').filter({ hasText: 'This view is held' })).toBeVisible();
+  const purpose = page.getByRole('group', { name: 'Product purpose fit', exact: true });
+  await purpose.getByRole('button', { name: 'Passed', exact: true }).click();
+  await page.getByRole('button', { name: 'Load latest', exact: true }).click();
+  await page.getByRole('button', { name: 'Reclaim from Khaled Ali', exact: true }).click();
+  await page
+    .getByRole('dialog')
+    .getByRole('button', { name: 'Confirm transfer', exact: true })
+    .click();
+  await expect(purpose.getByRole('button', { name: 'Passed', exact: true })).toBeVisible();
+  await expect(purpose.getByRole('button', { name: 'Passed', exact: true })).toBeDisabled();
+  await page.getByRole('button', { name: 'Inspect latest review', exact: true }).click();
+  await purpose.getByRole('button', { name: 'Passed', exact: true }).click();
+  await expect(purpose.getByRole('button', { name: 'Passed', exact: true })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+});

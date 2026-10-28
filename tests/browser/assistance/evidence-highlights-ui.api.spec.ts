@@ -1,97 +1,154 @@
-import { expect, test } from '@playwright/test'
-import { nativeLocatedIdentity } from '../support/evidence-transport'
-import type { StageRequest } from '../../../src/evidence-assistance/contract'
+import { expect, test } from '@playwright/test';
+import { nativeLocatedIdentity } from '../support/evidence-transport';
+import type { StageRequest } from '../../../src/evidence-assistance/contract';
 
-test('named findings open aligned regions through resize, RTL and restored analysis', async ({ page }, info) => {
-  let requests = 0, suppress = false
-  await page.route('**/fake-provider/systemone', async route => { requests++; const request = route.request().postDataJSON() as StageRequest, raw = nativeLocatedIdentity(request) as { answers: Record<string, unknown> }; if (suppress && request.stage === 'bound-verification') raw.answers.fullNameLeftClipping = { type: 'noul', noul: 0.1 }; await route.fulfill({ json: raw }) })
-  await page.goto('/tests/browser/support/evidence-screen.html')
-  await page.getByRole('button', { name: 'English', exact: true }).click()
-  const panel = page.locator('section[aria-labelledby="identity-heading"]').locator('.evidence-assistance')
-  await panel.getByRole('button', { name: 'Check document', exact: true }).click()
-  await panel.getByRole('button', { name: 'Run check', exact: true }).click()
-  await panel.getByText('Inspect field region', { exact: true }).click()
-  const inspect = panel.getByRole('button', { name: /Inspect field region/ })
-  await expect(inspect).toBeVisible(); await inspect.click()
-  const dialog = page.getByRole('dialog')
-  await expect(page.getByRole('dialog', { name: 'Inspect field region', exact: true })).toBeVisible()
-  expect(await dialog.evaluate(element => element.matches(':modal'))).toBe(true)
-  const close = dialog.getByRole('button', { name: 'Close preview', exact: true })
-  await expect(close).toBeFocused()
-  await page.keyboard.press('Shift+Tab')
-  await expect(dialog.getByRole('link', { name: 'Download file', exact: true })).toBeFocused()
-  await page.keyboard.press('Tab'); await expect(close).toBeFocused()
-  const overlay = dialog.locator('[data-evidence-highlight="fullName"]'), raster = dialog.locator('[data-evidence-raster]')
-  await expect(overlay).toBeVisible()
+test('named findings open aligned regions through resize, RTL and restored analysis', async ({
+  page,
+}, info) => {
+  let requests = 0,
+    suppress = false;
+  await page.route('**/fake-provider/systemone', async route => {
+    requests++;
+    const request = route.request().postDataJSON() as StageRequest,
+      raw = nativeLocatedIdentity(request) as { answers: Record<string, unknown> };
+    if (suppress && request.stage === 'bound-verification')
+      raw.answers.fullNameLeftClipping = { type: 'noul', noul: 0.1 };
+    await route.fulfill({ json: raw });
+  });
+  await page.goto('/tests/browser/support/evidence-screen.html');
+  await page.getByRole('button', { name: 'English', exact: true }).click();
+  const panel = page
+    .locator('section[aria-labelledby="identity-heading"]')
+    .locator('.evidence-assistance');
+  await panel.getByRole('button', { name: 'Check document', exact: true }).click();
+  await panel.getByRole('button', { name: 'Run check', exact: true }).click();
+  await panel.getByText('Inspect field region', { exact: true }).click();
+  const inspect = panel.getByRole('button', { name: /Inspect field region/ });
+  await expect(inspect).toBeVisible();
+  await inspect.click();
+  const dialog = page.getByRole('dialog');
+  await expect(
+    page.getByRole('dialog', { name: 'Inspect field region', exact: true }),
+  ).toBeVisible();
+  expect(await dialog.evaluate(element => element.matches(':modal'))).toBe(true);
+  const close = dialog.getByRole('button', { name: 'Close preview', exact: true });
+  await expect(close).toBeFocused();
+  await page.keyboard.press('Shift+Tab');
+  await expect(dialog.getByRole('link', { name: 'Download file', exact: true })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(close).toBeFocused();
+  const overlay = dialog.locator('[data-evidence-highlight="fullName"]'),
+    raster = dialog.locator('[data-evidence-raster]');
+  await expect(overlay).toBeVisible();
   const assertAligned = async () => {
-    await expect.poll(async () => raster.evaluate(image => {
-      const mark = image.parentElement!.querySelector('[data-evidence-highlight]')!.getBoundingClientRect(), rect = image.getBoundingClientRect()
-      return Math.max(Math.abs(mark.x - rect.x - rect.width * 0.1015), Math.abs(mark.y - rect.y - rect.height * 0.2005), Math.abs(mark.width - rect.width * 0.199))
-    })).toBeLessThan(0.1)
-  }
-  await assertAligned()
-  await dialog.screenshot({ path: info.outputPath('highlight-en-1440.png') })
-  await page.keyboard.press('Escape')
-  await expect(dialog).toHaveCount(0); await expect(inspect).toBeFocused()
-  await expect(panel.locator('.check-source')).toHaveCount(0)
-  await panel.getByRole('button', { name: 'Show current source', exact: true }).click()
-  await expect(panel.locator('.check-source img')).toBeVisible()
-  await inspect.focus(); await page.keyboard.press('Enter')
-  await expect(overlay).toBeVisible()
-  await expect(panel.locator('.check-source [data-evidence-highlight]')).toHaveCount(0)
-  await close.click(); await expect(inspect).toBeFocused()
-  await panel.getByRole('button', { name: 'Hide current source', exact: true }).click()
-  await inspect.click()
-  await page.setViewportSize({ width: 390, height: 900 }); await assertAligned()
-  await page.keyboard.press('Escape')
-  await page.getByRole('button', { name: 'العربية', exact: true }).click()
-  const inspectAr = panel.getByRole('button', { name: /فحص موضع الحقل/ })
-  await inspectAr.click(); await assertAligned()
-  await expect(dialog).toHaveAttribute('dir', 'rtl')
-  expect(await dialog.evaluate(element => element.scrollWidth <= element.clientWidth)).toBe(true)
-  await dialog.screenshot({ path: info.outputPath('highlight-ar-390.png') })
-  await dialog.getByRole('button', { name: 'إغلاق المعاينة', exact: true }).click()
-  await expect(inspectAr).toBeFocused()
-  expect(requests).toBe(2)
-  await page.reload()
-  await page.locator('section[aria-labelledby="identity-heading"]').getByRole('button', { name: 'فحص المستند', exact: true }).click()
-  await panel.getByText('فحص موضع الحقل', { exact: true }).click()
-  await page.getByRole('button', { name: /فحص موضع الحقل/ }).click()
-  await expect(overlay).toBeVisible()
-  expect(requests).toBe(2)
-  await page.keyboard.press('Escape')
-  suppress = true
-  await panel.getByRole('button', { name: 'إعادة الفحص', exact: true }).click()
-  await expect(panel.getByText('تحديد الموضع غير متاح. يمكنك فحص الحقل المسمى في المصدر.', { exact: true })).toBeVisible()
-  await panel.getByRole('button', { name: /فحص موضع الحقل/ }).click()
-  await expect(dialog).toBeVisible()
-  await expect(dialog.locator('[data-evidence-highlight]')).toHaveCount(0)
-  await expect(dialog.getByText('تحديد الموضع غير متاح. يمكنك فحص الحقل المسمى في المصدر.', { exact: true })).toBeVisible()
-  await expect(dialog.getByRole('link', { name: 'فتح الملف', exact: true })).toBeVisible()
-  expect(requests).toBe(4)
-})
+    await expect
+      .poll(async () =>
+        raster.evaluate(image => {
+          const mark = image
+              .parentElement!.querySelector('[data-evidence-highlight]')!
+              .getBoundingClientRect(),
+            rect = image.getBoundingClientRect();
+          return Math.max(
+            Math.abs(mark.x - rect.x - rect.width * 0.1015),
+            Math.abs(mark.y - rect.y - rect.height * 0.2005),
+            Math.abs(mark.width - rect.width * 0.199),
+          );
+        }),
+      )
+      .toBeLessThan(0.1);
+  };
+  await assertAligned();
+  await dialog.screenshot({ path: info.outputPath('highlight-en-1440.png') });
+  await page.keyboard.press('Escape');
+  await expect(dialog).toHaveCount(0);
+  await expect(inspect).toBeFocused();
+  await expect(panel.locator('.check-source')).toHaveCount(0);
+  await panel.getByRole('button', { name: 'Show current source', exact: true }).click();
+  await expect(panel.locator('.check-source img')).toBeVisible();
+  await inspect.focus();
+  await page.keyboard.press('Enter');
+  await expect(overlay).toBeVisible();
+  await expect(panel.locator('.check-source [data-evidence-highlight]')).toHaveCount(0);
+  await close.click();
+  await expect(inspect).toBeFocused();
+  await panel.getByRole('button', { name: 'Hide current source', exact: true }).click();
+  await inspect.click();
+  await page.setViewportSize({ width: 390, height: 900 });
+  await assertAligned();
+  await page.keyboard.press('Escape');
+  await page.getByRole('button', { name: 'العربية', exact: true }).click();
+  const inspectAr = panel.getByRole('button', { name: /فحص موضع الحقل/ });
+  await inspectAr.click();
+  await assertAligned();
+  await expect(dialog).toHaveAttribute('dir', 'rtl');
+  expect(await dialog.evaluate(element => element.scrollWidth <= element.clientWidth)).toBe(true);
+  await dialog.screenshot({ path: info.outputPath('highlight-ar-390.png') });
+  await dialog.getByRole('button', { name: 'إغلاق المعاينة', exact: true }).click();
+  await expect(inspectAr).toBeFocused();
+  expect(requests).toBe(2);
+  await page.reload();
+  await page
+    .locator('section[aria-labelledby="identity-heading"]')
+    .getByRole('button', { name: 'فحص المستند', exact: true })
+    .click();
+  await panel.getByText('فحص موضع الحقل', { exact: true }).click();
+  await page.getByRole('button', { name: /فحص موضع الحقل/ }).click();
+  await expect(overlay).toBeVisible();
+  expect(requests).toBe(2);
+  await page.keyboard.press('Escape');
+  suppress = true;
+  await panel.getByRole('button', { name: 'إعادة الفحص', exact: true }).click();
+  await expect(
+    panel.getByText('تحديد الموضع غير متاح. يمكنك فحص الحقل المسمى في المصدر.', { exact: true }),
+  ).toBeVisible();
+  await panel.getByRole('button', { name: /فحص موضع الحقل/ }).click();
+  await expect(dialog).toBeVisible();
+  await expect(dialog.locator('[data-evidence-highlight]')).toHaveCount(0);
+  await expect(
+    dialog.getByText('تحديد الموضع غير متاح. يمكنك فحص الحقل المسمى في المصدر.', { exact: true }),
+  ).toBeVisible();
+  await expect(dialog.getByRole('link', { name: 'فتح الملف', exact: true })).toBeVisible();
+  expect(requests).toBe(4);
+});
 
-test('reviewer opens a field on the requested PDF page without confirming assessment', async ({ page }) => {
-  await page.route('**/fake-provider/systemone', async route => { await route.fulfill({ json: nativeLocatedIdentity(route.request().postDataJSON() as StageRequest) }) })
-  await page.goto('/tests/browser/support/evidence-screen.html?reviewer=pdf')
-  await page.getByRole('button', { name: 'English', exact: true }).click()
-  const document = page.getByRole('region', { name: 'Applicant identity evidence', exact: true })
-  await document.getByRole('button', { name: 'Find supporting evidence', exact: true }).click()
-  const panel = document.getByRole('region', { name: 'Experimental assistance', exact: true })
-  await panel.getByRole('button', { name: 'Run check', exact: true }).click()
-  const inspect = panel.getByRole('button', { name: /Inspect field region:.* · Page 2$/ })
-  await inspect.click()
-  const dialog = page.getByRole('dialog', { name: 'Inspect field region', exact: true })
-  await expect(dialog).toBeVisible()
-  await expect(dialog.getByRole('img', { name: 'Source page 2', exact: true })).toBeVisible()
+test('reviewer opens a field on the requested PDF page without confirming assessment', async ({
+  page,
+}) => {
+  await page.route('**/fake-provider/systemone', async route => {
+    await route.fulfill({
+      json: nativeLocatedIdentity(route.request().postDataJSON() as StageRequest),
+    });
+  });
+  await page.goto('/tests/browser/support/evidence-screen.html?reviewer=pdf');
+  await page.getByRole('button', { name: 'English', exact: true }).click();
+  const document = page.getByRole('region', { name: 'Applicant identity evidence', exact: true });
+  await document.getByRole('button', { name: 'Find supporting evidence', exact: true }).click();
+  const panel = document.getByRole('region', { name: 'Experimental assistance', exact: true });
+  await panel.getByRole('button', { name: 'Run check', exact: true }).click();
+  const inspect = panel.getByRole('button', { name: /Inspect field region:.* · Page 2$/ });
+  await inspect.click();
+  const dialog = page.getByRole('dialog', { name: 'Inspect field region', exact: true });
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByRole('img', { name: 'Source page 2', exact: true })).toBeVisible();
   // Both PDF pages contain the same field, so the existing verifier suppresses
   // ambiguous highlights while still letting the reviewer inspect either page.
-  await expect(dialog.locator('[data-evidence-highlight]')).toHaveCount(0)
-  await expect(dialog.getByText('Highlight unavailable. Inspect the named field in the source.', { exact: true })).toBeVisible()
-  await dialog.getByRole('button', { name: 'Previous page', exact: true }).click()
-  await expect(dialog.getByRole('img', { name: 'Source page 1', exact: true })).toBeVisible()
-  await dialog.getByRole('button', { name: 'Close preview', exact: true }).click()
-  await expect(inspect).toBeFocused()
-  await expect(document.getByRole('checkbox', { name: 'I confirm I inspected the current source', exact: true })).not.toBeChecked()
-  await expect(document.getByRole('button', { name: 'Accept document', exact: true })).toHaveAttribute('aria-disabled', 'true')
-})
+  await expect(dialog.locator('[data-evidence-highlight]')).toHaveCount(0);
+  await expect(
+    dialog.getByText('Highlight unavailable. Inspect the named field in the source.', {
+      exact: true,
+    }),
+  ).toBeVisible();
+  await dialog.getByRole('button', { name: 'Previous page', exact: true }).click();
+  await expect(dialog.getByRole('img', { name: 'Source page 1', exact: true })).toBeVisible();
+  await dialog.getByRole('button', { name: 'Close preview', exact: true }).click();
+  await expect(inspect).toBeFocused();
+  await expect(
+    document.getByRole('checkbox', {
+      name: 'I confirm I inspected the current source',
+      exact: true,
+    }),
+  ).not.toBeChecked();
+  await expect(
+    document.getByRole('button', { name: 'Accept document', exact: true }),
+  ).toHaveAttribute('aria-disabled', 'true');
+});
