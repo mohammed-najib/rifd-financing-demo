@@ -13,6 +13,8 @@ Choose checks that exercise the behavior you changed. A screenshot, model smoke 
 | `pnpm test` | Pure domain rules and evidence-service/controller logic, including local fake-provider tests. |
 | `pnpm test:skills` | Packaged guidance and its consumer policy. |
 | `pnpm build` | Production client/server compilation and SPA prerendering. |
+| `pnpm test:gate` | The 10-minute core gate: checks, build, core API/screen journeys and Firefox smoke. |
+| `pnpm test:full` | The complete API and screen suites across all configured browsers. |
 | `pnpm check:css-sources` | Production CSS sources included, docs/artifacts excluded, followed by a clean rebuild. |
 
 The local HTTP tests open temporary loopback servers. The build also opens a temporary prerender server. `listen EPERM` in a sandbox can mean local binding is blocked. Allow the required local server and rerun the affected check before treating it as an application regression.
@@ -30,17 +32,29 @@ pnpm build:test
 pnpm test:browser
 ```
 
-The API suite uses Chrome and actual IndexedDB through a separate Vite harness on port 4174. Screen tests use the built static application on port 4173 across Chrome, Firefox and WebKit. `build:test` disables hosted inference even if local production environment files exist. The harness is not part of the production build.
+The API suite uses Chrome and actual IndexedDB through a separate Vite harness on port 4174. Screen tests use the built static application on port 4173. `build:test` disables hosted inference and enables the test-only fast demo settings even if local production environment files exist. The harness is not part of the production build.
+
+Both suites seed IndexedDB once per run and restore that snapshot into each test context. This keeps tests isolated without regenerating canvas/PDF evidence for every case. Tests that need empty or damaged storage override the snapshot. Test-only images are compact; the full zero-buffer fixture is generated only for the storage tests that need it. Snapshot files live under `test-results/seed/` and are ignored by Git.
+
+Default gate and full runs:
+
+```sh
+pnpm test:gate   # target under 10 minutes; core journeys and Firefox smoke
+pnpm test:full   # exhaustive API/screen matrices and all configured browsers
+```
+
+The gate runs the core API and screen files in parallel, with headless GPU disabled to stay within an 8-core/15 GiB host's memory ceiling. It excludes visual acceptance, gallery/print evidence, performance, delivery and the heaviest assistance/retention matrices; those remain in the full command and nightly/release runs. WebKit smoke is included only when `RIFD_WEBKIT_EXECUTABLE` points to a working WebKit build.
 
 For an affected screen suite, build first and select its file and project:
 
 ```sh
+pnpm build:test
 pnpm exec playwright test tests/browser/application/drafts.screens.spec.ts --project=chrome
 ```
 
 Browser tests use isolated contexts with fictional data. Do not run a reset walkthrough in a browser profile containing work you want to keep. Responsive tests emulate CSS viewports; they do not establish physical-device or branded Safari support.
 
-Failures retain traces and screenshots in `test-results/`. Selected screen tests also write screenshots to `artifacts/browser-evidence/`. HTML reports are separated into `playwright-report/api` and `playwright-report/screens`. These directories are ignored by Git.
+Failures retain traces and screenshots in `test-results/`. Screenshot evidence is opt-in with `RIFD_CAPTURE=1`; normal runs only write failure screenshots. HTML reports are separated into `playwright-report/api` and `playwright-report/screens`. These directories are ignored by Git.
 
 ## Full acceptance
 

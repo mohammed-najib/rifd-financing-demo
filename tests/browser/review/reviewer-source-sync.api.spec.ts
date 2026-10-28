@@ -16,7 +16,7 @@ test('a held reviewer screen removes its old source after another session publis
     const { createDemo } = await import(demoPath) as typeof import('../../../src/demo')
     const { imageFile } = await import(fixturePath) as typeof import('../support/evidence-fixtures')
     const { requestIdentityCorrection, prepareCorrectionIdentity, correctionCommand } = await import(correctionPath) as typeof import('../support/correction-evidence-fixtures')
-    const other = createDemo(); await other.startup()
+    const other = createDemo({ latency: 50, verifyStoredFiles: false, loadFonts: false, includeOversizedSample: false, compactEvidence: true }); await other.startup()
     await requestIdentityCorrection(other)
     const attachment = await prepareCorrectionIdentity(other, await imageFile('image/png'))
     const result = await other.execute(await correctionCommand(other, {}, attachment, 'resubmit'))

@@ -2,6 +2,8 @@ import { expect, test } from '@playwright/test'
 import { nativeIdentity } from '../support/evidence-transport'
 import { identityReason } from '../support/correction-evidence-fixtures'
 
+test.use({ storageState: 'test-results/seed/api-full.json' })
+
 for (const language of ['ar', 'en'] as const) test(`${language} correction assistance shows the reviewer reason beside permitted actions and never replaces a required change`, async ({ page }, info) => {
   const ar = language === 'ar'
   let requests = 0
@@ -11,7 +13,7 @@ for (const language of ['ar', 'en'] as const) test(`${language} correction assis
     await route.fulfill({ json: { ...native, answers: { ...native.answers, nameSupport: null } } })
   })
   await page.setViewportSize({ width: ar ? 390 : 1440, height: 950 })
-  await page.goto('/tests/browser/support/evidence-screen.html?corrections=document')
+  await page.goto('/tests/browser/support/evidence-screen.html?corrections=document&full=1')
   if (!ar) await page.getByRole('button', { name: 'English', exact: true }).click()
   const editor = page.getByRole('region', { name: ar ? 'الرد على التصحيحات' : 'Respond to corrections', exact: true })
   await expect(editor.getByRole('textbox')).toHaveCount(0)

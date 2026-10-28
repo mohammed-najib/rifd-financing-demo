@@ -3,9 +3,10 @@ import { damageDataset } from '../support/startup-fixtures'
 import type { DatasetDamage } from '../support/startup-fixtures'
 
 test.describe.configure({ mode: 'parallel' })
+test.use({ storageState: { cookies: [], origins: [] } })
 
 test('nonempty storage without its dataset requires recovery and preserves its records', async ({ page }) => {
-  await page.goto('/tests/browser/support/api.html')
+  await page.goto('/tests/browser/support/api.html?strict=1')
   await page.waitForFunction(() => window.demo)
   await page.evaluate(() => new Promise<void>((resolve, reject) => {
     const open = indexedDB.open('rifd-demo', 1)
@@ -24,7 +25,7 @@ test('nonempty storage without its dataset requires recovery and preserves its r
 })
 
 test('readable but unwritable session storage requires recovery before sign-in', async ({ page }) => {
-  await page.goto('/tests/browser/support/api.html')
+  await page.goto('/tests/browser/support/api.html?strict=1')
   await page.waitForFunction(() => window.demo)
   await page.evaluate(() => {
     const setItem = Storage.prototype.setItem
@@ -38,7 +39,7 @@ test('readable but unwritable session storage requires recovery before sign-in',
 })
 
 test('missing prepared samples refuse readiness until the saved dataset is repaired', async ({ page }) => {
-  await page.goto('/tests/browser/support/api.html')
+  await page.goto('/tests/browser/support/api.html?strict=1')
   await page.waitForFunction(() => window.demo)
   const original = await page.evaluate(() => window.demo.startup())
   if (!original.ok) throw new Error('Startup failed')
@@ -51,7 +52,7 @@ test('missing prepared samples refuse readiness until the saved dataset is repai
 
 for (const mode of ['missingFile', 'bytes', 'shape', 'schema', 'seed', 'rules', 'identity', 'sequence', 'round'] satisfies DatasetDamage[]) {
   test(`${mode} damage preserves the dataset through refused startup and explicit retry`, async ({ page }) => {
-    await page.goto('/tests/browser/support/api.html')
+    await page.goto('/tests/browser/support/api.html?strict=1')
     await page.waitForFunction(() => window.demo)
     const original = await page.evaluate(() => window.demo.startup())
     if (!original.ok) throw new Error('Startup failed')
@@ -69,7 +70,7 @@ for (const mode of ['missingFile', 'bytes', 'shape', 'schema', 'seed', 'rules', 
 
 for (const mode of ['legacy', 'rawDraft'] satisfies DatasetDamage[]) {
   test(`${mode} remains usable alongside the incomplete Submitted seed`, async ({ page }) => {
-    await page.goto('/tests/browser/support/api.html')
+    await page.goto('/tests/browser/support/api.html?strict=1')
     await page.waitForFunction(() => window.demo)
     const original = await page.evaluate(() => window.demo.startup())
     if (!original.ok) throw new Error('Startup failed')
@@ -91,7 +92,7 @@ for (const mode of ['legacy', 'rawDraft'] satisfies DatasetDamage[]) {
 
 for (const fault of ['denied', 'failedOpen', 'sessionRead', 'sessionRemove'] as const) {
   test(`${fault} startup can be retried explicitly after storage becomes available`, async ({ page }) => {
-    await page.goto('/tests/browser/support/api.html')
+    await page.goto('/tests/browser/support/api.html?strict=1')
     await page.waitForFunction(() => window.demo)
     await page.evaluate(fault => {
       if (fault === 'denied' || fault === 'failedOpen') {
@@ -119,7 +120,7 @@ for (const fault of ['denied', 'failedOpen', 'sessionRead', 'sessionRemove'] as 
 }
 
 test('a blocked open cannot upgrade in the background after refusing startup', async ({ page }) => {
-  await page.goto('/tests/browser/support/api.html')
+  await page.goto('/tests/browser/support/api.html?strict=1')
   await page.waitForFunction(() => window.demo)
   await page.evaluate(() => new Promise<void>((resolve, reject) => {
     const open = indexedDB.open('rifd-demo', 1)
@@ -148,7 +149,7 @@ test('a blocked open cannot upgrade in the background after refusing startup', a
 
 for (const closure of ['unexpected', 'versionchange'] as const) {
   test(`${closure} closes protected access and retries with the same saved dataset and session`, async ({ page }) => {
-    await page.goto('/tests/browser/support/api.html')
+    await page.goto('/tests/browser/support/api.html?strict=1')
     await page.waitForFunction(() => window.demo)
     await page.evaluate(closure => {
       const nativeOpen = IDBFactory.prototype.open
@@ -183,7 +184,7 @@ for (const closure of ['unexpected', 'versionchange'] as const) {
 }
 
 test('quota refusal preserves saved fields and files and permits an explicit retry of ready bytes', async ({ page }) => {
-  await page.goto('/tests/browser/support/api.html')
+  await page.goto('/tests/browser/support/api.html?strict=1')
   await page.waitForFunction(() => window.demo)
   const result = await page.evaluate(async () => {
     const start = await window.demo.startup()

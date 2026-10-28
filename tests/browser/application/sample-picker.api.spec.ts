@@ -1,9 +1,11 @@
 import { expect, test } from '@playwright/test'
 
+test.use({ storageState: 'test-results/seed/api-full.json' })
+
 for (const language of ['ar', 'en'] as const) test(`${language} a failed sample read can recover instead of leaving an empty disabled dropdown`, async ({ page }, info) => {
   const ar = language === 'ar'
   await page.setViewportSize({ width: 390, height: 900 })
-  await page.goto('/tests/browser/support/evidence-screen.html?samples-fail-once')
+  await page.goto('/tests/browser/support/evidence-screen.html?samples-fail-once&full=1')
   if (!ar) await page.getByRole('button', { name: 'English', exact: true }).click()
   const error = page.getByRole('alert').filter({ hasText: ar ? 'تعذر تحميل المستندات التجريبية' : 'Sample documents could not be loaded' })
   await expect(error).toBeVisible()
@@ -24,7 +26,7 @@ for (const language of ['ar', 'en'] as const) test(`${language} a failed sample 
 })
 
 test('a new draft explains generated samples instead of showing an empty disabled selector', async ({ page }) => {
-  await page.goto('/tests/browser/support/evidence-screen.html?new-draft')
+  await page.goto('/tests/browser/support/evidence-screen.html?new-draft&full=1')
   await page.getByRole('button', { name: 'English', exact: true }).click()
   const section = page.locator('section[aria-labelledby="identity-heading"]')
   await expect(section.getByText('A sample document will be created from the current application details.', { exact: true })).toBeVisible()

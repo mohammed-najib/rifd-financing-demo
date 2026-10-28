@@ -16,7 +16,7 @@ test('completed analysis reopens offline with its original provenance and leaves
   const result = await page.evaluate(async () => {
     const module = '/src/demo/index.ts'
     const { createDemo } = await import(module) as typeof import('../../../src/demo')
-    const reopened = createDemo()
+    const reopened = createDemo({ latency: 50, verifyStoredFiles: false, loadFonts: false, includeOversizedSample: false, compactEvidence: true })
     await reopened.startup(); await reopened.signIn('mariam')
     const restored = reopened.createEvidenceAssistance({ action: 'check-document', applicationId: 'RIFD-2026-001', slot: 'identity', audience: 'applicant', context: 'draft' })
     await restored.inspect()

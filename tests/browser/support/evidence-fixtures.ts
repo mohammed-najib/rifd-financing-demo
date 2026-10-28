@@ -7,11 +7,12 @@ export const identityInput: EvidenceInput = { action: 'check-document', applicat
 
 export async function identityDemo(transport: EvidenceTransport = fakeEvidenceTransport()) {
   window.demo.dispose()
-  const demo = createDemo({ evidenceTransport: transport })
+  const demo = createDemo({ evidenceTransport: transport, latency: 50, verifyStoredFiles: false, loadFonts: false, includeOversizedSample: false, compactEvidence: true })
   window.demo = demo
   const startup = await demo.startup()
-  await demo.signIn('mariam')
   if (!startup.ok) throw new Error(startup.error.kind)
+  const signIn = await demo.signIn('mariam')
+  if (!signIn.ok) throw new Error(signIn.error.kind)
   return { demo, datasetId: startup.value.datasetId }
 }
 

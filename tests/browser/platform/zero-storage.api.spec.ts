@@ -1,5 +1,7 @@
 import { expect, test, type Page } from '@playwright/test'
 
+test.use({ storageState: 'test-results/seed/api-full.json' })
+
 // Historical and damaged storage fixtures exercise recovery through Demo.
 async function storedBytes(page: Page, bytes: unknown) {
   await page.evaluate(() => window.demo.dispose())
@@ -41,7 +43,7 @@ async function sample(page: Page) {
 }
 
 test('zero encoding and legacy buffers restore exact sample bytes through reload, offline reads and reset replay', async ({ page, context }) => {
-  await page.goto('/tests/browser/support/api.html')
+  await page.goto('/tests/browser/support/api.html?full=1')
   await page.waitForFunction(() => window.demo)
   expect(await page.evaluate(() => window.demo.startup())).toMatchObject({ ok: true })
   expect(await page.evaluate(() => window.demo.signIn('mariam'))).toMatchObject({ ok: true })
@@ -82,7 +84,7 @@ for (const bytes of [
   { encoding: 'rifd-zero-v1', byteLength: 100_000.5 },
   { encoding: 'rifd-zero-v1', byteLength: 5_000_001, extra: true },
 ]) test(`damaged zero-buffer descriptor requires recovery: ${JSON.stringify(bytes)}`, async ({ page }) => {
-  await page.goto('/tests/browser/support/api.html')
+  await page.goto('/tests/browser/support/api.html?full=1')
   await page.waitForFunction(() => window.demo)
   expect(await page.evaluate(() => window.demo.startup())).toMatchObject({ ok: true })
   await storedBytes(page, bytes)

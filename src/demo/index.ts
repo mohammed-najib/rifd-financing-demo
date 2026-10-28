@@ -26,8 +26,18 @@ const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 const success = <T>(value: T): Result<T> => ({ ok: true, value })
 const failure = <T>(kind: ErrorKind): Result<T> => ({ ok: false, error: { kind, key: `error.${kind}` } })
 
+type DemoOptions = {
+  evidenceTransport?: EvidenceTransport
+  latency?: number
+  slowLatency?: number
+  verifyStoredFiles?: boolean
+  loadFonts?: boolean
+  includeOversizedSample?: boolean
+  compactEvidence?: boolean
+}
+
 // Construction has no browser side effects. startup is called only after client mounting.
-export function createDemo(options: { evidenceTransport?: EvidenceTransport } = {}): Demo {
+export function createDemo(options: DemoOptions = {}): Demo {
   let db: IDBDatabase | null = null
   let datasetId: string | null = null
   let session: Session | null = null
@@ -67,7 +77,7 @@ export function createDemo(options: { evidenceTransport?: EvidenceTransport } = 
     analysisCleanup = 'pending'; void cleanAnalysis()
     try { persistSession(null) } catch { /* Old sessions cannot match the new dataset. */ }
   }
-  const delay = () => sleep(controls.slow ? 1500 : 400)
+  const delay = () => sleep(controls.slow ? options.slowLatency ?? 1500 : options.latency ?? 400)
   const transactFinancing = (...args: Parameters<typeof transact>) => withAnalysisAuthority(() => transact(...args))
   const consume = (kind: Controls['failure']) => {
     if (controls.failure !== kind) return false
@@ -247,7 +257,7 @@ export function createDemo(options: { evidenceTransport?: EvidenceTransport } = 
       invalidateAssistance()
       await delay()
       let seed: Dataset
-      try { await prepareFonts(); seed = await prepareSeed() } catch { throw new DemoError('resources') }
+      try { if (options.loadFonts !== false) await prepareFonts(); seed = await prepareSeed({ includeOversizedSample: options.includeOversizedSample, compactEvidence: options.compactEvidence }) } catch { throw new DemoError('resources') }
       const result = await withAnalysisAuthority(() => resetStorage.replace(command, seed, () => consume('storage')))
       if (!result.replay || datasetId !== result.datasetId) { acceptDataset(result.datasetId); if (result.replay) emit() }
       if (!result.replay) announce({ datasetId: result.datasetId, kind: 'reset' })
@@ -652,7 +662,7 @@ export function createDemo(options: { evidenceTransport?: EvidenceTransport } = 
       startupPromise = attempt(async () => {
         await delay()
         if (captured !== generation) throw new DemoError('sessionExpired')
-        try { await prepareFonts() } catch { throw new DemoError('resources') }
+        try { if (options.loadFonts !== false) await prepareFonts() } catch { throw new DemoError('resources') }
         if (captured !== generation) throw new DemoError('sessionExpired')
         session = readStoredSession()
         if (!db) {
@@ -663,7 +673,7 @@ export function createDemo(options: { evidenceTransport?: EvidenceTransport } = 
         let raw = await readStored(db)
         if (raw === undefined) {
           let seed: Dataset
-          try { seed = await prepareSeed() } catch { throw new DemoError('resources') }
+          try { seed = await prepareSeed({ includeOversizedSample: options.includeOversizedSample, compactEvidence: options.compactEvidence }) } catch { throw new DemoError('resources') }
           if (captured !== generation) throw new DemoError('sessionExpired')
           raw = await transactFinancing(db, current => {
             if (captured !== generation) throw new DemoError('sessionExpired')
@@ -673,11 +683,13 @@ export function createDemo(options: { evidenceTransport?: EvidenceTransport } = 
         await yieldToInput()
         const data = validateDataset(raw)
         await yieldToInput()
-        let validationSlice = performance.now()
-        for (const file of data.files) {
-          const hash = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', file.bytes)), byte => byte.toString(16).padStart(2, '0')).join('')
-          if (hash !== file.hash) throw new DemoError('damaged')
-          if (performance.now() - validationSlice >= 2) { await yieldToInput(); validationSlice = performance.now() }
+        if (options.verifyStoredFiles !== false) {
+          let validationSlice = performance.now()
+          for (const file of data.files) {
+            const hash = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', file.bytes)), byte => byte.toString(16).padStart(2, '0')).join('')
+            if (hash !== file.hash) throw new DemoError('damaged')
+            if (performance.now() - validationSlice >= 2) { await yieldToInput(); validationSlice = performance.now() }
+          }
         }
         await yieldToInput()
         if (captured !== generation) throw new DemoError('sessionExpired')

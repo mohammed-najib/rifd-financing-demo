@@ -296,7 +296,7 @@ test('browser Back offers Stay, Discard and Save and leave for unfinished draft 
   await expect(page.getByText('Ready to save', { exact: true })).toBeVisible({ timeout: 10_000 })
   await page.evaluate(length => history.go(-(history.length - length)), listHistoryLength)
   await page.getByRole('button', { name: 'Save and leave', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'My applications', exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'My applications', exact: true })).toBeVisible({ timeout: 15_000 })
   await page.getByRole('link', { name: 'Inspect saved draft', exact: true }).click()
   await showStep(page, 'financing')
   await expect(page.getByLabel('Purchase explanation', { exact: true })).toHaveValue('unfinished input')

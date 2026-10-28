@@ -58,7 +58,7 @@ export async function yieldToInput(): Promise<void> {
   else await new Promise<void>(resolve => setTimeout(resolve, 0))
 }
 
-async function renderPage(title: string, lines: string[], unreadable: boolean, pageNumber: number): Promise<HTMLCanvasElement> {
+async function renderPage(title: string, lines: string[], unreadable: boolean, pageNumber: number, compact: boolean): Promise<HTMLCanvasElement> {
   const canvas = document.createElement('canvas')
   canvas.width = 1000
   canvas.height = 1320
@@ -66,6 +66,13 @@ async function renderPage(title: string, lines: string[], unreadable: boolean, p
   if (!ctx) throw new Error('resources')
   ctx.fillStyle = '#ffffff'
   ctx.fillRect(0, 0, canvas.width, canvas.height)
+  if (compact) {
+    ctx.fillStyle = '#192f2c'
+    ctx.font = '20px "Noto Sans Arabic", "Noto Sans"'
+    ctx.fillText(`${title} · ${pageNumber}${unreadable ? ' · unreadable' : ''}`.slice(0, 96), 40, 60)
+    ctx.fillText((lines[0] ?? '').slice(0, 96), 40, 100)
+    return canvas
+  }
   ctx.fillStyle = '#0b6458'
   ctx.fillRect(0, 0, 1000, 150)
   ctx.fillStyle = '#ffffff'
@@ -109,26 +116,26 @@ async function canvasBytes(canvas: HTMLCanvasElement, mime: string): Promise<Arr
 export async function makeFile(
   applicationId: string, slot: DocumentSlot, fields: Fields, product: ProductId,
   months: string[], variant: 'original' | 'replacement', unreadable: boolean, young: boolean,
-  rendered: Map<string, Promise<ArrayBuffer>> = new Map(),
+  rendered: Map<string, Promise<ArrayBuffer>> = new Map(), compact = false,
 ): Promise<StoredFile> {
   const title = labels[slot]
   const lines = evidenceLines(fields, slot, product, months, young)
   if (variant === 'replacement') lines.push('Readable replacement / نسخة بديلة مقروءة')
   const mime = slot === 'identity' ? 'image/png' : slot === 'purchase' ? 'image/jpeg' : 'application/pdf'
-  const key = JSON.stringify([title, lines, unreadable, mime])
+  const key = JSON.stringify([title, lines, unreadable, mime, compact])
   let prepared = rendered.get(key)
-  if (!prepared) { prepared = renderEvidence(title, lines, unreadable, mime); rendered.set(key, prepared) }
+  if (!prepared) { prepared = renderEvidence(title, lines, unreadable, mime, compact); rendered.set(key, prepared) }
   const bytes = await prepared
   const extension = mime === 'application/pdf' ? 'pdf' : mime === 'image/jpeg' ? 'jpg' : 'png'
   return fileFromBytes(`${applicationId}-${slot}-${variant}`, applicationId, slot, `DEMO-${applicationId}-${slot}-${variant}.${extension}`, mime, bytes)
 }
 
-async function renderEvidence(title: string, lines: string[], unreadable: boolean, mime: string): Promise<ArrayBuffer> {
-  const canvas = await renderPage(title, lines, unreadable, 1)
+async function renderEvidence(title: string, lines: string[], unreadable: boolean, mime: string, compact: boolean): Promise<ArrayBuffer> {
+  const canvas = await renderPage(title, lines, unreadable, 1, compact)
   let bytes: ArrayBuffer
   if (mime === 'application/pdf') {
     const pages = []
-    for (const pageCanvas of [canvas, await renderPage(title, ['DEMO / تجريبي', ...lines.slice(0, 2), 'All information is fictional / جميع البيانات افتراضية', ...lines.slice(-3)], unreadable, 2)]) {
+    for (const pageCanvas of [canvas, await renderPage(title, ['DEMO / تجريبي', ...lines.slice(0, 2), 'All information is fictional / جميع البيانات افتراضية', ...lines.slice(-3)], unreadable, 2, compact)]) {
       // JPEG pages retain the rendered bilingual evidence without PNG decoding
       // and recompression on the main thread during first-visit preparation.
       pages.push({ bytes: await canvasBytes(pageCanvas, 'image/jpeg'), width: pageCanvas.width, height: pageCanvas.height })

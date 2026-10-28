@@ -3,7 +3,7 @@ import { slots, type Application, type Bilingual, type Dataset, type DocumentSlo
 import { fileFromBytes, makeFile } from '../documents/evidence'
 import { amountReason, approvalReason, financialReason, identities, manifest, purchaseReason, quotationReason, rejectionReason, seedFields } from './manifest'
 
-export async function prepareSeed(): Promise<Dataset> {
+export async function prepareSeed(options: { includeOversizedSample?: boolean; compactEvidence?: boolean } = {}): Promise<Dataset> {
   // Reuse identical rendered content within this preparation only. File IDs,
   // ownership, hashes and the complete durable catalog remain per application.
   const rendered = new Map<string, Promise<ArrayBuffer>>()
@@ -21,12 +21,12 @@ export async function prepareSeed(): Promise<Dataset> {
     const evidenceMonths = seed.number === 5 ? ['2026-04', '2026-05', '2026-06'] : ['2026-07', '2026-08', '2026-09']
     const documents: Application['submitted'] = { fields, documents: { identity: null, business: null, financial: null, purchase: null } }
     for (const slot of slots) {
-      const file = await makeFile(id, slot, fields, seed.product, evidenceMonths, 'original', seed.replacement === slot, seed.number === 6, rendered)
+      const file = await makeFile(id, slot, fields, seed.product, evidenceMonths, 'original', seed.replacement === slot, seed.number === 6, rendered, options.compactEvidence)
       addFile(file, 'original')
       if (seed.missing !== slot) documents.documents[slot] = file.id
       if (seed.replacement === slot || seed.missing === slot) {
         const responseFields = seed.number === 4 ? { ...fields, amount: '450000' } : fields
-        addFile(await makeFile(id, slot, responseFields, seed.product, evidenceMonths, 'replacement', false, false, rendered), 'replacement')
+        addFile(await makeFile(id, slot, responseFields, seed.product, evidenceMonths, 'replacement', false, false, rendered, options.compactEvidence), 'replacement')
         const identical = { ...file, id: `${file.id}-renamed`, name: `DEMO-renamed-${file.name}` }
         addFile(identical, 'identical')
       }
@@ -93,7 +93,7 @@ export async function prepareSeed(): Promise<Dataset> {
   const draftFile = files[0]
   addFile(await fileFromBytes('sample-invalid', draftFile.applicationId, 'identity', 'DEMO-invalid.txt', 'text/plain', new TextEncoder().encode('DEMO / تجريبي').buffer), 'invalidType')
   addFile(await fileFromBytes('sample-empty', draftFile.applicationId, 'identity', 'DEMO-empty.pdf', 'application/pdf', new ArrayBuffer(0)), 'empty')
-  addFile(await fileFromBytes('sample-oversized', draftFile.applicationId, 'identity', 'DEMO-oversized.pdf', 'application/pdf', new ArrayBuffer(5_000_001)), 'oversized')
+  if (options.includeOversizedSample !== false) addFile(await fileFromBytes('sample-oversized', draftFile.applicationId, 'identity', 'DEMO-oversized.pdf', 'application/pdf', new ArrayBuffer(5_000_001)), 'oversized')
   // One durable order covers both public and internal events, including same-day events.
   const events = applications.flatMap(application => application.activity).sort((a, b) => a.date.localeCompare(b.date))
   events.forEach((entry, index) => { entry.sequence = index + 1 })

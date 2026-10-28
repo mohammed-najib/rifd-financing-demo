@@ -35,7 +35,7 @@ for (const language of ['ar', 'en'] as const) for (const sample of samples.filte
   await expect(staff.locator('.print-controls')).toBeHidden()
   await staff.evaluate(() => document.fonts.ready)
   if (info.project.name === 'chrome') await staff.pdf({ path: info.outputPath(`staff-${sample.state}-${language}.pdf`), preferCSSPageSize: true, printBackground: true, displayHeaderFooter: false })
-  await staff.screenshot({ path: info.outputPath(`staff-${sample.state}-${language}.png`), fullPage: true })
+  if (process.env.RIFD_CAPTURE === '1') await staff.screenshot({ path: info.outputPath(`staff-${sample.state}-${language}.png`), fullPage: true })
 })
 
 for (const language of ['ar', 'en'] as const) for (const sample of samples) test(`print ${sample.state} public summary in ${language}`, async ({ page }, info) => {
@@ -64,7 +64,7 @@ for (const language of ['ar', 'en'] as const) for (const sample of samples) test
   await expect(summary).toBeVisible()
   await page.evaluate(() => document.fonts.ready)
   if (info.project.name === 'chrome') await page.pdf({ path: info.outputPath(`${sample.state}-${language}.pdf`), preferCSSPageSize: true, printBackground: true, displayHeaderFooter: false })
-  await page.screenshot({ path: info.outputPath(`${sample.state}-${language}.png`), fullPage: true })
+  if (process.env.RIFD_CAPTURE === '1') await page.screenshot({ path: info.outputPath(`${sample.state}-${language}.png`), fullPage: true })
 })
 
 test('draft print uses an actual saved revision and excludes later unfinished input', async ({ page }) => {

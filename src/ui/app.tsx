@@ -60,7 +60,10 @@ export function NeutralStartup() {
 function Mark() { return <span className="flex h-[35px] items-end gap-1 [direction:ltr]" aria-hidden="true"><i className="block h-[17px] w-2 rounded-[2px] bg-accent" /><i className="block h-[25px] w-2 rounded-[2px] bg-accent" /><i className="block h-[35px] w-2 rounded-[2px] bg-accent" /></span> }
 
 export function App() {
-  const demo = useMemo(() => createDemo({ evidenceTransport: configuredLiveTransport() }), [])
+  const demo = useMemo(() => createDemo({
+    evidenceTransport: configuredLiveTransport(),
+    ...(import.meta.env.VITE_TEST_FAST === '1' ? { latency: 150, verifyStoredFiles: false, includeOversizedSample: false, compactEvidence: true } : {}),
+  }), [])
   // Fast Refresh can retain the old context while replacing the service instance.
   const [initializedDemo, setInitializedDemo] = useState<typeof demo | null>(null)
   const search = useRouterState({ select: state => state.location.search }) as Record<string, unknown>

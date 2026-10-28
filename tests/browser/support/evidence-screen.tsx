@@ -11,20 +11,25 @@ import { requestBusinessCorrection } from './business-evidence-fixtures'
 import { requestPurchaseCorrection } from './purchase-evidence-fixtures'
 import { browserLiveTransport } from '../../../src/live-assistance/client'
 
-const demo = createDemo({ evidenceTransport: new URLSearchParams(location.search).has('live') ? browserLiveTransport(async () => {
-  const response = await fetch('/fake-guest-session')
-  return response.json()
-}) : {
-  async evaluate(request, signal) {
-    const response = await fetch('/fake-provider/systemone', { method: 'POST', headers: { Authorization: 'Bearer dummy-test-key', 'Content-Type': 'application/json' }, signal, body: JSON.stringify({ ...request, image: { ...request.image, bytes: Array.from(new Uint8Array(request.image.bytes)) }, ...(request.images ? { images: request.images.map(image => ({ ...image, bytes: Array.from(new Uint8Array(image.bytes)) })) } : {}) }) })
-    if (!response.ok) throw new Error('unavailable')
+const params = new URLSearchParams(location.search)
+const demo = createDemo({
+  evidenceTransport: params.has('live') ? browserLiveTransport(async () => {
+    const response = await fetch('/fake-guest-session')
     return response.json()
+  }) : {
+    async evaluate(request, signal) {
+      const response = await fetch('/fake-provider/systemone', { method: 'POST', headers: { Authorization: 'Bearer dummy-test-key', 'Content-Type': 'application/json' }, signal, body: JSON.stringify({ ...request, image: { ...request.image, bytes: Array.from(new Uint8Array(request.image.bytes)) }, ...(request.images ? { images: request.images.map(image => ({ ...image, bytes: Array.from(new Uint8Array(image.bytes)) })) } : {}) }) })
+      if (!response.ok) throw new Error('unavailable')
+      return response.json()
+    },
   },
-} })
+  includeOversizedSample: params.has('full'),
+  compactEvidence: !params.has('full'),
+})
 window.demo = demo
 const context = await demo.startup(); await demo.signIn('mariam')
-const correctionMode = new URLSearchParams(location.search).get('corrections')
-const reviewerMode = new URLSearchParams(location.search).has('reviewer')
+const correctionMode = params.get('corrections')
+const reviewerMode = params.has('reviewer')
 if (reviewerMode && new URLSearchParams(location.search).get('reviewer') === 'pdf') {
   const initial = await demo.readApplication(correctionApplicationId)
   if (initial.ok && initial.value.status === 'underReview' && !initial.value.rounds.length) {
