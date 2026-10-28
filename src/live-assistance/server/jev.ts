@@ -1,6 +1,6 @@
 import { type Coverage, type PageAnalysis, type PreparedPage, type SelectedEvidence, type StageRequest } from '../../evidence-assistance/contract'
-import { attemptPlan, composeFindings, interpret, makeRequest, recordRequest, usablePage } from '../../evidence-assistance/analysis/policy'
-import { cropGeometry, locationCandidates } from '../../evidence-assistance/preparation/locations'
+import { attemptPlan, composeFindings, interpret, recordRequest } from '../../evidence-assistance/analysis/policy'
+import { comparePages, pageAnalysis, runPages, verificationPlan } from '../../evidence-assistance/analysis/run'
 import { makeVerificationRequest } from '../../evidence-assistance/analysis/verification'
 import { LiveStop } from './admission'
 import { jevBridge } from './jev-bridge'
@@ -23,40 +23,32 @@ export function createJevWorkflow(options: Parameters<typeof jevBridge>[0]): Fix
       signal.throwIfAborted()
       return () => invoke(stage, signal)
     })
-    for (const image of images) {
+    for (const step of runPages({ selection, pages: images, runId: request.runId, plan })) {
       work.check()
-      const stage = makeRequest(selection, image, request.runId, plan)
-      const raw = await evaluate(stage)
+      const raw = await evaluate(step.request)
       try {
-        const interpreted = interpret(raw, selection)
-        pages.push({ page: image.manifest.page, request: recordRequest(stage), raster: image.manifest, ...interpreted })
-        coverage.successful.push(image.manifest.page)
+        pages.push(pageAnalysis(selection, step, raw))
+        coverage.successful.push(step.image.manifest.page)
       } catch { /* Accounted but wholly malformed judgments cannot supply scope. */ }
     }
-    const usable = pages.filter(page => usablePage(selection, page.findings))
+    const comparisonPlan = comparePages({ selection, pages: images, runId: request.runId, plan, coverage, analyses: pages })
     let comparison
-    if (request.totalPages > 1 && usable.length) {
-      const checked = images.filter(image => usable.some(page => page.page === image.manifest.page))
-      const stage = makeRequest(selection, checked[0], request.runId, plan, checked)
-      if (Object.keys(stage.questions).length) {
-        const raw = await evaluate(stage)
-        const basis = composeFindings(selection, { ...coverage, totalPages: usable.length, successful: usable.map(page => page.page) }, usable)
-        try { comparison = { request: recordRequest(stage), ...interpret(raw, selection, basis) } } catch { /* Preserve independent pages. */ }
-      }
+    if (comparisonPlan.status === 'ready') {
+      const raw = await evaluate(comparisonPlan.request)
+      try { comparison = { request: recordRequest(comparisonPlan.request), ...interpret(raw, selection, comparisonPlan.basis) } } catch { /* Preserve independent pages. */ }
     }
     const findings = request.totalPages === 1 ? pages[0]?.findings : composeFindings(selection, coverage, pages, comparison)
     if (!findings) return
-    const candidates = locationCandidates({ coverage, pages, findings, stale: false }, selection)
+    const planned = new Map(verificationPlan({ selection, coverage, findings, analyses: pages, prepared: images }).map(step => [step.page, step]))
     for (const page of pages) {
       work.check()
-      const eligible = candidates.filter(candidate => candidate.page === page.page && !candidate.reason)
-      if (!eligible.length) continue
-      const image = images.find(image => image.manifest.page === page.page)!
-      const regions = eligible.map(candidate => ({ ...cropGeometry(candidate.box!, page.raster)!, target: candidate.target }))
+      const step = planned.get(page.page)
+      if (!step) continue
+      const regions = step.regions.map(region => ({ ...region.geometry, target: region.target }))
       try {
-        const crops = await serverCrops(image, regions, work.signal)
+        const crops = await serverCrops(step.image, regions, work.signal)
         work.check()
-        await evaluate(makeVerificationRequest(page, image, crops))
+        await evaluate(makeVerificationRequest(page, step.image, crops))
       } catch (error) {
         if (error instanceof LiveStop) throw error
         throw new LiveStop(error instanceof Error && error.message === 'context-limit' ? 'context-limit' : 'prepared-limit')

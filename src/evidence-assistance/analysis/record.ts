@@ -5,7 +5,8 @@ import { bridgeSchema } from '../preparation/capture'
 import { completedFinancialMonths } from './financial'
 import { correctionTargetsSchema } from '../../domain/model'
 import { bounds, versions, financialPageTargets, type EvidenceRun, type SelectedEvidence } from '../contract'
-import { makeRequest, interpret, recordRequest, attemptPlan, composeFindings, usablePage } from './policy'
+import { interpret, recordRequest, attemptPlan, composeFindings } from './policy'
+import { comparePages, pageAnalysis as analysePage, runPages, verificationPlan } from './run'
 
 export const retentionMilliseconds = 7 * 24 * 60 * 60 * 1000
 const hash = z.string().regex(/^[a-f0-9]{64}$/)
@@ -99,34 +100,36 @@ export function readRecord(raw: unknown): EvidenceRun | null {
     const selection: SelectedEvidence = { source: { ...p.source, bytes: new ArrayBuffer(0) }, declaration: p.context, ...(p.correction ? { correction: p.correction } : {}), binding: p.binding }
     if (p.context.financial && !same(p.context.financial.expectedMonths, completedFinancialMonths(p.context.financial.initialSubmissionMonth))) return null
     if (p.binding.dependencyKey !== evidenceDependencyKey(selection)) return null
-    for (const page of run.pages) {
+    const prepared = run.pages.map(page => ({ bytes: new ArrayBuffer(0), manifest: page.raster, totalPages: total }))
+    const steps = runPages({ selection, pages: prepared, runId: run.id, plan: expectedPlan })
+    for (const [index, page] of run.pages.entries()) {
       if (page.page !== page.raster.page || p.source.hash !== page.raster.sourceHash || !c.selected.includes(page.page)) return null
-      const preparedRequest = makeRequest(selection, { bytes: new ArrayBuffer(0), manifest: page.raster, totalPages: total }, run.id, expectedPlan)
-      if (!same(recordRequest(preparedRequest), page.request)) return null
+      const step = steps[index]
+      if (!same(recordRequest(step.request), page.request)) return null
       if (page.native.bridge && !same(page.native.bridge.state, page.request.state)) return null
-      const mapped = interpret({ ...page.native, answers: page.native.receivedAnswers }, selection)
+      const mapped = analysePage(selection, step, { ...page.native, answers: page.native.receivedAnswers })
       if (!same(mapped.native, page.native) || !same(mapped.findings, page.findings) || mapped.partial !== page.partial) return null
     }
     if (run.comparison) {
-      if (total === 1) return null
-      const usable = run.pages.filter(page => usablePage(selection, page.findings))
-      if (!usable.length) return null
-      const images = usable.map(page => ({ bytes: new ArrayBuffer(0), manifest: page.raster, totalPages: total }))
-      if (!same(recordRequest(makeRequest(selection, images[0], run.id, expectedPlan, images)), run.comparison.request)) return null
-      if (run.comparison.native.bridge && !same(run.comparison.native.bridge.state, run.comparison.request.state)) return null
-      const basis = composeFindings(selection, { ...c, totalPages: usable.length, successful: usable.map(page => page.page) }, usable)
-      const mapped = interpret({ ...run.comparison.native, answers: run.comparison.native.receivedAnswers }, selection, basis)
+      const plan = comparePages({ selection, pages: prepared, runId: run.id, plan: expectedPlan, coverage: c, analyses: run.pages })
+      if (plan.status !== 'ready') return null
+      if (!same(recordRequest(plan.request), run.comparison.request)) return null
+      if (run.comparison.native.bridge && !same(run.comparison.native.bridge.state, plan.request.state)) return null
+      const mapped = interpret({ ...run.comparison.native, answers: run.comparison.native.receivedAnswers }, selection, plan.basis)
       if (!same(mapped.native, run.comparison.native) || !same(mapped.findings, run.comparison.findings) || mapped.partial !== run.comparison.partial) return null
     }
     const findings = total === 1 ? run.pages[0].findings : composeFindings(selection, c, run.pages, run.comparison)
     if (!same(findings, run.findings)) return null
+    const planned = new Map(verificationPlan({ selection, coverage: c, findings: run.findings, analyses: run.pages, prepared }).map(step => [step.page, step]))
     run.verifications = (run.verifications ?? []).filter((verification, index, all) => {
       const page = run.pages.find(page => page.page === verification.page)
-      if (!page || all.filter(stage => stage.page === verification.page).length !== 1) return false
+      const step = planned.get(verification.page)
+      if (!page || !step || all.filter(stage => stage.page === verification.page).length !== 1) return false
       try {
         const crops = (verification.request.state.regions ?? []).map(binding => ({ bytes: new ArrayBuffer(0), binding }))
         if (new Set(crops.map(crop => crop.binding.target)).size !== crops.length) return false
-        const request = makeVerificationRequest(page, { bytes: new ArrayBuffer(0), manifest: page.raster, totalPages: total }, crops)
+        if (crops.length !== step.regions.length || crops.some(crop => !step.regions.some(region => region.target === crop.binding.target))) return false
+        const request = makeVerificationRequest(page, step.image, crops)
         return same(recordRequest(request), verification.request) && (!verification.native.bridge || same(verification.native.bridge.state, verification.request.state)) && same(interpretVerification({ ...verification.native, answers: verification.native.receivedAnswers }), verification.native)
       } catch { return false }
     })
