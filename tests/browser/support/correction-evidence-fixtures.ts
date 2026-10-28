@@ -1,4 +1,4 @@
-import type { Demo, DraftDocuments, PreparedAttachment, ResubmitOperation, SaveCorrectionsOperation } from '../../../src/demo'
+import type { Demo, DraftDocuments, PreparedAttachment } from '../../../src/demo'
 import type { CorrectionTarget, Fields } from '../../../src/domain/model'
 
 export const correctionApplicationId = 'RIFD-2026-007'
@@ -8,7 +8,7 @@ export async function requestIdentityCorrection(demo: Demo, fields: CorrectionTa
   await demo.signIn('salma')
   const context = await demo.context(), view = await demo.readApplication(correctionApplicationId)
   if (!context.ok || !view.ok) throw new Error('fixture')
-  const result = await demo.execute({ kind: 'requestCorrections', datasetId: context.value.datasetId, applicationId: view.value.id, expectedSharedRevision: view.value.sharedRevision, operationId: crypto.randomUUID(), confirmed: true, targets: [{ kind: 'document', slot: 'identity', reason: identityReason }, ...fields] })
+  const result = await window.commitOn(demo, { kind: 'requestCorrections', applicationId: view.value.id, confirmed: true, targets: [{ kind: 'document', slot: 'identity', reason: identityReason }, ...fields] })
   if (!result.ok) throw new Error(result.error.kind)
   await demo.signIn('mariam')
   return correctionInput(demo)
@@ -20,14 +20,13 @@ export async function correctionInput(demo: Demo) {
   return { action: 'check-document' as const, applicationId: view.value.id, slot: 'identity' as const, audience: 'applicant' as const, context: 'correction-workspace' as const, roundId: view.value.workspace.roundId! }
 }
 
-export async function correctionCommand(demo: Demo, fields: Partial<Fields> = {}, attachment?: PreparedAttachment, kind: 'saveCorrections' | 'resubmit' = 'saveCorrections'): Promise<SaveCorrectionsOperation | ResubmitOperation> {
-  const context = await demo.context(), view = await demo.readApplication(correctionApplicationId)
-  if (!context.ok || !view.ok || view.value.role !== 'applicant' || !view.value.workspace) throw new Error('workspace')
+export async function correctionCommand(_demo: Demo, fields: Partial<Fields> = {}, attachment?: PreparedAttachment, kind: 'saveCorrections' | 'resubmit' = 'saveCorrections'): Promise<import('../../../src/demo').AttemptIntent> {
+  const view = await _demo.readApplication(correctionApplicationId)
+  if (!view.ok || view.value.role !== 'applicant' || !view.value.workspace) throw new Error('workspace')
   const workspace = view.value.workspace
   const documents = Object.fromEntries(Object.entries(workspace.snapshot.documents).map(([slot, fileId]) => [slot, { kind: 'saved', fileId }])) as DraftDocuments
   if (attachment) documents.identity = { kind: 'prepared', attachment }
-  const command = { datasetId: context.value.datasetId, applicationId: view.value.id, operationId: crypto.randomUUID(), roundId: workspace.roundId!, expectedWorkspaceRevision: workspace.revision, product: view.value.product, fields: { ...workspace.snapshot.fields, ...fields }, documents }
-  return kind === 'resubmit' ? { ...command, kind, expectedSharedRevision: view.value.sharedRevision } : { ...command, kind }
+  return { kind, applicationId: view.value.id, roundId: workspace.roundId!, product: view.value.product, fields: { ...workspace.snapshot.fields, ...fields }, documents }
 }
 
 export async function prepareCorrectionIdentity(demo: Demo, file: File) {

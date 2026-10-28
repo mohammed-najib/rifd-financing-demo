@@ -42,7 +42,7 @@ async function sample(page: Page) {
   })
 }
 
-test('zero encoding and legacy buffers restore exact sample bytes through reload, offline reads and reset replay', async ({ page, context }) => {
+test('zero encoding and legacy buffers restore exact sample bytes through reload, offline reads and a superseded reset', async ({ page, context }) => {
   await page.goto('/tests/browser/support/api.html?full=1')
   await page.waitForFunction(() => window.demo)
   expect(await page.evaluate(() => window.demo.startup())).toMatchObject({ ok: true })
@@ -55,7 +55,7 @@ test('zero encoding and legacy buffers restore exact sample bytes through reload
   expect(await page.evaluate(async () => {
     const current = await window.demo.context()
     if (!current.ok) throw new Error('No context')
-    return window.demo.execute({ kind: 'setLanguage', datasetId: current.value.datasetId, operationId: 'zero-encoding-language', expectedRevision: current.value.preferences.revision, language: 'en' })
+    return window.commit({ kind: 'setLanguage', expectedRevision: current.value.preferences.revision, language: 'en' })
   })).toMatchObject({ ok: true })
   await page.reload()
   await page.waitForFunction(() => window.demo)
@@ -66,13 +66,15 @@ test('zero encoding and legacy buffers restore exact sample bytes through reload
   const command = await page.evaluate(async () => {
     const current = await window.demo.inspectReset()
     if (!current.ok) throw new Error('No reset context')
-    return { kind: 'resetDemo' as const, context: current.value, operationId: 'zero-encoding-reset', confirmed: true as const }
+    return { kind: 'resetDemo' as const, context: current.value, confirmed: true as const }
   })
-  expect(await page.evaluate(command => window.demo.execute(command), command)).toMatchObject({ ok: true, value: { replay: false } })
+  expect(await page.evaluate(command => window.commit(command), command)).toMatchObject({ ok: true, value: { replay: false } })
   await page.reload()
   await page.waitForFunction(() => window.demo)
   expect(await page.evaluate(() => window.demo.startup())).toMatchObject({ ok: true })
-  expect(await page.evaluate(command => window.demo.execute(command), command)).toMatchObject({ ok: true, value: { replay: true } })
+  // The reloaded tab cannot resend the reset's operation id, and its old dataset
+  // context is superseded, so repeating the intent does not reset again.
+  expect(await page.evaluate(command => window.commit(command), command)).toMatchObject({ ok: false, error: { kind: 'supersededDataset' } })
   expect(await page.evaluate(() => window.demo.signIn('mariam'))).toMatchObject({ ok: true })
   expect(await sample(page)).toEqual({ length: 5_000_001, zeros: true, last: 0, hashMatches: true })
 })

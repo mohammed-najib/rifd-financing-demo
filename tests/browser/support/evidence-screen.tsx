@@ -10,6 +10,7 @@ import { pdfFile } from './evidence-fixtures'
 import { requestBusinessCorrection } from './business-evidence-fixtures'
 import { requestPurchaseCorrection } from './purchase-evidence-fixtures'
 import { browserLiveTransport } from '../../../src/live-assistance/client'
+import { installAttemptClient } from './attempt-client'
 
 const params = new URLSearchParams(location.search)
 const demo = createDemo({
@@ -27,6 +28,7 @@ const demo = createDemo({
   compactEvidence: !params.has('full'),
 })
 window.demo = demo
+installAttemptClient()
 const context = await demo.startup(); await demo.signIn('mariam')
 const correctionMode = params.get('corrections')
 const reviewerMode = params.has('reviewer')
@@ -35,7 +37,7 @@ if (reviewerMode && new URLSearchParams(location.search).get('reviewer') === 'pd
   if (initial.ok && initial.value.status === 'underReview' && !initial.value.rounds.length) {
     await requestIdentityCorrection(demo)
     const attachment = await prepareCorrectionIdentity(demo, await pdfFile(2))
-    const published = await demo.execute(await correctionCommand(demo, {}, attachment, 'resubmit'))
+    const published = await window.commitOn(demo, await correctionCommand(demo, {}, attachment, 'resubmit'))
     if (!published.ok) throw new Error(published.error.kind)
   }
 }
@@ -62,7 +64,7 @@ const initialContext = context.value, initialView = view.value
 function Screen() {
   const [language, setLanguage] = useState<Language>('ar'), [step, setStep] = useState<ApplicationStep>('documents'), [view, setView] = useState(initialView)
   return <div className="mx-auto max-w-[1200px] p-4" dir={language === 'ar' ? 'rtl' : 'ltr'}><h1>Browser test fixture</h1><button onClick={() => { const next = language === 'ar' ? 'en' : 'ar'; setLanguage(next); document.documentElement.dir = next === 'ar' ? 'rtl' : 'ltr' }}>{language === 'ar' ? 'English' : 'العربية'}</button>
-    {view.role === 'reviewer' ? <ReviewWorkspace demo={demo} datasetId={initialContext.datasetId} view={view} language={language} remember={() => {}} changed={setView} departure={() => {}} /> : view.status === 'draft' || view.status === 'correctionsRequested' ? <DraftEditor demo={demo} view={view} context={initialContext} language={language} step={step} changeStep={setStep} remember={() => {}} departure={() => {}} savedView={setView} /> : <h2>{view.status === 'submitted' ? language === 'ar' ? 'قُدم الطلب.' : 'Application submitted.' : language === 'ar' ? 'أُعيد تقديم التصحيحات.' : 'Corrections resubmitted.'}</h2>}
+    {view.role === 'reviewer' ? <ReviewWorkspace demo={demo} view={view} language={language} remember={() => {}} changed={setView} departure={() => {}} /> : view.status === 'draft' || view.status === 'correctionsRequested' ? <DraftEditor demo={demo} view={view} context={initialContext} language={language} step={step} changeStep={setStep} remember={() => {}} departure={() => {}} savedView={setView} /> : <h2>{view.status === 'submitted' ? language === 'ar' ? 'قُدم الطلب.' : 'Application submitted.' : language === 'ar' ? 'أُعيد تقديم التصحيحات.' : 'Corrections resubmitted.'}</h2>}
   </div>
 }
 createRoot(document.getElementById('root')!).render(<Screen />)

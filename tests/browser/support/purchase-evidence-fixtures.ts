@@ -21,7 +21,7 @@ export async function savePurchase(fields: Partial<Fields> = {}, attachment?: Pr
   const documents = Object.fromEntries(Object.entries(view.value.snapshot.documents).map(([slot, fileId]) => [slot, { kind: 'saved', fileId }])) as DraftDocuments
   if (attachment) documents.purchase = { kind: 'prepared', attachment }
   else if (product && product !== view.value.product) documents.purchase = { kind: 'saved', fileId: null }
-  const result = await window.demo.execute({ kind: 'saveDraft', datasetId: context.value.datasetId, applicationId: view.value.id, operationId: crypto.randomUUID(), expectedWorkspaceRevision: view.value.workspace.revision, product: product ?? view.value.product, fields: { ...view.value.snapshot.fields, ...fields }, documents })
+  const result = await window.commit({ kind: 'saveDraft', applicationId: view.value.id, product: product ?? view.value.product, fields: { ...view.value.snapshot.fields, ...fields }, documents })
   if (!result.ok) throw new Error(result.error.kind)
   return result.value
 }
@@ -30,7 +30,7 @@ export async function requestPurchaseCorrection(demo: import('../../../src/demo'
   await demo.signIn('salma')
   const context = await demo.context(), view = await demo.readApplication('RIFD-2026-007')
   if (!context.ok || !view.ok) throw new Error('review')
-  const result = await demo.execute({ kind: 'requestCorrections', datasetId: context.value.datasetId, applicationId: view.value.id, operationId: crypto.randomUUID(), expectedSharedRevision: view.value.sharedRevision, confirmed: true, targets: [
+  const result = await window.commitOn(demo, { kind: 'requestCorrections', applicationId: view.value.id, confirmed: true, targets: [
     { kind: 'document', slot: 'purchase', reason: { ar: 'استبدل عرض السعر غير الواضح.', en: 'Replace the unclear supplier quotation.' } },
     { kind: 'field', field: 'budget', reason: { ar: 'صحح الميزانية الإجمالية.', en: 'Correct the total purchase budget.' } },
   ] })

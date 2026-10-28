@@ -28,7 +28,7 @@ export async function saveBusiness(fields: Partial<Fields> = {}, attachment?: Pr
   const workspace = view.value.workspace
   const documents = Object.fromEntries(Object.entries(workspace.snapshot.documents).map(([slot, fileId]) => [slot, { kind: 'saved', fileId }])) as DraftDocuments
   if (attachment) documents.business = { kind: 'prepared', attachment }
-  const result = await window.demo.execute({ kind: 'saveDraft', datasetId: context.value.datasetId, applicationId: view.value.id, operationId: crypto.randomUUID(), expectedWorkspaceRevision: workspace.revision, product: view.value.product, fields: { ...workspace.snapshot.fields, ...fields }, documents })
+  const result = await window.commit({ kind: 'saveDraft', applicationId: view.value.id, product: view.value.product, fields: { ...workspace.snapshot.fields, ...fields }, documents })
   if (!result.ok) throw new Error(result.error.kind)
   return result.value
 }
@@ -37,7 +37,7 @@ export async function requestBusinessCorrection(demo: Demo) {
   await demo.signIn('salma')
   const context = await demo.context(), view = await demo.readApplication('RIFD-2026-007')
   if (!context.ok || !view.ok) throw new Error('review')
-  const result = await demo.execute({ kind: 'requestCorrections', datasetId: context.value.datasetId, applicationId: view.value.id, operationId: crypto.randomUUID(), expectedSharedRevision: view.value.sharedRevision, confirmed: true, targets: [
+  const result = await window.commitOn(demo, { kind: 'requestCorrections', applicationId: view.value.id, confirmed: true, targets: [
     { kind: 'document', slot: 'business', reason: { ar: 'استبدل إثبات النشاط غير الواضح.', en: 'Replace the unclear business evidence.' } },
     { kind: 'field', field: 'address', reason: { ar: 'صحح عنوان النشاط.', en: 'Correct the business address.' } },
   ] })

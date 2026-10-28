@@ -88,6 +88,24 @@ export type ReviewOperation = {
 export type ApplicationOperation = SaveDraftOperation | SubmitOperation | SaveCorrectionsOperation | ResubmitOperation
 export type ApplicationMutation = ApplicationOperation | ReviewOperation
 export type DemoOperation = PreferenceOperation | ApplicationMutation | NotificationReadOperation | ResetOperation
+// An attempt supplies the record it was prepared from. The envelope — dataset,
+// operation identity, revisions and confirmation session — belongs to the store.
+type StoreSupplied = 'datasetId' | 'operationId' | 'confirmationSessionId' | 'expectedSharedRevision' | 'expectedWorkspaceRevision'
+type IntentOf<T> = T extends unknown ? Omit<T, StoreSupplied | (T extends { kind: 'setLanguage' | 'setQueuePreferences' } ? 'expectedRevision' : never)> : never
+export type AttemptIntent = IntentOf<DemoOperation>
+export type ApplicationIntent = Extract<AttemptIntent, { kind: 'saveDraft' | 'saveCorrections' | 'submit' | 'resubmit' }>
+export type ReviewIntent = Extract<AttemptIntent, { kind: ReviewOperation['kind'] }>
+export type AttemptResult<T> =
+  T extends { kind: 'resetDemo' } ? ResetResult
+  : T extends { kind: 'markNotificationRead' } ? NotificationReadResult
+  : T extends { kind: 'setLanguage' | 'setQueuePreferences' } ? Context
+  : MutationResult
+export type StaleCause = 'staleRecord' | 'staleWorkspace' | 'stalePreference' | 'staleNotification'
+export type AttemptOutcome<T> =
+  | { status: 'committed'; result: T }
+  | { status: 'notCommitted'; latest?: ApplicationView | Context | NotificationDestination }
+  | { status: 'stale'; cause: StaleCause }
+  | { status: 'unknown'; resolve(): Promise<Result<AttemptOutcome<T>>>; discard(): void }
 export type MutationResult = { receipt: MutationReceipt; application: ApplicationView }
 export type OperationInspection = { status: 'committed'; result: MutationResult } | { status: 'notCommitted'; application: ApplicationView }
 export type Preparation = {
@@ -101,28 +119,21 @@ export type Demo = {
   createEvidenceAssistance(input: import('../evidence-assistance/contract').EvidenceInput): import('../evidence-assistance/contract').EvidenceAssistance;
   listSavedDemonstrations(): Promise<Result<import('./saved-demonstrations').SavedExample[]>>;
   selectSavedDemonstration(input: import('./saved-demonstrations').SavedSelection): Promise<Result<import('./saved-demonstrations').OpenedSavedDemonstration>>;
+  // One write protocol: intent plus the record it was prepared from. Revisions,
+  // operation identity, retry and outcome inspection stay behind the seam.
+  // Retry identity is the record: the same intent against the same record is one
+  // attempt; a later record is a new edit even when its content matches.
+  // A preference intent is prepared from a Context; an application intent from
+  // the ApplicationView it was edited against.
+  attempt<T extends AttemptIntent>(intent: T, view?: ApplicationView | Context): Promise<Result<AttemptOutcome<AttemptResult<T>>>>;
+  inspectAttempt<T extends AttemptIntent>(intent: T, view?: ApplicationView | Context): Promise<Result<AttemptOutcome<AttemptResult<T>>>>;
   inspectReset(): Promise<Result<ResetContext>>;
-  inspectResetOperation(operation: ResetOperation): Promise<Result<ResetInspection>>;
-  execute(operation: ResetOperation): Promise<Result<ResetResult>>;
   startup(): Promise<Result<Context>>;
   context(): Promise<Result<Context>>;
   signIn(identity: ActorId): Promise<Result<Context>>;
   signOut(): Promise<Result<Context>>;
   expireSession(): void;
   newDraft(product: ProductId): Promise<Result<ApplicantView>>;
-  execute(operation: LanguageOperation): Promise<Result<Context>>;
-  execute(operation: QueuePreferenceOperation): Promise<Result<Context>>;
-  execute(operation: PreferenceOperation): Promise<Result<Context>>;
-  execute(operation: SaveDraftOperation): Promise<Result<MutationResult>>;
-  execute(operation: SubmitOperation): Promise<Result<MutationResult>>;
-  execute(operation: ResubmitOperation): Promise<Result<MutationResult>>;
-  execute(operation: SaveCorrectionsOperation): Promise<Result<MutationResult>>;
-  execute(operation: ReviewOperation): Promise<Result<MutationResult>>;
-  execute(operation: ApplicationOperation): Promise<Result<MutationResult>>;
-  execute(operation: NotificationReadOperation): Promise<Result<NotificationReadResult>>;
-  inspectOperation(operation: ApplicationMutation): Promise<Result<OperationInspection>>;
-  inspectPreferenceOperation(operation: PreferenceOperation): Promise<Result<PreferenceInspection>>;
-  inspectNotificationOperation(operation: NotificationReadOperation): Promise<Result<NotificationInspection>>;
   prepareAttachment(input: Preparation, onProgress?: (percent: number) => void): Promise<Result<PreparedAttachment>>;
   cancelPreparation(applicationId: string, slot: DocumentSlot): void;
   readPrepared(applicationId: string, attachment: PreparedAttachment): Promise<Result<{ bytes: ArrayBuffer; name: string; mime: string; hash: string }>>;

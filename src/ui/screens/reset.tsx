@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import type { Demo, ErrorKind, ResetContext, ResetOperation, ResetResult } from '../../demo'
+import type { AttemptIntent, Demo, ErrorKind, ResetContext, ResetResult } from '../../demo'
 import type { Language } from '../../domain/model'
 import { errors, text } from '../i18n'
 import { containDialogFocus } from '../shared/dialog'
@@ -28,7 +28,7 @@ export function ResetDialog({ demo, language, prepare, pending, completed, close
   const dialog = useRef<HTMLDialogElement>(null)
   const alive = useRef(true)
   const [observed, setObserved] = useState<ResetContext | null>(null)
-  const command = useRef<ResetOperation | null>(null)
+  const command = useRef<Extract<AttemptIntent, { kind: 'resetDemo' }> | null>(null)
   const [busy, setBusy] = useState(false)
   const [inspecting, setInspecting] = useState(true)
   const [error, setError] = useState<ErrorKind | null>(null)
@@ -49,15 +49,20 @@ export function ResetDialog({ demo, language, prepare, pending, completed, close
   }, [])
   const reset = async () => {
     if (!observed || busy) return
-    command.current ??= { kind: 'resetDemo', context: observed, operationId: crypto.randomUUID(), confirmed: true }
+    command.current ??= { kind: 'resetDemo', context: observed, confirmed: true }
     setBusy(true); setError(null); pending(true)
     try {
       await prepare()
-      const result = await demo.execute(command.current)
+      const result = await demo.attempt(command.current)
       if (!alive.current) return
-      if (result.ok) { await completed(result.value); return }
-      setError(result.error.kind)
-      if (result.error.kind === 'supersededDataset' || result.error.kind === 'identifierMisuse') { setObserved(null); command.current = null }
+      if (!result.ok) {
+        setError(result.error.kind)
+        if (result.error.kind === 'supersededDataset' || result.error.kind === 'identifierMisuse') { setObserved(null); command.current = null }
+        return
+      }
+      const outcome = result.value
+      if (outcome.status === 'committed') { await completed(outcome.result); return }
+      setError(outcome.status === 'unknown' ? 'outcomeUnknown' : 'requestFailed')
     } catch { if (alive.current) setError('resources') }
     finally { if (alive.current) { setBusy(false); pending(false) } }
   }
@@ -65,15 +70,15 @@ export function ResetDialog({ demo, language, prepare, pending, completed, close
     if (!command.current) return
     setBusy(true); pending(true)
     try {
-      const result = await demo.inspectResetOperation(command.current)
+      const result = await demo.inspectAttempt(command.current)
       if (!alive.current) return
-      if (result.ok) {
-        if (result.value.status === 'committed') { await completed(result.value.result); return }
-        setError(null)
-      } else {
+      if (!result.ok) {
         setError(result.error.kind)
         if (result.error.kind === 'supersededDataset') { setObserved(null); command.current = null }
+        return
       }
+      if (result.value.status === 'committed') { await completed(result.value.result); return }
+      setError(null)
     } finally { if (alive.current) { setBusy(false); pending(false) } }
   }
   return <dialog ref={dialog} className="w-[650px]" aria-labelledby="reset-heading" aria-describedby="reset-warning" aria-busy={busy || inspecting} onKeyDown={containDialogFocus} onCancel={event => { event.preventDefault(); if (!busy) close() }}>

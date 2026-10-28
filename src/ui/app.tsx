@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
 import { defaultParseSearch, useBlocker, useNavigate, useRouter, useRouterState } from '@tanstack/react-router'
-import { createDemo, demoIdentities, type ApplicationSummary, type ApplicationView, type Context, type ErrorKind, type LanguageOperation, type PrintSummary } from '../demo'
+import { createDemo, demoIdentities, type ApplicationSummary, type ApplicationView, type AttemptIntent, type Context, type ErrorKind, type PrintSummary } from '../demo'
 import { configuredLiveTransport } from '../live-assistance/client'
 import { products, resolveStep } from '../domain'
 import type { ActorId, Language, ProductId } from '../domain/model'
@@ -27,6 +27,8 @@ import { LoadingPanel } from './shared/feedback'
 import { Products } from './screens/products'
 import { IdentityCard } from './shared/identity-card'
 import { Heading } from './shared/heading'
+
+type LanguageIntent = Extract<AttemptIntent, { kind: 'setLanguage' }>
 
 type Screen = { kind: 'home' | 'chooser' | 'products' | 'applicantList' | 'staffList' | 'newDraft' | 'reset' | 'gallery' | 'unavailable' | 'notifications' } | { kind: 'applicantDetail' | 'staffDetail' | 'staffRequest' | 'staffDecision' | 'applicantPrint' | 'staffPrint' | 'applicantRepayment' | 'staffRepayment'; id: string }
 function resolveScreen(path: string): Screen {
@@ -84,7 +86,7 @@ export function App() {
   const [resetOpen, setResetOpen] = useState(false)
   const resetting = useRef(false)
   const lastDataset = useRef<string | null>(null)
-  const [languageConflict, setLanguageConflict] = useState<{ intent: LanguageOperation; latest: Context | null } | null>(null)
+  const [languageConflict, setLanguageConflict] = useState<{ intent: LanguageIntent; latest: Context | null } | null>(null)
   const [reload, setReload] = useState(0)
   const [list, setList] = useState<ApplicationSummary[] | null>(null)
   const [printSummary, setPrintSummary] = useState<PrintSummary | null>(null)
@@ -336,21 +338,21 @@ export function App() {
     } catch { if (alive.current) setError('resources') }
     finally { identitySelection.current = false; if (alive.current) setBusy(false) }
   }
-  const changeLanguage = async (intent?: LanguageOperation) => {
+  const changeLanguage = async (intent?: LanguageIntent, base?: Context) => {
     if (!context) return
+    const preparedFrom = base ?? context
     const capturedSession = context.session?.sessionId
-    const command: LanguageOperation = intent ?? { kind: 'setLanguage', datasetId: context.datasetId, operationId: crypto.randomUUID(), expectedRevision: context.preferences.revision, language: language === 'ar' ? 'en' : 'ar' }
+    const capturedDataset = context.datasetId
+    const change: LanguageIntent = intent ?? { kind: 'setLanguage', language: language === 'ar' ? 'en' : 'ar' }
     setBusy(true); setError(null)
-    const result = await demo.execute(command)
+    const result = await demo.attempt(change, preparedFrom)
     if (!alive.current) return
     setBusy(false)
-    if (capturedSession !== currentContext.current?.session?.sessionId || command.datasetId !== currentContext.current?.datasetId) return
-    // Commit the saved language before background refreshes defer its frame.
-    if (result.ok) flushSync(() => { setLanguageConflict(null); acceptContext(result.value) })
-    else {
-      if (result.error.kind === 'stalePreference') setLanguageConflict({ intent: command, latest: null })
-      else setError(result.error.kind)
-    }
+    if (capturedSession !== currentContext.current?.session?.sessionId || capturedDataset !== currentContext.current?.datasetId) return
+    if (!result.ok) { setError(result.error.kind); return }
+    const outcome = result.value
+    if (outcome.status === 'committed') { flushSync(() => { setLanguageConflict(null); acceptContext(outcome.result) }); return }
+    setLanguageConflict({ intent: change, latest: null })
   }
   const inspectLanguage = async () => {
     if (!languageConflict) return
@@ -359,10 +361,10 @@ export function App() {
     const result = await demo.context()
     if (!alive.current) return
     setBusy(false)
-    if (result.ok && result.value.datasetId === intent.datasetId) {
+    if (result.ok) {
       setLanguageConflict(current => current?.intent === intent ? { intent, latest: result.value } : current)
       acceptContext(result.value)
-    } else if (!result.ok) setError(result.error.kind)
+    } else setError(result.error.kind)
   }
   const signOut = async () => {
     setBusy(true); setView(null); setList(null); setPrintSummary(null)
@@ -415,7 +417,7 @@ export function App() {
           <p role="status">{errors.stalePreference[language]}</p>
           <p>{t('unappliedLanguage')}: {text[languageConflict.intent.language === 'ar' ? 'arabic' : 'english'][language]}</p>
           <button disabled={busy} onClick={() => void inspectLanguage()}>{t('inspectPreference')}</button>
-          {languageConflict.latest && <><p>{t('latestLanguage')}: {text[languageConflict.latest.preferences.language === 'ar' ? 'arabic' : 'english'][language]}</p><button disabled={busy} onClick={() => void changeLanguage({ ...languageConflict.intent, operationId: crypto.randomUUID(), expectedRevision: languageConflict.latest!.preferences.revision })}>{t('reapplyPreference')}</button></>}
+          {languageConflict.latest && <><p>{t('latestLanguage')}: {text[languageConflict.latest.preferences.language === 'ar' ? 'arabic' : 'english'][language]}</p><button disabled={busy} onClick={() => void changeLanguage(languageConflict.intent, languageConflict.latest!)}>{t('reapplyPreference')}</button></>}
           <button disabled={busy} onClick={() => setLanguageConflict(null)}>{t('discardPreference')}</button>
         </section>}
         {screen.kind === 'reset' ? <section className="panel"><Heading>{resetText.title[language]}</Heading><p>{resetText.warning[language]}</p><button disabled={busy} onClick={() => setResetOpen(true)}>{resetText.title[language]}</button></section>
@@ -436,12 +438,12 @@ export function App() {
             if (result.ok) { newDraftId.current = result.value.id; setList(null); setView(result.value) } else setError(result.error.kind)
             setBusy(false)
           }}>{applicationText.new[language]}</button><div className="actions">{list?.filter(application => application.status === 'draft').map(application => <a className="button secondary" key={application.id} href={`/applications/${application.id}/edit?step=personal`} onClick={event => { event.preventDefault(); void go(`/applications/${application.id}/edit?step=personal`) }}>{applicationText.resume[language]} <bdi>{application.id}</bdi> · {products[application.product].name[language]}</a>)}</div></section>
-          : screen.kind === 'notifications' && context ? <Notifications key={`${context.datasetId}/${identityId}/${sessionId}`} demo={demo} datasetId={context.datasetId} language={language} reload={reload} go={go} />
+          : screen.kind === 'notifications' && context ? <Notifications key={`${context.datasetId}/${identityId}/${sessionId}`} demo={demo} language={language} reload={reload} go={go} />
           : printSummary ? <PrintApplication summary={printSummary} language={language} staff={screen.kind === 'staffPrint'} queueSearch={screen.kind === 'staffPrint' ? searchStr : ''} go={go} />
           : screen.kind === 'staffList' && context ? <StaffApplicationQueue key={`${context.datasetId}/${identityId}/${sessionId}`} demo={demo} context={context} language={language} input={search} href={href} reload={reload} go={go} acceptContext={acceptContext} />
           : list ? <ApplicationList list={list} language={language} go={go} />
           : view && (screen.kind === 'staffRepayment' || screen.kind === 'applicantRepayment') ? <RepaymentOverview view={view} language={language} queueSearch={screen.kind === 'staffRepayment' ? searchStr : ''} go={go} />
-          : view ? <ApplicationDetail key={`${context?.datasetId}/${identityId}/${sessionId}/${view.id}`} demo={demo} view={view} language={language} queueSearch={['staffDetail', 'staffRequest', 'staffDecision'].includes(screen.kind) ? searchStr : ''} requesting={screen.kind === 'staffRequest' || screen.kind === 'staffDecision'} confirmed={submittedId === view.id} redirectedCorrection={resolvedCorrectionId === view.id} redirectedRepayment={resolvedRepaymentId === view.id} go={go}>{view.role === 'reviewer' && context?.session && <StaleWriteControl demo={demo} datasetId={context.datasetId} view={view} language={language} hold={() => { heldStaffView.current = { path, sessionId } }} release={() => { heldStaffView.current = null }} changed={changeStaffView} departure={value => staffDeparture(value, true)} />}{view.role === 'reviewer' && context?.session && screen.kind === 'staffDecision' && <Decision demo={demo} datasetId={context.datasetId} sessionId={context.session.sessionId} view={view} language={language} queueSearch={searchStr} go={go} retained={decisionBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => rememberBuffer(decisionBuffers.current, context, view.id, buffer)} changed={changeStaffView} departure={staffDeparture} />}{view.role === 'reviewer' && context && screen.kind === 'staffRequest' && <CorrectionRequest demo={demo} datasetId={context.datasetId} view={view} language={language} queueSearch={searchStr} go={go} retained={correctionBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => rememberBuffer(correctionBuffers.current, context, view.id, buffer)} changed={changeStaffView} departure={staffDeparture} />}{view.role === 'reviewer' && context && screen.kind !== 'staffRequest' && screen.kind !== 'staffDecision' && <ReviewWorkspace demo={demo} datasetId={context.datasetId} view={view} language={language} retained={reviewBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => rememberBuffer(reviewBuffers.current, context, view.id, buffer)} changed={changeStaffView} departure={staffDeparture} />}{view.role === 'applicant' && (view.status === 'draft' || view.status === 'correctionsRequested' && path.endsWith('/corrections/current')) && context && <DraftEditor initialTerm={screen.kind === 'newDraft' ? chosenTerm : undefined} demo={demo} view={view} context={context} language={language} step={step} changeStep={step => { void go(`${path}?${screen.kind === 'newDraft' ? `product=${chosenProduct}${chosenTerm === undefined ? '' : `&term=${chosenTerm}`}&` : ''}step=${step}`) }} retained={draftBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => rememberBuffer(draftBuffers.current, context, view.id, buffer)} savedView={application => {
+          : view ? <ApplicationDetail key={`${context?.datasetId}/${identityId}/${sessionId}/${view.id}`} demo={demo} view={view} language={language} queueSearch={['staffDetail', 'staffRequest', 'staffDecision'].includes(screen.kind) ? searchStr : ''} requesting={screen.kind === 'staffRequest' || screen.kind === 'staffDecision'} confirmed={submittedId === view.id} redirectedCorrection={resolvedCorrectionId === view.id} redirectedRepayment={resolvedRepaymentId === view.id} go={go}>{view.role === 'reviewer' && context?.session && <StaleWriteControl demo={demo} view={view} language={language} hold={() => { heldStaffView.current = { path, sessionId } }} release={() => { heldStaffView.current = null }} changed={changeStaffView} departure={value => staffDeparture(value, true)} />}{view.role === 'reviewer' && context?.session && screen.kind === 'staffDecision' && <Decision demo={demo} view={view} language={language} queueSearch={searchStr} go={go} retained={decisionBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => rememberBuffer(decisionBuffers.current, context, view.id, buffer)} changed={changeStaffView} departure={staffDeparture} />}{view.role === 'reviewer' && context && screen.kind === 'staffRequest' && <CorrectionRequest demo={demo} view={view} language={language} queueSearch={searchStr} go={go} retained={correctionBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => rememberBuffer(correctionBuffers.current, context, view.id, buffer)} changed={changeStaffView} departure={staffDeparture} />}{view.role === 'reviewer' && context && screen.kind !== 'staffRequest' && screen.kind !== 'staffDecision' && <ReviewWorkspace demo={demo} view={view} language={language} retained={reviewBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => rememberBuffer(reviewBuffers.current, context, view.id, buffer)} changed={changeStaffView} departure={staffDeparture} />}{view.role === 'applicant' && (view.status === 'draft' || view.status === 'correctionsRequested' && path.endsWith('/corrections/current')) && context && <DraftEditor initialTerm={screen.kind === 'newDraft' ? chosenTerm : undefined} demo={demo} view={view} context={context} language={language} step={step} changeStep={step => { void go(`${path}?${screen.kind === 'newDraft' ? `product=${chosenProduct}${chosenTerm === undefined ? '' : `&term=${chosenTerm}`}&` : ''}step=${step}`) }} retained={draftBuffers.current.get(`${context.datasetId}/${identityId}/${view.id}`)} remember={buffer => rememberBuffer(draftBuffers.current, context, view.id, buffer)} savedView={application => {
             setView(application)
             if (application.status !== 'draft' && application.status !== 'correctionsRequested') {
               draftBuffers.current.delete(`${context.datasetId}/${identityId}/${application.id}`)

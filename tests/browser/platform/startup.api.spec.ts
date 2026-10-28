@@ -194,9 +194,10 @@ test('quota refusal preserves saved fields and files and permits an explicit ret
     if (!draft.ok || draft.value.role !== 'applicant') throw new Error('No draft')
     const ready = await window.demo.prepareAttachment({ datasetId: start.value.datasetId, applicationId: draft.value.id, slot: 'purchase', selectionId: crypto.randomUUID(), source: { kind: 'sample', sampleId: 'RIFD-2026-001-purchase-original' } })
     if (!ready.ok) throw new Error('No prepared file')
+    window.datasetId = start.value.datasetId
     window.draftCommand = {
-      kind: 'saveDraft', datasetId: start.value.datasetId, operationId: 'quota-retry', applicationId: draft.value.id,
-      expectedWorkspaceRevision: draft.value.workspace!.revision, product: draft.value.product,
+      kind: 'saveDraft', applicationId: draft.value.id,
+      product: draft.value.product,
       fields: { ...draft.value.snapshot.fields, explanation: 'Keep this offline save' },
       documents: {
         identity: { kind: 'saved', fileId: draft.value.snapshot.documents.identity },
@@ -210,11 +211,11 @@ test('quota refusal preserves saved fields and files and permits an explicit ret
       IDBObjectStore.prototype.put = put
       throw new DOMException(`Fixture quota for ${args[1]}`, 'QuotaExceededError')
     }
-    const refused = await window.demo.execute(window.draftCommand)
+    const refused = await window.commit(window.draftCommand)
     const unchanged = await window.demo.readApplication(draft.value.id)
     const retained = await window.demo.readPrepared(draft.value.id, ready.value)
-    const inspected = await window.demo.inspectOperation(window.draftCommand)
-    const retried = await window.demo.execute(window.draftCommand)
+    const inspected = await window.inspect(window.draftCommand)
+    const retried = await window.commit(window.draftCommand)
     return { refused, unchanged, retained: retained.ok ? retained.value.hash : null, hash: ready.value.hash, inspected, retried }
   })
   expect(result.refused).toMatchObject({ ok: false, error: { kind: 'storage' } })

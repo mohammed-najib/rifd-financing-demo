@@ -18,10 +18,10 @@ test('new draft stays private and memory-only until an atomic raw save, includin
     }
     const command = { kind: 'saveDraft' as const, datasetId: context.value.datasetId, applicationId: opened.value.id, operationId: 'create', expectedWorkspaceRevision: 0, product: opened.value.product, fields: { ...opened.value.snapshot.fields, fullName: ' x ', amount: '١,٠٠', term: 'invalid' }, documents }
     demo.setControls({ slow: false, failure: 'storage' })
-    const failed = await demo.execute(command)
+    const failed = await window.commitOn(demo, command)
     const afterFailure = await demo.listApplications()
-    const inspection = await demo.inspectOperation(command)
-    const saved = await demo.execute(command)
+    const inspection = await window.inspectOn(demo, command)
+    const saved = await window.commitOn(demo, command)
     return { before, failed, afterFailure, inspection, saved, command }
   })
   expect(result.before.ok && result.before.value).toHaveLength(3)
@@ -34,7 +34,8 @@ test('new draft stays private and memory-only until an atomic raw save, includin
   const restored = await page.evaluate(async command => {
     const demo = window.demo
     await demo.startup()
-    const replay = await demo.execute(command)
+    const repeat = await window.commitOn(demo, command)
+    const inspection = await window.inspectOn(demo, command)
     const view = await demo.readApplication(command.applicationId)
     const bytes: Record<string, string> = {}
     if (view.ok) for (const document of view.value.documents) {
@@ -42,9 +43,14 @@ test('new draft stays private and memory-only until an atomic raw save, includin
       if (file.ok) bytes[document.slot] = new TextDecoder().decode(file.value.bytes)
     }
     await demo.signIn('salma')
-    return { replay, view, bytes, forbidden: await demo.readApplication(command.applicationId) }
+    return { repeat, inspection, view, bytes, forbidden: await demo.readApplication(command.applicationId) }
   }, result.command)
-  expect(restored.replay).toEqual(result.saved)
+  // A restart forgets the staged attachments, so repeating the intent is a fresh
+  // operation refused by validation. It never replays the earlier receipt and the
+  // single committed save stays the workspace's current revision.
+  expect(restored.repeat).toMatchObject({ ok: false, error: { kind: 'validation', slot: 'identity' } })
+  expect(restored.inspection).toMatchObject({ ok: true, value: { status: 'notCommitted', application: { sharedRevision: 1, workspace: { revision: 1 } } } })
+  expect(restored.view).toMatchObject({ ok: true, value: { sharedRevision: 1, workspace: { revision: 1 }, snapshot: { fields: { fullName: ' x ', amount: '١,٠٠' } } } })
   expect(restored.bytes).toEqual({ identity: 'DEMO identity', business: 'DEMO business', financial: 'DEMO financial', purchase: 'DEMO purchase' })
   expect(restored.forbidden).toMatchObject({ ok: false, error: { kind: 'unavailable' } })
 })
@@ -63,12 +69,12 @@ test('a product switch commits removal atomically, preserves shared evidence and
     if (!samples.ok) throw new Error('No samples')
     const incompatibleSample = await demo.prepareAttachment({ datasetId: context.value.datasetId, applicationId: before.value.id, slot: 'purchase', product: 'equipment', selectionId: 'incompatible', source: { kind: 'sample', sampleId: samples.value.find(sample => sample.slot === 'purchase')!.id } })
     const command = { kind: 'saveDraft' as const, datasetId: context.value.datasetId, applicationId: before.value.id, operationId: 'switch', expectedWorkspaceRevision: before.value.workspace.revision, product: 'equipment' as const, fields: { ...before.value.snapshot.fields, amount: '١٠٠٬٠٠٠', term: '٦' }, documents }
-    const incompatible = await demo.execute(command)
+    const incompatible = await window.commitOn(demo, command)
     command.documents.purchase = { kind: 'saved', fileId: null }
     demo.setControls({ slow: false, failure: 'storage' })
-    const failed = await demo.execute(command)
+    const failed = await window.commitOn(demo, command)
     const unchanged = await demo.readApplication(before.value.id)
-    const saved = await demo.execute(command)
+    const saved = await window.commitOn(demo, command)
     const staleSample = await demo.prepareAttachment({ datasetId: context.value.datasetId, applicationId: before.value.id, slot: 'purchase', selectionId: 'stale-catalog', source: { kind: 'sample', sampleId: samples.value.find(sample => sample.slot === 'purchase')!.id } })
     const oldFile = await demo.readFile(before.value.id, before.value.snapshot.documents.purchase!)
     return { before, incompatibleSample, incompatible, failed, unchanged, saved, staleSample, oldFile }

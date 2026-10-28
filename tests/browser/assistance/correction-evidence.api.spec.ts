@@ -49,16 +49,16 @@ test('relevant edits, replacements and round publication fence late answers and 
       return handle.read()
     }
     const edited = await during(async () => {
-      const saved = await demo.execute(await correctionCommand(demo, { fullName: 'Changed Fictional Name' }))
+      const saved = await window.commitOn(demo, await correctionCommand(demo, { fullName: 'Changed Fictional Name' }))
       if (!saved.ok) throw new Error(saved.error.kind)
     })
     const replaced = await during(async () => {
       const attachment = await prepareCorrectionIdentity(demo, await imageFile('image/png'))
-      const saved = await demo.execute(await correctionCommand(demo, {}, attachment))
+      const saved = await window.commitOn(demo, await correctionCommand(demo, {}, attachment))
       if (!saved.ok) throw new Error(saved.error.kind)
     })
     const published = await during(async () => {
-      const resubmitted = await demo.execute(await correctionCommand(demo, {}, undefined, 'resubmit'))
+      const resubmitted = await window.commitOn(demo, await correctionCommand(demo, {}, undefined, 'resubmit'))
       if (!resubmitted.ok) throw new Error(resubmitted.error.kind)
     })
     const nextInput = await requestIdentityCorrection(demo)
@@ -91,7 +91,7 @@ for (const transition of ['sign-out', 'reset'] as const) test(`${transition} can
     else {
       const context = await demo.inspectReset()
       if (!context.ok) throw new Error('reset')
-      const outcome = await demo.execute({ kind: 'resetDemo', context: context.value, confirmed: true, operationId: crypto.randomUUID() })
+      const outcome = await window.commitOn(demo, { kind: 'resetDemo', context: context.value, confirmed: true })
       if (!outcome.ok) throw new Error(outcome.error.kind)
     }
     release(nativeIdentity()); await pending
@@ -117,7 +117,7 @@ test('ignoring suggestions cannot bypass a normalized field change after replaci
     if (!view.ok) throw new Error('view')
     const attachment = await prepareCorrectionIdentity(demo, await imageFile('image/png'))
     const handle = demo.createEvidenceAssistance({ ...input, attachment }); await handle.run(); const advice = handle.read(); handle.dispose()
-    return { advice, outcome: await demo.execute(await correctionCommand(demo, { fullName: `  ${view.value.snapshot.fields.fullName}  ` }, attachment, 'resubmit')), after: await demo.readApplication(input.applicationId), before: view }
+    return { advice, outcome: await window.commitOn(demo, await correctionCommand(demo, { fullName: `  ${view.value.snapshot.fields.fullName}  ` }, attachment, 'resubmit')), after: await demo.readApplication(input.applicationId), before: view }
   })
   expect(result.advice.status).toBe('completed')
   expect(result.outcome).toMatchObject({ error: { kind: 'validation' } })
@@ -139,14 +139,14 @@ test('assistance cannot expand document-only permissions or satisfy unchanged co
     for (const change of [{ declaredName: 'Forbidden name edit' }, { roundId: 'obsolete' }, { context: 'draft' as const }, { slot: 'business' as const }]) {
       const denied = demo.createEvidenceAssistance({ ...input, ...change }); forbidden.push(await denied.inspect()); denied.dispose()
     }
-    const forbiddenSave = await demo.execute(await correctionCommand(demo, { fullName: 'Forbidden name edit' }))
-    const unchanged = await demo.execute(await correctionCommand(demo, {}, undefined, 'resubmit'))
+    const forbiddenSave = await window.commitOn(demo, await correctionCommand(demo, { fullName: 'Forbidden name edit' }))
+    const unchanged = await window.commitOn(demo, await correctionCommand(demo, {}, undefined, 'resubmit'))
     const selected = before.ok && before.value.documents.find(document => document.slot === 'identity')?.file
     if (!selected) throw new Error('file')
     const source = await demo.readFile(input.applicationId, selected.id)
     if (!source.ok) throw new Error('source')
     const identical = await prepareCorrectionIdentity(demo, new File([source.value.bytes], 'another-name.png', { type: source.value.mime }))
-    const sameContent = await demo.execute(await correctionCommand(demo, {}, identical, 'resubmit'))
+    const sameContent = await window.commitOn(demo, await correctionCommand(demo, {}, identical, 'resubmit'))
     const after = await demo.readApplication(input.applicationId)
     await demo.signIn('huda')
     const other = demo.createEvidenceAssistance(input); const otherRead = await other.inspect(); other.dispose()
@@ -180,9 +180,9 @@ test('prepared corrections and edited declarations remain temporary until matchi
     const other = demo.createEvidenceAssistance({ ...input, attachment, declaredName }); await other.inspect()
     const absent = other.read(); other.dispose()
     const unchanged = await demo.readApplication(input.applicationId)
-    const nonmatchingSave = await demo.execute(await correctionCommand(demo, {}, attachment))
+    const nonmatchingSave = await window.commitOn(demo, await correctionCommand(demo, {}, attachment))
     await handle.refresh(); const stillTemporary = handle.read()
-    const save = await demo.execute(await correctionCommand(demo, { fullName: declaredName }))
+    const save = await window.commitOn(demo, await correctionCommand(demo, { fullName: declaredName }))
     await handle.refresh(); const saved = handle.read(); handle.dispose()
     const reopened = demo.createEvidenceAssistance(input); await reopened.inspect(); const restored = reopened.read(); reopened.dispose()
     return { input, before, unchanged, temporary, absent, nonmatchingSave, stillTemporary, save, saved, restored, attachment, applicantPrint: await demo.readPrintSummary(input.applicationId) }
@@ -210,7 +210,7 @@ test('prepared corrections and edited declarations remain temporary until matchi
   const published = await page.evaluate(async input => {
     const correctionPath = '/tests/browser/support/correction-evidence-fixtures.ts'
     const { correctionCommand } = await import(correctionPath) as typeof import('../support/correction-evidence-fixtures')
-    const outcome = await window.demo.execute(await correctionCommand(window.demo, {}, undefined, 'resubmit'))
+    const outcome = await window.commit(await correctionCommand(window.demo, {}, undefined, 'resubmit'))
     const handle = window.demo.createEvidenceAssistance(input); await handle.inspect(); const state = handle.read(); handle.dispose()
     return { outcome, state }
   }, initial.input)

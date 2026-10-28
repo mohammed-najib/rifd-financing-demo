@@ -14,11 +14,11 @@ test('financial results retain exact multipage coverage after Save and reject ed
     if (!before.ok || before.value.role !== 'applicant' || !before.value.workspace) throw new Error('draft')
     const documents = Object.fromEntries(Object.entries(before.value.snapshot.documents).map(([slot, fileId]) => [slot, { kind: 'saved', fileId }])) as import('../../../src/demo').DraftDocuments
     documents.financial = { kind: 'prepared', attachment }
-    const saved = await demo.execute({ kind: 'saveDraft', datasetId, applicationId: financialInput.applicationId, operationId: crypto.randomUUID(), expectedWorkspaceRevision: before.value.workspace.revision, product: before.value.product, fields: { ...before.value.snapshot.fields, ...financialInput.declaredFinancial }, documents })
+    const saved = await window.commitOn(demo, { kind: 'saveDraft', datasetId, applicationId: financialInput.applicationId, product: before.value.product, fields: { ...before.value.snapshot.fields, ...financialInput.declaredFinancial }, documents })
     if (!saved.ok) throw new Error(saved.error.kind)
     await handle.refresh(); const retained = handle.read(); handle.dispose()
     const reopened = demo.createEvidenceAssistance({ ...financialInput, attachment: undefined }); await reopened.inspect(); const restored = reopened.read()
-    const changes = await demo.execute({ kind: 'saveDraft', datasetId, applicationId: financialInput.applicationId, operationId: crypto.randomUUID(), expectedWorkspaceRevision: saved.value.application.role === 'applicant' ? saved.value.application.workspace!.revision : -1, product: saved.value.application.product, fields: { ...saved.value.application.snapshot.fields, revenue: '999999' }, documents: Object.fromEntries(Object.entries(saved.value.application.snapshot.documents).map(([slot, fileId]) => [slot, { kind: 'saved', fileId }])) as import('../../../src/demo').DraftDocuments })
+    const changes = await window.commitOn(demo, { kind: 'saveDraft', datasetId, applicationId: financialInput.applicationId, product: saved.value.application.product, fields: { ...saved.value.application.snapshot.fields, revenue: '999999' }, documents: Object.fromEntries(Object.entries(saved.value.application.snapshot.documents).map(([slot, fileId]) => [slot, { kind: 'saved', fileId }])) as import('../../../src/demo').DraftDocuments })
     if (!changes.ok) throw new Error(changes.error.kind)
     reopened.dispose()
     const changed = demo.createEvidenceAssistance({ ...financialInput, declaredFinancial: undefined }); await changed.inspect(); const stale = changed.read(); changed.dispose()

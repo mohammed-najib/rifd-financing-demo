@@ -14,7 +14,7 @@ test('pending, failed and removed replacements never attach a checked capture to
     if (!prepared.ok) throw new Error('No source')
     const documents = Object.fromEntries(Object.entries(view.value.workspace!.snapshot.documents).map(([slot, fileId]) => [slot, { kind: 'saved', fileId }])) as import('../../../src/demo').DraftDocuments
     documents.identity = { kind: 'prepared', attachment: prepared.value }
-    const saved = await demo.execute({ kind: 'saveDraft', datasetId: context.value.datasetId, applicationId: view.value.id, operationId: 'save-current', expectedWorkspaceRevision: view.value.workspace!.revision, fields: { ...view.value.workspace!.snapshot.fields, fullName: 'Mira Vale Fictional 570' }, product: view.value.product, documents })
+    const saved = await window.commitOn(demo, { kind: 'saveDraft', applicationId: view.value.id, fields: { ...view.value.workspace!.snapshot.fields, fullName: 'Mira Vale Fictional 570' }, product: view.value.product, documents })
     if (!saved.ok) throw new Error('No saved source')
     demo.cancelPreparation(view.value.id, 'identity')
     const current = { applicationId: view.value.id, slot: 'identity' as const, language: 'en' as const }

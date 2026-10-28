@@ -12,7 +12,7 @@ test('either permitted role prints the identical public submitted record without
     const response = await demo.readApplication('RIFD-2026-004')
     if (!context.ok || !response.ok || response.value.role !== 'applicant' || !response.value.workspace) throw new Error('No response')
     const workspace = response.value.workspace
-    const saved = await demo.execute({ kind: 'saveCorrections', datasetId: context.value.datasetId, operationId: 'private-print', applicationId: response.value.id, roundId: workspace.roundId!, expectedWorkspaceRevision: workspace.revision, product: response.value.product, fields: { ...workspace.snapshot.fields, amount: '450000' }, documents: Object.fromEntries(Object.entries(workspace.snapshot.documents).map(([slot, fileId]) => [slot, { kind: 'saved', fileId }])) as import('../../../src/demo').DraftDocuments })
+    const saved = await window.commitOn(demo, { kind: 'saveCorrections', applicationId: response.value.id, roundId: workspace.roundId!, product: response.value.product, fields: { ...workspace.snapshot.fields, amount: '450000' }, documents: Object.fromEntries(Object.entries(workspace.snapshot.documents).map(([slot, fileId]) => [slot, { kind: 'saved', fileId }])) as import('../../../src/demo').DraftDocuments })
     if (!saved.ok) throw new Error(JSON.stringify(saved))
     const owner = await demo.readPrintSummary('RIFD-2026-004')
     const applicantView = await demo.readApplication('RIFD-2026-004')
@@ -53,7 +53,7 @@ test('draft print reads only the last saved raw progress and rejects an unsaved 
     const unsaved = await demo.newDraft('equipment')
     if (!context.ok || !draft.ok || draft.value.role !== 'applicant' || !draft.value.workspace || !unsaved.ok) throw new Error('No draft')
     const fields = { ...draft.value.snapshot.fields, explanation: 'SAVED FICTIONAL PROGRESS', amount: 'invalid saved amount' }
-    const saved = await demo.execute({ kind: 'saveDraft', datasetId: context.value.datasetId, operationId: 'save-print', applicationId: draft.value.id, expectedWorkspaceRevision: draft.value.workspace.revision, product: draft.value.product, fields, documents: Object.fromEntries(Object.entries(draft.value.snapshot.documents).map(([slot, fileId]) => [slot, { kind: 'saved', fileId }])) as import('../../../src/demo').DraftDocuments })
+    const saved = await window.commitOn(demo, { kind: 'saveDraft', applicationId: draft.value.id, product: draft.value.product, fields, documents: Object.fromEntries(Object.entries(draft.value.snapshot.documents).map(([slot, fileId]) => [slot, { kind: 'saved', fileId }])) as import('../../../src/demo').DraftDocuments })
     fields.explanation = 'LATER UNSAVED INPUT'
     return { saved, summary: await demo.readPrintSummary(draft.value.id), unsaved: await demo.readPrintSummary(unsaved.value.id) }
   })

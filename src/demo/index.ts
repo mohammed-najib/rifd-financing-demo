@@ -1,8 +1,7 @@
 import { changedReviewChecks, domainDate, emptyDocuments, initialEvidenceMonths, foldDigits, freezeRepayment, parseWholeYER, products, reviewPermissions, submissionMonth, validateFields, validateFileEnvelope } from '../domain'
 import { actorIdSchema, fieldsSchema, productIdSchema, slots, type ActorId, type Application, type Dataset, type Fields, type StoredFile } from '../domain/model'
 import { fileFromBytes, makeFile, prepareFonts, yieldToInput } from './documents/evidence'
-import { applicationMutationSchema, applicationOperationSchema, commitHintSchema, applicationFingerprint, notificationReadSchema, preferenceOperationSchema, preparationSchema, reviewOperationSchema, resetOperationSchema } from './operations/commands'
-import type { ResetOperation, ResetResult } from './types'
+import { applicationMutationSchema, applicationOperationSchema, commitHintSchema, applicationFingerprint, operationFingerprint, notificationReadSchema, preferenceOperationSchema, preparationSchema, reviewOperationSchema, resetOperationSchema } from './operations/commands'
 import { createResetStorage } from './operations/reset'
 import { identities } from './seed/manifest'
 import { prepareSeed } from './seed'
@@ -19,8 +18,8 @@ import { createAssistanceOperations } from './assistance-operations'
 import { project, summaries } from './projection'
 import { applicationReceipt, notificationReceipt, preferenceReceipt } from './receipts'
 import { inactivity, persistSession, readStoredSession } from './session'
-import type { ApplicantView, ApplicationMutation, ApplicationOperation, CommitHint, Context, Controls, Demo, ErrorKind, LanguageOperation, MutationResult, NotificationReadOperation, NotificationReadResult, PreferenceOperation, PreparedAttachment, QueuePreferenceOperation, Result, ReviewOperation, SaveCorrectionsOperation, SaveDraftOperation, Session, SubmitOperation, ResubmitOperation } from './types'
-export type { ApplicationOperation, ApplicationSummary, ApplicationView, CommitHint, Context, Controls, Demo, DemoOperation, DraftDocuments, ErrorKind, LanguageOperation, MutationResult, NotificationDestination, NotificationReadOperation, NotificationReadResult, OperationInspection, PreferenceInspection, PreferenceOperation, PreparedAttachment, Preparation, PrintSummary, QueuePreferenceOperation, QueueQuery, StaffQueue, Result, ReviewOperation, SaveCorrectionsOperation, SaveDraftOperation, SubmitOperation, ResubmitOperation, ResetContext, ResetOperation, ResetResult, ResetInspection } from './types'
+import type { ApplicantView, ApplicationMutation, ApplicationView, AttemptIntent, AttemptOutcome, AttemptResult, CommitHint, Context, Controls, Demo, DemoOperation, ErrorKind, MutationResult, NotificationDestination, NotificationReadOperation, NotificationReadResult, PreferenceOperation, PreparedAttachment, Result, Session, StaleCause, ResetOperation, ResetResult } from './types'
+export type { ApplicationIntent, ApplicationOperation, ApplicationSummary, ApplicationView, AttemptIntent, AttemptOutcome, AttemptResult, CommitHint, Context, Controls, Demo, DemoOperation, DraftDocuments, ErrorKind, LanguageOperation, MutationResult, NotificationDestination, NotificationReadOperation, NotificationReadResult, OperationInspection, PreferenceInspection, PreferenceOperation, PreparedAttachment, Preparation, PrintSummary, QueuePreferenceOperation, QueueQuery, ReviewIntent, StaffQueue, Result, ReviewOperation, SaveCorrectionsOperation, SaveDraftOperation, StaleCause, SubmitOperation, ResubmitOperation, ResetContext, ResetOperation, ResetResult, ResetInspection } from './types'
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 const success = <T>(value: T): Result<T> => ({ ok: true, value })
@@ -66,12 +65,16 @@ export function createDemo(options: DemoOptions = {}): Demo {
     return cleaningAnalysis
   }
   const newDrafts = new Map<string, Application>()
+  // A committing operation whose outcome was not observed keeps its exact
+  // command here until it is resolved or discarded. Reusing it is what makes a
+  // retry replay the receipt instead of writing a second change.
+  const pendingAttempts = new Map<string, DemoOperation>()
   const { permitted, editable } = createAccess(newDrafts)
   let controls: Controls = { slow: false, failure: null }
   const resetStorage = createResetStorage()
   const acceptDataset = (id: string) => {
     invalidateAssistance()
-    newDrafts.clear(); preparations.clear(); selections.clear(); resetStorage.clear()
+    newDrafts.clear(); preparations.clear(); selections.clear(); resetStorage.clear(); pendingAttempts.clear()
     controls = { slow: false, failure: null }
     datasetId = id; session = null; generation++; armExpiry()
     analysisCleanup = 'pending'; void cleanAnalysis()
@@ -120,14 +123,15 @@ export function createDemo(options: DemoOptions = {}): Demo {
     try { session = { ...session, lastActivity: now, expiresAt: now + inactivity }; persistSession(session); armExpiry() }
     catch { loseStorage('storage') }
   }
-  const attempt = async <T>(run: () => Promise<T>): Promise<Result<T>> => {
+  const failureFrom = <T,>(error: unknown): Result<T> => {
+    const result = failure<T>(error instanceof DemoError ? error.kind : 'storage')
+    if (!result.ok && error instanceof DemoError && error.slot) result.error.slot = error.slot
+    if (!result.ok && error instanceof DemoError && error.fieldIssues) result.error.fieldIssues = error.fieldIssues
+    return result
+  }
+  const settle = async <T>(run: () => Promise<T>): Promise<Result<T>> => {
     try { return success(await run()) }
-    catch (error) {
-      const result = failure<T>(error instanceof DemoError ? error.kind : 'storage')
-      if (!result.ok && error instanceof DemoError && error.slot) result.error.slot = error.slot
-      if (!result.ok && error instanceof DemoError && error.fieldIssues) result.error.fieldIssues = error.fieldIssues
-      return result
-    }
+    catch (error) { return failureFrom<T>(error) }
   }
   const read = async (): Promise<Dataset> => {
     // An upgrade closes old connections before its outcome is known. Only a
@@ -174,7 +178,7 @@ export function createDemo(options: DemoOptions = {}): Demo {
     if (!session) throw new DemoError('sessionExpired')
     return session.identity
   }
-  const protectedRead = async <T>(project: (data: Dataset, who: ActorId) => T): Promise<Result<T>> => attempt(async () => {
+  const protectedRead = async <T>(project: (data: Dataset, who: ActorId) => T): Promise<Result<T>> => settle(async () => {
     const who = actor()
     const captured = generation
     await delay()
@@ -225,27 +229,10 @@ export function createDemo(options: DemoOptions = {}): Demo {
     const suffix = application.status === 'correctionsRequested' ? '/corrections/current' : application.status === 'draft' ? '/edit?step=personal' : ''
     return { notification, destination: `/applications/${application.id}${suffix}` }
   }
-  async function execute(operation: ResetOperation): Promise<Result<ResetResult>>
-  async function execute(operation: LanguageOperation): Promise<Result<Context>>
-  async function execute(operation: QueuePreferenceOperation): Promise<Result<Context>>
-  async function execute(operation: PreferenceOperation): Promise<Result<Context>>
-  async function execute(operation: SaveDraftOperation): Promise<Result<MutationResult>>
-  async function execute(operation: SubmitOperation): Promise<Result<MutationResult>>
-  async function execute(operation: ResubmitOperation): Promise<Result<MutationResult>>
-  async function execute(operation: SaveCorrectionsOperation): Promise<Result<MutationResult>>
-  async function execute(operation: ReviewOperation): Promise<Result<MutationResult>>
-  async function execute(operation: ApplicationOperation): Promise<Result<MutationResult>>
-  async function execute(operation: NotificationReadOperation): Promise<Result<NotificationReadResult>>
-  async function execute(input: PreferenceOperation | ApplicationMutation | NotificationReadOperation | ResetOperation): Promise<Result<Context | MutationResult | NotificationReadResult | ResetResult>> {
-    const operation = structuredClone(input)
-    const result = await executeOperation(operation)
-    if (result.ok && (operation.kind === 'saveDraft' || operation.kind === 'saveCorrections')) await Promise.all([...assistance].map(handle => handle.revalidate()))
-    return result
-  }
   async function executeOperation(input: PreferenceOperation | ApplicationMutation | NotificationReadOperation | ResetOperation): Promise<Result<Context | MutationResult | NotificationReadResult | ResetResult>> {
     // Capture raw payload and attachment descriptors before any delay.
     const operation = structuredClone(input)
-    if (operation.kind === 'resetDemo') return attempt(async () => {
+    if (operation.kind === 'resetDemo') return settle(async () => {
       const parsed = resetOperationSchema.safeParse(operation)
       if (!parsed.success) throw new DemoError('validation')
       const command = parsed.data
@@ -263,7 +250,7 @@ export function createDemo(options: DemoOptions = {}): Demo {
       if (!result.replay) announce({ datasetId: result.datasetId, kind: 'reset' })
       return result
     })
-    if (operation.kind === 'claimApplication' || operation.kind === 'startReview' || operation.kind === 'transferApplication' || operation.kind === 'unassignApplication' || operation.kind === 'assessDocument' || operation.kind === 'recordCheck' || operation.kind === 'saveNote' || operation.kind === 'requestCorrections' || operation.kind === 'verifyCorrection' || operation.kind === 'approve' || operation.kind === 'reject') return attempt(async () => {
+    if (operation.kind === 'claimApplication' || operation.kind === 'startReview' || operation.kind === 'transferApplication' || operation.kind === 'unassignApplication' || operation.kind === 'assessDocument' || operation.kind === 'recordCheck' || operation.kind === 'saveNote' || operation.kind === 'requestCorrections' || operation.kind === 'verifyCorrection' || operation.kind === 'approve' || operation.kind === 'reject') return settle(async () => {
       const who = actor()
       const captured = generation
       const parsed = reviewOperationSchema.safeParse(operation)
@@ -342,7 +329,7 @@ export function createDemo(options: DemoOptions = {}): Demo {
       if (!replay) announce({ datasetId: command.datasetId, kind: 'application', applicationId: command.applicationId, revision: receipt.sharedRevision })
       return { receipt, application: project(data, who, permitted(data, who, command.applicationId)) }
     })
-    if (operation.kind === 'markNotificationRead') return attempt(async () => {
+    if (operation.kind === 'markNotificationRead') return settle(async () => {
       const who = actor()
       const captured = generation
       const parsed = notificationReadSchema.safeParse(operation)
@@ -370,7 +357,7 @@ export function createDemo(options: DemoOptions = {}): Demo {
       if (changed) announce({ datasetId: data.meta.datasetId, kind: 'notification', notificationId: current.notification.id, revision: current.notification.revision })
       return { ...current, receipt: { operationId: receipt.operationId, revision: receipt.revision } }
     })
-    if (operation.kind === 'saveDraft' || operation.kind === 'submit' || operation.kind === 'saveCorrections' || operation.kind === 'resubmit') return attempt(async () => {
+    if (operation.kind === 'saveDraft' || operation.kind === 'submit' || operation.kind === 'saveCorrections' || operation.kind === 'resubmit') return settle(async () => {
       const who = actor()
       const captured = generation
       const parsed = applicationOperationSchema.safeParse(operation)
@@ -481,7 +468,7 @@ export function createDemo(options: DemoOptions = {}): Demo {
       }
       return { receipt, application: project(data, who, permitted(data, who, command.applicationId)) }
     })
-    return attempt(async () => {
+    return settle(async () => {
       const parsed = preferenceOperationSchema.safeParse(operation)
       if (!parsed.success) throw new DemoError('validation')
       const command = parsed.data
@@ -514,8 +501,157 @@ export function createDemo(options: DemoOptions = {}): Demo {
       return contextFrom(data)
     })
   }
+  type CommandInspection = { status: 'committed'; result: MutationResult | Context | NotificationReadResult | ResetResult } | { status: 'notCommitted'; latest?: ApplicationView | Context | NotificationDestination }
+
+  const inspectApplicationCommand = (input: ApplicationMutation): Promise<Result<CommandInspection>> => {
+    const operation = structuredClone(input)
+    return protectedRead((data, who) => {
+      if (data.meta.datasetId !== operation.datasetId) throw new DemoError('supersededDataset')
+      const application = permitted(data, who, operation.applicationId)
+      const parsed = applicationMutationSchema.safeParse(operation)
+      if (!parsed.success) throw new DemoError('validation')
+      const receipt = applicationReceipt(data, who, parsed.data)
+      return receipt
+        ? { status: 'committed' as const, result: { receipt, application: project(data, who, application) } }
+        : { status: 'notCommitted' as const, latest: project(data, who, application) }
+    })
+  }
+  const inspectPreferenceCommand = (input: PreferenceOperation): Promise<Result<CommandInspection>> => {
+    const operation = structuredClone(input)
+    return settle(async () => {
+      const parsed = preferenceOperationSchema.safeParse(operation)
+      if (!parsed.success) throw new DemoError('validation')
+      const command = parsed.data
+      const by = command.kind === 'setQueuePreferences' ? actor() : session?.identity ?? 'unsigned'
+      if (command.kind === 'setQueuePreferences' && by !== 'salma') throw new DemoError('unavailable')
+      const captured = generation
+      await delay()
+      const data = await read()
+      if (captured !== generation) throw new DemoError('sessionExpired')
+      if (command.kind === 'setQueuePreferences') authority(captured, 'salma', command.datasetId, data)
+      if (data.meta.datasetId !== command.datasetId) throw new DemoError('supersededDataset')
+      const { receipt } = preferenceReceipt(data, by, command)
+      return receipt ? { status: 'committed' as const, result: contextFrom(data) } : { status: 'notCommitted' as const, latest: contextFrom(data) }
+    })
+  }
+  const inspectNotificationCommand = (input: NotificationReadOperation): Promise<Result<CommandInspection>> => {
+    const operation = structuredClone(input)
+    return protectedRead((data, who) => {
+      if (data.meta.datasetId !== operation.datasetId) throw new DemoError('supersededDataset')
+      const parsed = notificationReadSchema.safeParse(operation)
+      if (!parsed.success) throw new DemoError('validation')
+      const current = notificationDestination(data, who, operation.notificationId)
+      const receipt = notificationReceipt(data, who, operation).receipt
+      return receipt
+        ? { status: 'committed' as const, result: { ...current, receipt: { operationId: receipt.operationId, revision: receipt.revision } } }
+        : { status: 'notCommitted' as const, latest: current }
+    })
+  }
+  const inspectResetCommand = (input: ResetOperation): Promise<Result<CommandInspection>> => {
+    const command = structuredClone(input)
+    return settle(async () => {
+      const parsed = resetOperationSchema.safeParse(command)
+      if (!parsed.success) throw new DemoError('validation')
+      const inspected = await resetStorage.inspectOperation(parsed.data)
+      if (inspected.status === 'committed' && datasetId && datasetId !== inspected.result.datasetId) { acceptDataset(inspected.result.datasetId); emit() }
+      return inspected.status === 'committed' ? { status: 'committed' as const, result: inspected.result } : { status: 'notCommitted' as const }
+    })
+  }
+  const inspectCommand = (command: DemoOperation): Promise<Result<CommandInspection>> =>
+    command.kind === 'resetDemo' ? inspectResetCommand(command)
+      : command.kind === 'setLanguage' || command.kind === 'setQueuePreferences' ? inspectPreferenceCommand(command)
+        : command.kind === 'markNotificationRead' ? inspectNotificationCommand(command)
+          : inspectApplicationCommand(command)
+
+  const staleCause = (kind: ErrorKind): StaleCause | null =>
+    kind === 'staleRecord' || kind === 'staleWorkspace' || kind === 'stalePreference' || kind === 'staleNotification' ? kind : null
+  const attemptActor = (intent: AttemptIntent): string =>
+    intent.kind === 'resetDemo' ? 'reset'
+      : intent.kind === 'setLanguage' || intent.kind === 'setQueuePreferences' ? session?.identity ?? 'unsigned'
+        : actor()
+  const attemptKey = (command: DemoOperation, who: string): string => {
+    if (command.kind === 'resetDemo') return `reset/${command.context.kind === 'dataset' ? command.context.datasetId : command.context.token}`
+    if (command.kind === 'markNotificationRead') return `${who}/notification/${command.notificationId}`
+    if (command.kind === 'setLanguage' || command.kind === 'setQueuePreferences') return `${who}/preference/${command.kind}`
+    return `${who}/${command.applicationId}/${command.kind}`
+  }
+  // The record a buffer was prepared from supplies the expected revisions, so
+  // callers never construct or compare them.
+  const buildCommand = (intent: AttemptIntent, view: ApplicationView | Context | undefined, operationId: string): DemoOperation => {
+    if (intent.kind === 'resetDemo') return { ...intent, operationId }
+    if (!datasetId) throw new DemoError('startup')
+    if (intent.kind === 'markNotificationRead') return { ...intent, datasetId, operationId }
+    if (intent.kind === 'setLanguage' || intent.kind === 'setQueuePreferences') {
+      if (!view || !('preferences' in view)) throw new DemoError('invalidState')
+      return { ...intent, datasetId, operationId, expectedRevision: view.preferences.revision }
+    }
+    if (!view || 'preferences' in view) throw new DemoError('invalidState')
+    if (intent.kind === 'saveDraft' || intent.kind === 'saveCorrections' || intent.kind === 'submit' || intent.kind === 'resubmit') {
+      if (view.role !== 'applicant' || !view.workspace) throw new DemoError('invalidState')
+      const expectedWorkspaceRevision = view.workspace.revision
+      switch (intent.kind) {
+        case 'saveDraft': return { ...intent, datasetId, operationId, expectedWorkspaceRevision }
+        case 'saveCorrections': return { ...intent, datasetId, operationId, expectedWorkspaceRevision }
+        case 'submit': return { ...intent, datasetId, operationId, expectedWorkspaceRevision, expectedSharedRevision: view.sharedRevision }
+        case 'resubmit': return { ...intent, datasetId, operationId, expectedWorkspaceRevision, expectedSharedRevision: view.sharedRevision }
+      }
+    }
+    if (view.role !== 'reviewer' || !session) throw new DemoError('invalidState')
+    const expectedSharedRevision = view.sharedRevision
+    switch (intent.kind) {
+      case 'approve': return { ...intent, datasetId, operationId, expectedSharedRevision, confirmationSessionId: session.sessionId }
+      case 'reject': return { ...intent, datasetId, operationId, expectedSharedRevision, confirmationSessionId: session.sessionId }
+      default: return { ...intent, datasetId, operationId, expectedSharedRevision }
+    }
+  }
+  const resolveAttempt = async <T extends AttemptIntent>(key: string, command: DemoOperation): Promise<Result<AttemptOutcome<AttemptResult<T>>>> => {
+    const inspected = await inspectCommand(command)
+    if (!inspected.ok) return inspected as Result<AttemptOutcome<AttemptResult<T>>>
+    pendingAttempts.delete(key)
+    return inspected.value.status === 'committed'
+      ? success({ status: 'committed' as const, result: inspected.value.result as AttemptResult<T> })
+      : success({ status: 'notCommitted' as const, latest: inspected.value.latest })
+  }
+  const runAttempt = async <T extends AttemptIntent>(input: T, view: ApplicationView | Context | undefined, inspectOnly: boolean): Promise<Result<AttemptOutcome<AttemptResult<T>>>> => {
+    const intent = structuredClone(input)
+    try {
+      const who = attemptActor(intent)
+      const drafted = buildCommand(intent, view, crypto.randomUUID())
+      const key = attemptKey(drafted, who)
+      const pending = pendingAttempts.get(key)
+      const command = pending && operationFingerprint(pending) === operationFingerprint(drafted) ? pending : drafted
+      if (inspectOnly) {
+        // No outstanding attempt still means "inspect this intent": the answer
+        // is either the receipt of an earlier commit or the current record.
+        return await resolveAttempt<T>(key, command)
+      }
+      const result = await executeOperation(command)
+      if (!result.ok) {
+        if (result.error.kind === 'outcomeUnknown') {
+          pendingAttempts.set(key, command)
+          return success({
+            status: 'unknown' as const,
+            resolve: () => resolveAttempt<T>(key, command),
+            discard: () => { pendingAttempts.delete(key) },
+          })
+        }
+        pendingAttempts.delete(key)
+        const cause = staleCause(result.error.kind)
+        if (cause) return success({ status: 'stale' as const, cause })
+        return result as Result<AttemptOutcome<AttemptResult<T>>>
+      }
+      pendingAttempts.delete(key)
+      // Saving a draft or correction can change assistance dependencies; the
+      // awaited ordering is part of the commit, not the caller's job.
+      if (command.kind === 'saveDraft' || command.kind === 'saveCorrections') await Promise.all([...assistance].map(handle => handle.revalidate()))
+      return success({ status: 'committed' as const, result: result.value as AttemptResult<T> })
+    } catch (error) {
+      return failureFrom<AttemptOutcome<AttemptResult<T>>>(error)
+    }
+  }
+
   const saved = createAssistanceOperations({
-    read, attempt, authority, permitted, editable, preparedFile, fileResult,
+    read, attempt: settle, authority, permitted, editable, preparedFile, fileResult,
     selections, preparations, assistance, transport: options.evidenceTransport,
     analysisStorage, generation: () => generation, sessionIdentity: () => session?.identity, actor,
   })
@@ -524,36 +660,9 @@ export function createDemo(options: DemoOptions = {}): Demo {
     analysisAvailability: () => ({ cleanup: analysisCleanup }),
     listSavedDemonstrations: saved.listSavedDemonstrations,
     selectSavedDemonstration: saved.selectSavedDemonstration,
-    execute,
-    inspectReset: () => attempt(() => resetStorage.inspect()),
-    inspectResetOperation: input => {
-      const command = structuredClone(input)
-      return attempt(async () => {
-        const parsed = resetOperationSchema.safeParse(command)
-        if (!parsed.success) throw new DemoError('validation')
-        const inspected = await resetStorage.inspectOperation(parsed.data)
-        if (inspected.status === 'committed' && datasetId && datasetId !== inspected.result.datasetId) { acceptDataset(inspected.result.datasetId); emit() }
-        return inspected
-      })
-    },
-    inspectPreferenceOperation: input => {
-      const operation = structuredClone(input)
-      return attempt(async () => {
-        const parsed = preferenceOperationSchema.safeParse(operation)
-        if (!parsed.success) throw new DemoError('validation')
-        const command = parsed.data
-        const by = command.kind === 'setQueuePreferences' ? actor() : session?.identity ?? 'unsigned'
-        if (command.kind === 'setQueuePreferences' && by !== 'salma') throw new DemoError('unavailable')
-        const captured = generation
-        await delay()
-        const data = await read()
-        if (captured !== generation) throw new DemoError('sessionExpired')
-        if (command.kind === 'setQueuePreferences') authority(captured, 'salma', command.datasetId, data)
-        if (data.meta.datasetId !== command.datasetId) throw new DemoError('supersededDataset')
-        const { receipt } = preferenceReceipt(data, by, command)
-        return { status: receipt ? 'committed' as const : 'notCommitted' as const, context: contextFrom(data) }
-      })
-    },
+    attempt: (intent, view) => runAttempt(intent, view, false),
+    inspectAttempt: (intent, view) => runAttempt(intent, view, true),
+    inspectReset: () => settle(() => resetStorage.inspect()),
     expireSession,
     newDraft: product => protectedRead((data, who) => {
       if (who === 'salma' || !productIdSchema.safeParse(product).success) throw new DemoError('unavailable')
@@ -575,7 +684,7 @@ export function createDemo(options: DemoOptions = {}): Demo {
       if (typeof next.slow !== 'boolean' || ![null, 'upload', 'save', 'submission', 'storage'].includes(next.failure)) return
       controls = { ...next }
     },
-    prepareAttachment: (input, onProgress) => attempt(async () => {
+    prepareAttachment: (input, onProgress) => settle(async () => {
       const who = actor()
       const captured = generation
       const parsed = preparationSchema.safeParse(input)
@@ -645,21 +754,10 @@ export function createDemo(options: DemoOptions = {}): Demo {
       if (application.status !== 'draft') correctionDocument(application, prepared.file.slot)
       return fileResult(preparedFile(who, id, prepared.file.slot, reference))
     }),
-    inspectOperation: input => {
-      const operation = structuredClone(input)
-      return protectedRead((data, who) => {
-        if (data.meta.datasetId !== operation.datasetId) throw new DemoError('supersededDataset')
-        const application = permitted(data, who, operation.applicationId)
-        const parsed = applicationMutationSchema.safeParse(operation)
-        if (!parsed.success) throw new DemoError('validation')
-        const receipt = applicationReceipt(data, who, parsed.data)
-        return receipt ? { status: 'committed', result: { receipt, application: project(data, who, application) } } : { status: 'notCommitted', application: project(data, who, application) }
-      })
-    },
     startup() {
       if (startupPromise) return startupPromise
       const captured = generation
-      startupPromise = attempt(async () => {
+      startupPromise = settle(async () => {
         await delay()
         if (captured !== generation) throw new DemoError('sessionExpired')
         try { if (options.loadFonts !== false) await prepareFonts() } catch { throw new DemoError('resources') }
@@ -713,7 +811,7 @@ export function createDemo(options: DemoOptions = {}): Demo {
       }).finally(() => { startupPromise = null })
       return startupPromise
     },
-    context: () => attempt(async () => {
+    context: () => settle(async () => {
       try { return contextFrom(await read()) }
       catch (error) {
         // Concurrent context reads can straddle the same new-dataset observation.
@@ -722,7 +820,7 @@ export function createDemo(options: DemoOptions = {}): Demo {
         return contextFrom(await read())
       }
     }),
-    signIn: identity => attempt(async () => {
+    signIn: identity => settle(async () => {
       if (!actorIdSchema.safeParse(identity).success) throw new DemoError('unavailable')
       const captured = generation
       await delay()
@@ -733,7 +831,7 @@ export function createDemo(options: DemoOptions = {}): Demo {
       emit()
       return contextFrom(data)
     }),
-    signOut: () => attempt(async () => { writeSession(null); emit(); return contextFrom(await read()) }),
+    signOut: () => settle(async () => { writeSession(null); emit(); return contextFrom(await read()) }),
     listApplications: () => protectedRead(summaries),
     readStaffQueue: (input = {}) => {
       const query = structuredClone(input)
@@ -766,17 +864,6 @@ export function createDemo(options: DemoOptions = {}): Demo {
       return data.notifications.filter(notice => notice.owner === who)
     }),
     resolveNotification: id => protectedRead((data, who) => notificationDestination(data, who, id)),
-    inspectNotificationOperation: input => {
-      const operation = structuredClone(input)
-      return protectedRead((data, who) => {
-        if (data.meta.datasetId !== operation.datasetId) throw new DemoError('supersededDataset')
-        const parsed = notificationReadSchema.safeParse(operation)
-        if (!parsed.success) throw new DemoError('validation')
-        const current = notificationDestination(data, who, operation.notificationId)
-        const receipt = notificationReceipt(data, who, operation).receipt
-        return receipt ? { status: 'committed', result: { ...current, receipt: { operationId: receipt.operationId, revision: receipt.revision } } } : { status: 'notCommitted', current }
-      })
-    },
     listSamples: id => protectedRead((data, who) => {
       const application = editable(data, who, id)
       if (who !== application.owner) throw new DemoError('unavailable')

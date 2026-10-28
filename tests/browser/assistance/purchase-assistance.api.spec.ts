@@ -151,7 +151,7 @@ test('purchase correction and reviewer tasks use the shared definitions while en
     const context = await demo.context()
     if (!context.ok) throw new Error('context')
     const documents = Object.fromEntries(Object.entries(workspace.snapshot.documents).map(([slot, fileId]) => [slot, { kind: 'saved', fileId }])) as import('../../../src/demo').DraftDocuments
-    const saved = await demo.execute({ kind: 'saveCorrections', datasetId: context.value.datasetId, applicationId, operationId: crypto.randomUUID(), roundId: workspace.roundId!, expectedWorkspaceRevision: workspace.revision, product: before.value.product, fields: { ...fields, budget: '1300000' }, documents })
+    const saved = await window.commitOn(demo, { kind: 'saveCorrections', applicationId, roundId: workspace.roundId!, product: before.value.product, fields: { ...fields, budget: '1300000' }, documents })
     if (!saved.ok) throw new Error(saved.error.kind)
     await demo.signIn('salma')
     const submitted = demo.createEvidenceAssistance(reviewerInput); await submitted.run(); const submittedState = submitted.read(); submitted.dispose()

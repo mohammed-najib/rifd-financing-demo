@@ -9,7 +9,7 @@ export async function saveIdentity(fields: Partial<Fields> = {}, attachment?: Pr
   const workspace = view.value.workspace
   const documents = Object.fromEntries(Object.entries(workspace.snapshot.documents).map(([slot, fileId]) => [slot, { kind: 'saved', fileId }])) as DraftDocuments
   if (attachment) documents.identity = { kind: 'prepared', attachment }
-  const result = await demo.execute({ kind: 'saveDraft', datasetId: context.value.datasetId, applicationId: identityInput.applicationId, operationId: crypto.randomUUID(), expectedWorkspaceRevision: workspace.revision, product: view.value.product, fields: { ...workspace.snapshot.fields, ...fields }, documents })
+  const result = await window.commitOn(demo, { kind: 'saveDraft', applicationId: identityInput.applicationId, product: view.value.product, fields: { ...workspace.snapshot.fields, ...fields }, documents })
   if (!result.ok) throw new Error(result.error.kind)
   return result.value
 }

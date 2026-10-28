@@ -1,6 +1,6 @@
 import { assignmentText } from './assignment-copy'
 import { useEffect, useRef, useState } from 'react'
-import { demoIdentities, type Demo, type ErrorKind, type ReviewOperation } from '../../demo'
+import { demoIdentities, type Demo, type ErrorKind, type ReviewIntent } from '../../demo'
 import type { StaffView } from '../../demo/types'
 import { decisionReadiness, products } from '../../domain'
 import type { Language } from '../../domain/model'
@@ -11,20 +11,20 @@ import { documentLabel, errors, fieldLabels, money, reviewChecks, text } from '.
 import { PublicHistory } from '../application/public-record'
 import { containDialogFocus } from '../shared/dialog'
 
-type DecisionCommand = Extract<ReviewOperation, { kind: 'approve' | 'reject' }>
-export type DecisionBuffer = { reason: string; revision: number; intent: DecisionCommand | null; retry: DecisionCommand | null; error: ErrorKind | null }
+type DecisionIntent = Extract<ReviewIntent, { kind: 'approve' | 'reject' }>
+export type DecisionBuffer = { reason: string; base: StaffView; intent: DecisionIntent | null; error: ErrorKind | null }
 export const decisionDirty = (buffer: DecisionBuffer) => !!buffer.reason || !!buffer.intent
 
-export function Decision({ demo, datasetId, sessionId, view, language, retained, remember, changed, departure, go, queueSearch }: {
-  demo: Demo; datasetId: string; sessionId: string; view: StaffView; language: Language; retained?: DecisionBuffer;
+export function Decision({ demo, view, language, retained, remember, changed, departure, go, queueSearch }: {
+  demo: Demo; view: StaffView; language: Language; retained?: DecisionBuffer;
   remember: (buffer: DecisionBuffer) => void; changed: (view: StaffView) => void; departure: (work: Departure | null) => void;
   go: (path: string) => void; queueSearch: string;
 }) {
-  const [buffer] = useState<DecisionBuffer>(() => retained ?? { reason: '', revision: view.sharedRevision, intent: null, retry: null, error: null })
+  const [buffer] = useState<DecisionBuffer>(() => retained ?? { reason: '', base: view, intent: null, error: null })
   const [, render] = useState(0)
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState<'saved' | 'retry' | null>(null)
-  const [confirmation, setConfirmation] = useState<DecisionCommand | null>(null)
+  const [confirmation, setConfirmation] = useState<{ intent: DecisionIntent; base: StaffView } | null>(null)
   const alive = useRef(true)
   const assignmentWork = useRef<Departure | null>(null)
   const decisionWork = useRef<Departure | null>(null)
@@ -33,7 +33,7 @@ export function Decision({ demo, datasetId, sessionId, view, language, retained,
   const t = (key: keyof typeof decisionText) => decisionText[key][language]
   const update = () => { remember(buffer); render(value => value + 1) }
   const publishDeparture = () => { if (alive.current) departureRef.current(combineDeparture(assignmentWork.current, decisionWork.current)) }
-  const stale = decisionDirty(buffer) && buffer.revision !== view.sharedRevision
+  const stale = decisionDirty(buffer) && buffer.base.sharedRevision !== view.sharedRevision
   const allowed = view.permissions.approve
   const blocked = busy || !!buffer.intent || stale || !allowed || !buffer.reason.trim()
   const readiness = decisionReadiness({ ...view, submitted: view.snapshot })
@@ -43,47 +43,57 @@ export function Decision({ demo, datasetId, sessionId, view, language, retained,
     return () => { alive.current = false; assignmentWork.current = null; decisionWork.current = null; departureRef.current(null) }
   }, [])
   useEffect(() => {
-    if (!decisionDirty(buffer)) buffer.revision = view.sharedRevision
+    if (!decisionDirty(buffer)) buffer.base = view
     decisionWork.current = { dirty: decisionDirty(buffer), pending: busy || buffer.error === 'outcomeUnknown', discard: () => {
-      buffer.reason = ''; buffer.intent = null; buffer.retry = null; buffer.error = null; buffer.revision = view.sharedRevision; setConfirmation(null); update()
+      buffer.reason = ''; buffer.intent = null; buffer.error = null; buffer.base = view; setConfirmation(null); update()
     } }
     publishDeparture()
   }, [buffer.reason, buffer.intent, buffer.error, busy, view.sharedRevision])
-  useEffect(() => { if (confirmation && (confirmation.expectedSharedRevision !== view.sharedRevision || confirmation.confirmationSessionId !== sessionId || !allowed)) setConfirmation(null) }, [confirmation, view.sharedRevision, sessionId, allowed])
-  const complete = (command: DecisionCommand) => {
-    if (buffer.reason === command.reason.ar) buffer.reason = ''
-    buffer.retry = null
+  useEffect(() => { if (confirmation && (confirmation.base.sharedRevision !== view.sharedRevision || !allowed)) setConfirmation(null) }, [confirmation, view.sharedRevision, allowed])
+  const complete = (intent: DecisionIntent) => {
+    if (buffer.reason === intent.reason.ar) buffer.reason = ''
     setMessage('saved')
   }
-  const send = async (command: DecisionCommand) => {
-    setConfirmation(null); buffer.intent = command; buffer.error = null; setMessage(null); setBusy(true); update()
-    const result = await demo.execute(command)
+  const send = async (intent: DecisionIntent, base: StaffView) => {
+    setConfirmation(null); buffer.intent = intent; buffer.error = null; setMessage(null); setBusy(true); update()
+    const result = await demo.attempt(intent, base)
     if (!alive.current) return
     setBusy(false)
     if (!result.ok) { buffer.error = result.error.kind; update(); return }
-    complete(command)
-    buffer.intent = null; buffer.error = null; buffer.revision = result.value.application.sharedRevision
-    if (result.value.application.role === 'reviewer') changed(result.value.application)
+    const outcome = result.value
+    if (outcome.status === 'unknown') { buffer.error = 'outcomeUnknown'; update(); return }
+    if (outcome.status !== 'committed') {
+      buffer.intent = null
+      buffer.error = outcome.status === 'stale' ? outcome.cause : 'requestFailed'
+      update(); return
+    }
+    complete(intent)
+    buffer.intent = null; buffer.error = null; buffer.base = outcome.result.application as StaffView
+    if (outcome.result.application.role === 'reviewer') changed(outcome.result.application)
     update()
   }
   const inspect = async () => {
     setConfirmation(null); setBusy(true)
-    const result = buffer.intent ? await demo.inspectOperation(buffer.intent) : await demo.readApplication(view.id)
+    const result = buffer.intent ? await demo.inspectAttempt(buffer.intent, buffer.base) : await demo.readApplication(view.id)
     if (!alive.current) return
     setBusy(false)
     if (!result.ok) { buffer.error = result.error.kind; update(); return }
     const value = result.value
-    const application = 'role' in value ? value : value.status === 'committed' ? value.result.application : value.application
+    const application = ('role' in value ? value : value.status === 'committed' ? value.result.application : 'latest' in value ? value.latest : undefined) as StaffView | undefined
+    if (!application) { buffer.error = 'requestFailed'; update(); return }
     if ('status' in value && value.status === 'committed' && buffer.intent) complete(buffer.intent)
-    else if (buffer.intent) { buffer.retry = buffer.intent; setMessage('retry') }
-    buffer.intent = null; buffer.error = null; buffer.revision = application.sharedRevision
+    else if (buffer.intent) setMessage('retry')
+    buffer.intent = null; buffer.error = null; buffer.base = application
     if (application.role === 'reviewer') changed(application)
     update()
   }
-  const prepare = (kind: 'approve' | 'reject') => setConfirmation({ kind, datasetId, operationId: buffer.retry?.kind === kind && buffer.retry.reason.ar === buffer.reason && buffer.retry.reason.en === buffer.reason && buffer.retry.expectedSharedRevision === view.sharedRevision ? buffer.retry.operationId : crypto.randomUUID(), applicationId: view.id, expectedSharedRevision: view.sharedRevision, confirmationSessionId: sessionId, confirmed: true, reason: { ar: buffer.reason, en: buffer.reason } })
+  const prepare = (kind: 'approve' | 'reject') => setConfirmation({
+    base: view,
+    intent: { kind, applicationId: view.id, confirmed: true, reason: { ar: buffer.reason, en: buffer.reason } },
+  })
   return <>
     <a className="button secondary mb-6" href={`/staff/applications/${view.id}${queueSearch}`} onClick={event => { event.preventDefault(); go(`/staff/applications/${view.id}${queueSearch}`) }}>{t('back')}</a>
-    <div className="mb-6"><AssignmentActions demo={demo} datasetId={datasetId} view={view} language={language} changed={changed} departure={work => { assignmentWork.current = work; publishDeparture() }} /></div>
+    <div className="mb-6"><AssignmentActions demo={demo} view={view} language={language} changed={changed} departure={work => { assignmentWork.current = work; publishDeparture() }} /></div>
     <section className="summary mb-6"><h2>{t('terms')}</h2><DecisionTerms view={view} language={language} /><p>{t('lock')}</p></section>
     <div className="grid grid-cols-2 gap-6 narrow:grid-cols-1">
       <section className="panel"><h2>{t('approval')}</h2>
@@ -107,14 +117,14 @@ export function Decision({ demo, datasetId, sessionId, view, language, retained,
       <div className="actions"><button disabled={blocked || !readiness.canApprove} onClick={() => prepare('approve')}>{t('inspectApprove')}</button><button className="secondary" disabled={blocked || !readiness.canReject} onClick={() => prepare('reject')}>{t('inspectReject')}</button></div>
     </section>
     <div className="mt-6"><PublicHistory history={view.history} language={language} /></div>
-    {confirmation && <DecisionConfirmation command={confirmation} view={view} language={language} cancel={() => setConfirmation(null)} confirm={() => void send(confirmation)} />}
+    {confirmation && <DecisionConfirmation command={confirmation.intent} view={view} language={language} cancel={() => setConfirmation(null)} confirm={() => void send(confirmation.intent, confirmation.base)} />}
   </>
 }
 
 function DecisionTerms({ view, language }: { view: StaffView; language: Language }) {
   return <><p><bdi>{view.id}</bdi> · {view.snapshot.fields.fullName} · {products[view.product].name[language]}</p><p><bdi dir="ltr">{money(view.snapshot.fields.amount, language)}</bdi> · <bdi>{view.snapshot.fields.term}</bdi> {text.months[language]}</p></>
 }
-function DecisionConfirmation({ command, view, language, cancel, confirm }: { command: DecisionCommand; view: StaffView; language: Language; cancel: () => void; confirm: () => void }) {
+function DecisionConfirmation({ command, view, language, cancel, confirm }: { command: DecisionIntent; view: StaffView; language: Language; cancel: () => void; confirm: () => void }) {
   const dialog = useRef<HTMLDialogElement>(null)
   useEffect(() => {
     const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null

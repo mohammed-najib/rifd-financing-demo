@@ -139,7 +139,7 @@ test('cancel, retry, edits, replacement, sign-out and disposal cannot publish la
     const before = await demo.readApplication(identityInput.applicationId)
     if (!before.ok || before.value.role !== 'applicant') throw new Error('view')
     const documents = Object.fromEntries(Object.entries(before.value.workspace!.snapshot.documents).map(([slot, fileId]) => [slot, { kind: 'saved', fileId }])) as import('../../../src/demo').DraftDocuments
-    await demo.execute({ kind: 'saveDraft', applicationId: identityInput.applicationId, datasetId, operationId: 'change-name', expectedWorkspaceRevision: before.value.workspace!.revision, product: before.value.product, fields: { ...before.value.workspace!.snapshot.fields, fullName: 'New Fictional Name' }, documents })
+    await window.commitOn(demo, { kind: 'saveDraft', applicationId: identityInput.applicationId, datasetId, product: before.value.product, fields: { ...before.value.workspace!.snapshot.fields, fullName: 'New Fictional Name' }, documents })
     await handle.inspect(); await new Promise(resolve => setTimeout(resolve, 100))
     const edited = handle.read(); handle.dispose()
     held = true

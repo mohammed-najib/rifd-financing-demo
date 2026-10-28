@@ -12,7 +12,7 @@ test('reviewer assistance reads submitted bytes and declarations while unfinishe
     const { demo } = await identityDemo(fakeEvidenceTransport(requests))
     await requestIdentityCorrection(demo, [{ kind: 'field', field: 'fullName', reason: { ar: 'صحح الاسم', en: 'Correct the name' } }])
     const attachment = await prepareCorrectionIdentity(demo, await imageFile('image/png'))
-    const saved = await demo.execute(await correctionCommand(demo, { fullName: 'Private unfinished name' }, attachment))
+    const saved = await window.commitOn(demo, await correctionCommand(demo, { fullName: 'Private unfinished name' }, attachment))
     if (!saved.ok) throw new Error(saved.error.kind)
     await demo.signIn('salma')
     const before = await demo.readApplication(correctionApplicationId)
@@ -47,13 +47,13 @@ test('staff reading is independent of assignment and assistance cannot bypass co
     const initial = view.value
     const handle = demo.createEvidenceAssistance(input); await handle.run()
     const completed = handle.read()
-    const bypass = await demo.execute({ kind: 'assessDocument', datasetId, applicationId: input.applicationId, operationId: crypto.randomUUID(), expectedSharedRevision: initial.sharedRevision, slot: 'identity', fileId: initial.snapshot.documents.identity!, status: 'accepted', reason: null } as import('../../../src/demo').ReviewOperation)
-    const transfer = await demo.execute({ kind: 'transferApplication', datasetId, applicationId: input.applicationId, expectedSharedRevision: initial.sharedRevision, operationId: crypto.randomUUID(), from: 'salma', to: 'khaled', confirmed: true })
+    const bypass = await window.commitOn(demo, { kind: 'assessDocument', datasetId, applicationId: input.applicationId, operationId: crypto.randomUUID(), expectedSharedRevision: initial.sharedRevision, slot: 'identity', fileId: initial.snapshot.documents.identity!, status: 'accepted', reason: null } as import('../../../src/demo').ReviewOperation)
+    const transfer = await window.commitOn(demo, { kind: 'transferApplication', datasetId, applicationId: input.applicationId, from: 'salma', to: 'khaled', confirmed: true })
     if (!transfer.ok || transfer.value.application.role !== 'reviewer') throw new Error('transfer')
     view = await demo.readApplication(input.applicationId)
     await handle.refresh(); const stale = handle.read()
     await handle.run(); const colleague = handle.read()
-    const refusedWrite = await demo.execute({ kind: 'assessDocument', datasetId, applicationId: input.applicationId, operationId: crypto.randomUUID(), expectedSharedRevision: transfer.value.application.sharedRevision, slot: 'identity', fileId: initial.snapshot.documents.identity!, status: 'accepted', reason: null, inspection: { kind: 'inspected', confirmed: true, contextToken: transfer.value.application.inspectionContexts.identity! } })
+    const refusedWrite = await window.commitOn(demo, { kind: 'assessDocument', datasetId, applicationId: input.applicationId, slot: 'identity', fileId: initial.snapshot.documents.identity!, status: 'accepted', reason: null, inspection: { kind: 'inspected', confirmed: true, contextToken: transfer.value.application.inspectionContexts.identity! } })
     const invalidInputs = [
       { ...input, applicationId: 'RIFD-2026-001' },
       { ...input, declaredName: 'Override submitted name' },
@@ -99,18 +99,18 @@ test('unrelated notes retain findings while reassignment away and back rejects p
     const before = await demo.readApplication(input.applicationId)
     if (!before.ok || before.value.role !== 'reviewer') throw new Error('view')
     const base = { datasetId, applicationId: input.applicationId }
-    const note = await demo.execute({ ...base, kind: 'saveNote', operationId: crypto.randomUUID(), expectedSharedRevision: before.value.sharedRevision, text: { ar: 'ملاحظة مستقلة', en: 'Unrelated note' } })
+    const note = await window.commitOn(demo, { ...base, kind: 'saveNote', text: { ar: 'ملاحظة مستقلة', en: 'Unrelated note' } })
     if (!note.ok) throw new Error('note')
     await handle.refresh(); const afterNote = handle.read()
     held = true
     const sent = new Promise<void>(resolve => { dispatched = resolve })
     const pending = handle.run(); await sent
-    const away = await demo.execute({ ...base, kind: 'transferApplication', operationId: crypto.randomUUID(), expectedSharedRevision: note.value.application.sharedRevision, from: 'salma', to: 'khaled', confirmed: true })
+    const away = await window.commitOn(demo, { ...base, kind: 'transferApplication', from: 'salma', to: 'khaled', confirmed: true })
     if (!away.ok) throw new Error('away')
-    const back = await demo.execute({ ...base, kind: 'transferApplication', operationId: crypto.randomUUID(), expectedSharedRevision: away.value.application.sharedRevision, from: 'khaled', to: 'salma', confirmed: true })
+    const back = await window.commitOn(demo, { ...base, kind: 'transferApplication', from: 'khaled', to: 'salma', confirmed: true })
     if (!back.ok) throw new Error('back')
     release(nativeIdentity()); await pending; await handle.refresh()
-    const oldConfirmation = await demo.execute({ ...base, kind: 'assessDocument', operationId: crypto.randomUUID(), expectedSharedRevision: back.value.application.sharedRevision, slot: 'identity', fileId: before.value.snapshot.documents.identity!, status: 'accepted', reason: null, inspection: { kind: 'inspected', confirmed: true, contextToken: before.value.inspectionContexts.identity! } })
+    const oldConfirmation = await window.commitOn(demo, { ...base, kind: 'assessDocument', slot: 'identity', fileId: before.value.snapshot.documents.identity!, status: 'accepted', reason: null, inspection: { kind: 'inspected', confirmed: true, contextToken: before.value.inspectionContexts.identity! } })
     const reopened = demo.createEvidenceAssistance(input); await reopened.inspect()
     return { original, afterNote, final: handle.read(), reopened: reopened.read(), oldConfirmation, after: await demo.readApplication(input.applicationId) }
   })
@@ -133,10 +133,10 @@ test('resubmission makes retained reviewer findings old while private applicant 
     const original = demo.createEvidenceAssistance(input); await original.run(); const old = original.read()
     await demo.signIn('mariam')
     const attachment = await prepareCorrectionIdentity(demo, await imageFile('image/png'))
-    const saved = await demo.execute(await correctionCommand(demo, {}, attachment))
+    const saved = await window.commitOn(demo, await correctionCommand(demo, {}, attachment))
     if (!saved.ok) throw new Error('save')
     const privateHandle = demo.createEvidenceAssistance(await correctionInput(demo)); await privateHandle.run(); const privateRun = privateHandle.read()
-    const submitted = await demo.execute(await correctionCommand(demo, {}, undefined, 'resubmit'))
+    const submitted = await window.commitOn(demo, await correctionCommand(demo, {}, undefined, 'resubmit'))
     if (!submitted.ok) throw new Error('resubmit')
     await demo.signIn('salma')
     const current = demo.createEvidenceAssistance(input); const selection = await current.inspect(); const stale = current.read()

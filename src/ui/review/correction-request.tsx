@@ -1,6 +1,6 @@
 import { assignmentText } from './assignment-copy'
 import { useEffect, useRef, useState } from 'react'
-import type { Demo, ErrorKind, ReviewOperation } from '../../demo'
+import type { Demo, ErrorKind, ReviewIntent } from '../../demo'
 import type { StaffView } from '../../demo/types'
 import { correctionTargetsSchema, fieldsSchema, slots, type CorrectionTarget, type Language } from '../../domain/model'
 import { products } from '../../domain'
@@ -12,20 +12,20 @@ import { ApplicationInformation, PublicCorrections } from '../application/public
 import { activityDescription } from './review-copy'
 import { containDialogFocus } from '../shared/dialog'
 
-type RequestCommand = Extract<ReviewOperation, { kind: 'requestCorrections' }>
-export type CorrectionBuffer = { targets: CorrectionTarget[]; revision: number; intent: RequestCommand | null; error: ErrorKind | null }
+type RequestIntent = Extract<ReviewIntent, { kind: 'requestCorrections' }>
+export type CorrectionBuffer = { targets: CorrectionTarget[]; base: StaffView; intent: RequestIntent | null; error: ErrorKind | null }
 export const correctionDirty = (buffer: CorrectionBuffer) => !!buffer.targets.length || !!buffer.intent
 
-export function CorrectionRequest({ demo, datasetId, view, language, retained, remember, changed, departure, go, queueSearch }: {
-  demo: Demo; datasetId: string; view: StaffView; language: Language; retained?: CorrectionBuffer;
+export function CorrectionRequest({ demo, view, language, retained, remember, changed, departure, go, queueSearch }: {
+  demo: Demo; view: StaffView; language: Language; retained?: CorrectionBuffer;
   remember: (buffer: CorrectionBuffer) => void; changed: (view: StaffView) => void; departure: (work: Departure | null) => void;
   go: (path: string) => void; queueSearch: string;
 }) {
-  const [buffer] = useState<CorrectionBuffer>(() => retained ?? { targets: [], revision: view.sharedRevision, intent: null, error: null })
+  const [buffer] = useState<CorrectionBuffer>(() => retained ?? { targets: [], base: view, intent: null, error: null })
   const [, render] = useState(0)
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState<'sent' | 'retry' | null>(null)
-  const [confirmation, setConfirmation] = useState<RequestCommand | null>(null)
+  const [confirmation, setConfirmation] = useState<{ intent: RequestIntent; base: StaffView } | null>(null)
   const alive = useRef(true)
   const assignmentWork = useRef<Departure | null>(null)
   const requestWork = useRef<Departure | null>(null)
@@ -34,7 +34,7 @@ export function CorrectionRequest({ demo, datasetId, view, language, retained, r
   const t = (key: keyof typeof correctionText) => correctionText[key][language]
   const update = () => { remember(buffer); render(value => value + 1) }
   const publishDeparture = () => { if (alive.current) departureRef.current(combineDeparture(assignmentWork.current, requestWork.current)) }
-  const stale = correctionDirty(buffer) && buffer.revision !== view.sharedRevision
+  const stale = correctionDirty(buffer) && buffer.base.sharedRevision !== view.sharedRevision
   const allowed = view.permissions.requestCorrections
   const blocked = busy || !!buffer.intent || stale || !allowed
   useEffect(() => {
@@ -43,39 +43,47 @@ export function CorrectionRequest({ demo, datasetId, view, language, retained, r
     return () => { alive.current = false; assignmentWork.current = null; requestWork.current = null; departureRef.current(null) }
   }, [])
   useEffect(() => {
-    if (!correctionDirty(buffer)) buffer.revision = view.sharedRevision
+    if (!correctionDirty(buffer)) buffer.base = view
     requestWork.current = { dirty: correctionDirty(buffer), pending: busy || buffer.error === 'outcomeUnknown', discard: () => {
-      buffer.targets = []; buffer.intent = null; buffer.error = null; buffer.revision = view.sharedRevision; setConfirmation(null); update()
+      buffer.targets = []; buffer.intent = null; buffer.error = null; buffer.base = view; setConfirmation(null); update()
     } }
     publishDeparture()
   }, [buffer.targets, buffer.intent, buffer.error, busy, view.sharedRevision])
-  useEffect(() => { if (confirmation && (confirmation.expectedSharedRevision !== view.sharedRevision || !allowed)) setConfirmation(null) }, [confirmation, view.sharedRevision, allowed])
-  const complete = (command: RequestCommand) => {
-    if (JSON.stringify(buffer.targets) === JSON.stringify(command.targets)) buffer.targets = []
+  useEffect(() => { if (confirmation && (confirmation.base.sharedRevision !== view.sharedRevision || !allowed)) setConfirmation(null) }, [confirmation, view.sharedRevision, allowed])
+  const complete = (intent: RequestIntent) => {
+    if (JSON.stringify(buffer.targets) === JSON.stringify(intent.targets)) buffer.targets = []
     setMessage('sent')
   }
-  const send = async (command: RequestCommand) => {
-    setConfirmation(null); buffer.intent = command; buffer.error = null; setMessage(null); setBusy(true); update()
-    const result = await demo.execute(command)
+  const send = async (intent: RequestIntent, base: StaffView) => {
+    setConfirmation(null); buffer.intent = intent; buffer.error = null; setMessage(null); setBusy(true); update()
+    const result = await demo.attempt(intent, base)
     if (!alive.current) return
     setBusy(false)
     if (!result.ok) { buffer.error = result.error.kind; update(); return }
-    complete(command)
-    buffer.intent = null; buffer.error = null; buffer.revision = result.value.application.sharedRevision
-    if (result.value.application.role === 'reviewer') changed(result.value.application)
+    const outcome = result.value
+    if (outcome.status === 'unknown') { buffer.error = 'outcomeUnknown'; update(); return }
+    if (outcome.status !== 'committed') {
+      buffer.intent = null
+      buffer.error = outcome.status === 'stale' ? outcome.cause : 'requestFailed'
+      update(); return
+    }
+    complete(intent)
+    buffer.intent = null; buffer.error = null; buffer.base = outcome.result.application as StaffView
+    if (outcome.result.application.role === 'reviewer') changed(outcome.result.application)
     update()
   }
   const inspect = async () => {
     setConfirmation(null); setBusy(true)
-    const result = buffer.intent ? await demo.inspectOperation(buffer.intent) : await demo.readApplication(view.id)
+    const result = buffer.intent ? await demo.inspectAttempt(buffer.intent, buffer.base) : await demo.readApplication(view.id)
     if (!alive.current) return
     setBusy(false)
     if (!result.ok) { buffer.error = result.error.kind; update(); return }
     const value = result.value
-    const application = 'role' in value ? value : value.status === 'committed' ? value.result.application : value.application
+    const application = ('role' in value ? value : value.status === 'committed' ? value.result.application : 'latest' in value ? value.latest : undefined) as StaffView | undefined
+    if (!application) { buffer.error = 'requestFailed'; update(); return }
     if ('status' in value && value.status === 'committed' && buffer.intent) complete(buffer.intent)
     else if (buffer.intent) setMessage('retry')
-    buffer.intent = null; buffer.error = null; buffer.revision = application.sharedRevision
+    buffer.intent = null; buffer.error = null; buffer.base = application
     if (application.role === 'reviewer') changed(application)
     update()
   }
@@ -84,7 +92,7 @@ export function CorrectionRequest({ demo, datasetId, view, language, retained, r
   const key = (target: CorrectionTarget) => target.kind === 'field' ? `field-${target.field}` : `document-${target.slot}`
   return <>
     <a className="button secondary ms-3 mb-6" href={`/staff/applications/${view.id}${queueSearch}`} onClick={event => { event.preventDefault(); go(`/staff/applications/${view.id}${queueSearch}`) }}>{t('back')}</a>
-    <div className="mb-6"><AssignmentActions demo={demo} datasetId={datasetId} view={view} language={language} changed={changed} departure={work => { assignmentWork.current = work; publishDeparture() }} /></div>
+    <div className="mb-6"><AssignmentActions demo={demo} view={view} language={language} changed={changed} departure={work => { assignmentWork.current = work; publishDeparture() }} /></div>
     <details className="panel mb-6"><summary>{text.submittedInformation[language]}</summary><ApplicationInformation record={view} language={language} /><ul>{view.documents.map(document => <li key={document.slot}>{documentLabel(document.slot, view.product)[language]}: {document.file ? <bdi dir="ltr" className="wrap-anywhere">{document.file.name}</bdi> : text.missing[language]}</li>)}</ul></details>
     <details className="panel mb-6"><summary>{text.activity[language]}</summary><ol className="timeline">{view.activity.map(event => <li key={event.id}><bdi>{date(event.date, language)}</bdi><p className="whitespace-pre-wrap wrap-anywhere">{activityDescription(event, view.product, language)}</p></li>)}</ol></details>
     <section className="panel" aria-labelledby="correction-heading" aria-busy={busy}>
@@ -108,15 +116,15 @@ export function CorrectionRequest({ demo, datasetId, view, language, retained, r
             </div>
           })}
         </fieldset>)}
-        <button disabled={blocked || !correctionTargetsSchema.safeParse(buffer.targets).success} onClick={() => setConfirmation({ kind: 'requestCorrections', datasetId, operationId: crypto.randomUUID(), applicationId: view.id, expectedSharedRevision: view.sharedRevision, targets: structuredClone(buffer.targets), confirmed: true })}>{t('inspect')}</button>
+        <button disabled={blocked || !correctionTargetsSchema.safeParse(buffer.targets).success} onClick={() => setConfirmation({ base: view, intent: { kind: 'requestCorrections', applicationId: view.id, targets: structuredClone(buffer.targets), confirmed: true } })}>{t('inspect')}</button>
       </>}
     </section>
     {!allowed && <PublicCorrections record={view} language={language} />}
-    {confirmation && <RequestConfirmation command={confirmation} view={view} language={language} cancel={() => setConfirmation(null)} confirm={() => void send(confirmation)} />}
+    {confirmation && <RequestConfirmation command={confirmation.intent} view={view} language={language} cancel={() => setConfirmation(null)} confirm={() => void send(confirmation.intent, confirmation.base)} />}
   </>
 }
 
-function RequestConfirmation({ command, view, language, cancel, confirm }: { command: RequestCommand; view: StaffView; language: Language; cancel: () => void; confirm: () => void }) {
+function RequestConfirmation({ command, view, language, cancel, confirm }: { command: RequestIntent; view: StaffView; language: Language; cancel: () => void; confirm: () => void }) {
   const dialog = useRef<HTMLDialogElement>(null)
   const t = (key: keyof typeof correctionText) => correctionText[key][language]
   useEffect(() => {

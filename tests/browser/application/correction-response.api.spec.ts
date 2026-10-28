@@ -33,7 +33,7 @@ test('private invalid corrections and replacement bytes survive reload while a s
     if (!prepared.ok) return { before, notices, prepared }
     const workspace = before.value.workspace
     const command = { kind: 'saveCorrections' as const, datasetId, applicationId: before.value.id, roundId: workspace.roundId!, operationId: 'private-save', expectedWorkspaceRevision: workspace.revision, product: before.value.product, fields: { ...workspace.snapshot.fields, amount: ' invalid ' }, documents: { ...Object.fromEntries(Object.entries(workspace.snapshot.documents).map(([slot, fileId]) => [slot, { kind: 'saved', fileId }])), purchase: { kind: 'prepared', attachment: prepared.value } } as import('../../../src/demo').DraftDocuments }
-    return { before, notices, prepared, command, save: await demo.execute(command), after: await demo.readApplication(before.value.id), afterNotices: await demo.readNotifications(), print: await demo.readPrintSummary(before.value.id) }
+    return { before, notices, prepared, command, save: await window.commitOn(demo, command), after: await demo.readApplication(before.value.id), afterNotices: await demo.readNotifications(), print: await demo.readPrintSummary(before.value.id) }
   }, datasetId)
   expect(result.prepared).toMatchObject({ ok: true })
   expect(result.save).toMatchObject({ ok: true, value: { receipt: { kind: 'saveCorrections', workspaceRevision: 2 }, application: { sharedRevision: 1, workspace: { snapshot: { fields: { amount: ' invalid ' } } } } } })
@@ -48,11 +48,14 @@ test('private invalid corrections and replacement bytes survive reload while a s
     await window.demo.startup()
     const view = await window.demo.readApplication(command.applicationId)
     const file = await window.demo.readFile(command.applicationId, command.documents.purchase.kind === 'prepared' ? command.documents.purchase.attachment.id : '')
-    return { view, bytes: file.ok ? new TextDecoder().decode(file.value.bytes) : file, replay: await window.demo.execute(command) }
+    return { view, bytes: file.ok ? new TextDecoder().decode(file.value.bytes) : file, repeat: await window.commit(command), inspection: await window.inspect(command) }
   }, result.command!)
   expect(restored.bytes).toBe('private correction bytes')
   expect(restored.view).toEqual(result.after)
-  expect(restored.replay).toEqual(result.save)
+  // The staged replacement did not survive the reload, so repeating the intent is
+  // a fresh attempt refused by validation; inspection reports the stored record.
+  expect(restored.repeat).toMatchObject({ ok: false, error: { kind: 'validation', slot: 'purchase' } })
+  expect(restored.inspection).toMatchObject({ ok: true, value: { status: 'notCommitted', application: { sharedRevision: 1, workspace: { revision: 2, snapshot: { fields: { amount: ' invalid ' } } } } } })
 })
 
 test('target, product, active round, ownership and workspace versions are checked before consuming a failure', async ({ page }) => {
@@ -62,38 +65,43 @@ test('target, product, active round, ownership and workspace versions are checke
     const before = await demo.readApplication('RIFD-2026-004')
     if (!before.ok || before.value.role !== 'applicant' || !before.value.workspace) throw new Error('No workspace')
     const workspace = before.value.workspace
-    const command: import('../../../src/demo').SaveCorrectionsOperation = { kind: 'saveCorrections', datasetId, applicationId: before.value.id, roundId: workspace.roundId!, operationId: 'invalid-save', expectedWorkspaceRevision: workspace.revision, product: before.value.product, fields: { ...workspace.snapshot.fields, amount: '' }, documents: Object.fromEntries(Object.entries(workspace.snapshot.documents).map(([slot, fileId]) => [slot, { kind: 'saved', fileId }])) as import('../../../src/demo').DraftDocuments }
+    const command: import('../../../src/demo').ApplicationIntent = { kind: 'saveCorrections', applicationId: before.value.id, roundId: workspace.roundId!, product: before.value.product, fields: { ...workspace.snapshot.fields, amount: '' }, documents: Object.fromEntries(Object.entries(workspace.snapshot.documents).map(([slot, fileId]) => [slot, { kind: 'saved', fileId }])) as import('../../../src/demo').DraftDocuments }
+    // A committed save advances the private revision; the older view is the record
+    // the stale attempt presents.
+    const advanced = await window.commitOn(demo, command)
+    if (!advanced.ok) throw new Error('No advance')
     demo.setControls({ slow: false, failure: 'save' })
     const forbidden = [
-      await demo.execute({ ...command, fields: { ...command.fields, mobile: '123456789' } }),
-      await demo.execute({ ...command, product: 'equipment' }),
-      await demo.execute({ ...command, documents: { ...command.documents, identity: { kind: 'saved', fileId: null } } }),
+      await window.commitOn(demo, { ...command, fields: { ...command.fields, mobile: '123456789' } }),
+      await window.commitOn(demo, { ...command, product: 'equipment' }),
+      await window.commitOn(demo, { ...command, documents: { ...command.documents, identity: { kind: 'saved', fileId: null } } }),
       await demo.prepareAttachment({ datasetId, applicationId: command.applicationId, slot: 'identity', selectionId: 'forbidden', source: { kind: 'local', file: new File(['wrong target'], 'DEMO.png', { type: 'image/png' }) } }),
     ]
-    const obsolete = await demo.execute({ ...command, roundId: 'obsolete' })
-    const stale = await demo.execute({ ...command, expectedWorkspaceRevision: 99 })
-    const wrongDataset = await demo.execute({ ...command, datasetId: crypto.randomUUID() })
-    await demo.signIn('salma'); const staff = await demo.execute(command)
-    await demo.signIn('mariam'); const other = await demo.execute(command)
+    const obsolete = await window.commitOn(demo, { ...command, roundId: 'obsolete' })
+    const stale = await window.commitOn(demo, command, before.value)
+    await demo.signIn('salma'); const staff = await window.commitOn(demo, command)
+    await demo.signIn('mariam'); const other = await window.commitOn(demo, command)
     await demo.signIn('huda')
     const armed = demo.controls()
     const after = await demo.readApplication(command.applicationId)
-    const failed = await demo.execute(command)
-    const retry = await demo.execute(command)
-    const changedRoundIntent = await demo.execute({ ...command, roundId: 'different-round' })
-    return { before, after, forbidden, obsolete, stale, wrongDataset, staff, other, armed, failed, retry, changedRoundIntent }
+    const failed = await window.commitOn(demo, command)
+    const retry = await window.commitOn(demo, command)
+    const changedRoundIntent = await window.commitOn(demo, { ...command, roundId: 'different-round' })
+    return { advanced, before, after, forbidden, obsolete, stale, staff, other, armed, failed, retry, changedRoundIntent, final: await demo.readApplication(command.applicationId) }
   }, datasetId)
   for (const outcome of result.forbidden) expect(outcome).toMatchObject({ error: { kind: 'permissionDenied' } })
   expect(result.obsolete).toMatchObject({ error: { kind: 'invalidState' } })
   expect(result.stale).toMatchObject({ error: { kind: 'staleWorkspace' } })
-  expect(result.wrongDataset).toMatchObject({ error: { kind: 'supersededDataset' } })
-  expect(result.staff).toMatchObject({ error: { kind: 'permissionDenied' } })
+  // A reviewer/replacement save is not an applicant workspace correction.
+  expect(result.staff).toMatchObject({ error: { kind: 'invalidState' } })
   expect(result.other).toMatchObject({ error: { kind: 'unavailable' } })
   expect(result.armed.failure).toBe('save')
-  expect(result.after).toEqual(result.before)
+  expect(result.after).toEqual(result.advanced.ok ? { ok: true, value: result.advanced.value.application } : null)
   expect(result.failed).toMatchObject({ error: { kind: 'requestFailed' } })
   expect(result.retry).toMatchObject({ ok: true, value: { application: { workspace: { snapshot: { fields: { amount: '' } } } } } })
-  expect(result.changedRoundIntent).toMatchObject({ error: { kind: 'identifierMisuse' } })
+  // A changed round is never replayed as the saved receipt; it is refused by state.
+  expect(result.changedRoundIntent).toMatchObject({ error: { kind: 'invalidState' } })
+  expect(result.final).toEqual(result.retry.ok ? { ok: true, value: result.retry.value.application } : null)
 })
 
 test('competing private saves conflict while assignment and internal notes do not stale private work', async ({ page, context }) => {
@@ -113,18 +121,18 @@ test('competing private saves conflict while assignment and internal notes do no
     await demo.startup(); await demo.signIn('salma')
     const before = await demo.readApplication('RIFD-2026-004')
     if (!before.ok) throw new Error('No record')
-    await demo.execute({ kind: 'saveNote', datasetId, applicationId: before.value.id, operationId: 'note', expectedSharedRevision: before.value.sharedRevision, text: { ar: 'ملاحظة داخلية.', en: 'Private staff context.' } })
-    await demo.execute({ kind: 'transferApplication', datasetId, applicationId: before.value.id, operationId: 'transfer', expectedSharedRevision: before.value.sharedRevision + 1, from: 'salma', to: 'khaled', confirmed: true })
+    await window.commitOn(demo, { kind: 'saveNote', datasetId, applicationId: before.value.id, text: { ar: 'ملاحظة داخلية.', en: 'Private staff context.' } })
+    await window.commitOn(demo, { kind: 'transferApplication', datasetId, applicationId: before.value.id, from: 'salma', to: 'khaled', confirmed: true })
     return demo.readApplication(before.value.id)
   }, datasetId)
   const saves = await Promise.all([
-    page.evaluate(command => window.demo.execute(command), command),
-    second.evaluate(command => window.demo.execute({ ...command, operationId: 'second-save', fields: { ...command.fields, amount: '400000' } }), command),
+    page.evaluate(command => window.commit(command), command),
+    second.evaluate(command => window.commit({ ...command, fields: { ...command.fields, amount: '400000' } }), command),
   ])
   expect(saves.filter(outcome => outcome.ok)).toHaveLength(1)
   expect(saves.find(outcome => !outcome.ok)).toMatchObject({ error: { kind: 'staleWorkspace' } })
   expect(await staff.evaluate(() => window.demo.readApplication('RIFD-2026-004'))).toEqual(shared)
-  const inspection = await page.evaluate(command => window.demo.inspectOperation(command), command)
+  const inspection = await page.evaluate(command => window.inspect(command), command)
   if (!inspection.ok) throw new Error('No inspection')
   const inspected = inspection.value.status === 'committed' ? inspection.value.result.application : inspection.value.application
   expect(inspected).toMatchObject({ workspace: { revision: 2 } })
@@ -145,9 +153,9 @@ test('rollback and unknown completion retain prepared files for inspection and e
     const workspace = before.value.workspace
     const command = { kind: 'saveCorrections' as const, datasetId, applicationId: before.value.id, roundId: workspace.roundId!, operationId: 'atomic-save', expectedWorkspaceRevision: workspace.revision, product: before.value.product, fields: workspace.snapshot.fields, documents: { ...Object.fromEntries(Object.entries(workspace.snapshot.documents).map(([slot, fileId]) => [slot, { kind: 'saved', fileId }])), financial: { kind: 'prepared', attachment: prepared.value } } as import('../../../src/demo').DraftDocuments }
     demo.setControls({ slow: false, failure: 'storage' })
-    const failed = await demo.execute(command)
+    const failed = await window.commitOn(demo, command)
     const ready = await demo.readPrepared(command.applicationId, prepared.value)
-    return { before, command, failed, after: await demo.readApplication(command.applicationId), ready: ready.ok ? new TextDecoder().decode(ready.value.bytes) : ready, inspection: await demo.inspectOperation(command), file: await demo.readFile(command.applicationId, prepared.value.id) }
+    return { before, command, failed, after: await demo.readApplication(command.applicationId), ready: ready.ok ? new TextDecoder().decode(ready.value.bytes) : ready, inspection: await window.inspectOn(demo, command), file: await demo.readFile(command.applicationId, prepared.value.id) }
   }, datasetId)
   expect(setup.failed).toMatchObject({ error: { kind: 'storage' } })
   expect(setup.after).toEqual(setup.before)
@@ -155,10 +163,18 @@ test('rollback and unknown completion retain prepared files for inspection and e
   expect(setup.file).toMatchObject({ error: { kind: 'unavailable' } })
   expect(setup.inspection).toMatchObject({ value: { status: 'notCommitted' } })
   await page.evaluate(loseNextWriteCompletion)
-  expect(await page.evaluate(command => window.demo.execute(command), setup.command)).toMatchObject({ error: { kind: 'outcomeUnknown' } })
-  const recovered = await page.evaluate(async command => ({ inspection: await window.demo.inspectOperation(command), replay: await window.demo.execute(command) }), setup.command)
-  expect(recovered.inspection).toMatchObject({ ok: true, value: { status: 'committed', result: recovered.replay.ok ? recovered.replay.value : null } })
-  expect(recovered.replay).toMatchObject({ ok: true, value: { receipt: { workspaceRevision: 2 } } })
+  expect(await page.evaluate(command => window.commit(command), setup.command)).toMatchObject({ error: { kind: 'outcomeUnknown' } })
+  const recovered = await page.evaluate(async command => ({ inspection: await window.inspect(command), replay: await window.commit(command), view: await window.demo.readApplication(command.applicationId) }), setup.command)
+  expect(recovered.inspection).toMatchObject({ ok: true, value: { status: 'committed', result: { receipt: { kind: 'saveCorrections', workspaceRevision: 2 }, application: { workspace: { revision: 2 } } } } })
+  // The explicit retry is a new operation and still holds the staged bytes: the
+  // same file is attached once at the next private revision.
+  expect(recovered.replay).toMatchObject({ ok: true, value: { receipt: { kind: 'saveCorrections', workspaceRevision: 3 }, application: { workspace: { revision: 3 } } } })
+  if (!recovered.inspection.ok || recovered.inspection.value.status !== 'committed' || !recovered.replay.ok || setup.command.documents.financial.kind !== 'prepared') throw new Error('No inspection, replay or file')
+  expect(recovered.replay.value.receipt.operationId).not.toBe(recovered.inspection.value.result.receipt.operationId)
+  const replayView = recovered.replay.value.application
+  if (!('workspace' in replayView) || !replayView.workspace) throw new Error('No workspace')
+  expect(replayView.workspace.snapshot.documents.financial).toBe(setup.command.documents.financial.attachment.id)
+  expect(recovered.view).toMatchObject({ ok: true, value: { workspace: { revision: 3 } } })
 })
 
 test('expiry at commit aborts all private changes and permits the same identity to inspect and retry', async ({ page }) => {
@@ -176,10 +192,10 @@ test('expiry at commit aborts all private changes and permits the same identity 
       request.addEventListener('success', () => demo.expireSession(), { once: true })
       return request
     }
-    const expired = await demo.execute(command)
+    const expired = await window.commitOn(demo, command)
     const locked = await demo.readApplication(command.applicationId)
     await demo.signIn('huda')
-    return { before, expired, locked, after: await demo.readApplication(command.applicationId), inspection: await demo.inspectOperation(command), retry: await demo.execute(command) }
+    return { before, expired, locked, after: await demo.readApplication(command.applicationId), inspection: await window.inspectOn(demo, command), retry: await window.commitOn(demo, command) }
   }, datasetId)
   expect(result.expired).toMatchObject({ error: { kind: 'sessionExpired' } })
   expect(result.locked).toMatchObject({ error: { kind: 'sessionExpired' } })

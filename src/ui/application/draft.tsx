@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import type { ApplicationOperation, ApplicationView, Context, Controls, Demo, DraftDocuments, ErrorKind, PreparedAttachment, Preparation, Result, SaveCorrectionsOperation, SaveDraftOperation, SubmitOperation, ResubmitOperation } from '../../demo'
+import type { ApplicationView, AttemptIntent, Context, Controls, Demo, DraftDocuments, ErrorKind, PreparedAttachment, Preparation, Result } from '../../demo'
 import { applicationSteps, normalizeField, products, stepFields, submissionMonth, validateFields, type ApplicationStep } from '../../domain'
 import { slots, type DocumentSlot, type Fields, type Language, type ProductId, type Sample } from '../../domain/model'
 import { DocumentPreview } from '../shared/preview'
@@ -20,10 +20,11 @@ import { FilePicker } from '../shared/file-picker'
 
 type Selection = { id: string; source: Preparation['source']; name: string; status: 'preparing' | 'ready' | 'failed'; progress: number; attachment?: PreparedAttachment; error?: ErrorKind }
 type Selections = Partial<Record<DocumentSlot, Selection>>
+type DraftIntent = Extract<AttemptIntent, { kind: 'saveDraft' | 'saveCorrections' | 'submit' | 'resubmit' }>
 export type DraftBuffer = {
   fields: Fields; product: ProductId; baseline: ApplicationView; selections: Selections; purchaseRemoved: boolean;
   status: 'unsaved' | 'saving' | 'saved' | 'failed' | 'unknown'; error: ErrorKind | null;
-  pending: ApplicationOperation | null; capturedSelections: Partial<Record<DocumentSlot, string>>;
+  pending: DraftIntent | null; capturedSelections: Partial<Record<DocumentSlot, string>>;
 }
 const savedTime = (view: ApplicationView) => view.role === 'applicant' ? view.workspace?.savedAt : null
 const initialBuffer = (input: ApplicationView, initialTerm?: number): DraftBuffer => {
@@ -38,8 +39,7 @@ const focusIssue = (id: string) => {
   control?.focus()
   control?.scrollIntoView({ block: 'center' })
 }
-const publication = (operation: ApplicationOperation | null) => operation?.kind === 'submit' || operation?.kind === 'resubmit'
-const sameInput = (previous: ApplicationOperation, next: Pick<ApplicationOperation, 'fields' | 'product' | 'documents'>) => previous.product === next.product && JSON.stringify(previous.fields) === JSON.stringify(next.fields) && JSON.stringify(previous.documents) === JSON.stringify(next.documents)
+const publication = (intent: DraftIntent | null) => intent?.kind === 'submit' || intent?.kind === 'resubmit'
 
 export function RetainedDraft({ demo, buffer, language, discard, confirmed }: { demo: Demo; buffer: DraftBuffer; language: Language; discard: () => void; confirmed: () => void }) {
   const [busy, setBusy] = useState(false)
@@ -51,7 +51,7 @@ export function RetainedDraft({ demo, buffer, language, discard, confirmed }: { 
     {error && <p role="alert">{errors[error][language]}</p>}
     {buffer.pending && <button disabled={busy} onClick={async () => {
       setBusy(true)
-      const result = await demo.inspectOperation(buffer.pending!)
+      const result = await demo.inspectAttempt(buffer.pending!, buffer.baseline)
       if (!active.current) return
       setBusy(false)
       if (!result.ok) setError(result.error.kind)
@@ -180,10 +180,10 @@ export function DraftEditor({ demo, view: suppliedView, context, language, retai
       update({ ...state.current, selections: { ...state.current.selections, [slot]: result.ok ? { ...selection, status: 'ready', progress: 100, name: result.value.name, attachment: result.value } : { ...selection, status: 'failed', error: result.error.kind } } })
     })
   }
-  const acceptSaved = (saved: ApplicationView, command: ApplicationOperation, captured: DraftBuffer['capturedSelections']) => {
+  const acceptSaved = (saved: ApplicationView, intent: DraftIntent, captured: DraftBuffer['capturedSelections']) => {
     const application = workspaceView(saved)
     const current = state.current
-    if (publication(command)) {
+    if (publication(intent)) {
       retainOnUnmount.current = false
       departure(null)
       savedView(saved)
@@ -191,7 +191,7 @@ export function DraftEditor({ demo, view: suppliedView, context, language, retai
     }
     const selections = { ...current.selections }
     for (const slot of slots) {
-      const document = command.documents[slot]
+      const document = intent.documents[slot]
       if (document.kind === 'prepared' && selections[slot]?.id === captured[slot] && application.snapshot.documents[slot] === document.attachment.id) delete selections[slot]
     }
     const next = { ...current, baseline: application, selections, purchaseRemoved: false, status: 'saved' as const, error: null, pending: null }
@@ -199,15 +199,24 @@ export function DraftEditor({ demo, view: suppliedView, context, language, retai
     savedView(saved)
     setLatest(null)
   }
-  const execute = async (command: ApplicationOperation, captured: DraftBuffer['capturedSelections']): Promise<boolean> => {
-    update({ ...state.current, status: 'saving', error: null, pending: command, capturedSelections: captured })
-    const result = await demo.execute(command)
+  const execute = async (intent: DraftIntent, captured: DraftBuffer['capturedSelections']): Promise<boolean> => {
+    update({ ...state.current, status: 'saving', error: null, pending: intent, capturedSelections: captured })
+    const result = await demo.attempt(intent, state.current.baseline)
     if (!mounted.current) return false
-    if (result.ok) {
-      acceptSaved(result.value.application, command, captured)
-      return publication(command) || !draftDirty(state.current)
+    if (!result.ok) {
+      update({ ...state.current, status: 'failed', error: result.error.kind })
+      return false
     }
-    update({ ...state.current, status: result.error.kind === 'outcomeUnknown' ? 'unknown' : 'failed', error: result.error.kind })
+    const outcome = result.value
+    if (outcome.status === 'committed') {
+      acceptSaved(outcome.result.application, intent, captured)
+      return publication(intent) || !draftDirty(state.current)
+    }
+    if (outcome.status === 'unknown') {
+      update({ ...state.current, status: 'unknown', error: 'outcomeUnknown' })
+      return false
+    }
+    update({ ...state.current, status: 'failed', error: outcome.status === 'stale' ? outcome.cause : 'requestFailed' })
     return false
   }
   const save = async (): Promise<boolean> => {
@@ -223,12 +232,10 @@ export function DraftEditor({ demo, view: suppliedView, context, language, retai
       const selection = state.current.selections[slot]
       if (selection && selection.id === captured[slot] && selection.status === 'ready' && selection.attachment) documents[slot] = { kind: 'prepared', attachment: selection.attachment }
     }
-    const kind = corrections ? 'saveCorrections' : 'saveDraft'
-    const payload = { datasetId: context.datasetId, applicationId: view.id, operationId: crypto.randomUUID(), expectedWorkspaceRevision: current.baseline.workspace.revision, product: current.product, fields, documents }
-    const command: SaveDraftOperation | SaveCorrectionsOperation = current.pending?.kind === kind && sameInput(current.pending, payload) ? current.pending : corrections
-      ? { ...payload, kind: 'saveCorrections', roundId: current.baseline.workspace.roundId! }
-      : { ...payload, kind: 'saveDraft' }
-    return execute(command, captured)
+    const intent: DraftIntent = corrections
+      ? { kind: 'saveCorrections', applicationId: view.id, product: current.product, fields, documents, roundId: current.baseline.workspace!.roundId! }
+      : { kind: 'saveDraft', applicationId: view.id, product: current.product, fields, documents }
+    return execute(intent, captured)
   }
   const submit = async () => {
     const current = state.current
@@ -242,18 +249,11 @@ export function DraftEditor({ demo, view: suppliedView, context, language, retai
       const selection = current.selections[slot]
       return [slot, selection?.attachment ? { kind: 'prepared', attachment: selection.attachment } : { kind: 'saved', fileId: slot === 'purchase' && current.purchaseRemoved ? null : current.baseline.snapshot.documents[slot] }]
     })) as DraftDocuments
-    const kind = corrections ? 'resubmit' : 'submit'
-    const payload = {
-      datasetId: context.datasetId, applicationId: view.id, operationId: crypto.randomUUID(),
-      expectedWorkspaceRevision: current.baseline.workspace.revision, expectedSharedRevision: current.baseline.sharedRevision,
-      product: current.product, fields: { ...current.fields }, documents,
-    }
-    const command: SubmitOperation | ResubmitOperation = current.pending?.kind === kind && sameInput(current.pending, { fields: current.fields, product: current.product, documents }) ? current.pending : {
-      ...payload, kind: 'submit',
-    }
-    const operation: SubmitOperation | ResubmitOperation = corrections && command.kind !== 'resubmit' ? { ...payload, kind: 'resubmit', roundId: current.baseline.workspace.roundId! } : command
+    const intent: DraftIntent = corrections
+      ? { kind: 'resubmit', applicationId: view.id, product: current.product, fields: { ...current.fields }, documents, roundId: current.baseline.workspace!.roundId! }
+      : { kind: 'submit', applicationId: view.id, product: current.product, fields: { ...current.fields }, documents }
     const captured = Object.fromEntries(Object.entries(current.selections).map(([slot, selection]) => [slot, selection.id]))
-    await execute(operation, captured)
+    await execute(intent, captured)
   }
   const discardSelection = (slot: DocumentSlot) => {
     demo.cancelPreparation(view.id, slot); setPreview(null)
@@ -270,13 +270,13 @@ export function DraftEditor({ demo, view: suppliedView, context, language, retai
   const inspectOutcome = async () => {
     if (!state.current.pending) return
     setInspecting(true)
-    const command = state.current.pending
-    const result = await demo.inspectOperation(command)
+    const intent = state.current.pending
+    const result = await demo.inspectAttempt(intent, state.current.baseline)
     if (!mounted.current) return
     setInspecting(false)
     if (!result.ok) { update({ ...state.current, error: result.error.kind }); return }
-    if (result.value.status === 'committed') acceptSaved(result.value.result.application, command, state.current.capturedSelections)
-    else update({ ...state.current, status: 'failed', error: 'requestFailed' })
+    if (result.value.status === 'committed') acceptSaved(result.value.result.application, intent, state.current.capturedSelections)
+    else update({ ...state.current, status: 'failed', error: result.value.status === 'stale' ? result.value.cause : 'requestFailed' })
   }
   const inspectLatest = async () => {
     setInspecting(true)
