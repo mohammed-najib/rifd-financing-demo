@@ -1,10 +1,11 @@
 import { bounds, type BoundVerification } from '../contract'
-import { composeLocations, cropGeometry, locationCandidates, same } from '../preparation/locations'
+import { composeLocations, same } from '../preparation/locations'
 import { makeVerificationRequest, interpretVerification } from './verification'
+import { comparePages, pageAnalysis, runPages, verificationPlan } from './run'
 import type { Result } from '../../demo/types'
 import { declaredDetail, evidenceTargets, type AssistanceState, type EvidenceAssistance, type EvidenceRun, type EvidenceTransport, type SelectedEvidence, type PageAnalysis, type ComparisonAnalysis, type StageRequest } from '../contract'
 import { prepareEvidence, prepareCrops, inspectSource, emptyCoverage, sourcePages, PreparationError } from '../preparation/prepare'
-import { interpret, makeRequest, recordRequest, attemptPlan, composeFindings, usablePage, envelope, reportedUsage } from './policy'
+import { interpret, recordRequest, attemptPlan, composeFindings, usablePage, envelope, reportedUsage } from './policy'
 import { retentionMilliseconds } from './record'
 import type { AnalysisStorage, AnalysisTicket } from './storage'
 import { LiveAccessError } from '../../live-assistance/client'
@@ -228,14 +229,15 @@ export function createAssistance(resolve: () => Promise<Result<SelectedEvidence>
             throw error
           } finally { clearTimeout(timer); cancellation.signal.removeEventListener('abort', abortStage) }
         }
-        for (const page of prepared.pages) {
+        for (const step of runPages({ selection, pages: prepared.pages, runId: id, plan })) {
           if (halted) break
+          const page = step.image
           try {
-            const request = makeRequest(selection, page, id, plan)
+            const request = step.request
             const raw = await evaluate(request)
             if (!current()) return
-            const result = interpret(raw, selection)
-            pages.push({ page: page.manifest.page, request: recordRequest(request), raster: page.manifest, ...result })
+            const result = pageAnalysis(selection, step, raw)
+            pages.push(result)
             runCoverage.successful.push(page.manifest.page)
             if (['unreadable', 'partial'].includes(result.findings.readability)) runCoverage.unreadable.push(page.manifest.page)
             stages.push({ page: page.manifest.page, stage: request.stage, outcome: result.partial ? 'partial' : 'successful' })
@@ -255,14 +257,12 @@ export function createAssistance(resolve: () => Promise<Result<SelectedEvidence>
         const usable = pages.filter(page => usablePage(selection, page.findings))
         if (runCoverage.totalPages! > 1) {
           if (usable.length && !halted) {
+            const comparisonPlan = comparePages({ selection, pages: prepared.pages, runId: id, plan, coverage: runCoverage, analyses: pages })
             try {
-              const images = prepared.pages.filter(page => usable.some(result => result.page === page.manifest.page))
-              const request = makeRequest(selection, images[0], id, plan, images)
-              if (Object.keys(request.questions).length) {
-                const basis = composeFindings(selection, { ...runCoverage, totalPages: usable.length, successful: usable.map(page => page.page) }, usable)
-                const result = interpret(await evaluate(request), selection, basis)
+              if (comparisonPlan.status === 'ready') {
+                const result = interpret(await evaluate(comparisonPlan.request), selection, comparisonPlan.basis)
                 if (!current()) return
-                comparison = { request: recordRequest(request), ...result }
+                comparison = { request: recordRequest(comparisonPlan.request), ...result }
                 stages.push({ stage: 'document-comparison', outcome: result.partial ? 'partial' : 'successful' })
               } else stages.push({ stage: 'document-comparison', outcome: 'skipped', reason: 'missing-context' })
             } catch (error) {
@@ -274,17 +274,17 @@ export function createAssistance(resolve: () => Promise<Result<SelectedEvidence>
         }
         const findings = runCoverage.totalPages === 1 ? pages[0]?.findings : composeFindings(selection, runCoverage, pages, comparison)
         if (findings) {
-          const candidates = locationCandidates({ coverage: runCoverage, pages, findings, stale: false }, selection)
+          const planned = new Map(verificationPlan({ selection, coverage: runCoverage, findings, analyses: pages, prepared: prepared.pages, enabled: !halted }).map(step => [step.page, step]))
           let cropBytes = prepared.pages.reduce((sum, page) => sum + page.bytes.byteLength, 0)
           let cropPixels = prepared.pages.reduce((sum, page) => sum + page.manifest.width * page.manifest.height, 0)
           for (const page of pages) {
-            const eligible = halted ? [] : candidates.filter(candidate => candidate.page === page.page && !candidate.reason)
-            if (!eligible.length) { stages.push({ page: page.page, stage: 'bound-verification', outcome: 'skipped', reason: 'no-eligible-regions' }); continue }
+            const step = planned.get(page.page)
+            if (!step) { stages.push({ page: page.page, stage: 'bound-verification', outcome: 'skipped', reason: 'no-eligible-regions' }); continue }
             try {
               if (!current()) return
               if (deadline - performance.now() < 8000) throw new PreparationError('preparation-timeout')
-              const image = prepared.pages.find(image => image.manifest.page === page.page)!
-              const regions = eligible.map(candidate => ({ ...cropGeometry(candidate.box!, page.raster)!, target: candidate.target }))
+              const image = step.image
+              const regions = step.regions.map(region => ({ ...region.geometry, target: region.target }))
               const capturedState = evaluator.verificationState?.(page.page)
               if (evaluator.verificationState && !capturedState?.regions) throw new Error('provider-unavailable')
               const crops = capturedState?.regions ? capturedState.regions.map(binding => ({ binding, bytes: new ArrayBuffer(0) })) : await prepareCrops(image, regions, cancellation.signal, Math.min(8000, deadline - performance.now()))
