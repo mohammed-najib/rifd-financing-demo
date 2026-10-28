@@ -1,6 +1,6 @@
 import { assignmentText } from './assignment-copy'
 import { useEffect, useRef, useState } from 'react'
-import type { Demo, ErrorKind, ReviewOperation } from '../../demo'
+import type { AttemptIntent, Demo, ErrorKind } from '../../demo'
 import type { InspectionConfirmation, StaffView } from '../../demo/types'
 import { changedReviewChecks, currentCorrectionTargets, products, reviewDependencies, reviewRules, type ReviewCheck } from '../../domain'
 import type { DocumentSlot, Language } from '../../domain/model'
@@ -15,19 +15,21 @@ import { date, documentLabel, errors, events, fieldLabels, money, outcomes, revi
 import { demoIdentities } from '../../demo'
 import { activityDescription, reviewText } from './review-copy'
 
+type ReviewKind = import('../../demo').ReviewOperation['kind']
+export type ReviewIntent = Extract<AttemptIntent, { kind: ReviewKind }>
 export type ReviewBuffer = {
   note: string; replacement: { slot: DocumentSlot; text: string } | null;
-  revision: number; intent: ReviewOperation | null; error: ErrorKind | null;
+  base: StaffView; intent: ReviewIntent | null; error: ErrorKind | null;
   inspectAfterReclaim?: boolean;
   inspections?: Partial<Record<DocumentSlot, InspectionConfirmation>>;
 }
 export const reviewDirty = (buffer: ReviewBuffer) => !!buffer.note || !!buffer.replacement || !!buffer.intent
 
-export function ReviewWorkspace({ demo, datasetId, view, language, retained, remember, changed, departure }: {
-  demo: Demo; datasetId: string; view: StaffView; language: Language; retained?: ReviewBuffer;
+export function ReviewWorkspace({ demo, view, language, retained, remember, changed, departure }: {
+  demo: Demo; view: StaffView; language: Language; retained?: ReviewBuffer;
   remember: (buffer: ReviewBuffer) => void; changed: (view: StaffView) => void; departure: (work: Departure | null) => void;
 }) {
-  const [buffer] = useState<ReviewBuffer>(() => retained ?? { note: '', replacement: null, revision: view.sharedRevision, intent: null, error: null })
+  const [buffer] = useState<ReviewBuffer>(() => retained ?? { note: '', replacement: null, base: view, intent: null, error: null })
   const [, render] = useState(0)
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState(false)
@@ -57,7 +59,7 @@ export function ReviewWorkspace({ demo, datasetId, view, language, retained, rem
       if (document.activeElement === document.body) replacementTrigger.current?.focus()
     }
   }, [buffer.replacement])
-  const stale = buffer.revision !== view.sharedRevision && (reviewDirty(buffer) || buffer.inspectAfterReclaim)
+  const stale = buffer.base.sharedRevision !== view.sharedRevision && (reviewDirty(buffer) || buffer.inspectAfterReclaim)
   const blocked = busy || !!buffer.intent || stale
   const canReview = !blocked && !buffer.replacement
   const inspectionFor = (slot: DocumentSlot) => {
@@ -77,37 +79,46 @@ export function ReviewWorkspace({ demo, datasetId, view, language, retained, rem
       if (buffer.inspections![slot]?.contextToken !== view.inspectionContexts[slot]) delete buffer.inspections![slot]
     }
   }, [view.inspectionContexts])
-  const completed = (command: ReviewOperation) => {
-    if (command.kind === 'saveNote' && buffer.note === command.text.ar) buffer.note = ''
-    if (command.kind === 'assessDocument' && command.status === 'needsReplacement' && buffer.replacement?.slot === command.slot && buffer.replacement.text === command.reason?.ar) buffer.replacement = null
+  const completed = (intent: ReviewIntent) => {
+    if (intent.kind === 'saveNote' && buffer.note === intent.text.ar) buffer.note = ''
+    if (intent.kind === 'assessDocument' && intent.status === 'needsReplacement' && buffer.replacement?.slot === intent.slot && buffer.replacement.text === intent.reason?.ar) buffer.replacement = null
   }
-  const run = async (command: ReviewOperation): Promise<boolean> => {
-    if (busy || buffer.intent && buffer.intent !== command) return false
+  const run = async (intent: ReviewIntent): Promise<boolean> => {
+    if (busy || buffer.intent && JSON.stringify(buffer.intent) !== JSON.stringify(intent)) return false
     const initiator = document.activeElement
-    buffer.intent = command; buffer.error = null; update(); setBusy(true); setMessage(false)
-    const result = await demo.execute(command)
+    buffer.intent = intent; buffer.error = null; update(); setBusy(true); setMessage(false)
+    const result = await demo.attempt(intent, buffer.base)
     if (!alive.current) return false
     setBusy(false)
     if (!result.ok) { buffer.error = result.error.kind; update(); return false }
-    completed(command)
-    if (command.kind === 'assessDocument' && command.status === 'needsReplacement' && !buffer.replacement && document.activeElement === initiator) returnReplacementFocus.current = true
-    buffer.intent = null; buffer.error = null; buffer.revision = result.value.application.sharedRevision
-    if (result.value.application.role === 'reviewer') changed(result.value.application)
+    const outcome = result.value
+    if (outcome.status === 'unknown') { buffer.error = 'outcomeUnknown'; update(); return false }
+    if (outcome.status !== 'committed') {
+      buffer.intent = null
+      buffer.error = outcome.status === 'stale' ? outcome.cause : 'requestFailed'
+      update(); return false
+    }
+    completed(intent)
+    if (intent.kind === 'assessDocument' && intent.status === 'needsReplacement' && !buffer.replacement && document.activeElement === initiator) returnReplacementFocus.current = true
+    buffer.intent = null; buffer.error = null; buffer.base = outcome.result.application as StaffView
+    if (outcome.result.application.role === 'reviewer') changed(outcome.result.application)
     update(); setMessage(true)
     return true
   }
-  const base = () => ({ datasetId, applicationId: view.id, operationId: crypto.randomUUID(), expectedSharedRevision: view.sharedRevision })
+  const base = () => ({ applicationId: view.id })
   const saveNote = () => run({ ...base(), kind: 'saveNote', text: { ar: buffer.note, en: buffer.note } })
   const inspect = async () => {
     setBusy(true)
-    const result = buffer.intent ? await demo.inspectOperation(buffer.intent) : await demo.readApplication(view.id)
+    const result = buffer.intent ? await demo.inspectAttempt(buffer.intent, buffer.base) : await demo.readApplication(view.id)
     if (!alive.current) return
     setBusy(false)
     if (!result.ok) { buffer.error = result.error.kind; update(); return }
     const value = result.value
-    const application = 'role' in value ? value : value.status === 'committed' ? value.result.application : value.application
-    if ('status' in value && value.status === 'committed' && buffer.intent) { completed(buffer.intent); setMessage(true) }
-    buffer.intent = null; buffer.error = null; buffer.revision = application.sharedRevision
+    const application = ('role' in value ? value : value.status === 'committed' ? value.result.application : 'latest' in value ? value.latest : undefined) as StaffView | undefined
+    if (!application) { buffer.error = 'requestFailed'; update(); return }
+    const committed = buffer.intent ? 'status' in value && value.status === 'committed' : true
+    if (committed && buffer.intent) { completed(buffer.intent); setMessage(true) }
+    buffer.intent = null; buffer.error = null; buffer.base = application
     buffer.inspectAfterReclaim = application.role === 'reviewer' && !application.assignedToYou && application.status === 'underReview'
     if (application.role === 'reviewer') changed(application)
     update()
@@ -115,10 +126,10 @@ export function ReviewWorkspace({ demo, datasetId, view, language, retained, rem
   const canSave = view.permissions.saveNote && !!buffer.note.trim() && !buffer.replacement && !blocked
   useEffect(() => {
     if (!view.assignedToYou && view.status === 'underReview') buffer.inspectAfterReclaim = true
-    if (!reviewDirty(buffer) && !buffer.inspectAfterReclaim) buffer.revision = view.sharedRevision
+    if (!reviewDirty(buffer) && !buffer.inspectAfterReclaim) buffer.base = view
     reviewWork.current = {
       dirty: reviewDirty(buffer), pending: busy || buffer.error === 'outcomeUnknown',
-      discard: () => { buffer.note = ''; buffer.replacement = null; buffer.intent = null; buffer.error = null; buffer.inspectAfterReclaim = false; buffer.revision = view.sharedRevision; update() },
+      discard: () => { buffer.note = ''; buffer.replacement = null; buffer.intent = null; buffer.error = null; buffer.inspectAfterReclaim = false; buffer.base = view; update() },
       ...(view.permissions.saveNote && buffer.note && !buffer.replacement ? { canSave, save: saveNote, saveLabel: reviewText.saveLeave } : {}),
     }
     publishDeparture()
@@ -136,7 +147,7 @@ export function ReviewWorkspace({ demo, datasetId, view, language, retained, rem
     ['verification', reviewText.verification], ['notes', text.notes], ['activity', text.activity],
   ] as const
   return <>
-    <AssignmentActions demo={demo} datasetId={datasetId} view={view} language={language} changed={changed} departure={work => { assignmentWork.current = work; publishDeparture() }} />
+    <AssignmentActions demo={demo} view={view} language={language} changed={changed} departure={work => { assignmentWork.current = work; publishDeparture() }} />
     <nav aria-label={t('sections')} className="mb-6 flex flex-wrap gap-3">{sections.map(([id, label]) => <a key={id} href={`#review-${id}`} onClick={event => { event.preventDefault(); document.getElementById(`review-${id}`)?.focus(); document.getElementById(`review-${id}`)?.scrollIntoView({ block: 'start' }) }}>{label[language]}</a>)}</nav>
     <div className="summary mb-6" aria-busy={busy}>
       <p>{t('fictional')}</p><p>{t('readOnly')}</p>

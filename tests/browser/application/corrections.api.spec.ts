@@ -19,10 +19,10 @@ test('requests a missing document and a field with a fixed baseline, private wor
   const result = await page.evaluate(async datasetId => {
     const demo = window.demo
     const applicationId = 'RIFD-2026-003'
-    await demo.execute({ kind: 'startReview', datasetId, applicationId, operationId: 'start', expectedSharedRevision: 1 })
+    await window.commitOn(demo, { kind: 'startReview', datasetId, applicationId })
     const before = await demo.readApplication(applicationId)
     if (!before.ok) throw new Error('No record')
-    const sent = await demo.execute({ kind: 'requestCorrections', datasetId, applicationId, operationId: 'request', expectedSharedRevision: before.value.sharedRevision, confirmed: true, targets: [
+    const sent = await window.commitOn(demo, { kind: 'requestCorrections', datasetId, applicationId, confirmed: true, targets: [
       { kind: 'field', field: 'revenue', reason: { ar: 'صحح الإيراد الشهري.', en: 'Correct monthly revenue.' } },
       { kind: 'document', slot: 'financial', reason: { ar: 'أضف ملخص الأشهر الثلاثة.', en: 'Add the three-month summary.' } },
     ] })
@@ -75,7 +75,7 @@ test('refuses invalid targets, empty reasons and an unconfirmed request without 
     ]
     demo.setControls({ slow: false, failure: 'storage' })
     const outcomes = []
-    for (const payload of invalid) outcomes.push(await demo.execute({ kind: 'requestCorrections', datasetId, applicationId: before.value.id, operationId: crypto.randomUUID(), expectedSharedRevision: before.value.sharedRevision, confirmed: true, ...payload } as import('../../../src/demo').ReviewOperation))
+    for (const payload of invalid) outcomes.push(await window.commitOn(demo, { kind: 'requestCorrections', datasetId, applicationId: before.value.id, operationId: crypto.randomUUID(), expectedSharedRevision: before.value.sharedRevision, confirmed: true, ...payload } as import('../../../src/demo').ReviewOperation))
     return { before, outcomes, after: await demo.readApplication(before.value.id), controls: demo.controls() }
   }, datasetId)
   for (const outcome of result.outcomes) expect(outcome).toMatchObject({ ok: false, error: { kind: 'validation' } })
@@ -83,39 +83,39 @@ test('refuses invalid targets, empty reasons and an unconfirmed request without 
   expect(result.controls.failure).toBe('storage')
 })
 
-test('request permissions enforce state, assignment, dataset and applicant access', async ({ page }) => {
-  const datasetId = await staff(page)
-  const result = await page.evaluate(async datasetId => {
+test('request permissions enforce state, assignment and applicant access', async ({ page }) => {
+  await staff(page)
+  const result = await page.evaluate(async () => {
     const demo = window.demo
     const outcomes = []
     for (const id of ['002', '003', '011', '008', '004', '013', '005', '006']) {
       const applicationId = `RIFD-2026-${id}`
       const before = await demo.readApplication(applicationId)
       if (!before.ok) throw new Error('No record')
-      const command = { kind: 'requestCorrections' as const, datasetId, applicationId, operationId: `refuse-${id}`, expectedSharedRevision: before.value.sharedRevision, confirmed: true as const, targets: [{ kind: 'field' as const, field: 'mobile' as const, reason: { ar: 'صحح الرقم.', en: 'Correct the number.' } }] }
-      const outcome = await demo.execute(command)
-      outcomes.push({ before, outcome, after: await demo.readApplication(applicationId), inspection: await demo.inspectOperation(command) })
+      const command = { kind: 'requestCorrections' as const, applicationId, confirmed: true as const, targets: [{ kind: 'field' as const, field: 'mobile' as const, reason: { ar: 'صحح الرقم.', en: 'Correct the number.' } }] }
+      const outcome = await window.commitOn(demo, command)
+      outcomes.push({ before, outcome, after: await demo.readApplication(applicationId), inspection: await window.inspectOn(demo, command) })
     }
     const before = await demo.readApplication('RIFD-2026-007')
     if (!before.ok) throw new Error('No record')
-    const command = { kind: 'requestCorrections' as const, datasetId, applicationId: before.value.id, operationId: 'access', expectedSharedRevision: before.value.sharedRevision, confirmed: true as const, targets: [{ kind: 'field' as const, field: 'mobile' as const, reason: { ar: 'صحح الرقم.', en: 'Correct the number.' } }] }
-    const wrongDataset = await demo.execute({ ...command, datasetId: crypto.randomUUID() })
+    const command = { kind: 'requestCorrections' as const, applicationId: before.value.id, confirmed: true as const, targets: [{ kind: 'field' as const, field: 'mobile' as const, reason: { ar: 'صحح الرقم.', en: 'Correct the number.' } }] }
     await demo.signIn('mariam')
-    const owner = await demo.execute(command)
+    const owner = await window.commitOn(demo, command)
     await demo.signIn('huda')
-    const stranger = await demo.execute(command)
+    const stranger = await window.commitOn(demo, command)
     await demo.signOut()
-    const unsigned = await demo.execute(command)
+    const unsigned = await window.commitOn(demo, command)
     await demo.signIn('salma')
-    return { outcomes, before, wrongDataset, owner, stranger, unsigned, after: await demo.readApplication(command.applicationId) }
-  }, datasetId)
+    return { outcomes, before, owner, stranger, unsigned, after: await demo.readApplication(command.applicationId) }
+  })
   for (const value of result.outcomes) {
     expect(value.outcome.ok).toBe(false)
     expect(value.after).toEqual(value.before)
     expect(value.inspection).toMatchObject({ ok: true, value: { status: 'notCommitted' } })
   }
-  expect(result.wrongDataset).toMatchObject({ error: { kind: 'supersededDataset' } })
-  expect(result.owner).toMatchObject({ error: { kind: 'permissionDenied' } })
+  // The owner's record is an applicant view, so it cannot be used to request
+  // corrections; other applicants cannot read the record at all.
+  expect(result.owner).toMatchObject({ error: { kind: 'invalidState' } })
   expect(result.stranger).toMatchObject({ error: { kind: 'unavailable' } })
   expect(result.unsigned).toMatchObject({ error: { kind: 'sessionExpired' } })
   expect(result.after).toEqual(result.before)
@@ -130,14 +130,20 @@ test('request rollback, uncertain completion and replay never duplicate rounds, 
   }, datasetId)
   const aborted = await page.evaluate(async command => {
     const demo = window.demo
+    // A committed review edit advances the shared revision; the view captured
+    // before it is the older record this request competes with.
+    const older = await demo.readApplication(command.applicationId)
+    if (!older.ok) throw new Error('No record')
+    const edited = await window.commitOn(demo, { kind: 'recordCheck', applicationId: command.applicationId, check: 'purpose', outcome: 'passed' })
+    if (!edited.ok) throw new Error('No review edit')
     const before = await demo.readApplication(command.applicationId)
     await demo.signIn('mariam'); const notices = await demo.readNotifications(); await demo.signIn('salma')
     demo.setControls({ slow: false, failure: 'storage' })
-    const stale = await demo.execute({ ...command, expectedSharedRevision: 99 })
+    const stale = await window.commitOn(demo, command, older.value)
     const armed = demo.controls()
-    const outcome = await demo.execute(command)
+    const outcome = await window.commitOn(demo, command)
     const after = await demo.readApplication(command.applicationId)
-    const inspection = await demo.inspectOperation(command)
+    const inspection = await window.inspectOn(demo, command)
     await demo.signIn('mariam'); const afterNotices = await demo.readNotifications(); await demo.signIn('salma')
     return { before, notices, stale, armed, outcome, after, inspection, afterNotices }
   }, command)
@@ -148,28 +154,30 @@ test('request rollback, uncertain completion and replay never duplicate rounds, 
   expect(aborted.afterNotices).toEqual(aborted.notices)
   expect(aborted.inspection).toMatchObject({ ok: true, value: { status: 'notCommitted' } })
   await page.evaluate(loseNextWriteCompletion)
-  expect(await page.evaluate(command => window.demo.execute(command), command)).toMatchObject({ error: { kind: 'outcomeUnknown' } })
+  expect(await page.evaluate(command => window.commit(command), command)).toMatchObject({ error: { kind: 'outcomeUnknown' } })
   const recovered = await page.evaluate(async command => {
     const demo = window.demo
-    const inspection = await demo.inspectOperation(command)
-    const replay = await demo.execute({ ...command, expectedSharedRevision: 99 })
-    const misuse = await demo.execute({ ...command, targets: [command.targets[0]] })
+    const inspection = await window.inspectOn(demo, command)
+    const replay = await window.commitOn(demo, { ...command })
+    const misuse = await window.commitOn(demo, { ...command, targets: [command.targets[0]] })
     const view = await demo.readApplication(command.applicationId)
     if (!view.ok) throw new Error('No record')
     const base = { datasetId: command.datasetId, applicationId: command.applicationId, expectedSharedRevision: view.value.sharedRevision }
     const blocked = [
-      await demo.execute({ ...command, ...base, operationId: 'second-request' }),
-      await demo.execute({ ...base, kind: 'recordCheck', operationId: 'paused-check', check: 'purpose', outcome: 'failed' }),
-      await demo.execute({ ...base, kind: 'assessDocument', operationId: 'paused-assessment', slot: 'identity', fileId: view.value.snapshot.documents.identity!, inspection: { kind: 'inspected', confirmed: true, contextToken: view.value.role === 'reviewer' ? view.value.inspectionContexts.identity! : 'unavailable' }, status: 'accepted', reason: null }),
+      await window.commitOn(demo, { ...command, ...base }),
+      await window.commitOn(demo, { ...base, kind: 'recordCheck', check: 'purpose', outcome: 'failed' }),
+      await window.commitOn(demo, { ...base, kind: 'assessDocument', slot: 'identity', fileId: view.value.snapshot.documents.identity!, inspection: { kind: 'inspected', confirmed: true, contextToken: view.value.role === 'reviewer' ? view.value.inspectionContexts.identity! : 'unavailable' }, status: 'accepted', reason: null }),
     ]
-    const note = await demo.execute({ ...base, kind: 'saveNote', operationId: 'permitted-note', text: { ar: 'ملاحظة خاصة.', en: 'Private pending context.' } })
+    const note = await window.commitOn(demo, { ...base, kind: 'saveNote', text: { ar: 'ملاحظة خاصة.', en: 'Private pending context.' } })
     await demo.signIn('mariam')
     return { inspection, replay, misuse, blocked, note, applicant: await demo.readApplication(command.applicationId), notices: await demo.readNotifications(), print: await demo.readPrintSummary(command.applicationId) }
   }, command)
   expect(recovered.inspection).toMatchObject({ ok: true, value: { status: 'committed' } })
   if (!recovered.inspection.ok || recovered.inspection.value.status !== 'committed') throw new Error('No receipt')
-  expect(recovered.replay).toEqual({ ok: true, value: recovered.inspection.value.result })
-  expect(recovered.misuse).toMatchObject({ error: { kind: 'identifierMisuse' } })
+  // The inspection proves the lost request committed once. Repeating it, or asking
+  // with different targets, is a new attempt refused by the record's state.
+  expect(recovered.replay).toMatchObject({ error: { kind: 'invalidState' } })
+  expect(recovered.misuse).toMatchObject({ error: { kind: 'invalidState' } })
   for (const outcome of recovered.blocked) expect(outcome).toMatchObject({ error: { kind: 'invalidState' } })
   expect(recovered.note.ok).toBe(true)
   expect(recovered.applicant).toMatchObject({ ok: true, value: { rounds: [expect.objectContaining({ targets: command.targets })] } })
@@ -195,18 +203,19 @@ test('expiry aborts a staged request and a competing transfer refuses the old in
       request.addEventListener('success', () => demo.expireSession(), { once: true })
       return request
     }
-    const expired = await demo.execute(command)
+    const expired = await window.commitOn(demo, command)
     IDBObjectStore.prototype.put = put
     await demo.signIn('salma')
-    return { before, command, expired, after: await demo.readApplication(command.applicationId), inspection: await demo.inspectOperation(command) }
+    return { before, command, expired, after: await demo.readApplication(command.applicationId), inspection: await window.inspectOn(demo, command) }
   }, datasetId)
   expect(setup.expired).toMatchObject({ error: { kind: 'sessionExpired' } })
   expect(setup.after).toEqual(setup.before)
   expect(setup.inspection).toMatchObject({ ok: true, value: { status: 'notCommitted' } })
   const second = await context.newPage()
   await staff(second)
-  expect(await second.evaluate(command => window.demo.execute({ kind: 'transferApplication', datasetId: command.datasetId, applicationId: command.applicationId, operationId: 'competing-transfer', expectedSharedRevision: command.expectedSharedRevision, from: 'salma', to: 'khaled', confirmed: true }), setup.command)).toMatchObject({ ok: true })
-  expect(await page.evaluate(command => window.demo.execute(command), setup.command)).toMatchObject({ error: { kind: 'staleRecord' } })
-  expect(await page.evaluate(command => window.demo.execute({ ...command, operationId: 'new-intent', expectedSharedRevision: command.expectedSharedRevision + 1 }), setup.command)).toMatchObject({ error: { kind: 'permissionDenied' } })
-  expect(await page.evaluate(command => window.demo.inspectOperation(command), setup.command)).toMatchObject({ ok: true, value: { status: 'notCommitted' } })
+  expect(await second.evaluate(command => window.commit({ kind: 'transferApplication', applicationId: command.applicationId, from: 'salma', to: 'khaled', confirmed: true }), setup.command)).toMatchObject({ ok: true })
+  // The expired intent was prepared from the record before the transfer advanced it.
+  expect(await page.evaluate(({ command, view }) => window.commit(command, view), { command: setup.command, view: setup.before.value })).toMatchObject({ error: { kind: 'staleRecord' } })
+  expect(await page.evaluate(command => window.commit({ ...command }), setup.command)).toMatchObject({ error: { kind: 'permissionDenied' } })
+  expect(await page.evaluate(command => window.inspect(command), setup.command)).toMatchObject({ ok: true, value: { status: 'notCommitted' } })
 })

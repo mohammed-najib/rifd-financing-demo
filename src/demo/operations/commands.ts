@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { bilingualSchema, correctionTargetsSchema, fieldsSchema, languageSchema, productIdSchema, queuePreferencesSchema, resetContextSchema, slots, slotSchema } from '../../domain/model'
-import type { ApplicationMutation } from '../types'
+import type { ApplicationMutation, DemoOperation } from '../types'
 
 const hintRevision = z.number().int().positive()
 const preferenceVersion = { datasetId: z.string().uuid(), operationId: z.string().min(1), expectedRevision: hintRevision }
@@ -93,4 +93,14 @@ export function applicationFingerprint(operation: ApplicationMutation | z.infer<
       return [slot, { kind: 'prepared', name, mime, size, hash, source }]
     }),
   })
+}
+
+// Receipts and retries share one identity rule: what the caller asked for,
+// without the store-supplied envelope or the session that confirmed it.
+export function operationFingerprint(operation: DemoOperation): string {
+  if (operation.kind === 'resetDemo') return JSON.stringify({ kind: operation.kind, context: operation.context })
+  if (operation.kind === 'markNotificationRead') return JSON.stringify({ kind: operation.kind, notificationId: operation.notificationId })
+  if (operation.kind === 'setLanguage') return JSON.stringify({ kind: operation.kind, language: operation.language })
+  if (operation.kind === 'setQueuePreferences') return JSON.stringify({ kind: operation.kind, queue: operation.queue })
+  return applicationFingerprint(operation)
 }

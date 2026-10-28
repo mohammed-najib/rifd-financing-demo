@@ -10,9 +10,9 @@ async function start(page: Page) {
     const context = await window.demo.signIn('mariam')
     const view = await window.demo.readApplication('RIFD-2026-001')
     if (!context.ok || !view.ok || view.value.role !== 'applicant' || !view.value.workspace) throw new Error('No draft')
+    window.datasetId = context.value.datasetId
     window.draftCommand = {
-      kind: 'saveDraft', datasetId: context.value.datasetId, applicationId: view.value.id, operationId: 'interrupted-save',
-      expectedWorkspaceRevision: view.value.workspace.revision, product: view.value.product,
+      kind: 'saveDraft', applicationId: view.value.id, product: view.value.product,
       fields: { ...view.value.snapshot.fields, explanation: 'retained unfinished input' },
       documents: Object.fromEntries(Object.entries(view.value.snapshot.documents).map(([slot, fileId]) => [slot, { kind: 'saved', fileId }])) as import('../../../src/demo').DraftDocuments,
     }
@@ -24,12 +24,12 @@ test('explicit expiry revokes pending authority even after the same identity sig
   const result = await page.evaluate(async () => {
     const demo = window.demo
     demo.setControls({ slow: true, failure: 'save' })
-    const pending = demo.execute(window.draftCommand)
+    const pending = window.commitOn(demo, window.draftCommand)
     demo.expireSession()
     demo.setControls({ slow: false, failure: 'save' })
     await demo.signIn('mariam')
     const interrupted = await pending
-    return { interrupted, inspection: await demo.inspectOperation(window.draftCommand), view: await demo.readApplication(window.draftCommand.applicationId), controls: demo.controls() }
+    return { interrupted, inspection: await window.inspectOn(demo, window.draftCommand), view: await demo.readApplication(window.draftCommand.applicationId), controls: demo.controls() }
   })
   expect(result.interrupted).toMatchObject({ ok: false, error: { kind: 'sessionExpired' } })
   expect(result.inspection).toMatchObject({ ok: true, value: { status: 'notCommitted' } })
@@ -51,7 +51,7 @@ test('only pointer and keyboard interaction renew the real fifteen-minute inacti
     await window.demo.listApplications()
     const context = await window.demo.context()
     if (!context.ok) throw new Error('No context')
-    await window.demo.execute({ kind: 'setLanguage', datasetId: context.value.datasetId, operationId: 'nonactivity', expectedRevision: context.value.preferences.revision, language: 'en' })
+    await window.commit({ kind: 'setLanguage', expectedRevision: context.value.preferences.revision, language: 'en' })
   })
   await page.clock.runFor(60_001)
   expect(await page.evaluate(() => window.demo.context())).toMatchObject({ ok: true, value: { session: null } })
@@ -62,7 +62,7 @@ test('expiry after staging a write aborts its fields, files and receipt together
   await start(page)
   const result = await page.evaluate(async () => {
     const demo = window.demo
-    const prepared = await demo.prepareAttachment({ datasetId: window.draftCommand.datasetId, applicationId: window.draftCommand.applicationId, slot: 'purchase', selectionId: 'staged', source: { kind: 'local', file: new File(['private replacement'], 'DEMO.png', { type: 'image/png' }) } })
+    const prepared = await demo.prepareAttachment({ datasetId: window.datasetId, applicationId: window.draftCommand.applicationId, slot: 'purchase', selectionId: 'staged', source: { kind: 'local', file: new File(['private replacement'], 'DEMO.png', { type: 'image/png' }) } })
     if (!prepared.ok) throw new Error('Preparation failed')
     window.draftCommand.documents.purchase = { kind: 'prepared', attachment: prepared.value }
     // Expire between IndexedDB's successful put and transaction completion.
@@ -72,10 +72,10 @@ test('expiry after staging a write aborts its fields, files and receipt together
       request.addEventListener('success', () => demo.expireSession(), { once: true })
       return request
     }
-    const interrupted = await demo.execute(window.draftCommand)
+    const interrupted = await window.commitOn(demo, window.draftCommand)
     IDBObjectStore.prototype.put = put
     await demo.signIn('mariam')
-    return { interrupted, inspection: await demo.inspectOperation(window.draftCommand), unattached: await demo.readFile(window.draftCommand.applicationId, prepared.value.id), ready: await demo.readPrepared(window.draftCommand.applicationId, prepared.value) }
+    return { interrupted, inspection: await window.inspectOn(demo, window.draftCommand), unattached: await demo.readFile(window.draftCommand.applicationId, prepared.value.id), ready: await demo.readPrepared(window.draftCommand.applicationId, prepared.value) }
   })
   expect(result.interrupted).toMatchObject({ ok: false, error: { kind: 'sessionExpired' } })
   expect(result.inspection).toMatchObject({ ok: true, value: { status: 'notCommitted', application: { workspace: { revision: 1 }, snapshot: { fields: { explanation: '' } } } } })
@@ -91,5 +91,5 @@ test('returning activity checks elapsed expiry before renewal when background ti
   await page.dispatchEvent('body', 'pointerdown')
   await page.evaluate(() => window.dispatchEvent(new Event('focus')))
   expect(await page.evaluate(() => window.demo.context())).toMatchObject({ ok: true, value: { session: null } })
-  expect(await page.evaluate(() => window.demo.execute(window.draftCommand))).toMatchObject({ ok: false, error: { kind: 'sessionExpired' } })
+  expect(await page.evaluate(() => window.commit(window.draftCommand))).toMatchObject({ ok: false, error: { kind: 'sessionExpired' } })
 })

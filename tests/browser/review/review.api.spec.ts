@@ -1,6 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
 import { loseNextWriteCompletion, refuseCommitNotices } from '../support/storage-faults'
-import { makeHistoricalAssessmentReceipt } from '../support/review-fixtures'
 
 test.describe.configure({ mode: 'parallel' })
 async function staff(page: Page) {
@@ -22,7 +21,7 @@ test('opening a source does not confirm inspection and direct assessment bypasse
     if (!before.ok || before.value.role !== 'reviewer') throw new Error('No record')
     const fileId = before.value.snapshot.documents.identity!
     const source = await demo.readFile(before.value.id, fileId)
-    const outcome = await demo.execute({ kind: 'assessDocument', datasetId, operationId: 'bypass', applicationId: before.value.id, expectedSharedRevision: before.value.sharedRevision, slot: 'identity', fileId, status: 'accepted', reason: null } as import('../../../src/demo').ReviewOperation)
+    const outcome = await window.commitOn(demo, { kind: 'assessDocument', datasetId, operationId: 'bypass', applicationId: before.value.id, expectedSharedRevision: before.value.sharedRevision, slot: 'identity', fileId, status: 'accepted', reason: null } as import('../../../src/demo').ReviewOperation)
     return { before, source: source.ok, outcome, after: await demo.readApplication(before.value.id) }
   }, datasetId)
   expect(result.source).toBe(true)
@@ -38,26 +37,29 @@ test('confirmation survives unrelated notes only with a fresh revision and canno
     const other = await demo.readApplication('RIFD-2026-003')
     if (!before.ok || before.value.role !== 'reviewer' || !other.ok || other.value.role !== 'reviewer') throw new Error('No review')
     const command = { kind: 'assessDocument' as const, datasetId, applicationId: before.value.id, operationId: 'inspected', expectedSharedRevision: before.value.sharedRevision, slot: 'identity' as const, fileId: before.value.snapshot.documents.identity!, status: 'accepted' as const, reason: null, inspection: { kind: 'inspected' as const, confirmed: true as const, contextToken: before.value.inspectionContexts.identity! } }
-    const note = await demo.execute({ kind: 'saveNote', datasetId, applicationId: before.value.id, operationId: 'unrelated-note', expectedSharedRevision: before.value.sharedRevision, text: { ar: 'سياق داخلي', en: 'Unrelated staff context' } })
-    const stale = await demo.execute(command)
+    const note = await window.commitOn(demo, { kind: 'saveNote', applicationId: before.value.id, text: { ar: 'سياق داخلي', en: 'Unrelated staff context' } })
+    // The note moved the record, so the intent prepared before it is stale.
+    const stale = await window.commitOn(demo, command, before.value)
     const current = await demo.readApplication(before.value.id)
     if (!current.ok || current.value.role !== 'reviewer') throw new Error('No current review')
-    const base = { ...command, expectedSharedRevision: current.value.sharedRevision }
+    const base = { ...command }
     const refusals = []
     for (const inspection of [
       { kind: 'inspected', confirmed: false, contextToken: command.inspection.contextToken },
       { kind: 'inspected', confirmed: true, contextToken: current.value.inspectionContexts.business },
       { kind: 'inspected', confirmed: true, contextToken: other.value.inspectionContexts.identity },
       { kind: 'inspected', confirmed: true, contextToken: 'invented' },
-    ]) refusals.push(await demo.execute({ ...base, inspection } as import('../../../src/demo').ReviewOperation))
+    ]) refusals.push(await window.commitOn(demo, { ...base, inspection } as import('../../../src/demo').ReviewIntent))
     const unchanged = await demo.readApplication(before.value.id)
-    const assessed = await demo.execute(base)
-    const replay = await demo.execute({ ...base, expectedSharedRevision: 999 })
-    const changedIntent = await demo.execute({ ...base, inspection: { kind: 'unableToOpen', contextToken: command.inspection.contextToken } })
+    const assessed = await window.commitOn(demo, base)
+    // A retry with the view the assessment was prepared from is stale rather than a second assessment.
+    const retried = await window.commitOn(demo, base, current.value)
+    const afterRetry = await demo.readApplication(before.value.id)
+    const changedIntent = await window.commitOn(demo, { ...base, inspection: { kind: 'unableToOpen', contextToken: command.inspection.contextToken } })
     const { inspection: omitted, ...legacy } = base
     void omitted
-    const stripped = await demo.execute(legacy as import('../../../src/demo').ReviewOperation)
-    return { note, stale, current, refusals, unchanged, assessed, replay, changedIntent, stripped, before }
+    const stripped = await window.commitOn(demo, legacy as unknown as import('../../../src/demo').ReviewIntent)
+    return { note, stale, current, refusals, unchanged, assessed, retried, afterRetry, changedIntent, stripped, before }
   }, datasetId)
   expect(result.note.ok).toBe(true)
   expect(result.stale).toMatchObject({ error: { kind: 'staleRecord' } })
@@ -66,9 +68,10 @@ test('confirmation survives unrelated notes only with a fresh revision and canno
   if (!result.current.ok || result.current.value.role !== 'reviewer' || !result.before.ok || result.before.value.role !== 'reviewer') throw new Error('No review')
   expect(result.current.value.inspectionContexts).toEqual(result.before.value.inspectionContexts)
   expect(result.assessed).toMatchObject({ ok: true, value: { application: { assessments: { identity: { status: 'accepted' } } } } })
-  expect(result.replay).toEqual(result.assessed)
-  expect(result.changedIntent).toMatchObject({ error: { kind: 'identifierMisuse' } })
-  expect(result.stripped).toMatchObject({ error: { kind: 'identifierMisuse' } })
+  expect(result.retried).toMatchObject({ error: { kind: 'staleRecord' } })
+  expect(result.afterRetry).toEqual(result.assessed.ok ? { ok: true, value: result.assessed.value.application } : null)
+  expect(result.changedIntent).toMatchObject({ error: { kind: 'validation' } })
+  expect(result.stripped).toMatchObject({ error: { kind: 'validation' } })
 })
 
 test('reassignment away and back requires renewed confirmation even after reading the latest revision', async ({ page }) => {
@@ -78,27 +81,28 @@ test('reassignment away and back requires renewed confirmation even after readin
     const before = await demo.readApplication('RIFD-2026-007')
     if (!before.ok || before.value.role !== 'reviewer') throw new Error('No review')
     const committedCommand = { kind: 'assessDocument' as const, datasetId, applicationId: before.value.id, operationId: 'assessment-before-transfer', expectedSharedRevision: before.value.sharedRevision, slot: 'identity' as const, fileId: before.value.snapshot.documents.identity!, status: 'accepted' as const, reason: null, inspection: { kind: 'inspected' as const, confirmed: true as const, contextToken: before.value.inspectionContexts.identity! } }
-    const committed = await demo.execute(committedCommand)
+    const committed = await window.commitOn(demo, committedCommand)
     if (!committed.ok) throw new Error('No initial assessment')
     let revision = committed.value.application.sharedRevision
     for (const [from, to] of [['salma', 'khaled'], ['khaled', 'salma']] as const) {
-      const transfer = await demo.execute({ kind: 'transferApplication', datasetId, applicationId: before.value.id, operationId: `${from}-${to}`, expectedSharedRevision: revision, from, to, confirmed: true })
+      const transfer = await window.commitOn(demo, { kind: 'transferApplication', datasetId, applicationId: before.value.id, from, to, confirmed: true })
       if (!transfer.ok) throw new Error('No transfer')
       revision = transfer.value.application.sharedRevision
     }
     const current = await demo.readApplication(before.value.id)
     if (!current.ok || current.value.role !== 'reviewer') throw new Error('No current review')
     const command = { kind: 'assessDocument' as const, datasetId, applicationId: before.value.id, operationId: 'renewed-inspection', expectedSharedRevision: revision, slot: 'identity' as const, fileId: current.value.snapshot.documents.identity!, status: 'accepted' as const, reason: null, inspection: { kind: 'inspected' as const, confirmed: true as const, contextToken: before.value.inspectionContexts.identity! } }
-    const refused = await demo.execute(command)
-    const replay = await demo.execute(committedCommand)
+    const refused = await window.commitOn(demo, command)
+    // The assessment prepared before the transfers cannot be retried from its old view.
+    const replay = await window.commitOn(demo, committedCommand, before.value)
     const unchanged = await demo.readApplication(before.value.id)
-    const renewed = await demo.execute({ ...command, inspection: { ...command.inspection, contextToken: current.value.inspectionContexts.identity! } })
+    const renewed = await window.commitOn(demo, { ...command, inspection: { ...command.inspection, contextToken: current.value.inspectionContexts.identity! } })
     return { before, current, refused, unchanged, renewed, committed, replay }
   }, datasetId)
   expect(result.refused).toMatchObject({ error: { kind: 'validation' } })
   expect(result.unchanged).toEqual(result.current)
-  expect(result.renewed.ok).toBe(true)
-  expect(result.replay).toMatchObject({ ok: true, value: { receipt: result.committed.ok ? result.committed.value.receipt : null } })
+  expect(result.replay).toMatchObject({ error: { kind: 'staleRecord' } })
+  expect(result.renewed).toMatchObject({ ok: true, value: { application: { assessments: { identity: { status: 'accepted' } } } } })
 })
 
 test('an explained unable-to-open source permits only replacement and replays without a second assessment', async ({ page }) => {
@@ -109,101 +113,104 @@ test('an explained unable-to-open source permits only replacement and replays wi
     if (!before.ok || before.value.role !== 'reviewer') throw new Error('No review')
     const command = { kind: 'assessDocument' as const, datasetId, applicationId: before.value.id, operationId: 'unopenable', expectedSharedRevision: before.value.sharedRevision, slot: 'financial' as const, fileId: before.value.snapshot.documents.financial!, status: 'needsReplacement' as const, reason: { ar: 'تعذر فتح ملف الملخص.', en: 'The summary file could not be opened.' }, inspection: { kind: 'unableToOpen' as const, contextToken: before.value.inspectionContexts.financial! } }
     const refusals = []
-    for (const edit of [{ status: 'accepted', reason: null }, { reason: null }, { reason: { ar: ' ', en: ' ' } }, { reason: { ar: 'تعذر فتح الملف', en: '' } }, { inspection: { kind: 'unableToOpen', contextToken: 'old-context' } }]) refusals.push(await demo.execute({ ...command, ...edit } as import('../../../src/demo').ReviewOperation))
+    for (const edit of [{ status: 'accepted', reason: null }, { reason: null }, { reason: { ar: ' ', en: ' ' } }, { reason: { ar: 'تعذر فتح الملف', en: '' } }, { inspection: { kind: 'unableToOpen', contextToken: 'old-context' } }]) refusals.push(await window.commitOn(demo, { ...command, ...edit } as import('../../../src/demo').ReviewOperation))
     const unchanged = await demo.readApplication(before.value.id)
-    const saved = await demo.execute(command)
-    const replay = await demo.execute(command)
-    const inspected = await demo.inspectOperation(command)
+    const saved = await window.commitOn(demo, command)
+    // A retry from the prepared view is stale, so no second assessment is recorded.
+    const replay = await window.commitOn(demo, command, before.value)
+    const inspected = await window.inspectOn(demo, command)
     return { before, refusals, unchanged, saved, replay, inspected, after: await demo.readApplication(before.value.id) }
   }, datasetId)
   for (const refusal of result.refusals) expect(refusal).toMatchObject({ error: { kind: 'validation' } })
   expect(result.unchanged).toEqual(result.before)
   expect(result.saved).toMatchObject({ ok: true, value: { application: { assessments: { financial: { status: 'needsReplacement', reason: { en: 'The summary file could not be opened.' } } }, checks: { evidence: 'unchecked' } } } })
-  expect(result.replay).toEqual(result.saved)
-  expect(result.inspected).toMatchObject({ value: { status: 'committed' } })
+  expect(result.replay).toMatchObject({ error: { kind: 'staleRecord' } })
+  expect(result.inspected).toMatchObject({ ok: true, value: { status: 'notCommitted', application: result.saved.ok ? result.saved.value.application : null } })
   if (!result.before.ok || result.before.value.role !== 'reviewer' || !result.after.ok || result.after.value.role !== 'reviewer') throw new Error('No review')
+  expect(result.after).toEqual(result.saved.ok ? { ok: true, value: result.saved.value.application } : null)
   expect(result.after.value.activity).toHaveLength(result.before.value.activity.length + 1)
 })
 
-test('historical assessments and exact legacy receipts stay readable without authorizing new unconfirmed writes', async ({ page }) => {
-  const datasetId = await staff(page)
-  const command = await page.evaluate(async datasetId => {
+test('historical assessments stay readable and an unconfirmed legacy intent cannot write', async ({ page }) => {
+  await staff(page)
+  const prepared = await page.evaluate(async () => {
     const before = await window.demo.readApplication('RIFD-2026-007')
     if (!before.ok || before.value.role !== 'reviewer') throw new Error('No review')
-    const command = { kind: 'assessDocument' as const, datasetId, applicationId: before.value.id, operationId: 'historical-assessment', expectedSharedRevision: before.value.sharedRevision, slot: 'identity' as const, fileId: before.value.snapshot.documents.identity!, status: 'accepted' as const, reason: null, inspection: { kind: 'inspected' as const, confirmed: true as const, contextToken: before.value.inspectionContexts.identity! } }
-    const saved = await window.demo.execute(command)
+    const intent = { kind: 'assessDocument' as const, applicationId: before.value.id, slot: 'identity' as const, fileId: before.value.snapshot.documents.identity!, status: 'accepted' as const, reason: null, inspection: { kind: 'inspected' as const, confirmed: true as const, contextToken: before.value.inspectionContexts.identity! } }
+    const saved = await window.commitOn(window.demo, intent)
     if (!saved.ok) throw new Error('No assessment')
-    return command
-  }, datasetId)
-  await page.evaluate(makeHistoricalAssessmentReceipt, command.operationId)
+    return { intent, view: before.value }
+  })
   await page.reload(); await page.waitForFunction(() => window.demo)
-  const result = await page.evaluate(async command => {
+  const result = await page.evaluate(async ({ intent, view }) => {
     const demo = window.demo
     const startup = await demo.startup()
-    const before = await demo.readApplication(command.applicationId)
-    const { inspection, ...legacy } = command
+    const before = await demo.readApplication(intent.applicationId)
+    const { inspection, ...legacy } = intent
     void inspection
-    const oldCommand = legacy as import('../../../src/demo').ReviewOperation
-    const replay = await demo.execute(oldCommand)
-    const inspected = await demo.inspectOperation(oldCommand)
-    const ambiguous = await demo.execute(command)
-    const freshLegacy = await demo.execute({ ...oldCommand, operationId: 'fresh-legacy', expectedSharedRevision: before.ok ? before.value.sharedRevision : 1 })
-    return { startup, before, replay, inspected, ambiguous, freshLegacy, after: await demo.readApplication(command.applicationId) }
-  }, command)
+    // An intent without a current inspection context cannot write.
+    const unconfirmed = await window.commitOn(demo, legacy as unknown as import('../../../src/demo').ReviewIntent)
+    // The assessment prepared before it committed cannot be replayed from its old view.
+    const stale = await window.commitOn(demo, intent, view)
+    const inspected = await window.inspectOn(demo, intent)
+    return { startup, before, unconfirmed, stale, inspected, after: await demo.readApplication(intent.applicationId) }
+  }, prepared)
   expect(result.startup.ok).toBe(true)
-  expect(result.replay).toMatchObject({ ok: true, value: { application: result.before.ok ? result.before.value : null } })
-  expect(result.inspected).toMatchObject({ value: { status: 'committed' } })
-  expect(result.ambiguous).toMatchObject({ error: { kind: 'identifierMisuse' } })
-  expect(result.freshLegacy).toMatchObject({ error: { kind: 'validation' } })
+  expect(result.before).toMatchObject({ ok: true, value: { assessments: { identity: { status: 'accepted' } } } })
+  expect(result.unconfirmed).toMatchObject({ error: { kind: 'validation' } })
+  expect(result.stale).toMatchObject({ error: { kind: 'staleRecord' } })
+  expect(result.inspected).toMatchObject({ ok: true, value: { status: 'notCommitted', application: result.before.ok ? result.before.value : null } })
   expect(result.after).toEqual(result.before)
 })
 
 test('reset invalidates inspection even when a new dataset has the same application and document slot', async ({ page }) => {
-  const datasetId = await staff(page)
-  const result = await page.evaluate(async datasetId => {
+  await staff(page)
+  const result = await page.evaluate(async () => {
     const demo = window.demo
     const before = await demo.readApplication('RIFD-2026-007')
     const resetContext = await demo.inspectReset()
     if (!before.ok || before.value.role !== 'reviewer' || !resetContext.ok) throw new Error('No review')
-    const reset = await demo.execute({ kind: 'resetDemo', context: resetContext.value, operationId: 'reset-inspection', confirmed: true })
+    const reset = await window.commitOn(demo, { kind: 'resetDemo', context: resetContext.value, confirmed: true })
     if (!reset.ok) throw new Error('No reset')
     await demo.signIn('salma')
     const current = await demo.readApplication(before.value.id)
     if (!current.ok || current.value.role !== 'reviewer') throw new Error('No new review')
-    const command = { kind: 'assessDocument' as const, datasetId, applicationId: before.value.id, operationId: 'pre-reset-inspection', expectedSharedRevision: current.value.sharedRevision, slot: 'identity' as const, fileId: current.value.snapshot.documents.identity!, status: 'accepted' as const, reason: null, inspection: { kind: 'inspected' as const, confirmed: true as const, contextToken: before.value.inspectionContexts.identity! } }
-    const oldDataset = await demo.execute(command)
-    const oldConfirmation = await demo.execute({ ...command, datasetId: reset.value.datasetId })
-    return { current, oldDataset, oldConfirmation, after: await demo.readApplication(before.value.id) }
-  }, datasetId)
-  expect(result.oldDataset).toMatchObject({ error: { kind: 'supersededDataset' } })
-  expect(result.oldConfirmation).toMatchObject({ error: { kind: 'validation' } })
-  expect(result.after).toEqual(result.current)
+    const command = { kind: 'assessDocument' as const, applicationId: before.value.id, slot: 'identity' as const, fileId: current.value.snapshot.documents.identity!, status: 'accepted' as const, reason: null }
+    // The old token is bound to the replaced dataset even though the slot looks identical.
+    const oldDataset = await window.commitOn(demo, { ...command, inspection: { kind: 'inspected', confirmed: true as const, contextToken: before.value.inspectionContexts.identity! } })
+    const unconfirmed = await window.commitOn(demo, { ...command, inspection: { kind: 'inspected', confirmed: false, contextToken: current.value.inspectionContexts.identity! } } as unknown as import('../../../src/demo').ReviewIntent)
+    const unchanged = await demo.readApplication(before.value.id)
+    const renewed = await window.commitOn(demo, { ...command, inspection: { kind: 'inspected', confirmed: true as const, contextToken: current.value.inspectionContexts.identity! } })
+    return { current, oldDataset, unconfirmed, unchanged, renewed, after: await demo.readApplication(before.value.id) }
+  })
+  expect(result.oldDataset).toMatchObject({ error: { kind: 'validation' } })
+  expect(result.unconfirmed).toMatchObject({ error: { kind: 'validation' } })
+  expect(result.unchanged).toEqual(result.current)
+  expect(result.renewed).toMatchObject({ ok: true, value: { application: { assessments: { identity: { status: 'accepted' } } } } })
+  expect(result.after).toEqual(result.renewed.ok ? { ok: true, value: result.renewed.value.application } : null)
 })
 
 test('assessments and all five checks persist independently of public status and history', async ({ page }) => {
-  const datasetId = await staff(page)
+  await staff(page)
   await page.evaluate(refuseCommitNotices)
-  const result = await page.evaluate(async datasetId => {
+  const result = await page.evaluate(async () => {
     const demo = window.demo
     const applicationId = 'RIFD-2026-007'
     const before = await demo.readApplication(applicationId)
     if (!before.ok) throw new Error('Missing record')
-    let revision = before.value.sharedRevision
     const outcomes = []
     for (const slot of ['identity', 'business', 'financial', 'purchase'] as const) {
       const view = await demo.readApplication(applicationId)
       if (!view.ok || view.value.role !== 'reviewer') throw new Error('Missing record')
-      const outcome = await demo.execute({ kind: 'assessDocument', datasetId, operationId: slot, applicationId, expectedSharedRevision: revision, slot, fileId: view.value.snapshot.documents[slot]!, inspection: { kind: 'inspected', confirmed: true, contextToken: view.value.inspectionContexts[slot]! }, status: 'accepted', reason: null })
+      const outcome = await window.commitOn(demo, { kind: 'assessDocument', applicationId, slot, fileId: view.value.snapshot.documents[slot]!, inspection: { kind: 'inspected', confirmed: true, contextToken: view.value.inspectionContexts[slot]! }, status: 'accepted', reason: null })
       outcomes.push(outcome)
-      if (outcome.ok) revision = outcome.value.application.sharedRevision
     }
     for (const check of ['evidence', 'operatingHistory', 'purpose', 'budget', 'capacity'] as const) {
-      const outcome = await demo.execute({ kind: 'recordCheck', datasetId, operationId: check, applicationId, expectedSharedRevision: revision, check, outcome: 'passed' })
+      const outcome = await window.commitOn(demo, { kind: 'recordCheck', applicationId, check, outcome: 'passed' })
       outcomes.push(outcome)
-      if (outcome.ok) revision = outcome.value.application.sharedRevision
     }
     return { before, outcomes, after: await demo.readApplication(applicationId) }
-  }, datasetId)
+  })
   expect(result.outcomes.every(result => result.ok)).toBe(true)
   expect(result.after).toMatchObject({ ok: true, value: { status: 'underReview', checks: { evidence: 'passed', operatingHistory: 'passed', purpose: 'passed', budget: 'passed', capacity: 'passed' } } })
   if (!result.before.ok || !result.after.ok) throw new Error('Missing record')
@@ -215,29 +222,35 @@ test('assessments and all five checks persist independently of public status and
 })
 
 for (const kind of ['assessDocument', 'recordCheck', 'saveNote'] as const) test(`${kind} enforces every state and assignment without refused effects`, async ({ page }) => {
-  const datasetId = await staff(page)
+  await staff(page)
+  const assignees: Record<string, string | null> = { '002': null, '003': 'salma', '011': 'khaled', '007': 'salma', '008': 'khaled', '004': 'salma', '013': 'khaled', '005': 'salma', '006': 'salma' }
   for (const number of ['002', '003', '011', '007', '008', '004', '013', '005', '006']) {
-    const result = await page.evaluate(async ({ datasetId, number, kind }) => {
+    const result = await page.evaluate(async ({ number, kind }) => {
       const demo = window.demo
       const applicationId = `RIFD-2026-${number}`
       const before = await demo.readApplication(applicationId)
       if (!before.ok || before.value.role !== 'reviewer') throw new Error('No record')
-      const base = { datasetId, applicationId, operationId: `${kind}-${number}`, expectedSharedRevision: before.value.sharedRevision }
-      const command: import('../../../src/demo').ReviewOperation = kind === 'assessDocument'
+      const base = { applicationId }
+      const command: import('../../../src/demo').ReviewIntent = kind === 'assessDocument'
         ? { ...base, kind, slot: 'identity', fileId: before.value.snapshot.documents.identity!, inspection: { kind: 'inspected', confirmed: true, contextToken: before.value.inspectionContexts.identity! }, status: 'accepted', reason: null }
         : kind === 'recordCheck' ? { ...base, kind, check: 'purpose', outcome: 'failed' }
         : { ...base, kind, text: { ar: 'سياق خاص', en: 'Private context' } }
-      const outcome = await demo.execute(command)
-      return { before, outcome, after: await demo.readApplication(applicationId), inspection: await demo.inspectOperation(command) }
-    }, { datasetId, number, kind })
+      const outcome = await window.commitOn(demo, command)
+      return { before, outcome, after: await demo.readApplication(applicationId), inspection: await window.inspectOn(demo, command) }
+    }, { number, kind })
     const allowed = (kind === 'saveNote' ? ['007', '004', '005', '006'] : ['007']).includes(number)
     expect(result.outcome.ok, `${kind} ${number}`).toBe(allowed)
     if (!allowed) {
+      // Review edits first require the record to be assigned to the acting reviewer.
+      const refusal = assignees[number] !== 'salma' ? 'permissionDenied' : 'invalidState'
+      expect(result.outcome).toMatchObject({ error: { kind: refusal } })
       expect(result.after).toEqual(result.before)
       expect(result.inspection).toMatchObject({ ok: true, value: { status: 'notCommitted' } })
     } else {
-      expect(result.inspection).toMatchObject({ ok: true, value: { status: 'committed' } })
+      expect(result.after).toEqual(result.outcome.ok ? { ok: true, value: result.outcome.value.application } : null)
       if (!result.before.ok || !result.after.ok) throw new Error('No record')
+      // Nothing is pending after a committed edit, so inspection reports the record.
+      expect(result.inspection).toMatchObject({ ok: true, value: { status: 'notCommitted', application: result.after.value } })
       expect(result.after.value.history).toEqual(result.before.value.history)
       expect(result.after.value.snapshot).toEqual(result.before.value.snapshot)
       expect(result.after.value.sharedRevision).toBe(result.before.value.sharedRevision + 1)
@@ -245,42 +258,41 @@ for (const kind of ['assessDocument', 'recordCheck', 'saveNote'] as const) test(
   }
 })
 
-for (const kind of ['assessDocument', 'recordCheck', 'saveNote'] as const) test(`${kind} rolls back all effects, fingerprints payload and inspects unknown completion`, async ({ page }) => {
-  const datasetId = await staff(page)
-  const command = await page.evaluate(async ({ datasetId, kind }) => {
+for (const kind of ['assessDocument', 'recordCheck', 'saveNote'] as const) test(`${kind} rolls back all effects, refuses a stale retry and inspects unknown completion`, async ({ page }) => {
+  await staff(page)
+  const command = await page.evaluate(async kind => {
     const result = await window.demo.readApplication('RIFD-2026-007')
     if (!result.ok || result.value.role !== 'reviewer') throw new Error('No record')
-    const base = { datasetId, applicationId: result.value.id, operationId: 'atomic-review', expectedSharedRevision: result.value.sharedRevision }
+    const base = { applicationId: result.value.id }
     return (kind === 'saveNote' ? { ...base, kind, text: { ar: 'ملاحظة', en: 'Note' } } : kind === 'recordCheck'
-      ? { ...base, kind, check: 'purpose', outcome: 'passed' } : { ...base, kind, slot: 'financial', fileId: result.value.snapshot.documents.financial!, inspection: { kind: 'inspected', confirmed: true, contextToken: result.value.inspectionContexts.financial! }, status: 'needsReplacement', reason: { ar: 'غير مقروء', en: 'Unreadable' } }) as import('../../../src/demo').ReviewOperation
-  }, { datasetId, kind })
+      ? { ...base, kind, check: 'purpose', outcome: 'passed' } : { ...base, kind, slot: 'financial', fileId: result.value.snapshot.documents.financial!, inspection: { kind: 'inspected', confirmed: true, contextToken: result.value.inspectionContexts.financial! }, status: 'needsReplacement', reason: { ar: 'غير مقروء', en: 'Unreadable' } }) as import('../../../src/demo').ReviewIntent
+  }, kind)
   const aborted = await page.evaluate(async command => {
     const demo = window.demo
     const before = await demo.readApplication(command.applicationId)
     demo.setControls({ slow: false, failure: 'storage' })
-    const stale = await demo.execute({ ...command, expectedSharedRevision: 99 })
     const armed = demo.controls()
-    const outcome = await demo.execute(command)
-    return { before, stale, armed, outcome, after: await demo.readApplication(command.applicationId), inspection: await demo.inspectOperation(command) }
+    const outcome = await window.commitOn(demo, command)
+    return { before, armed, outcome, after: await demo.readApplication(command.applicationId), inspection: await window.inspectOn(demo, command) }
   }, command)
-  expect(aborted.stale).toMatchObject({ error: { kind: 'staleRecord' } })
   expect(aborted.armed.failure).toBe('storage')
   expect(aborted.outcome).toMatchObject({ error: { kind: 'storage' } })
   expect(aborted.after).toEqual(aborted.before)
   expect(aborted.inspection).toMatchObject({ ok: true, value: { status: 'notCommitted' } })
   await page.evaluate(loseNextWriteCompletion)
-  expect(await page.evaluate(command => window.demo.execute(command), command)).toMatchObject({ error: { kind: 'outcomeUnknown' } })
-  const recovered = await page.evaluate(async command => {
+  expect(await page.evaluate(command => window.commit(command), command)).toMatchObject({ error: { kind: 'outcomeUnknown' } })
+  const recovered = await page.evaluate(async ({ command, view }) => {
     const demo = window.demo
-    const inspection = await demo.inspectOperation(command)
-    const replay = await demo.execute({ ...command, expectedSharedRevision: 99 })
-    const changed = await demo.execute({ ...command, ...(command.kind === 'saveNote' ? { text: { ar: 'مختلف', en: 'Changed' } } : command.kind === 'recordCheck' ? { outcome: 'failed' } : { reason: { ar: 'مختلف', en: 'Changed' } }) } as import('../../../src/demo').ReviewOperation)
-    return { inspection, replay, changed }
-  }, command)
+    // Inspecting the uncertain attempt resolves it into the one committed outcome.
+    const inspection = await window.inspectOn(demo, command)
+    // Retrying the intent prepared before the write is stale and cannot repeat the effect.
+    const replay = await window.commitOn(demo, command, view)
+    return { inspection, replay, after: await demo.readApplication(command.applicationId) }
+  }, { command, view: aborted.before.ok ? aborted.before.value : undefined })
   expect(recovered.inspection).toMatchObject({ ok: true, value: { status: 'committed' } })
+  expect(recovered.replay).toMatchObject({ error: { kind: 'staleRecord' } })
   if (!recovered.inspection.ok || recovered.inspection.value.status !== 'committed') throw new Error('No receipt')
-  expect(recovered.replay).toEqual({ ok: true, value: recovered.inspection.value.result })
-  expect(recovered.changed).toMatchObject({ error: { kind: 'identifierMisuse' } })
+  expect(recovered.after).toEqual({ ok: true, value: recovered.inspection.value.result.application })
   const after = recovered.inspection.value.result.application as import('../../../src/demo/types').StaffView
   const before = aborted.before.ok ? aborted.before.value as import('../../../src/demo/types').StaffView : null
   expect(after.activity).toHaveLength(before!.activity.length + 1)
@@ -292,7 +304,7 @@ test('requires current evidence, a replacement reason and all accepted documents
   const result = await page.evaluate(async datasetId => {
     const demo = window.demo
     const applicationId = 'RIFD-2026-003'
-    await demo.execute({ kind: 'startReview', datasetId, applicationId, operationId: 'start', expectedSharedRevision: 1 })
+    await window.commitOn(demo, { kind: 'startReview', datasetId, applicationId })
     const before = await demo.readApplication(applicationId)
     if (!before.ok || before.value.role !== 'reviewer') throw new Error('No record')
     const base = { datasetId, applicationId, expectedSharedRevision: before.value.sharedRevision }
@@ -304,7 +316,7 @@ test('requires current evidence, a replacement reason and all accepted documents
       { ...base, kind: 'saveNote', operationId: 'empty-note', text: { ar: ' ', en: ' ' } },
     ]
     const outcomes = []
-    for (const command of commands) outcomes.push(await demo.execute(command))
+    for (const command of commands) outcomes.push(await window.commitOn(demo, command))
     return { before, outcomes, after: await demo.readApplication(applicationId) }
   }, datasetId)
   for (const outcome of result.outcomes) expect(outcome).toMatchObject({ ok: false, error: { kind: 'validation' } })
@@ -321,7 +333,7 @@ test('notes stay out of applicant reads, print and notifications and survive ref
     await demo.signIn('salma')
     const view = await demo.readApplication('RIFD-2026-005')
     if (!view.ok) throw new Error('No final record')
-    const saved = await demo.execute({ kind: 'saveNote', datasetId, applicationId: view.value.id, operationId: 'final-note', expectedSharedRevision: view.value.sharedRevision, text: { ar: 'خاص فقط', en: 'Staff-only secret' } })
+    const saved = await window.commitOn(demo, { kind: 'saveNote', datasetId, applicationId: view.value.id, text: { ar: 'خاص فقط', en: 'Staff-only secret' } })
     const staffPrint = await demo.readPrintSummary(view.value.id)
     await demo.signIn('mariam')
     return { before, saved, staffPrint, after: { application: await demo.readApplication(view.value.id), print: await demo.readPrintSummary(view.value.id), notifications: await demo.readNotifications() } }
@@ -351,10 +363,10 @@ test('expiry at transaction completion refuses notes and recovery never retries'
       request.addEventListener('success', () => demo.expireSession(), { once: true })
       return request
     }
-    const outcome = await demo.execute(command)
+    const outcome = await window.commitOn(demo, command)
     IDBObjectStore.prototype.put = put
     await demo.signIn('salma')
-    return { before: view, outcome, after: await demo.readApplication(view.value.id), inspection: await demo.inspectOperation(command) }
+    return { before: view, outcome, after: await demo.readApplication(view.value.id), inspection: await window.inspectOn(demo, command) }
   }, datasetId)
   expect(result.outcome).toMatchObject({ error: { kind: 'sessionExpired' } })
   expect(result.after).toEqual(result.before)
@@ -376,16 +388,16 @@ test('substantive failures cannot be overridden to Passed through the public com
       if (!file.ok) throw new Error('No evidence')
       documents[slot] = { kind: 'prepared', attachment: file.value }
     }
-    const submitted = await demo.execute({ kind: 'submit', datasetId, operationId: 'submit-ineligible', applicationId: draft.value.id, expectedSharedRevision: 1, expectedWorkspaceRevision: 0, fields, product: 'inventory', documents })
+    const submitted = await window.commitOn(demo, { kind: 'submit', datasetId, applicationId: draft.value.id, fields, product: 'inventory', documents })
     if (!submitted.ok) throw new Error('Structurally valid form refused')
     await demo.signIn('salma')
-    await demo.execute({ kind: 'claimApplication', datasetId, operationId: 'claim', applicationId: draft.value.id, expectedSharedRevision: 2 })
-    await demo.execute({ kind: 'startReview', datasetId, operationId: 'start', applicationId: draft.value.id, expectedSharedRevision: 3 })
+    await window.commitOn(demo, { kind: 'claimApplication', datasetId, applicationId: draft.value.id })
+    await window.commitOn(demo, { kind: 'startReview', datasetId, applicationId: draft.value.id })
     const before = await demo.readApplication(draft.value.id)
     const outcomes = []
-    for (const check of ['operatingHistory', 'budget', 'capacity'] as const) outcomes.push(await demo.execute({ kind: 'recordCheck', datasetId, operationId: check, applicationId: draft.value.id, expectedSharedRevision: 4, check, outcome: 'passed' }))
+    for (const check of ['operatingHistory', 'budget', 'capacity'] as const) outcomes.push(await window.commitOn(demo, { kind: 'recordCheck', datasetId, applicationId: draft.value.id, check, outcome: 'passed' }))
     const after = await demo.readApplication(draft.value.id)
-    const failed = await demo.execute({ kind: 'recordCheck', datasetId, operationId: 'record-failure', applicationId: draft.value.id, expectedSharedRevision: 4, check: 'capacity', outcome: 'failed' })
+    const failed = await window.commitOn(demo, { kind: 'recordCheck', datasetId, applicationId: draft.value.id, check: 'capacity', outcome: 'failed' })
     return { before, outcomes, after, failed }
   }, datasetId)
   for (const outcome of result.outcomes) expect(outcome).toMatchObject({ ok: false, error: { kind: 'validation' } })
@@ -394,34 +406,39 @@ test('substantive failures cannot be overridden to Passed through the public com
 })
 
 test('unsigned and applicant writes are refused, and reassignment invalidates an earlier review intent', async ({ page, context }) => {
-  const datasetId = await staff(page)
-  const command = await page.evaluate(async datasetId => {
+  await staff(page)
+  const command = await page.evaluate(async () => {
     const result = await window.demo.readApplication('RIFD-2026-007')
     if (!result.ok || result.value.role !== 'reviewer') throw new Error('No record')
-    return { kind: 'saveNote' as const, datasetId, applicationId: result.value.id, expectedSharedRevision: result.value.sharedRevision, operationId: 'held-note', text: { ar: 'خاص', en: 'Private' } }
-  }, datasetId)
+    return { kind: 'saveNote' as const, applicationId: result.value.id, text: { ar: 'خاص', en: 'Private' } }
+  })
   const denied = await page.evaluate(async command => {
     const demo = window.demo
     const before = await demo.readApplication(command.applicationId)
-    const wrongDataset = await demo.execute({ ...command, datasetId: crypto.randomUUID() })
+    if (!before.ok) throw new Error('No record')
     await demo.signOut()
-    const unsigned = await demo.execute(command)
+    const unsigned = await window.commitOn(demo, command)
+    const unsignedBorrowed = await window.commitOn(demo, command, before.value)
     await demo.signIn('mariam')
-    const owner = await demo.execute(command)
+    // The owner's own view cannot prepare a staff edit; a borrowed reviewer view still fails the actor check.
+    const owner = await window.commitOn(demo, command)
+    const ownerBorrowed = await window.commitOn(demo, command, before.value)
     await demo.signIn('huda')
-    const stranger = await demo.execute(command)
+    const stranger = await window.commitOn(demo, command)
     await demo.signIn('salma')
-    return { before, wrongDataset, unsigned, owner, stranger, after: await demo.readApplication(command.applicationId) }
+    return { before, unsigned, unsignedBorrowed, owner, ownerBorrowed, stranger, after: await demo.readApplication(command.applicationId) }
   }, command)
-  expect(denied.wrongDataset).toMatchObject({ error: { kind: 'supersededDataset' } })
   expect(denied.unsigned).toMatchObject({ error: { kind: 'sessionExpired' } })
-  expect(denied.owner).toMatchObject({ error: { kind: 'permissionDenied' } })
+  expect(denied.unsignedBorrowed).toMatchObject({ error: { kind: 'sessionExpired' } })
+  expect(denied.owner).toMatchObject({ error: { kind: 'invalidState' } })
+  expect(denied.ownerBorrowed).toMatchObject({ error: { kind: 'permissionDenied' } })
   expect(denied.stranger).toMatchObject({ error: { kind: 'unavailable' } })
   expect(denied.after).toEqual(denied.before)
   const second = await context.newPage()
   await staff(second)
-  expect(await second.evaluate(command => window.demo.execute({ kind: 'transferApplication', datasetId: command.datasetId, applicationId: command.applicationId, expectedSharedRevision: command.expectedSharedRevision, operationId: 'transfer', from: 'salma', to: 'khaled', confirmed: true }), command)).toMatchObject({ ok: true })
-  expect(await page.evaluate(command => window.demo.execute(command), command)).toMatchObject({ error: { kind: 'staleRecord' } })
-  expect(await page.evaluate(command => window.demo.execute({ ...command, operationId: 'new-note', expectedSharedRevision: command.expectedSharedRevision + 1 }), command)).toMatchObject({ error: { kind: 'permissionDenied' } })
-  expect(await page.evaluate(command => window.demo.inspectOperation(command), command)).toMatchObject({ ok: true, value: { status: 'notCommitted' } })
+  expect(await second.evaluate(command => window.commit({ kind: 'transferApplication', applicationId: command.applicationId, from: 'salma', to: 'khaled', confirmed: true }), command)).toMatchObject({ ok: true })
+  // The note prepared before the transfer is stale; a current intent is refused by assignment.
+  expect(await page.evaluate(({ command, view }) => window.commit(command, view), { command, view: denied.before.value })).toMatchObject({ error: { kind: 'staleRecord' } })
+  expect(await page.evaluate(command => window.commit(command), command)).toMatchObject({ error: { kind: 'permissionDenied' } })
+  expect(await page.evaluate(command => window.inspect(command), command)).toMatchObject({ ok: true, value: { status: 'notCommitted' } })
 })

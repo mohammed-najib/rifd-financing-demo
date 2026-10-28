@@ -24,12 +24,12 @@ test('the separate API harness compiles the production Tailwind theme, logical s
   }
 })
 
-test('language writes abort without a receipt, inspect uncertainty and survive failed notices', async ({ page }) => {
+test('language writes abort without a receipt, inspect uncertainty and refuse repeated revisions', async ({ page }) => {
   await page.goto('/tests/browser/support/api.html')
   await page.waitForFunction(() => window.demo)
   const startup = await page.evaluate(() => window.demo.startup())
   if (!startup.ok) throw new Error('No startup')
-  const command = { kind: 'setLanguage' as const, datasetId: startup.value.datasetId, operationId: 'language-recovery', expectedRevision: 1, language: 'en' as const }
+  const command = { kind: 'setLanguage' as const, expectedRevision: 1, language: 'en' as const }
   await page.evaluate(() => {
     const put = IDBObjectStore.prototype.put
     IDBObjectStore.prototype.put = function (...args: Parameters<IDBObjectStore['put']>) {
@@ -39,19 +39,23 @@ test('language writes abort without a receipt, inspect uncertainty and survive f
       return request
     }
   })
-  expect(await page.evaluate(command => window.demo.execute(command), command)).toMatchObject({ error: { kind: 'storage' } })
-  expect(await page.evaluate(command => window.demo.inspectPreferenceOperation(command), command)).toMatchObject({ value: { status: 'notCommitted', context: { preferences: startup.value.preferences } } })
+  expect(await page.evaluate(command => window.commit(command), command)).toMatchObject({ error: { kind: 'storage' } })
+  expect(await page.evaluate(command => window.inspectPreference(command), command)).toMatchObject({ value: { status: 'notCommitted', context: { preferences: startup.value.preferences } } })
   await page.evaluate(loseNextWriteCompletion)
-  expect(await page.evaluate(command => window.demo.execute(command), command)).toMatchObject({ error: { kind: 'outcomeUnknown' } })
-  const recovered = await page.evaluate(async command => ({ inspection: await window.demo.inspectPreferenceOperation(command), replay: await window.demo.execute(command), misuse: await window.demo.execute({ ...command, language: 'ar' }) }), command)
-  expect(recovered.replay).toMatchObject({ ok: true, value: { preferences: { revision: 2, language: 'en' } } })
-  expect(recovered.inspection).toMatchObject({ value: { status: 'committed', context: recovered.replay.ok ? recovered.replay.value : null } })
-  expect(recovered.misuse).toMatchObject({ error: { kind: 'identifierMisuse' } })
+  expect(await page.evaluate(command => window.commit(command), command)).toMatchObject({ error: { kind: 'outcomeUnknown' } })
+  const recovered = await page.evaluate(async command => ({ inspection: await window.inspectPreference(command), replay: await window.commit(command), misuse: await window.commit({ ...command, language: 'ar' }) }), command)
+  expect(recovered.replay).toMatchObject({ ok: false, error: { kind: 'stalePreference' } })
+  expect(recovered.inspection).toMatchObject({ ok: true, value: { status: 'committed', context: { preferences: { revision: 2, language: 'en' } } } })
+  // The store mints the operation id, so editing the intent is a stale write,
+  // not identifier misuse.
+  expect(recovered.misuse).toMatchObject({ ok: false, error: { kind: 'stalePreference' } })
   await page.evaluate(refuseCommitNotices)
-  const next = { ...command, operationId: 'language-notices', expectedRevision: 2, language: 'ar' as const }
-  const committed = await page.evaluate(command => window.demo.execute(command), next)
+  const next = { ...command, expectedRevision: 2, language: 'ar' as const }
+  const committed = await page.evaluate(command => window.commit(command), next)
   expect(committed).toMatchObject({ ok: true, value: { preferences: { revision: 3, language: 'ar' } } })
-  expect(await page.evaluate(command => window.demo.execute(command), next)).toEqual(committed)
+  // Replaying the written-out revision is refused: the receipt is not resent.
+  expect(await page.evaluate(command => window.commit(command), next)).toMatchObject({ ok: false, error: { kind: 'stalePreference' } })
+  expect(await page.evaluate(() => window.demo.context())).toMatchObject({ ok: true, value: { preferences: { revision: 3, language: 'ar' } } })
 })
 
 test('startup seeds the canonical own-applicant and staff projections', async ({ page }) => {
@@ -114,7 +118,7 @@ test('saved language and tab-local identity restore while unauthorized reads sta
     await demo.signIn('huda')
     const ctx = await demo.context()
     if (!ctx.ok) throw new Error('No context')
-    const language = await demo.execute({ kind: 'setLanguage', datasetId: ctx.value.datasetId, operationId: 'language-1', expectedRevision: ctx.value.preferences.revision, language: 'en' })
+    const language = await window.commitOn(demo, { kind: 'setLanguage', expectedRevision: ctx.value.preferences.revision, language: 'en' })
     const correction = await demo.readApplication('RIFD-2026-004')
     const other = await demo.readApplication('RIFD-2026-002')
     const missing = await demo.readApplication('missing')
@@ -186,26 +190,32 @@ test('actual saved PNG, JPEG and multipage PDF bytes survive refresh and remain 
   expect(restored.forbidden).toMatchObject({ ok: false, error: { kind: 'unavailable' } })
 })
 
-test('concurrent startup seeds once and competing language writes require inspection', async ({ page, context }) => {
+test('concurrent startup seeds once and competing language writes require a fresh revision', async ({ page, context }) => {
   const second = await context.newPage()
   await Promise.all([page.goto('/tests/browser/support/api.html'), second.goto('/tests/browser/support/api.html')])
   await Promise.all([page.waitForFunction(() => window.demo), second.waitForFunction(() => window.demo)])
   const starts = await Promise.all([page.evaluate(() => window.demo.startup()), second.evaluate(() => window.demo.startup())])
   if (!starts[0].ok || !starts[1].ok) throw new Error('Startup failed')
   expect(starts[0].value.datasetId).toBe(starts[1].value.datasetId)
-  const operation = { kind: 'setLanguage' as const, datasetId: starts[0].value.datasetId, operationId: 'same-intent', expectedRevision: 1, language: 'en' as const }
+  const operation = { kind: 'setLanguage' as const, expectedRevision: 1, language: 'en' as const }
   const writes = await Promise.all([
-    page.evaluate(input => window.demo.execute(input), operation),
-    second.evaluate(input => window.demo.execute(input), { ...operation, operationId: 'competing-intent' }),
+    page.evaluate(input => window.commit(input), operation),
+    second.evaluate(input => window.commit(input), operation),
   ])
   expect(writes.filter(write => write.ok)).toHaveLength(1)
   expect(writes.filter(write => !write.ok)).toEqual([{ ok: false, error: { kind: 'stalePreference', key: 'error.stalePreference' } }])
   const winner = writes[0].ok ? page : second
-  const intent = writes[0].ok ? operation : { ...operation, operationId: 'competing-intent' }
-  const replay = await winner.evaluate(input => window.demo.execute(input), intent)
-  expect(replay).toMatchObject({ ok: true, value: { preferences: { revision: 2, language: 'en' } } })
-  const misuse = await winner.evaluate(input => window.demo.execute({ ...input, language: 'ar' }), intent)
-  expect(misuse).toMatchObject({ ok: false, error: { kind: 'identifierMisuse' } })
+  const repeat = await winner.evaluate(input => window.commit(input), operation)
+  // The written-out revision is stale and the store does not replay by
+  // operation id, so neither the same intent nor an edit commits again.
+  expect(repeat).toMatchObject({ ok: false, error: { kind: 'stalePreference' } })
+  expect(await winner.evaluate(input => window.commit({ ...input, language: 'ar' }), operation)).toMatchObject({ ok: false, error: { kind: 'stalePreference' } })
+  const revised = await winner.evaluate(async input => {
+    const context = await window.demo.context()
+    if (!context.ok) throw new Error('No context')
+    return window.commit({ ...input, expectedRevision: context.value.preferences.revision, language: 'ar' })
+  }, operation)
+  expect(revised).toMatchObject({ ok: true, value: { preferences: { revision: 3, language: 'ar' } } })
   const records = await page.evaluate(async () => { await window.demo.signIn('salma'); return window.demo.listApplications() })
   expect(records.ok && records.value).toHaveLength(12)
 })

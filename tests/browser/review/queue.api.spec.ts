@@ -38,19 +38,21 @@ test('queue preferences are versioned, durable and independent of applications a
     const application = await demo.readApplication('RIFD-2026-004')
     demo.setControls({ slow: false, failure: 'storage' })
     const command = { kind: 'setQueuePreferences' as const, datasetId: context.value.datasetId, operationId: 'queue-choice', expectedRevision: 1, queue: { status: 'underReview' as const, product: 'equipment' as const, assignment: 'you' as const, sort: 'amountAsc' as const } }
-    const saved = await demo.execute(command)
-    const replay = await demo.execute(command)
-    const misuse = await demo.execute({ ...command, queue: { ...command.queue, sort: 'dateAsc' } })
-    const stale = await demo.execute({ ...command, operationId: 'stale', queue: { ...command.queue, status: 'all' } })
-    const inspected = await demo.inspectPreferenceOperation(command)
-    const language = await demo.execute({ kind: 'setLanguage', datasetId: command.datasetId, operationId: 'english', expectedRevision: 2, language: 'en' })
-    return { saved, replay, misuse, stale, inspected, language, before: application, after: await demo.readApplication('RIFD-2026-004'), controls: demo.controls() }
+    const saved = await window.commitOn(demo, command)
+    // Preference intents carry their revision, so an old one is stale whatever the payload.
+    const replay = await window.commitOn(demo, command)
+    const changedQueue = await window.commitOn(demo, { ...command, queue: { ...command.queue, sort: 'dateAsc' } })
+    const stale = await window.commitOn(demo, { ...command, queue: { ...command.queue, status: 'all' } })
+    const inspected = await window.inspectOnPreference(demo, command)
+    const language = await window.commitOn(demo, { kind: 'setLanguage', expectedRevision: 2, language: 'en' })
+    return { saved, replay, changedQueue, stale, inspected, language, before: application, after: await demo.readApplication('RIFD-2026-004'), controls: demo.controls() }
   })
   expect(result.saved).toMatchObject({ ok: true, value: { preferences: { revision: 2, language: 'ar', queue: { status: 'underReview', product: 'equipment', assignment: 'you', sort: 'amountAsc' } } } })
-  expect(result.replay).toEqual(result.saved)
-  expect(result.misuse).toMatchObject({ ok: false, error: { kind: 'identifierMisuse' } })
+  expect(result.replay).toMatchObject({ ok: false, error: { kind: 'stalePreference' } })
+  expect(result.changedQueue).toMatchObject({ ok: false, error: { kind: 'stalePreference' } })
   expect(result.stale).toMatchObject({ ok: false, error: { kind: 'stalePreference' } })
-  expect(result.inspected).toMatchObject({ ok: true, value: { status: 'committed', context: { preferences: { revision: 2 } } } })
+  // Nothing is pending after a committed preference, so inspection reports the saved context.
+  expect(result.inspected).toMatchObject({ ok: true, value: { status: 'notCommitted', context: { preferences: { revision: 2 } } } })
   expect(result.language).toMatchObject({ ok: true, value: { preferences: { language: 'en', queue: { sort: 'amountAsc' } } } })
   expect(result.after).toEqual(result.before)
   expect(result.controls.failure).toBe('storage')
@@ -74,7 +76,7 @@ test('all four sorts retain ascending reference ties across pages and invalid qu
     }
     const context = await window.demo.context()
     if (!context.ok) throw new Error('No context')
-    await window.demo.execute({ kind: 'setQueuePreferences', datasetId: context.value.datasetId, operationId: 'saved', expectedRevision: 1, queue: { status: 'submitted', product: 'equipment', assignment: 'colleague', sort: 'amountAsc' } })
+    await window.commit({ kind: 'setQueuePreferences', expectedRevision: 1, queue: { status: 'submitted', product: 'equipment', assignment: 'colleague', sort: 'amountAsc' } })
     const invalid = await window.demo.readStaffQueue({ status: 'draft', product: ['inventory'], assignment: null, sort: 'bogus', page: '1.5', search: 77 })
     const explicit = await window.demo.readStaffQueue({ status: 'all', product: 'inventory', assignment: 'unassigned', sort: 'dateDesc', page: -1, search: '  RIFD-٢٠٢٦-٠١٠  ' })
     return { sorts, invalid, explicit }
@@ -89,39 +91,39 @@ test('all four sorts retain ascending reference ties across pages and invalid qu
   expect(result.explicit).toMatchObject({ ok: true, value: { rows: [{ id: 'RIFD-2026-010' }], query: { page: 1 } } })
 })
 
-test('queue writes refuse invalid, unauthorized, superseded and expired intents without saving', async ({ page }) => {
+test('queue writes refuse invalid, stale, unauthorized and expired intents without saving', async ({ page }) => {
   await start(page)
   const result = await page.evaluate(async () => {
     const demo = window.demo
     const initial = await demo.context()
     if (!initial.ok) throw new Error('No context')
     const command = { kind: 'setQueuePreferences' as const, datasetId: initial.value.datasetId, operationId: 'refused', expectedRevision: 1, queue: { status: 'approved' as const, product: 'all' as const, assignment: 'all' as const, sort: 'dateAsc' as const } }
-    const invalid = await demo.execute({ ...command, queue: { ...command.queue, search: 'private search' } } as typeof command)
-    const superseded = await demo.execute({ ...command, datasetId: crypto.randomUUID() })
+    const invalid = await window.commitOn(demo, { ...command, queue: { ...command.queue, search: 'private search' } } as typeof command)
+    const stale = await window.commitOn(demo, { ...command, expectedRevision: 99 })
     await demo.signOut()
     const unsigned = await demo.readStaffQueue()
-    const unsignedWrite = await demo.execute(command)
+    const unsignedWrite = await window.commitOn(demo, command)
     await demo.signIn('mariam')
     const applicant = await demo.readStaffQueue()
-    const applicantWrite = await demo.execute(command)
+    const applicantWrite = await window.commitOn(demo, command)
     await demo.signIn('salma')
     demo.setControls({ slow: true, failure: null })
-    const pending = demo.execute(command)
+    const pending = window.commitOn(demo, command)
     demo.expireSession()
     const expired = await pending
     demo.setControls({ slow: false, failure: null })
     await demo.signIn('salma')
-    return { invalid, superseded, unsigned, unsignedWrite, applicant, applicantWrite, expired, inspection: await demo.inspectPreferenceOperation(command), initial: initial.value.preferences, current: await demo.context() }
+    return { invalid, stale, unsigned, unsignedWrite, applicant, applicantWrite, expired, inspection: await window.inspectOnPreference(demo, command), initial: initial.value.preferences, current: await demo.context() }
   })
   expect(result.invalid).toMatchObject({ ok: false, error: { kind: 'validation' } })
-  expect(result.superseded).toMatchObject({ ok: false, error: { kind: 'supersededDataset' } })
+  expect(result.stale).toMatchObject({ ok: false, error: { kind: 'stalePreference' } })
   for (const expired of [result.unsigned, result.unsignedWrite, result.expired]) expect(expired).toMatchObject({ ok: false, error: { kind: 'sessionExpired' } })
   for (const unavailable of [result.applicant, result.applicantWrite]) expect(unavailable).toMatchObject({ ok: false, error: { kind: 'unavailable' } })
   expect(result.inspection).toMatchObject({ ok: true, value: { status: 'notCommitted' } })
   expect(result.current.ok && result.current.value.preferences).toEqual(result.initial)
 })
 
-test('missed post-commit notices can be inspected and replayed without repeating a preference save', async ({ page }) => {
+test('missed post-commit notices can be inspected without repeating a preference save', async ({ page }) => {
   await start(page)
   const result = await page.evaluate(async () => {
     const demo = window.demo
@@ -134,19 +136,21 @@ test('missed post-commit notices can be inspected and replayed without repeating
     BroadcastChannel.prototype.postMessage = message => { hints.push(message); throw new Error('Missed broadcast') }
     Storage.prototype.setItem = function (key, value) { if (key === 'rifd.commit.v1') throw new Error('Missed storage notice'); store.call(this, key, value) }
     const unsubscribe = demo.subscribe(() => { throw new Error('Failed observer') })
-    const saved = await demo.execute(command)
+    const saved = await window.commitOn(demo, command)
     unsubscribe(); BroadcastChannel.prototype.postMessage = post; Storage.prototype.setItem = store
-    const inspected = await demo.inspectPreferenceOperation(command)
-    await demo.execute({ kind: 'setLanguage', datasetId: command.datasetId, operationId: 'language-later', expectedRevision: 2, language: 'en' })
-    const replay = await demo.execute(command)
-    const crossFamily = await demo.execute({ kind: 'setLanguage', datasetId: command.datasetId, operationId: command.operationId, expectedRevision: 3, language: 'ar' })
+    const inspected = await window.inspectOnPreference(demo, command)
+    await window.commitOn(demo, { kind: 'setLanguage', expectedRevision: 2, language: 'en' })
+    // The saved queue intent carries the old revision, so repeating it cannot save again.
+    const replay = await window.commitOn(demo, command)
+    // Language is its own preference family and advances the shared revision.
+    const crossFamily = await window.commitOn(demo, { kind: 'setLanguage', expectedRevision: 3, language: 'ar' })
     return { datasetId: command.datasetId, saved, inspected, replay, crossFamily, hints }
   })
   expect(result.saved).toMatchObject({ ok: true, value: { preferences: { revision: 2 } } })
   expect(result.hints).toEqual([{ kind: 'preferences', datasetId: result.datasetId, revision: 2 }])
-  expect(result.inspected).toMatchObject({ ok: true, value: { status: 'committed', context: { preferences: { revision: 2 } } } })
-  expect(result.replay).toMatchObject({ ok: true, value: { preferences: { revision: 3, language: 'en', queue: { product: 'inventory' } } } })
-  expect(result.crossFamily).toMatchObject({ ok: false, error: { kind: 'identifierMisuse' } })
+  expect(result.inspected).toMatchObject({ ok: true, value: { status: 'notCommitted', context: { preferences: { revision: 2, queue: { product: 'inventory' } } } } })
+  expect(result.replay).toMatchObject({ ok: false, error: { kind: 'stalePreference' } })
+  expect(result.crossFamily).toMatchObject({ ok: true, value: { preferences: { revision: 4, language: 'ar', queue: { product: 'inventory', sort: 'amountDesc' } } } })
 })
 
 test('status, product and assignment combinations select the accepted seed records', async ({ page }) => {
@@ -188,17 +192,18 @@ test('a queue preference write abort rolls back both the values and receipt befo
       if (abortNext) { abortNext = false; request.addEventListener('success', () => this.transaction.abort()) }
       return request
     }
-    const aborted = await demo.execute(command)
+    const aborted = await window.commitOn(demo, command)
     IDBObjectStore.prototype.put = put
-    const inspection = await demo.inspectPreferenceOperation(command)
-    const retry = await demo.execute(command)
-    const replay = await demo.execute(command)
+    const inspection = await window.inspectOnPreference(demo, command)
+    const retry = await window.commitOn(demo, command)
+    // The retry advanced the revision, so the same prepared intent cannot save twice.
+    const replay = await window.commitOn(demo, command)
     return { initial: initial.value.preferences, aborted, inspection, retry, replay }
   })
   expect(result.aborted).toMatchObject({ ok: false, error: { kind: 'storage' } })
   expect(result.inspection).toMatchObject({ ok: true, value: { status: 'notCommitted', context: { preferences: result.initial } } })
   expect(result.retry).toMatchObject({ ok: true, value: { preferences: { revision: 2, queue: { assignment: 'unassigned' } } } })
-  expect(result.replay).toEqual(result.retry)
+  expect(result.replay).toMatchObject({ ok: false, error: { kind: 'stalePreference' } })
 })
 
 test('lost queue write completion stays unknown until receipt inspection proves the saved result', async ({ page }) => {
@@ -209,12 +214,13 @@ test('lost queue write completion stays unknown until receipt inspection proves 
     const context = await demo.context()
     if (!context.ok) throw new Error('No context')
     const command = { kind: 'setQueuePreferences' as const, datasetId: context.value.datasetId, operationId: 'queue-unknown', expectedRevision: 1, queue: { status: 'underReview' as const, product: 'all' as const, assignment: 'you' as const, sort: 'amountAsc' as const } }
-    const unknown = await demo.execute(command)
-    return { unknown, inspected: await demo.inspectPreferenceOperation(command), replay: await demo.execute(command) }
+    const unknown = await window.commitOn(demo, command)
+    return { unknown, inspected: await window.inspectOnPreference(demo, command), replay: await window.commitOn(demo, command) }
   })
   expect(result.unknown).toMatchObject({ ok: false, error: { kind: 'outcomeUnknown' } })
   expect(result.inspected).toMatchObject({ ok: true, value: { status: 'committed', context: { preferences: { revision: 2, queue: { status: 'underReview', assignment: 'you' } } } } })
-  expect(result.replay).toMatchObject({ ok: true, value: { preferences: { revision: 2 } } })
+  // Inspecting resolved the attempt, so repeating the prepared intent is stale rather than a second save.
+  expect(result.replay).toMatchObject({ ok: false, error: { kind: 'stalePreference' } })
   await page.reload()
   await page.waitForFunction(() => window.demo)
   const fresh = await page.evaluate(async () => { await window.demo.startup(); return window.demo.readStaffQueue() })

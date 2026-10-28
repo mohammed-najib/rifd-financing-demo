@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
-import type { Demo, ErrorKind, ReviewOperation } from '../../demo'
+import type { Demo, ErrorKind, ReviewIntent } from '../../demo'
 import type { StaffView } from '../../demo/types'
 import type { Language } from '../../domain/model'
 import type { Departure } from '../shared/departure'
 import { assignmentText } from './assignment-copy'
 import { errors } from '../i18n'
 
-type Transfer = Extract<ReviewOperation, { kind: 'transferApplication' }>
+type TransferIntent = Extract<ReviewIntent, { kind: 'transferApplication' }>
+type Pending = { intent: TransferIntent; base: StaffView }
 const copy = {
   heading: { ar: 'تجربة تعارض المراجعة', en: 'Review conflict demo' },
   simulate: { ar: 'محاكاة إسناد الطلب إلى خالد', en: 'Simulate reassignment to Khaled' },
@@ -14,11 +15,11 @@ const copy = {
   held: { ar: 'بقي هذا العرض قديمًا. جرّب إجراء مراجعة، ثم حمّل الأحدث. سيبقى النص غير المطبق. استرد الطلب بتأكيد النقل وافحصه قبل اختيار إجراء جديد.', en: 'This view is held stale. Try a staff action, then Load latest. Unapplied text will remain. Confirm reclaim and inspect the current record before choosing a new action.' },
 } as const
 
-export function StaleWriteControl({ demo, datasetId, view, language, hold, release, changed, departure }: {
-  demo: Demo; datasetId: string; view: StaffView; language: Language;
+export function StaleWriteControl({ demo, view, language, hold, release, changed, departure }: {
+  demo: Demo; view: StaffView; language: Language;
   hold: () => void; release: () => void; changed: (view: StaffView) => void; departure: (work: Departure | null) => void;
 }) {
-  const [command, setCommand] = useState<Transfer | null>(null)
+  const [command, setCommand] = useState<Pending | null>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<ErrorKind | null>(null)
   const alive = useRef(true)
@@ -29,28 +30,34 @@ export function StaleWriteControl({ demo, datasetId, view, language, hold, relea
     departureRef.current({ dirty: false, pending: busy || error === 'outcomeUnknown', discard: () => {} })
   }, [busy, error])
   useEffect(() => {
-    if (command && command.expectedSharedRevision !== view.sharedRevision) { setCommand(null); setError(null) }
+    if (command && command.base.sharedRevision !== view.sharedRevision) { setCommand(null); setError(null) }
   }, [command, view.sharedRevision])
   const simulate = async () => {
-    const intent: Transfer = { kind: 'transferApplication', datasetId, applicationId: view.id, expectedSharedRevision: view.sharedRevision, operationId: crypto.randomUUID(), from: 'salma', to: 'khaled', confirmed: true, simulated: true }
-    hold(); setCommand(intent); setBusy(true); setError(null)
-    const result = await demo.execute(intent)
+    hold()
+    const pending = { base: view, intent: { kind: 'transferApplication' as const, applicationId: view.id, from: 'salma' as const, to: 'khaled' as const, confirmed: true as const, simulated: true as const } }
+    setCommand(pending); setBusy(true); setError(null)
+    const result = await demo.attempt(pending.intent, pending.base)
     if (!alive.current) return
     setBusy(false)
     if (!result.ok) {
       setError(result.error.kind)
-      if (result.error.kind !== 'outcomeUnknown') release()
+      release()
+      return
     }
+    const outcome = result.value
+    if (outcome.status === 'unknown') { setError('outcomeUnknown'); return }
+    if (outcome.status !== 'committed') { setError(outcome.status === 'stale' ? outcome.cause : 'requestFailed'); release() }
   }
   const inspect = async () => {
     if (!command) return
     setBusy(true)
-    const result = await demo.inspectOperation(command)
+    const result = await demo.inspectAttempt(command.intent, command.base)
     if (!alive.current) return
     setBusy(false)
     if (!result.ok) { setError(result.error.kind); return }
     setError(null)
-    if (result.value.status === 'notCommitted' && result.value.application.role === 'reviewer') { setCommand(null); changed(result.value.application) }
+    const outcome = result.value
+    if (outcome.status !== 'committed' && 'latest' in outcome && outcome.latest && 'role' in outcome.latest && outcome.latest.role === 'reviewer') { setCommand(null); changed(outcome.latest) }
   }
   if (!command && !(view.status === 'underReview' && view.assignedToYou)) return null
   return <section className="summary mb-6" aria-labelledby="conflict-demo-heading" aria-busy={busy}>

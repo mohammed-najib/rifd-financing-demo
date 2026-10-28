@@ -85,7 +85,7 @@ test('a saved source restores exact attachment offline and pending reads lose au
     if (!attachment.ok) throw new Error('Preparation failed')
     const documents = Object.fromEntries(Object.entries(view.value.workspace!.snapshot.documents).map(([slot, fileId]) => [slot, { kind: 'saved', fileId }])) as import('../../../src/demo').DraftDocuments
     documents.identity = { kind: 'prepared', attachment: attachment.value }
-    const saved = await demo.execute({ kind: 'saveDraft', datasetId: context.value.datasetId, applicationId: view.value.id, operationId: 'save-checked-source', expectedWorkspaceRevision: view.value.workspace!.revision, fields: { ...view.value.workspace!.snapshot.fields, fullName: 'Mira Vale Fictional 570' }, product: view.value.product, documents })
+    const saved = await window.commitOn(demo, { kind: 'saveDraft', applicationId: view.value.id, fields: { ...view.value.workspace!.snapshot.fields, fullName: 'Mira Vale Fictional 570' }, product: view.value.product, documents })
     if (!saved.ok) throw new Error(saved.error.kind)
   })
   await page.reload()

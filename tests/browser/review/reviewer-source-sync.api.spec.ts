@@ -19,7 +19,7 @@ test('a held reviewer screen removes its old source after another session publis
     const other = createDemo({ latency: 50, verifyStoredFiles: false, loadFonts: false, includeOversizedSample: false, compactEvidence: true }); await other.startup()
     await requestIdentityCorrection(other)
     const attachment = await prepareCorrectionIdentity(other, await imageFile('image/png'))
-    const result = await other.execute(await correctionCommand(other, {}, attachment, 'resubmit'))
+    const result = await window.commitOn(other, await correctionCommand(other, {}, attachment, 'resubmit'))
     if (!result.ok) throw new Error(result.error.kind)
     other.dispose()
   })

@@ -246,7 +246,7 @@ test('reset fences old completions before cleanup and recovers an interrupted an
     }
     const observed = await demo.inspectReset()
     if (!observed.ok) throw new Error('reset context')
-    const reset = await demo.execute({ kind: 'resetDemo', context: observed.value, confirmed: true, operationId: crypto.randomUUID() })
+    const reset = await window.commitOn(demo, { kind: 'resetDemo', context: observed.value, confirmed: true })
     release(nativeIdentity()); await pending
     const end = Date.now() + 5000
     while (demo.analysisAvailability().cleanup === 'pending' && Date.now() < end) await new Promise(resolve => setTimeout(resolve, 10))

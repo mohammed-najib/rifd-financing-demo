@@ -126,22 +126,22 @@ test('business tasks share correction permissions and reviewer definitions witho
     const draft = await saveBusiness({ explanation: 'Purchase fictional supplies for the shop shelves.' }, attachment)
     if (draft.application.role !== 'applicant' || !draft.application.workspace) throw new Error('draft')
     const draftDocuments = Object.fromEntries(Object.entries(draft.application.snapshot.documents).map(([slot, fileId]) => [slot, { kind: 'saved', fileId }])) as import('../../../src/demo').DraftDocuments
-    const published = await demo.execute({ kind: 'submit', datasetId, applicationId, operationId: crypto.randomUUID(), expectedWorkspaceRevision: draft.application.workspace.revision, expectedSharedRevision: draft.application.sharedRevision, product: draft.application.product, fields: draft.application.snapshot.fields, documents: draftDocuments })
+    const published = await window.commitOn(demo, { kind: 'submit', datasetId, applicationId, product: draft.application.product, fields: draft.application.snapshot.fields, documents: draftDocuments })
     if (!published.ok) throw new Error(published.error.kind)
     const reviewerInput = { action: 'find-supporting-evidence', applicationId, slot: 'business', audience: 'reviewer', context: 'submitted' } as const
     await demo.signIn('salma')
-    const claimed = await demo.execute({ kind: 'claimApplication', datasetId, applicationId, operationId: crypto.randomUUID(), expectedSharedRevision: published.value.application.sharedRevision })
+    const claimed = await window.commitOn(demo, { kind: 'claimApplication', datasetId, applicationId })
     if (!claimed.ok) throw new Error(claimed.error.kind)
-    const started = await demo.execute({ kind: 'startReview', datasetId, applicationId, operationId: crypto.randomUUID(), expectedSharedRevision: claimed.value.application.sharedRevision })
+    const started = await window.commitOn(demo, { kind: 'startReview', datasetId, applicationId })
     if (!started.ok) throw new Error(started.error.kind)
     const reviewer = demo.createEvidenceAssistance(reviewerInput); await reviewer.run(); const original = reviewer.read()
     const staff = await demo.readApplication(applicationId)
     if (!staff.ok || staff.value.role !== 'reviewer') throw new Error('staff')
-    const note = await demo.execute({ kind: 'saveNote', datasetId, applicationId, operationId: crypto.randomUUID(), expectedSharedRevision: staff.value.sharedRevision, text: { ar: 'ملاحظة مستقلة للمراجع', en: 'Unrelated private reviewer note' } })
+    const note = await window.commitOn(demo, { kind: 'saveNote', datasetId, applicationId, text: { ar: 'ملاحظة مستقلة للمراجع', en: 'Unrelated private reviewer note' } })
     if (!note.ok) throw new Error(note.error.kind)
     await reviewer.refresh(); const afterNote = reviewer.read(); reviewer.dispose()
     const targets = [{ kind: 'document' as const, slot: 'business' as const, reason: { ar: 'استبدل إثبات النشاط غير الواضح.', en: 'Replace the unclear business evidence.' } }, { kind: 'field' as const, field: 'address' as const, reason: { ar: 'صحح عنوان النشاط.', en: 'Correct the business address.' } }]
-    const requested = await demo.execute({ kind: 'requestCorrections', datasetId, applicationId, operationId: crypto.randomUUID(), expectedSharedRevision: note.value.application.sharedRevision, confirmed: true, targets })
+    const requested = await window.commitOn(demo, { kind: 'requestCorrections', datasetId, applicationId, confirmed: true, targets })
     if (!requested.ok) throw new Error(requested.error.kind)
     await demo.signIn('mariam')
     const before = await demo.readApplication(applicationId)
@@ -157,7 +157,7 @@ test('business tasks share correction permissions and reviewer definitions witho
       denied.push(await forged.inspect()); forged.dispose()
     }
     const documents = Object.fromEntries(Object.entries(workspace.snapshot.documents).map(([slot, fileId]) => [slot, { kind: 'saved', fileId }])) as import('../../../src/demo').DraftDocuments
-    const saved = await demo.execute({ kind: 'saveCorrections', datasetId, applicationId, operationId: crypto.randomUUID(), roundId: workspace.roundId!, expectedWorkspaceRevision: workspace.revision, product: before.value.product, fields: { ...fields, address: declaredBusiness.address }, documents })
+    const saved = await window.commitOn(demo, { kind: 'saveCorrections', datasetId, applicationId, roundId: workspace.roundId!, product: before.value.product, fields: { ...fields, address: declaredBusiness.address }, documents })
     if (!saved.ok) throw new Error(saved.error.kind)
     await demo.signIn('salma')
     const submitted = demo.createEvidenceAssistance(reviewerInput); await submitted.run()

@@ -11,9 +11,9 @@ async function openSubmission(page: Page) {
     const context = await demo.signIn('mariam')
     const draft = await demo.readApplication('RIFD-2026-001')
     if (!context.ok || !draft.ok || draft.value.role !== 'applicant' || !draft.value.workspace) throw new Error('No draft')
+    window.datasetId = context.value.datasetId
     window.submitCommand = {
-      kind: 'submit', datasetId: context.value.datasetId, operationId: 'submit-1', applicationId: draft.value.id,
-      expectedWorkspaceRevision: draft.value.workspace.revision, expectedSharedRevision: draft.value.sharedRevision,
+      kind: 'submit', applicationId: draft.value.id,
       product: draft.value.product, fields: { ...draft.value.snapshot.fields, explanation: 'Purchase stock for this fictional retail business.' },
       documents: Object.fromEntries(Object.entries(draft.value.snapshot.documents).map(([slot, fileId]) => [slot, { kind: 'saved', fileId }])) as import('../../../src/demo').DraftDocuments,
     }
@@ -25,26 +25,28 @@ test('submission publishes captured fields and files once, retires the workspace
   const before = await openSubmission(page)
   const result = await page.evaluate(async () => {
     const demo = window.demo
-    const prepared = await demo.prepareAttachment({ datasetId: window.submitCommand.datasetId, applicationId: window.submitCommand.applicationId, slot: 'purchase', selectionId: 'purchase', source: { kind: 'local', file: new File(['fictional publication bytes'], 'DEMO.png', { type: 'image/png' }) } })
+    const prepared = await demo.prepareAttachment({ datasetId: window.datasetId, applicationId: window.submitCommand.applicationId, slot: 'purchase', selectionId: 'purchase', source: { kind: 'local', file: new File(['fictional publication bytes'], 'DEMO.png', { type: 'image/png' }) } })
     if (!prepared.ok) throw new Error('Preparation failed')
     window.submitCommand.documents.purchase = { kind: 'prepared', attachment: prepared.value }
     const command = structuredClone(window.submitCommand)
-    const submitting = demo.execute(window.submitCommand)
+    const submitting = window.commitOn(demo, window.submitCommand)
     window.submitCommand.fields.explanation = 'Later typing cannot change the captured publication.'
     const submitted = await submitting
-    const replay = await demo.execute(command)
+    const repeat = await window.commitOn(demo, command)
     const notices = await demo.readNotifications()
     await demo.signIn('salma')
     const staff = await demo.readApplication(command.applicationId)
     const queue = await demo.listApplications()
     await demo.signIn('mariam')
-    return { submitted, replay, staff, queue, notices, command }
+    return { submitted, repeat, staff, queue, notices, command }
   })
   expect(result.submitted).toMatchObject({ ok: true, value: {
     receipt: { kind: 'submit', sharedRevision: 2, workspaceRevision: 2 },
     application: { status: 'submitted', submittedAt: '2026-10-14', workspace: null, evidenceMonths: ['2026-07', '2026-08', '2026-09'], snapshot: { fields: { explanation: 'Purchase stock for this fictional retail business.' } }, history: [{ kind: 'submitted', date: '2026-10-14', reason: null }] },
   } })
-  expect(result.replay).toEqual(result.submitted)
+  // Repeating the intent after publication is a new attempt refused by state, not
+  // a receipt replay: the single submission keeps one history entry and notice.
+  expect(result.repeat).toMatchObject({ ok: false, error: { kind: 'invalidState' } })
   expect(result.notices.ok && result.notices.value).toHaveLength(1)
   expect(result.staff).toMatchObject({ ok: true, value: { assignment: null, assignedToYou: false, assessments: { identity: { status: 'awaitingReview' }, business: { status: 'awaitingReview' }, financial: { status: 'awaitingReview' }, purchase: { status: 'awaitingReview' } }, checks: { evidence: 'unchecked', operatingHistory: 'unchecked', purpose: 'unchecked', budget: 'unchecked', capacity: 'unchecked' }, activity: [{ kind: 'submitted' }] } })
   expect(result.staff.ok && 'workspace' in result.staff.value).toBe(false)
@@ -56,14 +58,25 @@ test('submission publishes captured fields and files once, retires the workspace
   await page.waitForFunction(() => window.demo)
   const restored = await page.evaluate(async command => {
     await window.demo.startup()
-    const replay = await window.demo.execute(command)
-    const fileId = replay.ok ? replay.value.application.snapshot.documents.purchase! : ''
-    const file = await window.demo.readFile(command.applicationId, fileId)
-    return { replay, inspection: await window.demo.inspectOperation(command), bytes: file.ok ? new TextDecoder().decode(file.value.bytes) : null }
+    const view = await window.demo.readApplication(command.applicationId)
+    if (!view.ok) throw new Error('No application')
+    const file = await window.demo.readFile(command.applicationId, view.value.snapshot.documents.purchase!)
+    return {
+      repeat: await window.commit(command),
+      inspection: await window.inspect(command),
+      view,
+      bytes: file.ok ? new TextDecoder().decode(file.value.bytes) : null,
+      notices: await window.demo.readNotifications(),
+    }
   }, result.command)
-  expect(restored.replay).toEqual(result.submitted)
-  expect(restored.inspection).toMatchObject({ ok: true, value: { status: 'committed' } })
+  // The published record has no workspace, so neither repeating the intent nor
+  // inspecting it can produce another publication.
+  expect(restored.repeat).toMatchObject({ ok: false, error: { kind: 'invalidState' } })
+  expect(restored.inspection).toMatchObject({ ok: false, error: { kind: 'invalidState' } })
+  expect(restored.view).toMatchObject({ ok: true, value: { status: 'submitted', workspace: null } })
+  expect(restored.view.ok && restored.view.value.history).toHaveLength(1)
   expect(restored.bytes).toBe('fictional publication bytes')
+  expect(restored.notices.ok && restored.notices.value).toHaveLength(1)
 })
 
 test('the operation boundary refuses every invalid field and missing, pending or failed required document without consuming failure', async ({ page }) => {
@@ -74,14 +87,14 @@ test('the operation boundary refuses every invalid field and missing, pending or
     demo.setControls({ slow: false, failure: 'submission' })
     const invalid = { fullName: 'x', mobile: '12', city: 'x', email: 'invalid', businessName: 'x', activity: 'invalid', address: 'x', operatingSince: '2026-11', revenue: '-1', expenses: '1,00', amount: '1', term: '18', budget: '0', explanation: '' }
     const fields = []
-    for (const [field, value] of Object.entries(invalid)) fields.push({ field, result: await demo.execute({ ...command, fields: { ...command.fields, [field]: value } }) })
+    for (const [field, value] of Object.entries(invalid)) fields.push({ field, result: await window.commitOn(demo, { ...command, fields: { ...command.fields, [field]: value } }) })
     const documents = []
     for (const slot of ['identity', 'business', 'financial', 'purchase'] as const) {
-      documents.push(await demo.execute({ ...command, documents: { ...command.documents, [slot]: { kind: 'saved', fileId: null } } }))
-      for (const kind of ['pending', 'failed']) documents.push(await demo.execute({ ...command, documents: { ...command.documents, [slot]: { kind } } } as unknown as import('../../../src/demo').SubmitOperation))
+      documents.push(await window.commitOn(demo, { ...command, documents: { ...command.documents, [slot]: { kind: 'saved', fileId: null } } }))
+      for (const kind of ['pending', 'failed']) documents.push(await window.commitOn(demo, { ...command, documents: { ...command.documents, [slot]: { kind } } } as unknown as import('../../../src/demo').AttemptIntent))
     }
-    const bypass = await demo.execute({ ...command, allowIncomplete: true } as import('../../../src/demo').SubmitOperation)
-    return { fields, documents, bypass, controls: demo.controls(), inspection: await demo.inspectOperation(command), after: await demo.readApplication(command.applicationId) }
+    const bypass = await window.commitOn(demo, { ...command, allowIncomplete: true } as unknown as import('../../../src/demo').AttemptIntent)
+    return { fields, documents, bypass, controls: demo.controls(), inspection: await window.inspectOn(demo, command), after: await demo.readApplication(command.applicationId) }
   })
   for (const { field, result: refused } of result.fields) {
     expect(refused).toMatchObject({ ok: false, error: { kind: 'validation' } })
@@ -97,17 +110,17 @@ for (const failure of ['submission', 'storage'] as const) test(`${failure} failu
   const before = await openSubmission(page)
   const result = await page.evaluate(async failure => {
     const demo = window.demo
-    const prepared = await demo.prepareAttachment({ datasetId: window.submitCommand.datasetId, applicationId: window.submitCommand.applicationId, slot: 'financial', selectionId: 'financial', source: { kind: 'local', file: new File(['new evidence'], 'DEMO.pdf', { type: 'application/pdf' }) } })
+    const prepared = await demo.prepareAttachment({ datasetId: window.datasetId, applicationId: window.submitCommand.applicationId, slot: 'financial', selectionId: 'financial', source: { kind: 'local', file: new File(['new evidence'], 'DEMO.pdf', { type: 'application/pdf' }) } })
     if (!prepared.ok) throw new Error('No evidence')
     window.submitCommand.documents.financial = { kind: 'prepared', attachment: prepared.value }
     demo.setControls({ slow: false, failure })
-    const failed = await demo.execute(window.submitCommand)
+    const failed = await window.commitOn(demo, window.submitCommand)
     const after = await demo.readApplication(window.submitCommand.applicationId)
-    const inspection = await demo.inspectOperation(window.submitCommand)
+    const inspection = await window.inspectOn(demo, window.submitCommand)
     const ready = await demo.readPrepared(window.submitCommand.applicationId, prepared.value)
     const unpublished = await demo.readFile(window.submitCommand.applicationId, prepared.value.id)
-    const retry = await demo.execute(window.submitCommand)
-    const replay = await demo.execute(window.submitCommand)
+    const retry = await window.commitOn(demo, window.submitCommand)
+    const replay = await window.commitOn(demo, window.submitCommand)
     return { failed, after, inspection, ready: ready.ok ? new TextDecoder().decode(ready.value.bytes) : null, unpublished, retry, replay, notices: await demo.readNotifications() }
   }, failure)
   expect(result.failed).toMatchObject({ ok: false, error: { kind: failure === 'submission' ? 'requestFailed' : 'storage' } })
@@ -116,7 +129,10 @@ for (const failure of ['submission', 'storage'] as const) test(`${failure} failu
   expect(result.ready).toBe('new evidence')
   expect(result.unpublished).toMatchObject({ ok: false, error: { kind: 'unavailable' } })
   expect(result.retry).toMatchObject({ ok: true, value: { application: { sharedRevision: 2, workspace: null, history: [{ kind: 'submitted' }] } } })
-  expect(result.replay).toEqual(result.retry)
+  // The explicit retry is the only publication; repeating it afterwards is refused
+  // by state and cannot add a second history entry or notice.
+  expect(result.replay).toMatchObject({ ok: false, error: { kind: 'invalidState' } })
+  expect(result.retry.ok && result.retry.value.application.history).toHaveLength(1)
   expect(result.notices.ok && result.notices.value).toHaveLength(1)
 })
 
@@ -125,49 +141,60 @@ test('publication requires current private and shared revisions, reading access 
   const result = await page.evaluate(async () => {
     const demo = window.demo
     const command = window.submitCommand
+    const before = await demo.readApplication(command.applicationId)
+    if (!before.ok || before.value.role !== 'applicant' || !before.value.workspace) throw new Error('No draft')
     demo.setControls({ slow: false, failure: 'submission' })
-    const shared = await demo.execute({ ...command, expectedSharedRevision: 99 })
-    const workspace = await demo.execute({ ...command, expectedWorkspaceRevision: 99 })
+    // A record prepared against another shared revision cannot publish over it.
+    const shared = await window.commitOn(demo, command, { ...before.value, sharedRevision: before.value.sharedRevision + 1 })
+    // A private revision that moved on is refused before publication is staged.
+    const workspace = await window.commitOn(demo, command, { ...before.value, workspace: { ...before.value.workspace, revision: before.value.workspace.revision - 1 } })
     await demo.signIn('huda')
-    const otherOwner = await demo.execute(command)
+    const otherOwner = await window.commitOn(demo, command)
     await demo.signIn('salma')
-    const reviewer = await demo.execute(command)
+    const reviewer = await window.commitOn(demo, command)
     await demo.signIn('mariam')
     const armed = demo.controls()
     demo.setControls({ slow: false, failure: null })
-    const first = await demo.execute(command)
-    const changed = await demo.execute({ ...command, fields: { ...command.fields, city: 'Different city' } })
-    const kind = await demo.execute({ kind: 'saveDraft', datasetId: command.datasetId, applicationId: command.applicationId, operationId: command.operationId, expectedWorkspaceRevision: command.expectedWorkspaceRevision, product: command.product, fields: command.fields, documents: command.documents })
-    const newAttempt = await demo.execute({ ...command, operationId: 'new-attempt' })
+    const first = await window.commitOn(demo, command)
     demo.setControls({ slow: false, failure: 'submission' })
-    const replay = await demo.execute({ ...command, expectedWorkspaceRevision: 99, expectedSharedRevision: 99 })
-    return { shared, workspace, otherOwner, reviewer, armed, first, changed, kind, newAttempt, replay, controls: demo.controls() }
+    const changed = await window.commitOn(demo, { ...command, fields: { ...command.fields, city: 'Different city' } })
+    const kind = await window.commitOn(demo, { kind: 'saveDraft', applicationId: command.applicationId, product: command.product, fields: command.fields, documents: command.documents })
+    const duplicate = await window.commitOn(demo, { ...command })
+    const controls = demo.controls()
+    return { shared, workspace, otherOwner, reviewer, armed, first, changed, kind, duplicate, controls, after: await demo.readApplication(command.applicationId), notices: await demo.readNotifications() }
   })
   expect(result.shared).toMatchObject({ ok: false, error: { kind: 'staleRecord' } })
   expect(result.workspace).toMatchObject({ ok: false, error: { kind: 'staleWorkspace' } })
+  expect(result.otherOwner).toMatchObject({ ok: false, error: { kind: 'unavailable' } })
+  // Reviewers cannot read the private draft either, so neither can publish it.
   for (const refusal of [result.otherOwner, result.reviewer]) expect(refusal).toMatchObject({ ok: false, error: { kind: 'unavailable' } })
-  for (const refusal of [result.changed, result.kind]) expect(refusal).toMatchObject({ ok: false, error: { kind: 'identifierMisuse' } })
-  expect(result.newAttempt.ok).toBe(false)
-  expect(result.replay).toEqual(result.first)
   expect(result.armed.failure).toBe('submission')
+  expect(result.first).toMatchObject({ ok: true, value: { application: { status: 'submitted', workspace: null, sharedRevision: 2, history: [{ kind: 'submitted' }] } } })
+  // Once published, the same or a changed intent is a new attempt refused by
+  // state; no second history entry or notice is produced.
+  for (const refusal of [result.changed, result.kind, result.duplicate]) expect(refusal).toMatchObject({ ok: false, error: { kind: 'invalidState' } })
   expect(result.controls.failure).toBe('submission')
+  expect(result.after).toMatchObject({ ok: true, value: { status: 'submitted', workspace: null } })
+  expect(result.after.ok && result.after.value.history).toHaveLength(1)
+  expect(result.notices.ok && result.notices.value).toHaveLength(1)
 })
 
 test('a concurrent save or submission can publish only the inspected workspace, with one history entry', async ({ page, context }) => {
-  await openSubmission(page)
+  const before = await openSubmission(page)
   const second = await context.newPage()
   await openSubmission(second)
   const save = await second.evaluate(() => {
     const command = window.submitCommand
-    return window.demo.execute({ kind: 'saveDraft', datasetId: command.datasetId, applicationId: command.applicationId, operationId: 'private-save', expectedWorkspaceRevision: command.expectedWorkspaceRevision, product: command.product, fields: command.fields, documents: command.documents })
+    return window.commit({ kind: 'saveDraft', applicationId: command.applicationId, product: command.product, fields: command.fields, documents: command.documents })
   })
   expect(save.ok).toBe(true)
-  expect(await page.evaluate(() => window.demo.execute(window.submitCommand))).toMatchObject({ ok: false, error: { kind: 'staleWorkspace' } })
-  const outcomes = await Promise.all([page, second].map((tab, index) => tab.evaluate(async index => {
+  // This tab still holds the record it prepared from, before the other tab saved.
+  expect(await page.evaluate(view => window.commit(window.submitCommand, view), before)).toMatchObject({ ok: false, error: { kind: 'staleWorkspace' } })
+  const outcomes = await Promise.all([page, second].map(tab => tab.evaluate(async () => {
     const latest = await window.demo.readApplication(window.submitCommand.applicationId)
     if (!latest.ok || latest.value.role !== 'applicant') throw new Error('No latest')
-    return window.demo.execute({ ...window.submitCommand, operationId: `inspected-${index}`, expectedWorkspaceRevision: latest.value.workspace!.revision, expectedSharedRevision: latest.value.sharedRevision })
-  }, index)))
+    return window.commit({ ...window.submitCommand })
+  })))
   expect(outcomes.filter(result => result.ok)).toHaveLength(1)
   expect(outcomes.filter(result => !result.ok)).toHaveLength(1)
   const view = await page.evaluate(() => window.demo.readApplication(window.submitCommand.applicationId))
@@ -180,11 +207,11 @@ test('expiry before commit refuses publication without consuming its failure, an
   const result = await page.evaluate(async () => {
     const demo = window.demo
     demo.setControls({ slow: false, failure: 'submission' })
-    const pending = demo.execute(window.submitCommand)
+    const pending = window.commitOn(demo, window.submitCommand)
     demo.expireSession()
     const expired = await pending
     await demo.signIn('mariam')
-    return { expired, after: await demo.readApplication(window.submitCommand.applicationId), inspection: await demo.inspectOperation(window.submitCommand), controls: demo.controls() }
+    return { expired, after: await demo.readApplication(window.submitCommand.applicationId), inspection: await window.inspectOn(demo, window.submitCommand), controls: demo.controls() }
   })
   expect(result.expired).toMatchObject({ ok: false, error: { kind: 'sessionExpired' } })
   expect(result.after).toEqual({ ok: true, value: before })
@@ -195,6 +222,9 @@ test('expiry before commit refuses publication without consuming its failure, an
 test('a lost publication completion requires receipt inspection and cannot duplicate history', async ({ page }) => {
   await openSubmission(page)
   const result = await page.evaluate(async () => {
+    const demo = window.demo
+    const before = await demo.readApplication(window.submitCommand.applicationId)
+    if (!before.ok || before.value.role !== 'applicant' || !before.value.workspace) throw new Error('No draft')
     const transaction = IDBDatabase.prototype.transaction
     let loseNext = true
     IDBDatabase.prototype.transaction = function (...args: Parameters<IDBDatabase['transaction']>) {
@@ -205,13 +235,24 @@ test('a lost publication completion requires receipt inspection and cannot dupli
       }
       return tx
     }
-    const submitted = await window.demo.execute(window.submitCommand)
+    const submitted = await window.commit(window.submitCommand)
     IDBDatabase.prototype.transaction = transaction
-    return { submitted, inspection: await window.demo.inspectOperation(window.submitCommand), replay: await window.demo.execute(window.submitCommand) }
+    return {
+      submitted,
+      // Inspecting the pending attempt needs the record it was prepared from.
+      inspection: await window.inspect(window.submitCommand, before.value),
+      duplicate: await window.commit(window.submitCommand, before.value),
+      view: await demo.readApplication(window.submitCommand.applicationId),
+      notices: await demo.readNotifications(),
+    }
   })
   expect(result.submitted).toMatchObject({ ok: false, error: { kind: 'outcomeUnknown' } })
-  expect(result.inspection).toMatchObject({ ok: true, value: { status: 'committed', result: { application: { status: 'submitted', workspace: null } } } })
-  expect(result.replay.ok && result.replay.value.application.history).toHaveLength(1)
+  expect(result.inspection).toMatchObject({ ok: true, value: { status: 'committed', result: { application: { status: 'submitted', workspace: null, sharedRevision: 2 } } } })
+  // The retry is a new attempt against the already published record.
+  expect(result.duplicate).toMatchObject({ ok: false, error: { kind: 'staleWorkspace' } })
+  expect(result.view).toMatchObject({ ok: true, value: { status: 'submitted', workspace: null } })
+  expect(result.view.ok && result.view.value.history).toHaveLength(1)
+  expect(result.notices.ok && result.notices.value).toHaveLength(1)
 })
 
 test('domain dates and financial windows stay fixed while same-day publications have durable order', async ({ page }) => {
@@ -225,15 +266,15 @@ test('domain dates and financial windows stay fixed while same-day publications 
     const seeds = await Promise.all(queue.value.map(application => demo.readApplication(application.id)))
     const sequence = Math.max(...seeds.flatMap(view => view.ok && view.value.role === 'reviewer' ? view.value.activity.map(event => event.sequence) : []))
     await demo.signIn('mariam')
-    const first = await demo.execute(window.submitCommand)
+    const first = await window.commitOn(demo, window.submitCommand)
     const draft = await demo.newDraft('inventory')
     if (!draft.ok || !draft.value.workspace) throw new Error('No new draft')
     const files = await Promise.all((['identity', 'business', 'financial', 'purchase'] as const).map(async slot => {
-      const file = await demo.prepareAttachment({ datasetId: window.submitCommand.datasetId, applicationId: draft.value.id, slot, selectionId: slot, source: { kind: 'local', file: new File([slot], `DEMO-${slot}.png`, { type: 'image/png' }) } })
+      const file = await demo.prepareAttachment({ datasetId: window.datasetId, applicationId: draft.value.id, slot, selectionId: slot, source: { kind: 'local', file: new File([slot], `DEMO-${slot}.png`, { type: 'image/png' }) } })
       if (!file.ok) throw new Error('No prepared file')
       return [slot, { kind: 'prepared', attachment: file.value }]
     }))
-    const second = await demo.execute({ ...window.submitCommand, operationId: 'second-publication', applicationId: draft.value.id, expectedWorkspaceRevision: 0, expectedSharedRevision: draft.value.sharedRevision, documents: Object.fromEntries(files) as import('../../../src/demo').DraftDocuments })
+    const second = await window.commitOn(demo, { ...window.submitCommand, applicationId: draft.value.id, documents: Object.fromEntries(files) as import('../../../src/demo').DraftDocuments })
     const historical = await demo.readApplication('RIFD-2026-005')
     return { sequence, first, second, historical, next: await demo.listApplications() }
   })
@@ -251,7 +292,7 @@ test('a dataset replacement during delayed publication refuses the old command a
     const unsaved = await demo.newDraft('equipment')
     if (!unsaved.ok) throw new Error('No memory-only draft')
     demo.setControls({ slow: true, failure: null })
-    const pending = demo.execute(window.submitCommand)
+    const pending = window.commitOn(demo, window.submitCommand)
     // Isolated reset fixture until the public reset operation lands in ticket 18.
     const replacement = crypto.randomUUID()
     await new Promise<void>((resolve, reject) => {
@@ -271,12 +312,14 @@ test('a dataset replacement during delayed publication refuses the old command a
     const context = await demo.startup()
     await demo.signIn('mariam')
     const after = await demo.readApplication(window.submitCommand.applicationId)
-    return { refused, context, replacement, after, oldInspection: await demo.inspectOperation(window.submitCommand), oldUnsaved: await demo.readApplication(unsaved.value.id), controls: demo.controls() }
+    return { refused, context, replacement, after, oldInspection: await window.inspectOn(demo, window.submitCommand), oldUnsaved: await demo.readApplication(unsaved.value.id), controls: demo.controls() }
   })
   expect(result.refused).toMatchObject({ ok: false, error: { kind: 'supersededDataset' } })
   expect(result.context).toMatchObject({ ok: true, value: { datasetId: result.replacement, session: null } })
   expect(result.after).toEqual({ ok: true, value: before })
-  expect(result.oldInspection).toMatchObject({ ok: false, error: { kind: 'supersededDataset' } })
+  // The intent carries no dataset, so inspection reads the replacement dataset:
+  // the refused attempt left nothing behind there.
+  expect(result.oldInspection).toMatchObject({ ok: true, value: { status: 'notCommitted', application: { status: 'draft', workspace: { revision: 1 } } } })
   expect(result.oldUnsaved).toMatchObject({ ok: false, error: { kind: 'unavailable' } })
   expect(result.controls).toEqual({ slow: false, failure: null })
 })
@@ -289,12 +332,13 @@ test('failed post-commit observers leave a successful publication and a single s
     const setItem = Storage.prototype.setItem
     Storage.prototype.setItem = function (key: string, value: string) { if (key === 'rifd.commit.v1') throw new Error('Fixture fallback failure'); setItem.call(this, key, value) }
     window.demo.subscribe(() => { throw new Error('Fixture render failure') })
-    const first = await window.demo.execute(window.submitCommand)
-    const replay = await window.demo.execute(window.submitCommand)
-    return { first, replay, hints, datasetId: window.submitCommand.datasetId }
+    const first = await window.commit(window.submitCommand)
+    const replay = await window.commit(window.submitCommand)
+    return { first, replay, hints, datasetId: window.datasetId }
   })
   expect(result.first).toMatchObject({ ok: true, value: { application: { status: 'submitted' } } })
-  expect(result.replay).toEqual(result.first)
+  // Only the first publication commits, so it emits the one shared revision hint.
+  expect(result.replay).toMatchObject({ ok: false, error: { kind: 'invalidState' } })
   expect(result.hints).toEqual([{ datasetId: result.datasetId, kind: 'application', applicationId: 'RIFD-2026-001', revision: 2 }])
 })
 
@@ -304,16 +348,16 @@ test('real pending and failed replacement selections cannot fall back to saved f
     const demo = window.demo
     const command = window.submitCommand
     demo.setControls({ slow: true, failure: 'upload' })
-    const preparing = demo.prepareAttachment({ datasetId: command.datasetId, applicationId: command.applicationId, slot: 'purchase', selectionId: 'replacement', source: { kind: 'local', file: new File(['replacement'], 'DEMO.png', { type: 'image/png' }) } })
-    const pending = await demo.execute(command)
+    const preparing = demo.prepareAttachment({ datasetId: window.datasetId, applicationId: command.applicationId, slot: 'purchase', selectionId: 'replacement', source: { kind: 'local', file: new File(['replacement'], 'DEMO.png', { type: 'image/png' }) } })
+    const pending = await window.commitOn(demo, command)
     const preparation = await preparing
     demo.setControls({ slow: false, failure: 'submission' })
-    const failed = await demo.execute(command)
+    const failed = await window.commitOn(demo, command)
     const armed = demo.controls()
     const after = await demo.readApplication(command.applicationId)
     demo.cancelPreparation(command.applicationId, 'purchase')
     demo.setControls({ slow: false, failure: null })
-    const discarded = await demo.execute(command)
+    const discarded = await window.commitOn(demo, command)
     return { pending, preparation, failed, armed, after, discarded }
   })
   expect(result.pending).toMatchObject({ ok: false, error: { kind: 'validation', slot: 'purchase' } })
@@ -338,10 +382,10 @@ test('expiry after staging publication aborts the transaction before any submitt
       }
       return request
     }
-    const expired = await demo.execute(window.submitCommand)
+    const expired = await window.commitOn(demo, window.submitCommand)
     IDBObjectStore.prototype.put = put
     await demo.signIn('mariam')
-    return { expired, after: await demo.readApplication(window.submitCommand.applicationId), inspection: await demo.inspectOperation(window.submitCommand) }
+    return { expired, after: await demo.readApplication(window.submitCommand.applicationId), inspection: await window.inspectOn(demo, window.submitCommand) }
   })
   expect(result.expired).toMatchObject({ ok: false, error: { kind: 'sessionExpired' } })
   expect(result.after).toEqual({ ok: true, value: before })

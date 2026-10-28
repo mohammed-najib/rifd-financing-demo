@@ -34,15 +34,15 @@ test('publishing changed details and source invalidates inspection of both chang
     const before = await demo.readApplication(command.applicationId)
     if (!before.ok || before.value.role !== 'reviewer') throw new Error('No review')
     await demo.signIn('huda')
-    const published = await demo.execute(command)
+    const published = await window.commitOn(demo, command)
     if (!published.ok) throw new Error('No resubmission')
     await demo.signIn('salma')
     const current = await demo.readApplication(command.applicationId)
     if (!current.ok || current.value.role !== 'reviewer') throw new Error('No current review')
     const refusals = []
-    for (const slot of ['identity', 'purchase'] as const) refusals.push(await demo.execute({ kind: 'assessDocument', datasetId: command.datasetId, applicationId: command.applicationId, expectedSharedRevision: current.value.sharedRevision, operationId: `old-${slot}`, slot, fileId: current.value.snapshot.documents[slot]!, status: 'accepted', reason: null, inspection: { kind: 'inspected', confirmed: true, contextToken: before.value.inspectionContexts[slot]! } }))
+    for (const slot of ['identity', 'purchase'] as const) refusals.push(await window.commitOn(demo, { kind: 'assessDocument', applicationId: command.applicationId, slot, fileId: current.value.snapshot.documents[slot]!, status: 'accepted', reason: null, inspection: { kind: 'inspected', confirmed: true, contextToken: before.value.inspectionContexts[slot]! } }))
     const unchanged = await demo.readApplication(command.applicationId)
-    const renewed = await demo.execute({ kind: 'assessDocument', datasetId: command.datasetId, applicationId: command.applicationId, expectedSharedRevision: current.value.sharedRevision, operationId: 'fresh-purchase', slot: 'purchase', fileId: current.value.snapshot.documents.purchase!, status: 'accepted', reason: null, inspection: { kind: 'inspected', confirmed: true, contextToken: current.value.inspectionContexts.purchase! } })
+    const renewed = await window.commitOn(demo, { kind: 'assessDocument', applicationId: command.applicationId, slot: 'purchase', fileId: current.value.snapshot.documents.purchase!, status: 'accepted', reason: null, inspection: { kind: 'inspected', confirmed: true, contextToken: current.value.inspectionContexts.purchase! } })
     return { before: before.value, current: current.value, refusals, unchanged, renewed }
   }, command)
   expect(result.current.snapshot.fields.amount).toBe('450000')
@@ -62,9 +62,10 @@ test('publishes Huda’s complete response once, preserves review context and re
     await window.demo.startup(); await window.demo.signIn('salma')
     return window.demo.readApplication('RIFD-2026-004')
   })
-  const result = await page.evaluate(async command => ({ published: await window.demo.execute(command), replay: await window.demo.execute(command), notices: await window.demo.readNotifications() }), setup.command)
+  const result = await page.evaluate(async command => ({ published: await window.commit(command), repeat: await window.commit(command), notices: await window.demo.readNotifications() }), setup.command)
   expect(result.published).toMatchObject({ ok: true, value: { receipt: { kind: 'resubmit', sharedRevision: 2, workspaceRevision: 2 }, application: { status: 'underReview', workspace: null, snapshot: { fields: { amount: '450000' }, documents: { purchase: setup.prepared.id } } } } })
-  expect(result.replay).toEqual(result.published)
+  // A second publication attempt is a new operation refused by state.
+  expect(result.repeat).toMatchObject({ ok: false, error: { kind: 'invalidState' } })
   expect(result.notices).toEqual(setup.notices)
   const after = await staff.evaluate(() => window.demo.readApplication('RIFD-2026-004'))
   if (!before.ok || before.value.role !== 'reviewer' || !after.ok || after.value.role !== 'reviewer') throw new Error('No review')
@@ -80,14 +81,14 @@ test('field verification is separate from accepting evidence and a later round s
   const { command } = await response(page)
   const result = await page.evaluate(async command => {
     const demo = window.demo
-    await demo.execute(command)
+    await window.commitOn(demo, command)
     await demo.signIn('salma')
     const read = async () => {
       const result = await demo.readApplication(command.applicationId)
       if (!result.ok || result.value.role !== 'reviewer') throw new Error('No review')
       return result.value
     }
-    const review = async (edit: object) => demo.execute({ datasetId: command.datasetId, applicationId: command.applicationId, operationId: crypto.randomUUID(), expectedSharedRevision: (await read()).sharedRevision, ...edit } as import('../../../src/demo').ReviewOperation)
+    const review = async (edit: object) => window.commitOn(demo, { datasetId: command.datasetId, applicationId: command.applicationId, operationId: crypto.randomUUID(), expectedSharedRevision: (await read()).sharedRevision, ...edit } as import('../../../src/demo').ReviewOperation)
     const unrequested = await review({ kind: 'verifyCorrection', roundId: command.roundId, field: 'mobile', verified: true })
     const verified = await review({ kind: 'verifyCorrection', roundId: command.roundId, field: 'amount', verified: true })
     const fileId = (await read()).snapshot.documents.purchase!
@@ -104,7 +105,7 @@ test('field verification is separate from accepting evidence and a later round s
     const workspace = own.value.workspace
     const prepared = await demo.prepareAttachment({ datasetId: command.datasetId, applicationId: command.applicationId, slot: 'purchase', selectionId: 'second', source: { kind: 'local', file: new File(['another complete fictional plan'], 'DEMO-second.png', { type: 'image/png' }) } })
     if (!prepared.ok) throw new Error('No file')
-    const published = await demo.execute({ ...command, operationId: 'second-resubmit', roundId: workspace.roundId!, expectedSharedRevision: own.value.sharedRevision, expectedWorkspaceRevision: workspace.revision, fields: workspace.snapshot.fields, documents: { ...command.documents, purchase: { kind: 'prepared', attachment: prepared.value } } })
+    const published = await window.commitOn(demo, { ...command, roundId: workspace.roundId!, fields: workspace.snapshot.fields, documents: { ...command.documents, purchase: { kind: 'prepared', attachment: prepared.value } } })
     await demo.signIn('salma')
     await review({ kind: 'assessDocument', slot: 'purchase', fileId: prepared.value.id, inspection: { kind: 'inspected', confirmed: true, contextToken: (await read()).inspectionContexts.purchase! }, status: 'accepted', reason: null })
     return { unrequested, verified, accepted, insufficient, next, paused, published, final: await read(), applicant: own.value }
@@ -122,45 +123,60 @@ test('field verification is separate from accepting evidence and a later round s
   expect(result.final.rounds[1].targets[0].verified).toBe(true)
 })
 
-test('field verification aborts atomically, inspects uncertainty and rejects changed receipt intent', async ({ page }) => {
+test('field verification aborts atomically, inspects uncertainty and never replays a changed intent', async ({ page }) => {
   const setup = await response(page)
   const command = await page.evaluate(async response => {
-    const published = await window.demo.execute(response)
+    const published = await window.commit(response)
     if (!published.ok) throw new Error('No published response')
     await window.demo.signIn('salma')
-    return { kind: 'verifyCorrection' as const, datasetId: response.datasetId, applicationId: response.applicationId, operationId: 'atomic-verification', expectedSharedRevision: published.value.application.sharedRevision, roundId: response.roundId, field: 'amount' as const, verified: true }
+    return { kind: 'verifyCorrection' as const, applicationId: response.applicationId, roundId: response.roundId, field: 'amount' as const, verified: true }
   }, setup.command)
   const aborted = await page.evaluate(async command => {
     const before = await window.demo.readApplication(command.applicationId)
     window.demo.setControls({ slow: false, failure: 'storage' })
-    const result = await window.demo.execute(command)
-    return { before, result, after: await window.demo.readApplication(command.applicationId), inspection: await window.demo.inspectOperation(command) }
+    const result = await window.commit(command)
+    return { before, result, after: await window.demo.readApplication(command.applicationId), inspection: await window.inspect(command) }
   }, command)
   expect(aborted.result).toMatchObject({ error: { kind: 'storage' } })
   expect(aborted.after).toEqual(aborted.before)
   expect(aborted.inspection).toMatchObject({ value: { status: 'notCommitted' } })
   await page.evaluate(loseNextWriteCompletion)
-  expect(await page.evaluate(command => window.demo.execute(command), command)).toMatchObject({ error: { kind: 'outcomeUnknown' } })
-  const recovered = await page.evaluate(async command => ({ inspection: await window.demo.inspectOperation(command), replay: await window.demo.execute(command), changed: await window.demo.execute({ ...command, verified: false }) }), command)
-  expect(recovered.replay).toMatchObject({ ok: true, value: { application: { sharedRevision: command.expectedSharedRevision + 1 } } })
-  expect(recovered.inspection).toMatchObject({ value: { status: 'committed', result: recovered.replay.ok ? recovered.replay.value : null } })
-  expect(recovered.changed).toMatchObject({ error: { kind: 'identifierMisuse' } })
-  if (!recovered.replay.ok || recovered.replay.value.application.role !== 'reviewer' || !aborted.before.ok || aborted.before.value.role !== 'reviewer') throw new Error('No review')
-  expect(recovered.replay.value.application.activity).toHaveLength(aborted.before.value.activity.length + 1)
-  expect(recovered.replay.value.application.history).toEqual(aborted.before.value.history)
-  expect(recovered.replay.value.application.rounds[0].targets[0].verified).toBe(true)
+  expect(await page.evaluate(command => window.commit(command), command)).toMatchObject({ error: { kind: 'outcomeUnknown' } })
+  const recovered = await page.evaluate(async command => ({
+    inspection: await window.inspect(command),
+    replay: await window.commit(command),
+    changed: await window.commit({ ...command, verified: false }),
+    view: await window.demo.readApplication(command.applicationId),
+  }), command)
+  if (!aborted.before.ok || aborted.before.value.role !== 'reviewer') throw new Error('No review')
+  const baseline = aborted.before.value
+  // The inspection proves the lost transaction committed exactly once.
+  expect(recovered.inspection).toMatchObject({ ok: true, value: { status: 'committed', result: { receipt: { kind: 'verifyCorrection' }, application: { sharedRevision: baseline.sharedRevision + 1 } } } })
+  // Repeating the verification is a new operation with its own receipt; the
+  // changed intent is a third operation, not a replay of either earlier one.
+  expect(recovered.replay).toMatchObject({ ok: true, value: { receipt: { kind: 'verifyCorrection' }, application: { sharedRevision: baseline.sharedRevision + 2 } } })
+  expect(recovered.changed).toMatchObject({ ok: true, value: { application: { sharedRevision: baseline.sharedRevision + 3, rounds: [{ targets: [{ verified: false }, { verified: false }] }] } } })
+  if (!recovered.inspection.ok || recovered.inspection.value.status !== 'committed' || !recovered.replay.ok || !recovered.changed.ok) throw new Error('No verification')
+  expect(recovered.replay.value.receipt.operationId).not.toBe(recovered.inspection.value.result.receipt.operationId)
+  expect(recovered.changed.value.receipt.operationId).not.toBe(recovered.replay.value.receipt.operationId)
+  const replayView = recovered.replay.value.application
+  if (replayView.role !== 'reviewer') throw new Error('No reviewer view')
+  expect(replayView.activity).toHaveLength(baseline.activity.length + 2)
+  expect(replayView.history).toEqual(baseline.history)
+  expect(replayView.rounds[0].targets[0].verified).toBe(true)
+  expect(recovered.view).toMatchObject({ ok: true, value: { rounds: [{ targets: [{ verified: false }, { verified: false }] }] } })
   await page.evaluate(refuseCommitNotices)
-  const undo = { ...command, operationId: 'undo-notices', expectedSharedRevision: command.expectedSharedRevision + 1, verified: false }
-  const undone = await page.evaluate(command => window.demo.execute(command), undo)
-  expect(undone).toMatchObject({ ok: true, value: { application: { sharedRevision: command.expectedSharedRevision + 2, rounds: [{ targets: [{ verified: false }, { verified: false }] }] } } })
-  expect(await page.evaluate(command => window.demo.execute(command), undo)).toEqual(undone)
+  const undone = await page.evaluate(command => window.commit({ ...command, verified: false }), command)
+  expect(undone).toMatchObject({ ok: true, value: { application: { sharedRevision: baseline.sharedRevision + 4, rounds: [{ targets: [{ verified: false }, { verified: false }] }] } } })
+  const repeated = await page.evaluate(command => window.commit({ ...command, verified: false }), command)
+  expect(repeated).toMatchObject({ ok: true, value: { application: { sharedRevision: baseline.sharedRevision + 5, rounds: [{ targets: [{ verified: false }, { verified: false }] }] } } })
 })
 
 test('field verification enforces all states, current assignment and applicant or unsigned access', async ({ page }) => {
   const setup = await response(page)
   const result = await page.evaluate(async response => {
     const demo = window.demo
-    const published = await demo.execute(response)
+    const published = await window.commitOn(demo, response)
     if (!published.ok) throw new Error('No response')
     await demo.signIn('salma')
     const base = { kind: 'verifyCorrection' as const, datasetId: response.datasetId, roundId: response.roundId, field: 'amount' as const, verified: true }
@@ -169,7 +185,7 @@ test('field verification enforces all states, current assignment and applicant o
       const applicationId = `RIFD-2026-${id}`
       const before = await demo.readApplication(applicationId)
       const command = { ...base, applicationId, operationId: `verify-${id}`, expectedSharedRevision: before.ok ? before.value.sharedRevision : 1 }
-      states.push({ id, before, outcome: await demo.execute(command), inspection: await demo.inspectOperation(command), after: await demo.readApplication(applicationId) })
+      states.push({ id, before, outcome: await window.commitOn(demo, command), inspection: await window.inspectOn(demo, command), after: await demo.readApplication(applicationId) })
     }
     const command = { ...base, applicationId: response.applicationId, operationId: 'verify-current', expectedSharedRevision: published.value.application.sharedRevision }
     const beforeActors = await demo.readApplication(command.applicationId)
@@ -178,15 +194,15 @@ test('field verification enforces all states, current assignment and applicant o
       if (identity) await demo.signIn(identity)
       else await demo.signOut()
       const before = await demo.readApplication(command.applicationId)
-      actors.push({ identity, before, outcome: await demo.execute(command), after: await demo.readApplication(command.applicationId) })
+      actors.push({ identity, before, outcome: await window.commitOn(demo, command), after: await demo.readApplication(command.applicationId) })
     }
     await demo.signIn('salma')
     const afterActors = await demo.readApplication(command.applicationId)
-    const verified = await demo.execute(command)
+    const verified = await window.commitOn(demo, command)
     if (!verified.ok) throw new Error('No verification')
-    const transfer = await demo.execute({ kind: 'transferApplication', datasetId: command.datasetId, applicationId: command.applicationId, operationId: 'transfer-verified', expectedSharedRevision: verified.value.application.sharedRevision, from: 'salma', to: 'khaled', confirmed: true })
+    const transfer = await window.commitOn(demo, { kind: 'transferApplication', applicationId: command.applicationId, from: 'salma', to: 'khaled', confirmed: true })
     if (!transfer.ok) throw new Error('No transfer')
-    const denied = await demo.execute({ ...command, operationId: 'verify-colleague', expectedSharedRevision: transfer.value.application.sharedRevision, verified: false })
+    const denied = await window.commitOn(demo, { ...command, verified: false })
     return { states, actors, beforeActors, afterActors, verified, transfer, denied, after: await demo.readApplication(command.applicationId) }
   }, setup.command)
   const errors: Record<string, string> = { '001': 'unavailable', '002': 'permissionDenied', '003': 'invalidState', '011': 'permissionDenied', '007': 'validation', '008': 'permissionDenied', '012': 'invalidState', '013': 'permissionDenied', '005': 'invalidState', '006': 'invalidState' }
@@ -197,7 +213,9 @@ test('field verification enforces all states, current assignment and applicant o
     else expect(state.inspection.ok).toBe(false)
   }
   for (const actor of result.actors) {
-    expect(actor.outcome, `verify ${actor.identity}`).toMatchObject({ ok: false, error: { kind: actor.identity === null ? 'sessionExpired' : actor.identity === 'huda' ? 'permissionDenied' : 'unavailable' } })
+    // An applicant's own record is not a reviewer view, so the store refuses the
+    // review intent as an invalid state; other applicants cannot read it at all.
+    expect(actor.outcome, `verify ${actor.identity}`).toMatchObject({ ok: false, error: { kind: actor.identity === null ? 'sessionExpired' : actor.identity === 'huda' ? 'invalidState' : 'unavailable' } })
     expect(actor.after).toEqual(actor.before)
   }
   expect(result.afterActors).toEqual(result.beforeActors)
@@ -211,7 +229,7 @@ test('simultaneous resubmissions in two tabs commit one response and refuse the 
   const saved = await page.evaluate(command => {
     const { expectedSharedRevision: _revision, ...save } = command
     void _revision
-    return window.demo.execute({ ...save, kind: 'saveCorrections', operationId: 'save-ready' })
+    return window.commit({ ...save, kind: 'saveCorrections' })
   }, command)
   if (!saved.ok || saved.value.application.role !== 'applicant' || !saved.value.application.workspace) throw new Error('No saved response')
   const workspace = saved.value.application.workspace
@@ -220,8 +238,8 @@ test('simultaneous resubmissions in two tabs commit one response and refuse the 
   await other.goto('/tests/browser/support/api.html'); await other.waitForFunction(() => window.demo)
   await other.evaluate(async () => { await window.demo.startup(); await window.demo.signIn('huda') })
   const outcomes = await Promise.all([
-    page.evaluate(command => window.demo.execute(command), publish),
-    other.evaluate(command => window.demo.execute({ ...command, operationId: 'other-publication' }), publish),
+    page.evaluate(command => window.commit(command), publish),
+    other.evaluate(command => window.commit({ ...command }), publish),
   ])
   expect(outcomes.filter(result => result.ok)).toHaveLength(1)
   expect(outcomes.find(result => !result.ok)).toMatchObject({ error: { kind: 'staleWorkspace' } })
@@ -239,9 +257,9 @@ test('expiry at publication commit aborts all effects and same-identity recovery
       request.addEventListener('success', () => demo.expireSession(), { once: true })
       return request
     }
-    const expired = await demo.execute(command)
+    const expired = await window.commitOn(demo, command)
     await demo.signIn('huda')
-    return { expired, after: await demo.readApplication(command.applicationId), inspection: await demo.inspectOperation(command), retry: await demo.execute(command) }
+    return { expired, after: await demo.readApplication(command.applicationId), inspection: await window.inspectOn(demo, command), retry: await window.commitOn(demo, command) }
   }, command)
   expect(result.expired).toMatchObject({ error: { kind: 'sessionExpired' } })
   expect(result.after).toEqual({ ok: true, value: before })
@@ -254,16 +272,16 @@ test('refuses formatting-only fields, identical renamed bytes, invalid forms and
   const result = await page.evaluate(async ({ before, command }) => {
     const demo = window.demo
     demo.setControls({ slow: false, failure: 'submission' })
-    const unchanged = await demo.execute({ ...command, fields: { ...command.fields, amount: '٦٠٠٬٠٠٠' } })
-    const invalid = await demo.execute({ ...command, fields: { ...command.fields, amount: 'invalid' } })
-    const forbidden = await demo.execute({ ...command, fields: { ...command.fields, mobile: '123456789' } })
-    const product = await demo.execute({ ...command, product: 'equipment' })
-    const round = await demo.execute({ ...command, roundId: 'obsolete' })
+    const unchanged = await window.commitOn(demo, { ...command, fields: { ...command.fields, amount: '٦٠٠٬٠٠٠' } })
+    const invalid = await window.commitOn(demo, { ...command, fields: { ...command.fields, amount: 'invalid' } })
+    const forbidden = await window.commitOn(demo, { ...command, fields: { ...command.fields, mobile: '123456789' } })
+    const product = await window.commitOn(demo, { ...command, product: 'equipment' })
+    const round = await window.commitOn(demo, { ...command, roundId: 'obsolete' })
     const original = await demo.readFile(command.applicationId, before.snapshot.documents.purchase!)
     if (!original.ok) throw new Error('No baseline file')
     const identical = await demo.prepareAttachment({ datasetId: command.datasetId, applicationId: command.applicationId, slot: 'purchase', selectionId: 'renamed', source: { kind: 'local', file: new File([original.value.bytes], `DEMO-renamed.${original.value.name.split('.').at(-1)}`, { type: original.value.mime }) } })
     if (!identical.ok) throw new Error('No identical file')
-    const renamed = await demo.execute({ ...command, documents: { ...command.documents, purchase: { kind: 'prepared', attachment: identical.value } } })
+    const renamed = await window.commitOn(demo, { ...command, documents: { ...command.documents, purchase: { kind: 'prepared', attachment: identical.value } } })
     const armed = demo.controls()
     const after = await demo.readApplication(command.applicationId)
     return { unchanged, invalid, forbidden, product, round, renamed, armed, after }
@@ -285,9 +303,9 @@ test('missing evidence publishes as Awaiting review and only its dependent check
     const context = await demo.signIn('salma')
     if (!context.ok) throw new Error('No session')
     const base = { datasetId: context.value.datasetId, applicationId: 'RIFD-2026-003' }
-    await demo.execute({ ...base, kind: 'startReview', operationId: 'start', expectedSharedRevision: 1 })
-    for (const [index, check] of (['operatingHistory', 'purpose', 'budget', 'capacity'] as const).entries()) await demo.execute({ ...base, kind: 'recordCheck', operationId: `check-${check}`, expectedSharedRevision: 2 + index, check, outcome: 'passed' })
-    const requested = await demo.execute({ ...base, kind: 'requestCorrections', operationId: 'request', expectedSharedRevision: 6, confirmed: true, targets: [{ kind: 'document', slot: 'financial', reason: { ar: 'أضف المستند الناقص', en: 'Add missing financial evidence' } }] })
+    await window.commitOn(demo, { ...base, kind: 'startReview' })
+    for (const check of (['operatingHistory', 'purpose', 'budget', 'capacity'] as const)) await window.commitOn(demo, { ...base, kind: 'recordCheck', check, outcome: 'passed' })
+    const requested = await window.commitOn(demo, { ...base, kind: 'requestCorrections', confirmed: true, targets: [{ kind: 'document', slot: 'financial', reason: { ar: 'أضف المستند الناقص', en: 'Add missing financial evidence' } }] })
     await demo.signIn('huda')
     const before = await demo.readApplication(base.applicationId)
     if (!before.ok || before.value.role !== 'applicant' || !before.value.workspace) throw new Error('No workspace')
@@ -295,7 +313,7 @@ test('missing evidence publishes as Awaiting review and only its dependent check
     const prepared = await demo.prepareAttachment({ ...base, slot: 'financial', selectionId: 'missing', source: { kind: 'local', file: new File(['financial evidence'], 'DEMO-added.png', { type: 'image/png' }) } })
     if (!prepared.ok) throw new Error('No evidence')
     const command = { ...base, kind: 'resubmit' as const, operationId: 'missing-response', roundId: workspace.roundId!, expectedWorkspaceRevision: workspace.revision, expectedSharedRevision: before.value.sharedRevision, product: before.value.product, fields: workspace.snapshot.fields, documents: { ...Object.fromEntries(Object.entries(workspace.snapshot.documents).map(([slot, fileId]) => [slot, { kind: 'saved', fileId }])), financial: { kind: 'prepared', attachment: prepared.value } } as import('../../../src/demo').DraftDocuments }
-    const published = await demo.execute(command)
+    const published = await window.commitOn(demo, command)
     await demo.signIn('salma')
     return { requested, published, review: await demo.readApplication(base.applicationId) }
   })
@@ -304,26 +322,42 @@ test('missing evidence publishes as Awaiting review and only its dependent check
   expect(result.review).toMatchObject({ value: { checks: { evidence: 'unchecked', capacity: 'unchecked', operatingHistory: 'passed', purpose: 'passed', budget: 'passed' }, assessments: { financial: { status: 'awaitingReview', reason: null } }, rounds: [{ baseline: { documents: { financial: null } }, targets: [{ verified: false }] }] } })
 })
 
-test('publication abort, unknown completion and receipt replay never publish a partial response', async ({ page }) => {
+test('publication abort, unknown completion and a repeated intent never publish a partial response', async ({ page }) => {
   const setup = await response(page)
   const failed = await page.evaluate(async command => {
     const demo = window.demo
     demo.setControls({ slow: false, failure: 'storage' })
-    return { result: await demo.execute(command), after: await demo.readApplication(command.applicationId), inspection: await demo.inspectOperation(command), file: await demo.readFile(command.applicationId, command.documents.purchase.kind === 'prepared' ? command.documents.purchase.attachment.id : '') }
+    return { result: await window.commitOn(demo, command), after: await demo.readApplication(command.applicationId), inspection: await window.inspectOn(demo, command), file: await demo.readFile(command.applicationId, command.documents.purchase.kind === 'prepared' ? command.documents.purchase.attachment.id : '') }
   }, setup.command)
   expect(failed.result).toMatchObject({ error: { kind: 'storage' } })
   expect(failed.after).toEqual({ ok: true, value: setup.before })
   expect(failed.inspection).toMatchObject({ value: { status: 'notCommitted' } })
   expect(failed.file).toMatchObject({ error: { kind: 'unavailable' } })
   await page.evaluate(loseNextWriteCompletion)
-  expect(await page.evaluate(command => window.demo.execute(command), setup.command)).toMatchObject({ error: { kind: 'outcomeUnknown' } })
-  const recovered = await page.evaluate(async command => ({ inspection: await window.demo.inspectOperation(command), replay: await window.demo.execute(command), misuse: await window.demo.execute({ ...command, fields: { ...command.fields, amount: '400000' } }) }), setup.command)
-  expect(recovered.inspection).toMatchObject({ value: { status: 'committed', result: recovered.replay.ok ? recovered.replay.value : null } })
-  expect(recovered.misuse).toMatchObject({ error: { kind: 'identifierMisuse' } })
+  expect(await page.evaluate(command => window.commit(command), setup.command)).toMatchObject({ error: { kind: 'outcomeUnknown' } })
+  const recovered = await page.evaluate(async ({ command, before }) => {
+    const demo = window.demo
+    return {
+      // The pending publication is inspected against the record it was prepared from.
+      inspection: await window.inspect(command, before),
+      replay: await window.commit(command),
+      changed: await window.commit({ ...command, fields: { ...command.fields, amount: '400000' } }),
+      view: await demo.readApplication(command.applicationId),
+      notices: await demo.readNotifications(),
+    }
+  }, { command: setup.command, before: setup.before })
+  expect(recovered.inspection).toMatchObject({ ok: true, value: { status: 'committed', result: { receipt: { kind: 'resubmit' }, application: { status: 'underReview', workspace: null } } } })
+  // The published record has no workspace anymore: neither repeat nor changed
+  // intent can publish again, so the response keeps exactly one public event.
+  expect(recovered.replay).toMatchObject({ ok: false, error: { kind: 'invalidState' } })
+  expect(recovered.changed).toMatchObject({ ok: false, error: { kind: 'invalidState' } })
+  expect(recovered.view).toMatchObject({ ok: true, value: { status: 'underReview', workspace: null } })
+  expect(recovered.view.ok && recovered.view.value.history.filter(event => event.kind === 'resubmitted')).toHaveLength(1)
+  expect(recovered.notices).toEqual(setup.notices)
 })
 
 test('same-context publication races reject a competing private revision and preserve the current reassignment', async ({ page, context }) => {
-  const { command } = await response(page)
+  const { before, command } = await response(page)
   const other = await context.newPage()
   await other.goto('/tests/browser/support/api.html'); await other.waitForFunction(() => window.demo)
   await other.evaluate(async () => { await window.demo.startup(); await window.demo.signIn('huda') })
@@ -332,17 +366,20 @@ test('same-context publication races reject a competing private revision and pre
     if (!current.ok || current.value.role !== 'applicant' || !current.value.workspace) throw new Error('No workspace')
     const { expectedSharedRevision: _revision, ...save } = command
     void _revision
-    return window.demo.execute({ ...save, kind: 'saveCorrections', operationId: 'private-save', documents: Object.fromEntries(Object.entries(current.value.workspace.snapshot.documents).map(([slot, fileId]) => [slot, { kind: 'saved', fileId }])) as import('../../../src/demo').DraftDocuments })
+    return window.commit({ ...save, kind: 'saveCorrections', documents: Object.fromEntries(Object.entries(current.value.workspace.snapshot.documents).map(([slot, fileId]) => [slot, { kind: 'saved', fileId }])) as import('../../../src/demo').DraftDocuments })
   }, command)
   expect(privateSave).toMatchObject({ ok: true })
-  expect(await page.evaluate(command => window.demo.execute(command), command)).toMatchObject({ error: { kind: 'staleWorkspace' } })
+  // This tab prepared its publication before the other tab saved privately.
+  expect(await page.evaluate(({ command, before }) => window.commit(command, before), { command, before })).toMatchObject({ error: { kind: 'staleWorkspace' } })
   const staff = await context.newPage()
   await staff.goto('/tests/browser/support/api.html'); await staff.waitForFunction(() => window.demo)
   await staff.evaluate(async command => {
     await window.demo.startup(); await window.demo.signIn('salma')
-    await window.demo.execute({ kind: 'transferApplication', datasetId: command.datasetId, applicationId: command.applicationId, operationId: 'transfer', expectedSharedRevision: command.expectedSharedRevision, from: 'salma', to: 'khaled', confirmed: true })
+    await window.commit({ kind: 'transferApplication', applicationId: command.applicationId, from: 'salma', to: 'khaled', confirmed: true })
   }, command)
-  expect(await page.evaluate(command => window.demo.execute({ ...command, expectedWorkspaceRevision: 2 }), command)).toMatchObject({ error: { kind: 'staleRecord' } })
-  expect(await page.evaluate(command => window.demo.execute({ ...command, expectedWorkspaceRevision: 2, expectedSharedRevision: 2 }), command)).toMatchObject({ ok: true, value: { application: { status: 'underReview', sharedRevision: 3 } } })
+  if (!privateSave.ok) throw new Error('No private save')
+  // The transfer advanced the shared revision while the private revision stands.
+  expect(await page.evaluate(({ command, view }) => window.commit(command, view), { command, view: privateSave.value.application })).toMatchObject({ error: { kind: 'staleRecord' } })
+  expect(await page.evaluate(command => window.commit({ ...command }), command)).toMatchObject({ ok: true, value: { application: { status: 'underReview', sharedRevision: 3 } } })
   expect(await staff.evaluate(() => window.demo.readApplication('RIFD-2026-004'))).toMatchObject({ value: { assignedToYou: false, assignment: { en: 'Khaled Ali' } } })
 })
