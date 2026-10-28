@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
-import { createLiveService } from '../../src/live-assistance/service'
-import { createAdmission, type MetadataStore } from '../../src/live-assistance/admission'
+import { createLiveService } from '../../src/live-assistance/server/service'
+import { createAdmission, type MetadataStore } from '../../src/live-assistance/server/admission'
 import { memoryStore, input, stageRequest, native } from './fixtures'
 
 test('direct and routed requests require guest Auth and App Check before reserving work', async () => {

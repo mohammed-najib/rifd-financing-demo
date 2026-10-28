@@ -16,7 +16,7 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "prepack": "pnpm run build && pnpm exec intent validate . --check && node ../../scripts/skill-sources.mjs --check"
+    "prepack": "pnpm run build && pnpm exec intent validate . --check && node ../../scripts/skills/skill-sources.mjs --check"
   },
   "dependencies": { "zod": "4.3.6" }
 }

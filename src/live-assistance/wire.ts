@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { bounds } from '../evidence-assistance/contract'
-import { rasterSchema } from '../evidence-assistance/record'
+import { rasterSchema } from '../evidence-assistance/analysis/record'
 
 const month = z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/)
 const text = z.string().max(4096)

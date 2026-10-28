@@ -11,5 +11,5 @@ export default defineConfig({
     ['json', { outputFile: process.env.RIFD_ACCEPTANCE_DIR ? `${process.env.RIFD_ACCEPTANCE_DIR}/api/report.json` : 'test-results/api/report.json' }],
   ],
   projects: [{ name: 'chrome', use: { channel: 'chrome' } }],
-  webServer: { command: 'pnpm exec vite --config vite.api.config.ts --host 127.0.0.1 --port 4174', url: 'http://127.0.0.1:4174/tests/browser/api.html', reuseExistingServer: false },
+  webServer: { command: 'pnpm exec vite --config vite.api.config.ts --host 127.0.0.1 --port 4174', url: 'http://127.0.0.1:4174/tests/browser/support/api.html', reuseExistingServer: false },
 })

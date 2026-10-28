@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { checkValidationAccounting } from '../../src/live-assistance/validation-accounting'
+import { checkValidationAccounting } from '../../src/live-assistance/server/validation-accounting'
 
 const now = Date.UTC(2026, 9, 18)
 const reconciled = () => ({

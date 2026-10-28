@@ -1,8 +1,8 @@
 import { initializeApp, deleteApp } from 'firebase-admin/app'
 import { getFirestore } from 'firebase-admin/firestore'
 import { expect, test } from 'vitest'
-import { createAdmission } from '../../src/live-assistance/admission'
-import { firestoreMetadata, cleanupMetadata, metadataCollection } from '../../src/live-assistance/firestore'
+import { createAdmission } from '../../src/live-assistance/server/admission'
+import { firestoreMetadata, cleanupMetadata, metadataCollection } from '../../src/live-assistance/server/firestore'
 
 test.skipIf(!process.env.FIRESTORE_EMULATOR_HOST)('Firestore transactions serialize revisions, deny browser metadata access and clean expired records', async () => {
   if (!/^127\.0\.0\.1:\d+$/.test(process.env.FIRESTORE_EMULATOR_HOST ?? '')) throw Error('local-emulator-required')

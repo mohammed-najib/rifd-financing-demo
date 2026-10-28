@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { firebaseGuestVerifier } from '../../src/live-assistance/security'
+import { firebaseGuestVerifier } from '../../src/live-assistance/server/security'
 
 test('allowance identity requires verified anonymous Auth and the configured App Check app', async () => {
   const auth = async (token: string, revoked: true) => {

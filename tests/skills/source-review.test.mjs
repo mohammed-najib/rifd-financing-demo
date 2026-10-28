@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { test } from 'node:test'
-import { inspectSkills, recordReview } from '../../scripts/skill-sources.mjs'
+import { inspectSkills, recordReview } from '../../scripts/skills/skill-sources.mjs'
 
 function fixture(t) {
   const root = mkdtempSync(join(tmpdir(), 'rifd-source-review-'))

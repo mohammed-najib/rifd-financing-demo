@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { createAdmission, pruneExpiredConnections } from '../../src/live-assistance/admission'
+import { createAdmission, pruneExpiredConnections } from '../../src/live-assistance/server/admission'
 
 import { memoryStore } from './fixtures'
 

@@ -22,7 +22,7 @@ jobs:
       - run: pnpm install --frozen-lockfile --ignore-scripts
       - run: pnpm exec intent validate packages/rifd-domain --check --github-summary
       - name: Check reviewed source contents
-        run: node scripts/skill-sources.mjs --check
+        run: node scripts/skills/skill-sources.mjs --check
       - name: Report Intent stale signals
         run: pnpm exec intent stale packages/rifd-domain --json
       - run: pnpm typecheck && pnpm lint && pnpm test && pnpm test:skills

@@ -1,7 +1,7 @@
 import { createServer } from 'node:http'
 import { expect, test } from 'vitest'
-import { createAdmission } from '../../src/live-assistance/admission'
-import { createLiveService } from '../../src/live-assistance/service'
+import { createAdmission } from '../../src/live-assistance/server/admission'
+import { createLiveService } from '../../src/live-assistance/server/service'
 import { input, memoryStore, native, stageRequest } from './fixtures'
 
 test('local direct and Hosting routes share authorization, deduplication and non-cacheable responses', async () => {

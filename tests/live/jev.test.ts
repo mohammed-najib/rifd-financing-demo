@@ -1,12 +1,12 @@
 import { expect, test } from 'vitest'
-import { createJevWorkflow } from '../../src/live-assistance/jev'
-import { createLiveService } from '../../src/live-assistance/service'
-import { createAdmission } from '../../src/live-assistance/admission'
+import { createJevWorkflow } from '../../src/live-assistance/server/jev'
+import { createLiveService } from '../../src/live-assistance/server/service'
+import { createAdmission } from '../../src/live-assistance/server/admission'
 import { input, memoryStore } from './fixtures'
-import { nativeIdentity } from '../browser/evidence-transport'
+import { nativeIdentity } from '../browser/support/evidence-transport'
 import { locatedIdentity, providerRequest, verifiedBounds } from './provider'
-import { interpret } from '../../src/evidence-assistance/policy'
-import { validateRequest } from '../../src/live-assistance/request'
+import { interpret } from '../../src/evidence-assistance/analysis/policy'
+import { validateRequest } from '../../src/live-assistance/server/request'
 import { stageRequest } from './fixtures'
 
 const serviceWith = (fetch: (url: string, init?: RequestInit) => Promise<Response>) => createLiveService({

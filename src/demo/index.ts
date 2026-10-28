@@ -1,29 +1,27 @@
-import { z } from 'zod'
-import { canReadApplication, changedReviewChecks, domainDate, emptyDocuments, initialEvidenceMonths, foldDigits, freezeRepayment, parseWholeYER, products, reviewPermissions, submissionMonth, validateFields, validateFileEnvelope } from '../domain'
+import { changedReviewChecks, domainDate, emptyDocuments, initialEvidenceMonths, foldDigits, freezeRepayment, parseWholeYER, products, reviewPermissions, submissionMonth, validateFields, validateFileEnvelope } from '../domain'
 import { actorIdSchema, fieldsSchema, productIdSchema, slots, type ActorId, type Application, type Dataset, type Fields, type StoredFile } from '../domain/model'
-import { fileFromBytes, makeFile, prepareFonts, yieldToInput } from './evidence'
-import { applicationMutationSchema, applicationOperationSchema, commitHintSchema, applicationFingerprint, notificationReadSchema, preferenceOperationSchema, preparationSchema, preparedSchema, reviewOperationSchema, resetOperationSchema } from './commands'
+import { fileFromBytes, makeFile, prepareFonts, yieldToInput } from './documents/evidence'
+import { applicationMutationSchema, applicationOperationSchema, commitHintSchema, applicationFingerprint, notificationReadSchema, preferenceOperationSchema, preparationSchema, reviewOperationSchema, resetOperationSchema } from './operations/commands'
 import type { ResetOperation, ResetResult } from './types'
-import { createResetStorage } from './reset'
-import { identities } from './seed-manifest'
+import { createResetStorage } from './operations/reset'
+import { identities } from './seed/manifest'
 import { prepareSeed } from './seed'
 import { DemoError, openStorage, readStored, transact, validateDataset } from './storage'
-import { projectQueue } from './queue'
-import { applyReviewCommand, validateReviewCommand } from './review'
-import { inspectionContext } from './inspection'
-import { hashBytes, matchesSavedContext, openSavedExample, savedExamples, type SavedSelection } from './saved-demonstrations'
-import { activeCorrection, correctionDocument, validateCorrectionFields, validateCorrectionSave, validateResubmission } from './corrections'
-import { createAssistance } from '../evidence-assistance/controller'
-import { completedFinancialMonths } from '../evidence-assistance/financial'
-import { evidenceDependencyKey } from '../evidence-assistance/record'
-import { createAnalysisStorage, withAnalysisAuthority } from '../evidence-assistance/storage'
-import { evidenceTaskSlots, evidenceTargets, type EvidenceInput, type EvidenceTransport, type SelectedEvidence } from '../evidence-assistance/contract'
-import type { ApplicantView, ApplicationMutation, ApplicationOperation, ApplicationView, CommitHint, Context, Controls, Demo, ErrorKind, LanguageOperation, MutationResult, NotificationReadOperation, NotificationReadResult, PreferenceOperation, PreparedAttachment, QueuePreferenceOperation, Result, ReviewOperation, SaveCorrectionsOperation, SaveDraftOperation, Session, SubmitOperation, ResubmitOperation } from './types'
+import { projectQueue } from './operations/queue'
+import { applyReviewCommand, validateReviewCommand } from './operations/review'
+import { inspectionContext } from './operations/inspection'
+import { activeCorrection, correctionDocument, validateCorrectionSave, validateResubmission } from './operations/corrections'
+import { createAssistance } from '../evidence-assistance/analysis/controller'
+import { createAnalysisStorage, withAnalysisAuthority } from '../evidence-assistance/analysis/storage'
+import type { EvidenceTransport } from '../evidence-assistance/contract'
+import { createAccess } from './access'
+import { createAssistanceOperations } from './assistance-operations'
+import { project, summaries } from './projection'
+import { applicationReceipt, notificationReceipt, preferenceReceipt } from './receipts'
+import { inactivity, persistSession, readStoredSession } from './session'
+import type { ApplicantView, ApplicationMutation, ApplicationOperation, CommitHint, Context, Controls, Demo, ErrorKind, LanguageOperation, MutationResult, NotificationReadOperation, NotificationReadResult, PreferenceOperation, PreparedAttachment, QueuePreferenceOperation, Result, ReviewOperation, SaveCorrectionsOperation, SaveDraftOperation, Session, SubmitOperation, ResubmitOperation } from './types'
 export type { ApplicationOperation, ApplicationSummary, ApplicationView, CommitHint, Context, Controls, Demo, DemoOperation, DraftDocuments, ErrorKind, LanguageOperation, MutationResult, NotificationDestination, NotificationReadOperation, NotificationReadResult, OperationInspection, PreferenceInspection, PreferenceOperation, PreparedAttachment, Preparation, PrintSummary, QueuePreferenceOperation, QueueQuery, StaffQueue, Result, ReviewOperation, SaveCorrectionsOperation, SaveDraftOperation, SubmitOperation, ResubmitOperation, ResetContext, ResetOperation, ResetResult, ResetInspection } from './types'
 
-const sessionSchema = z.object({ identity: actorIdSchema, datasetId: z.string().uuid(), sessionId: z.string().uuid(), lastActivity: z.number(), expiresAt: z.number() })
-const sessionKey = 'rifd.session.v1'
-const inactivity = 15 * 60 * 1000
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 const success = <T>(value: T): Result<T> => ({ ok: true, value })
 const failure = <T>(kind: ErrorKind): Result<T> => ({ ok: false, error: { kind, key: `error.${kind}` } })
@@ -58,6 +56,7 @@ export function createDemo(options: { evidenceTransport?: EvidenceTransport } = 
     return cleaningAnalysis
   }
   const newDrafts = new Map<string, Application>()
+  const { permitted, editable } = createAccess(newDrafts)
   let controls: Controls = { slow: false, failure: null }
   const resetStorage = createResetStorage()
   const acceptDataset = (id: string) => {
@@ -66,7 +65,7 @@ export function createDemo(options: { evidenceTransport?: EvidenceTransport } = 
     controls = { slow: false, failure: null }
     datasetId = id; session = null; generation++; armExpiry()
     analysisCleanup = 'pending'; void cleanAnalysis()
-    try { sessionStorage.removeItem(sessionKey) } catch { /* Old sessions cannot match the new dataset. */ }
+    try { persistSession(null) } catch { /* Old sessions cannot match the new dataset. */ }
   }
   const delay = () => sleep(controls.slow ? 1500 : 400)
   const transactFinancing = (...args: Parameters<typeof transact>) => withAnalysisAuthority(() => transact(...args))
@@ -87,24 +86,9 @@ export function createDemo(options: { evidenceTransport?: EvidenceTransport } = 
     db?.close(); db = null
     session = null; generation++; armExpiry(); emit()
   }
-  const storedSession = () => {
-    try {
-      const raw = sessionStorage.getItem(sessionKey)
-      const probe = `rifd.session.probe.${crypto.randomUUID()}`
-      sessionStorage.setItem(probe, '')
-      sessionStorage.removeItem(probe)
-      if (!raw) return null
-      const parsed = sessionSchema.safeParse(JSON.parse(raw))
-      return parsed.success ? parsed.data : null
-    } catch (error) {
-      if (error instanceof SyntaxError) return null
-      throw new DemoError('storage')
-    }
-  }
   const writeSession = (next: Session | null) => {
     invalidateAssistance()
-    try { if (next) sessionStorage.setItem(sessionKey, JSON.stringify(next)); else sessionStorage.removeItem(sessionKey) }
-    catch { loseStorage('storage'); throw new DemoError('storage') }
+    try { persistSession(next) } catch { loseStorage('storage'); throw new DemoError('storage') }
     session = next
     generation++
     armExpiry()
@@ -123,7 +107,7 @@ export function createDemo(options: { evidenceTransport?: EvidenceTransport } = 
     if (!session) return
     if (Date.now() >= session.expiresAt) { expire(); return }
     const now = Date.now()
-    try { session = { ...session, lastActivity: now, expiresAt: now + inactivity }; sessionStorage.setItem(sessionKey, JSON.stringify(session)); armExpiry() }
+    try { session = { ...session, lastActivity: now, expiresAt: now + inactivity }; persistSession(session); armExpiry() }
     catch { loseStorage('storage') }
   }
   const attempt = async <T>(run: () => Promise<T>): Promise<Result<T>> => {
@@ -145,7 +129,7 @@ export function createDemo(options: { evidenceTransport?: EvidenceTransport } = 
         const data = validateDataset(await readStored(connection))
         if (captured !== generation) throw new DemoError('sessionExpired')
         if (data.meta.datasetId === datasetId || data.meta.lastReset?.datasetId !== data.meta.datasetId) throw new DemoError(storageFailure)
-        storedSession()
+        readStoredSession()
         db = connection; storageFailure = null; acceptDataset(data.meta.datasetId); connect(); emit()
         return data
       } catch (error) { connection.close(); throw error }
@@ -188,16 +172,6 @@ export function createDemo(options: { evidenceTransport?: EvidenceTransport } = 
     if (captured !== generation || who !== actor()) throw new DemoError('sessionExpired')
     return project(data, who)
   })
-  const permitted = (data: Dataset, who: ActorId, id: string): Application => {
-    const application = data.applications.find(application => application.id === id) ?? newDrafts.get(id)
-    if (!application || !canReadApplication(who, application)) throw new DemoError('unavailable')
-    return application
-  }
-  const editable = (data: Dataset, who: ActorId, id: string): Application => {
-    const application = data.applications.find(application => application.id === id) ?? newDrafts.get(id)
-    if (!application || application.owner !== who) throw new DemoError('unavailable')
-    return application
-  }
   const fileResult = (file: StoredFile | undefined) => {
     if (!file) throw new DemoError('unavailable')
     return { bytes: file.bytes.slice(0), name: file.name, mime: file.mime, hash: file.hash }
@@ -225,33 +199,6 @@ export function createDemo(options: { evidenceTransport?: EvidenceTransport } = 
     try { localStorage.setItem('rifd.commit.v1', JSON.stringify(change)) }
     catch { /* The transaction already committed. Activation rereads storage. */ }
   }
-  const project = (data: Dataset, who: ActorId, application: Application): ApplicationView => {
-    const snapshot = application.submitted ?? application.workspace!.snapshot
-    const common = {
-      id: application.id, product: application.product, status: application.status, sharedRevision: application.sharedRevision,
-      snapshot, submittedAt: application.submittedAt, evidenceMonths: application.evidenceMonths,
-      history: application.history, repayment: application.repayment,
-      documents: slots.map(slot => {
-        const file = data.files.find(file => file.id === snapshot.documents[slot])
-        return { slot, file: file ? { id: file.id, name: file.name, mime: file.mime, size: file.size, hash: file.hash } : null }
-      }),
-    }
-    return who === 'salma'
-      ? { ...common, role: 'reviewer', inspectionContexts: Object.fromEntries(slots.map(slot => [slot, inspectionContext(data, who, application, slot)])) as Record<typeof slots[number], string | null>, rounds: application.rounds, assignment: data.identities.find(identity => identity.id === application.assignee)?.name ?? null, assignedToYou: application.assignee === who, permissions: reviewPermissions(who, application), assessments: application.assessments, checks: application.checks, notes: application.notes, activity: application.activity }
-      : {
-        ...common, role: 'applicant', workspace: application.workspace,
-        workspaceDocuments: slots.map(slot => {
-          const file = data.files.find(file => file.id === application.workspace?.snapshot.documents[slot])
-          return { slot, file: file ? { id: file.id, name: file.name, mime: file.mime, size: file.size, hash: file.hash } : null }
-        }),
-        rounds: application.rounds.map(round => ({
-          id: round.id, requestedAt: round.requestedAt, baseline: round.baseline, response: round.response,
-          targets: round.targets.map(target => target.kind === 'field'
-            ? { kind: target.kind, field: target.field, reason: target.reason }
-            : { kind: target.kind, slot: target.slot, reason: target.reason }),
-        })),
-      }
-  }
   const authority = (captured: number, who: ActorId, expectedDataset: string, data: Dataset) => {
     if (captured !== generation || actor() !== who) throw new DemoError('sessionExpired')
     if (data.meta.datasetId !== expectedDataset || data.meta.datasetId !== datasetId || session?.datasetId !== expectedDataset) throw new DemoError('supersededDataset')
@@ -261,29 +208,12 @@ export function createDemo(options: { evidenceTransport?: EvidenceTransport } = 
     if (!prepared || prepared.actor !== who || prepared.datasetId !== datasetId || prepared.file.applicationId !== id || prepared.file.slot !== slot || JSON.stringify(reference) !== JSON.stringify(prepared.reference)) throw new DemoError('validation', slot as StoredFile['slot'])
     return prepared.file
   }
-  const applicationReceipt = (data: Dataset, who: ActorId, operation: ApplicationMutation | z.infer<typeof reviewOperationSchema>) => {
-    const receipt = data.mutationReceipts.find(receipt => receipt.actor === who && receipt.operationId === operation.operationId)
-    if (data.receipts.some(receipt => receipt.actor === who && receipt.operationId === operation.operationId) || receipt && receipt.fingerprint !== applicationFingerprint(operation)) throw new DemoError('identifierMisuse')
-    return receipt
-  }
   const notificationDestination = (data: Dataset, who: ActorId, id: string) => {
     const notification = data.notifications.find(notice => notice.id === id && notice.owner === who)
     if (!notification) throw new DemoError('unavailable')
     const application = permitted(data, who, notification.applicationId)
     const suffix = application.status === 'correctionsRequested' ? '/corrections/current' : application.status === 'draft' ? '/edit?step=personal' : ''
     return { notification, destination: `/applications/${application.id}${suffix}` }
-  }
-  const notificationReceipt = (data: Dataset, who: ActorId, command: NotificationReadOperation) => {
-    const fingerprint = JSON.stringify({ kind: command.kind, notificationId: command.notificationId })
-    const receipt = data.receipts.find(receipt => receipt.actor === who && receipt.operationId === command.operationId)
-    if (data.mutationReceipts.some(receipt => receipt.actor === who && receipt.operationId === command.operationId) || receipt && receipt.fingerprint !== fingerprint) throw new DemoError('identifierMisuse')
-    return { receipt, fingerprint }
-  }
-  const preferenceReceipt = (data: Dataset, by: string, command: PreferenceOperation) => {
-    const fingerprint = JSON.stringify(command.kind === 'setLanguage' ? { kind: command.kind, language: command.language } : { kind: command.kind, queue: command.queue })
-    const receipt = data.receipts.find(receipt => receipt.actor === by && receipt.operationId === command.operationId)
-    if (data.mutationReceipts.some(receipt => receipt.actor === by && receipt.operationId === command.operationId) || receipt && receipt.fingerprint !== fingerprint) throw new DemoError('identifierMisuse')
-    return { receipt, fingerprint }
   }
   async function execute(operation: ResetOperation): Promise<Result<ResetResult>>
   async function execute(operation: LanguageOperation): Promise<Result<Context>>
@@ -574,157 +504,16 @@ export function createDemo(options: { evidenceTransport?: EvidenceTransport } = 
       return contextFrom(data)
     })
   }
-  const summaries = (data: Dataset, who: ActorId) => data.applications.filter(application => canReadApplication(who, application)).map(application => {
-    const fields = (application.submitted ?? application.workspace!.snapshot).fields
-    return {
-      id: application.id, product: application.product, status: application.status,
-      fullName: fields.fullName, businessName: fields.businessName, amount: fields.amount, term: fields.term, submittedAt: application.submittedAt,
-      nextAction: application.status === 'draft' ? 'inspectDraft' as const : application.status === 'correctionsRequested' ? 'inspectCorrections' as const : 'viewApplication' as const,
-      ...(who === 'salma' ? { assignment: data.identities.find(identity => identity.id === application.assignee)?.name ?? null, assignedToYou: application.assignee === who } : {}),
-    }
-  }).sort((a, b) => (b.submittedAt ?? '').localeCompare(a.submittedAt ?? '') || a.id.localeCompare(b.id))
+  const saved = createAssistanceOperations({
+    read, attempt, authority, permitted, editable, preparedFile, fileResult,
+    selections, preparations, assistance, transport: options.evidenceTransport,
+    analysisStorage, generation: () => generation, sessionIdentity: () => session?.identity, actor,
+  })
   return {
-    createEvidenceAssistance: input => {
-      const selectedInput: EvidenceInput = structuredClone(input)
-      const captured = generation
-      const who = session?.identity
-      const task = { applicationId: z.string().min(1), slot: z.enum(slots), fileId: z.string().nullable().optional() }
-      const schema = z.discriminatedUnion('action', [
-        z.object({ ...task, action: z.literal('check-document'), audience: z.literal('applicant'), context: z.enum(['draft', 'correction-workspace']), roundId: z.string().min(1).optional(), attachment: preparedSchema.optional(), declaredFinancial: z.object({ revenue: z.string(), expenses: z.string() }).strict().optional(), declaredName: z.string().optional(), declaredBusiness: z.object({ businessName: z.string(), address: z.string(), operatingSince: z.string() }).strict().optional(), declaredPurchase: z.object({ product: productIdSchema, explanation: z.string(), budget: z.string() }).strict().optional() }).strict(),
-        z.object({ ...task, action: z.literal('find-supporting-evidence'), audience: z.literal('reviewer'), context: z.literal('submitted') }).strict(),
-      ])
-      const authorize = (data: Dataset) => {
-        const parsed = schema.safeParse(selectedInput)
-        if (!parsed.success) throw new DemoError('validation')
-        const command = parsed.data
-        if (!evidenceTaskSlots.includes(command.slot)) throw new DemoError('unavailable')
-        if (command.action === 'check-document' && (command.slot !== 'financial' && command.declaredFinancial !== undefined || command.slot !== 'identity' && command.declaredName !== undefined || command.slot !== 'business' && command.declaredBusiness !== undefined || command.slot !== 'purchase' && command.declaredPurchase !== undefined)) throw new DemoError('validation')
-        if (!who) throw new DemoError('sessionExpired')
-        authority(captured, who, data.meta.datasetId, data)
-        if (command.action === 'find-supporting-evidence') {
-          if (who !== 'salma') throw new DemoError('permissionDenied')
-          const application = permitted(data, who, command.applicationId)
-          const snapshot = application.submitted
-          const reviewContext = inspectionContext(data, who, application, command.slot)
-          if (!snapshot || !reviewContext) throw new DemoError('unavailable')
-          return { command, application, snapshot, workspace: null, round: null, correction: undefined, reviewContext }
-        }
-        const application = editable(data, who, command.applicationId)
-        if (!application.workspace) throw new DemoError('unavailable')
-        const round = command.context === 'correction-workspace' && command.roundId ? activeCorrection(application, command.roundId) : null
-        if (command.context === 'correction-workspace' && !round || command.context === 'draft' && application.status !== 'draft') throw new DemoError('unavailable')
-        if (round) {
-          correctionDocument(application, command.slot)
-          if (command.declaredName !== undefined && command.declaredName !== application.workspace.snapshot.fields.fullName && !round.targets.some(target => target.kind === 'field' && target.field === 'fullName')) throw new DemoError('permissionDenied')
-          for (const [field, value] of Object.entries(command.declaredFinancial ?? command.declaredBusiness ?? {})) if (value !== application.workspace.snapshot.fields[field as keyof Fields] && !round.targets.some(target => target.kind === 'field' && target.field === field)) throw new DemoError('permissionDenied')
-          if (command.declaredPurchase) {
-            if (command.declaredPurchase.product !== application.product) throw new DemoError('permissionDenied')
-            for (const field of ['explanation', 'budget'] as const) if (command.declaredPurchase[field] !== application.workspace.snapshot.fields[field] && !round.targets.some(target => target.kind === 'field' && target.field === field)) throw new DemoError('permissionDenied')
-          }
-        }
-        const correction = round ? { targets: round.targets.map(target => target.kind === 'field' ? { kind: target.kind, field: target.field, reason: target.reason } : { kind: target.kind, slot: target.slot, reason: target.reason }), initialSubmissionMonth: application.submittedAt!.slice(0, 7) } : undefined
-        return { command, application, snapshot: application.workspace.snapshot, workspace: application.workspace, round, correction, reviewContext: undefined }
-      }
-      const resolve = (): Promise<Result<SelectedEvidence>> => attempt(async () => {
-        const data = await read()
-        const { command, application, snapshot, workspace, round, correction, reviewContext } = authorize(data)
-        let file: StoredFile | undefined
-        const active = command.action === 'check-document' ? selections.get(`${who}/${application.id}/${command.slot}`) : undefined
-        if (command.action === 'check-document' && command.attachment) {
-          if (snapshot.documents[command.slot] !== command.attachment.id && (active?.status !== 'ready' || active.attachmentId !== command.attachment.id)) throw new DemoError('supersededSelection')
-          file = preparedFile(who!, application.id, command.slot, command.attachment)
-        } else {
-          const id = snapshot.documents[command.slot]
-          if (!id || command.fileId !== undefined && command.fileId !== id || active && (active.status !== 'ready' || active.attachmentId !== id)) throw new DemoError('supersededSelection')
-          file = data.files.find(file => file.id === id && file.applicationId === application.id && file.slot === command.slot)
-        }
-        if (!file) throw new DemoError('unavailable')
-        const purchase = command.action === 'check-document' ? command.declaredPurchase : undefined
-        const product = purchase?.product ?? application.product
-        if (command.slot === 'purchase' && product !== application.product && !('attachment' in command && command.attachment)) throw new DemoError('supersededSelection')
-        if (command.slot === 'purchase' && command.action === 'check-document' && command.attachment && preparations.get(file.id)?.product !== product) throw new DemoError('supersededSelection')
-        const fields = { ...snapshot.fields, ...(command.action === 'check-document' ? command.declaredFinancial ?? command.declaredBusiness ?? (purchase ? { explanation: purchase.explanation, budget: purchase.budget } : command.declaredName !== undefined ? { fullName: command.declaredName } : {}) : {}) }
-        const issues = validateFields(fields, products[product], application.submittedAt?.slice(0, 7) ?? submissionMonth)
-        const detail = (field: keyof Fields) => ({ value: issues.some(issue => issue.field === field) ? null : fields[field], status: !fields[field].trim() ? 'missing' as const : issues.some(issue => issue.field === field) ? 'invalid' as const : 'valid' as const })
-        const budget = detail('budget')
-        const initialSubmissionMonth = application.submittedAt?.slice(0, 7) ?? submissionMonth
-        const declaration: SelectedEvidence['declaration'] = command.slot === 'financial'
-          ? { financial: { initialSubmissionMonth, expectedMonths: completedFinancialMonths(initialSubmissionMonth), revenue: { ...detail('revenue'), value: detail('revenue').status === 'valid' ? String(parseWholeYER(fields.revenue)) : null }, expenses: { ...detail('expenses'), value: detail('expenses').status === 'valid' ? String(parseWholeYER(fields.expenses)) : null } } }
-          : command.slot === 'purchase'
-          ? { purchase: { product, explanation: detail('explanation'), budget: { ...budget, value: budget.status === 'valid' ? String(parseWholeYER(fields.budget)) : null } } }
-          : command.slot === 'business'
-          ? { business: { businessName: detail('businessName'), address: detail('address'), operatingSince: detail('operatingSince') } }
-          : { fullName: detail('fullName').value, status: detail('fullName').status }
-        const source = { id: file.id, ...fileResult(file) }
-        const actualHash = await hashBytes(source.bytes)
-        const latest = await read()
-        const fresh = authorize(latest)
-        if (command.slot === 'purchase' && fresh.application.product !== application.product || evidenceTargets(command.slot).some(target => fresh.snapshot.fields[target.field] !== snapshot.fields[target.field]) || fresh.snapshot.documents[command.slot] !== snapshot.documents[command.slot] || fresh.reviewContext !== reviewContext || JSON.stringify(fresh.correction) !== JSON.stringify(correction) || command.action === 'check-document' && selections.get(`${who}/${application.id}/${command.slot}`)?.token !== active?.token) throw new DemoError('staleWorkspace')
-        if (actualHash !== file.hash) throw new DemoError('damaged')
-        const selection: SelectedEvidence = { source, declaration, ...(correction ? { correction } : {}), binding: {
-          datasetId: data.meta.datasetId, applicationId: application.id, slot: command.slot, audience: command.audience, context: command.context,
-          contextId: round?.id ?? command.context, roundId: round?.id ?? null, authorityGeneration: captured, sharedRevision: application.sharedRevision, workspaceRevision: workspace?.revision ?? 0,
-          durable: (!workspace || !!workspace.savedAt) && product === application.product && snapshot.documents[command.slot] === file.id && evidenceTargets(command.slot).every(target => fields[target.field] === snapshot.fields[target.field]),
-          ...(reviewContext ? { reviewContext } : {}),
-          dependencyKey: '',
-        } }
-        selection.binding.dependencyKey = evidenceDependencyKey(selection)
-        return selection
-      })
-      const authorizeClear = (): Promise<Result<SelectedEvidence['binding']>> => attempt(async () => {
-        const data = await read()
-        const { command, application, workspace, round, reviewContext } = authorize(data)
-        return { datasetId: data.meta.datasetId, applicationId: application.id, slot: command.slot, audience: command.audience, context: command.context, contextId: round?.id ?? command.context, roundId: round?.id ?? null, authorityGeneration: captured, sharedRevision: application.sharedRevision, workspaceRevision: workspace?.revision ?? 0, durable: false, dependencyKey: '', ...(reviewContext ? { reviewContext } : {}) }
-      })
-      const handle = createAssistance(resolve, options.evidenceTransport, analysisStorage, authorizeClear, () => { assistance.delete(handle) })
-      assistance.add(handle)
-      return handle.api
-    },
+    createEvidenceAssistance: saved.createEvidenceAssistance,
     analysisAvailability: () => ({ cleanup: analysisCleanup }),
-    listSavedDemonstrations: async () => success(savedExamples()),
-    selectSavedDemonstration: input => attempt(async () => {
-      const selection: SavedSelection = structuredClone(input)
-      const current = selection.current
-      const captured = generation
-      const who = current ? actor() : null
-      const resolve = (data: Dataset) => {
-        if (!current || !who) throw new DemoError('unavailable')
-        authority(captured, who, data.meta.datasetId, data)
-        const application = permitted(data, who, current.applicationId)
-        const snapshot = who !== 'salma' && application.workspace ? application.workspace.snapshot : application.submitted
-        if (!snapshot) throw new DemoError('unavailable')
-        let file: StoredFile | undefined
-        if (current.attachment) {
-          if (who === 'salma' || application.owner !== who) throw new DemoError('unavailable')
-          if (application.status !== 'draft') correctionDocument(application, current.slot)
-          const selected = selections.get(`${who}/${application.id}/${current.slot}`)
-          if (selected?.status !== 'ready' || selected.attachmentId !== current.attachment.id) throw new DemoError('supersededSelection')
-          file = preparedFile(who, application.id, current.slot, current.attachment)
-        } else {
-          const id = snapshot.documents[current.slot]
-          if (current.fileId && current.fileId !== id) throw new DemoError('unavailable')
-          const selected = selections.get(`${who}/${application.id}/${current.slot}`)
-          const sourceCurrent = current.fileId !== null && (!selected || selected.status === 'ready' && selected.attachmentId === id)
-          if (sourceCurrent) file = data.files.find(file => file.id === id && file.applicationId === application.id && file.slot === current.slot)
-        }
-        const canEdit = who !== 'salma' && !!application.workspace && ['draft', 'correctionsRequested'].includes(application.status)
-        if (canEdit && current.fields && application.status === 'correctionsRequested') validateCorrectionFields(application, current.fields)
-        const fields = canEdit && current.fields ? current.fields : snapshot.fields
-        const product = canEdit && application.status === 'draft' && current.product ? current.product : application.product
-        const initialMonth = (application.submittedAt ?? domainDate).slice(0, 7)
-        const fingerprint = JSON.stringify([application.status, snapshot, application.rounds, application.assignee, application.activity, file?.id, file?.hash, file?.size, fields, product])
-        return { file, fields, product, months: application.evidenceMonths, initialMonth, fingerprint }
-      }
-      const observed = current ? resolve(await read()) : null
-      const opened = await openSavedExample(selection.exampleId)
-      if (!opened) throw new DemoError('unavailable')
-      const sourceMatches = observed?.file && await hashBytes(observed.file.bytes) === opened.capture.source.sha256
-      if (current) {
-        const latest = resolve(await read())
-        if (observed?.fingerprint === latest.fingerprint && sourceMatches && matchesSavedContext(opened.capture, current, latest.fields, latest.product, latest.months, latest.initialMonth)) opened.attachment = 'current-document'
-      }
-      return opened
-    }),
+    listSavedDemonstrations: saved.listSavedDemonstrations,
+    selectSavedDemonstration: saved.selectSavedDemonstration,
     execute,
     inspectReset: () => attempt(() => resetStorage.inspect()),
     inspectResetOperation: input => {
@@ -865,7 +654,7 @@ export function createDemo(options: { evidenceTransport?: EvidenceTransport } = 
         if (captured !== generation) throw new DemoError('sessionExpired')
         try { await prepareFonts() } catch { throw new DemoError('resources') }
         if (captured !== generation) throw new DemoError('sessionExpired')
-        session = storedSession()
+        session = readStoredSession()
         if (!db) {
           const connection = await openStorage(loseStorage)
           if (captured !== generation) { connection.close(); throw new DemoError('sessionExpired') }

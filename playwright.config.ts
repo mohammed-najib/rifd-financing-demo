@@ -18,7 +18,7 @@ export default defineConfig({
   webServer: {
     command: process.env.RIFD_HOSTING === '1'
       ? 'firebase emulators:start --only hosting --project demo-rifd'
-      : 'node scripts/serve-static.mjs',
+      : 'node scripts/dev/serve-static.mjs',
     url: 'http://127.0.0.1:4173', reuseExistingServer: process.env.RIFD_GATE_SERVER === 'existing',
   },
 })

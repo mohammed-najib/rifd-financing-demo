@@ -1,8 +1,8 @@
 import { deflateSync, crc32 } from 'node:zlib'
-import type { MetadataStore } from '../../src/live-assistance/admission'
-import type { ValidatedRequest } from '../../src/live-assistance/request'
+import type { MetadataStore } from '../../src/live-assistance/server/admission'
+import type { ValidatedRequest } from '../../src/live-assistance/server/request'
 import type { PreparedPage, SelectedEvidence } from '../../src/evidence-assistance/contract'
-import { makeRequest, attemptPlan } from '../../src/evidence-assistance/policy'
+import { makeRequest, attemptPlan } from '../../src/evidence-assistance/analysis/policy'
 
 // Serializable local service, shared by independent controllers/revisions.
 export function memoryStore(): MetadataStore {

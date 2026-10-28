@@ -23,10 +23,10 @@ flowchart TD
 | Module | Owns |
 | --- | --- |
 | `packages/rifd-domain` | Validation, product/review rules, correction dependencies and whole-YER repayment calculations. |
-| `src/demo` | Role-filtered reads, sessions, file preparation, browser transactions, revisions and operation receipts. |
-| `src/ui`, `src/routes` | Presentation, navigation, unfinished input, dialogs and feedback. |
-| `src/evidence-assistance` | Source preparation, fixed task definitions, findings and retained-result lifecycle. |
-| `src/live-assistance` | Client/server contracts, local transport, admission, provider integration and usage accounting. |
+| `src/demo` | Role-filtered reads, sessions, file preparation, browser transactions, revisions and operation receipts. Operations, seed data, documents and saved demonstrations live in subfolders. |
+| `src/ui`, `src/routes` | Presentation, navigation, unfinished input, dialogs and feedback. Feature folders group screens, copy and helpers; `src/ui/styles` owns CSS. |
+| `src/evidence-assistance` | Source preparation, fixed task definitions, findings and retained-result lifecycle. `preparation` renders sources; `analysis` interprets and retains results. |
+| `src/live-assistance` | Client/server contracts, local transport, admission, provider integration and usage accounting. `client` and `server` keep browser and Node-only code apart. |
 | `functions` | The separately deployed hosted evidence endpoint. |
 
 Screens call complete typed operations rather than constructing database patches. Domain helpers have no browser storage, timers or navigation.

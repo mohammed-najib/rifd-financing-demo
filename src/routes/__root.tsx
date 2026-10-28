@@ -1,6 +1,6 @@
 import { createRootRoute, HeadContent, Outlet, Scripts } from '@tanstack/react-router'
 import { App, NeutralStartup } from '../ui/app'
-import stylesheet from '../ui/styles.css?url'
+import stylesheet from '../ui/styles/index.css?url'
 
 // Keep the brand icon available when the browser refreshes it during offline navigation.
 const brandIcon = `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><rect width="48" height="48" rx="8" fill="#f4efe6"/><g fill="#0b6458"><rect x="8" y="25" width="8" height="17" rx="2"/><rect x="20" y="17" width="8" height="25" rx="2"/><rect x="32" y="7" width="8" height="35" rx="2"/></g></svg>')}`

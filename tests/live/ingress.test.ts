@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { createIngressVerifier } from '../../src/live-assistance/ingress'
+import { createIngressVerifier } from '../../src/live-assistance/server/ingress'
 
 const configuration = JSON.stringify({ profile: 'cloud-run-v2', authority: 'europe-west1-rifd-portfolio-mdnb.cloudfunctions.net', peers: ['169.254.1.1'] })
 const secret = 'dummy-key-with-at-least-thirty-two-bytes'

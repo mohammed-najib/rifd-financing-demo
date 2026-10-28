@@ -35,7 +35,7 @@ The API suite uses Chrome and actual IndexedDB through a separate Vite harness o
 For an affected screen suite, build first and select its file and project:
 
 ```sh
-pnpm exec playwright test tests/browser/drafts.screens.spec.ts --project=chrome
+pnpm exec playwright test tests/browser/application/drafts.screens.spec.ts --project=chrome
 ```
 
 Browser tests use isolated contexts with fictional data. Do not run a reset walkthrough in a browser profile containing work you want to keep. Responsive tests emulate CSS viewports; they do not establish physical-device or branded Safari support.

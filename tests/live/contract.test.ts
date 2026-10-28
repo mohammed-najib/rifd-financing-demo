@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { validateRequest } from '../../src/live-assistance/request'
+import { validateRequest } from '../../src/live-assistance/server/request'
 import { input, png } from './fixtures'
 import { bounds } from '../../src/evidence-assistance/contract'
 

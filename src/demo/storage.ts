@@ -1,6 +1,6 @@
 import { datasetSchema, slots, type Dataset, type DocumentSlot, type Snapshot } from '../domain/model'
 import type { ErrorKind } from './types'
-import { manifest } from './seed-manifest'
+import { manifest } from './seed/manifest'
 import type { FieldIssue } from '../domain'
 
 export class DemoError extends Error {

@@ -5,10 +5,10 @@ import { randomUUID } from 'node:crypto'
 import { request as httpRequest } from 'node:http'
 import { DatabaseSync } from 'node:sqlite'
 import { expect, test } from 'vitest'
-import { startLocalJev } from '../../src/live-assistance/local-server'
-import { localMetadata } from '../../src/live-assistance/local-store'
+import { startLocalJev } from '../../src/live-assistance/server/local-server'
+import { localMetadata } from '../../src/live-assistance/server/local-store'
 import { input } from './fixtures'
-import { nativeIdentity } from '../browser/evidence-transport'
+import { nativeIdentity } from '../browser/support/evidence-transport'
 
 const origin = 'http://127.0.0.1:5194'
 const headers = { Origin: origin, Host: new URL(origin).host, 'Content-Type': 'application/json' }

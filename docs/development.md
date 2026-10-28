@@ -54,7 +54,7 @@ Local limits include one run start per minute, 20 attempts per guest per UTC day
 
 Usage counters, deduplication, leases and signing state survive restarts in `artifacts/local-jev/metadata.sqlite`. This database does not hold the provider key, source documents, declarations or answer archives. Keep it across restarts. Deleting it resets allowances and does not reconcile unknown usage. Vite blocks browser access to the local server files and database.
 
-The local mode does not change hosted availability. `functions/index.ts` binds the dedicated provider secret, while Firestore admission independently controls dispatch. Hosted inference was enabled and checked in the [18 October release](releases/2026-10-18.md). Existing Auth, App Check, ingress, quotas and unknown-usage stops remain enforced. An operator with the existing admin credentials can close admission without resetting counters using `node scripts/live-control.mjs rifd-portfolio-mdnb disable`.
+The local mode does not change hosted availability. `functions/index.ts` binds the dedicated provider secret, while Firestore admission independently controls dispatch. Hosted inference was enabled and checked in the [18 October release](releases/2026-10-18.md). Existing Auth, App Check, ingress, quotas and unknown-usage stops remain enforced. An operator with the existing admin credentials can close admission without resetting counters using `node scripts/live/live-control.mjs rifd-portfolio-mdnb disable`.
 
 For the visible workflow, see the [Arabic AI guide](ai-features.md).
 
@@ -62,12 +62,16 @@ For the visible workflow, see the [Arabic AI guide](ai-features.md).
 
 | Location | Responsibility |
 | --- | --- |
-| `src/ui`, `src/routes` | Screens, bilingual text, routing and unfinished input. |
-| `src/demo` | Typed operations, simulated permissions, browser storage, receipts and fictional samples. |
+| `src/ui/app.tsx`, `src/routes` | App shell, routing and unfinished input. |
+| `src/ui/screens` | Standalone screens such as products, notifications, print, repayment, reset and the gallery. |
+| `src/ui/application`, `src/ui/review`, `src/ui/queue` | Feature workspaces and their bilingual copy. |
+| `src/ui/assistance`, `src/ui/shared` | Evidence UI and cross-feature controls. `src/ui/styles` owns all CSS. |
+| `src/demo` | Typed operations, simulated permissions, browser storage, receipts and fictional samples. Subfolders group operations, seed data, documents and saved demonstrations. |
 | `packages/rifd-domain` | Pure validation, product/review rules and repayment calculations. |
-| `src/evidence-assistance` | Document preparation, fixed questions, findings and result lifecycle. |
-| `src/live-assistance`, `functions` | Local/hosted transport, authorization, admission and provider calls. |
-| `tests`, `scripts` | Verification and development tools. |
+| `src/evidence-assistance` | `preparation` renders sources; `analysis` owns questions, findings and retained-result lifecycle. |
+| `src/live-assistance`, `functions` | `client` runs in the browser; `server` owns local and hosted transport, authorization, admission and provider calls. |
+| `tests/browser` | Specs grouped by `application`, `review`, `assistance` and `platform`, with helpers in `support`. |
+| `scripts` | Development tools grouped by build, dev, live, verify and skills. |
 | `docs` | Human guides and dated evidence. |
 | `artifacts` | Ignored local reports, recordings and usage state. |
 
@@ -75,7 +79,7 @@ Application data is scoped to the browser profile and origin. Different ports ha
 
 ## Styling
 
-Tailwind CSS compiles through `@tailwindcss/vite`; there is no browser runtime or CDN. The root route loads `src/ui/styles.css` through its `?url` import. This file owns the Guided A colors, local Noto fonts, base styles and shared component skins.
+Tailwind CSS compiles through `@tailwindcss/vite`; there is no browser runtime or CDN. The root route loads `src/ui/styles/index.css` through its `?url` import. This file owns the Guided A colors, local Noto fonts, base styles and shared component skins.
 
 Use logical spacing such as `ms-*`, `me-*` and `ps-*` so layouts work in RTL and LTR. Preserve the 15px root typography and 4px spacing unit. The `compact:` variant includes widths through 1199px; `narrow:` includes widths through 767px. Declare compact before narrow where both apply.
 
